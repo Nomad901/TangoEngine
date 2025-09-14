@@ -219,9 +219,9 @@ void Program::controlScreen()
 
 void Program::controlCamera()
 {
-	float speedCamera = 0.05f;
+	float speedCamera = 0.5f;
 	if (mProgramProperties.mKeyCodes[SDLK_LSHIFT])
-		speedCamera = 0.8f;
+		speedCamera = 2.0f;
 	if (mProgramProperties.mKeyCodes[SDLK_W])
 		mProgramProperties.mCamera.moveForward(speedCamera);
 	if (mProgramProperties.mKeyCodes[SDLK_S])
