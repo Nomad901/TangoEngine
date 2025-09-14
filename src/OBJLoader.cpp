@@ -7,82 +7,66 @@ OBJLoader::OBJLoader(const std::filesystem::path& pPath)
 
 std::vector<Vertex> OBJLoader::loadOBJ(const std::filesystem::path& pPath)
 {
-	std::vector<glm::fvec3> vertexPositions;
-	std::vector<glm::fvec3> vertexNormals;
-	std::vector<glm::fvec2> vertexTexPos;
+	std::vector<glm::vec3> positions;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec2> texPos;
 
-	std::stringstream ss;
 	std::ifstream ifstream(pPath);
-	std::string line = "";
-	std::string prefix;
-	glm::vec3 vec3 = glm::vec3(1.0f);
-	glm::vec2 vec2 = glm::vec2(1.0f);
-
-	mVertices.reserve(1000);
-
 	if (!ifstream.is_open())
-	{
-		std::cout << std::format("Ifstream is not opened! File path: {}\n", pPath.string());
 		return {};
-	}
+
+	std::string line;
+	glm::vec3 tmpVec3;
+	glm::vec2 tmpVec2;
+
+	line.reserve(256);
+	positions.reserve(10000);
+	normals.reserve(10000);
+	texPos.reserve(10000);
+	mVertices.reserve(30000);
 
 	while (std::getline(ifstream, line))
 	{
-		ss.clear();
-		ss.str(line);
-		ss >> prefix;
-
-		if (prefix == "v") 
+		const char* strView = line.data();
+		if (strView[0] == 'v')
 		{
-			ss >> vec3.x >> vec3.y >> vec3.z;
-			vertexPositions.push_back(vec3);
-		}
-		else if (prefix == "vt")
-		{
-			ss >> vec2.x >> vec2.y;
-			vertexTexPos.push_back(vec2);
-		}
-		else if (prefix == "vn")
-		{
-			ss >> vec3.x >> vec3.y >> vec3.z;
-			vertexNormals.push_back(vec3);
-		}
-		else if (prefix == "f")
-		{
-			std::string fLine;
-			while (ss >> fLine)
+			if (strView[1] == ' ')
 			{
-				std::replace(fLine.begin(), fLine.end(), '/', ' ');
-				std::istringstream data(fLine);
-
-				Vertex vertex;
-				int32_t vertPosInd = -1;
-				int32_t normalInd  = -1;
-				int32_t texPosInd  = -1;
-
-				data >> vertPosInd;
-				if (data.peek() != EOF)
-					data >> texPosInd;
-				if (data.peek() != EOF)
-					data >> normalInd;
-
-				if (vertPosInd != -1)
-				{
-					vertex.mPos = vertexPositions[vertPosInd - 1];
-				}
-				if (texPosInd != -1)
-				{
-					vertex.mTexCoord = vertexTexPos[texPosInd - 1];	
-				}
-				if (normalInd != -1)
-				{
-					vertex.mNormals = vertexNormals[normalInd - 1];
-				}
-
-				vertex.mColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-				mVertices.push_back(vertex);
+				sscanf_s(strView + 2, "%f %f %f", &tmpVec3.x, &tmpVec3.y, &tmpVec3.z);
+				positions.emplace_back(tmpVec3);
 			}
-		}	
+			else if (strView[1] == 't')
+			{
+				sscanf_s(strView + 3, "%f %f", &tmpVec2.x, &tmpVec2.y);
+				texPos.emplace_back(tmpVec2);
+			}
+			else if (strView[1] == 'n')
+			{
+				sscanf_s(strView + 3, "%f %f %f", &tmpVec3.x, &tmpVec3.y, &tmpVec3.z);
+				normals.emplace_back(tmpVec3);
+			}
+		}
+		else if (strView[0] == 'f')
+		{
+			strView += 2;
+			int32_t v, vt, vn;
+			while (*strView)
+			{
+				int count = sscanf_s(strView, "%d/%d/%d", &v, &vt, &vn);
+				if (count == 3)
+				{
+					mVertices.emplace_back(
+						positions[v - 1],
+						normals[vn - 1],
+						glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+						texPos[vt - 1]
+					);
+				}
+
+				while (*strView && *strView != ' ') strView++;
+				while (*strView == ' ') strView++;
+			}
+		}
 	}
 
 	return mVertices;
