@@ -96,9 +96,6 @@ public:
 	void setDirectionLight(const glm::vec3& pDirectionLight) override;
 	glm::vec3 getDirectionLight() const noexcept override;
 
-	void setPathForShader(const std::filesystem::path& pFragmentPath, 
-						  const std::filesystem::path& pVertexPath);
-
 	void setDirection(const glm::vec3& pDirection);
 	glm::vec3 getDirection() const noexcept;
 
@@ -221,7 +218,7 @@ public:
 
 	void setPosLight(const glm::vec3& pPosLight) override;
 	glm::vec3 getPosLight() const noexcept override;
-
+	
 	void setDirectionLight(const glm::vec3& pDirectionLight) override;
 	glm::vec3 getDirectionLight() const noexcept override;
 
@@ -260,10 +257,6 @@ public:
 	void init(const glm::vec3& pPosLight, float pConstant, float pLinear, float pQuadratic,
 			  float pIntensity = 1.0f,
 			  const glm::vec3& pColorLight = glm::vec3(1.0f));
-
-
-	void setPathForShader(const std::filesystem::path& pFragmentPath,
-						  const std::filesystem::path& pVertexPath);
 
 	void setPosLight(const glm::vec3& pPosLight) override;
 	glm::vec3 getPosLight() const noexcept override;

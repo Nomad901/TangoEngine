@@ -16,6 +16,7 @@ public:
 	~Texture2();
 
 	void init(const std::filesystem::path& pPath, std::string_view pUniformName, bool pRepeatTexture = false);
+	void initEmpty(int32_t pWidth, int32_t pHeight);
 
 	void bind(uint32_t pSlot = 0);
 	void unbind();

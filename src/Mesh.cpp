@@ -108,7 +108,7 @@ void Mesh::initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4& pView
 	mPos = pTranslation;
 	mSize = pScale;
 
-	mProjMatrix = glm::perspective(glm::radians(45.0f), (float)pWinWidth / (float)pWinHeight, 0.1f, 1000.0f);
+	mProjMatrix = glm::perspective(glm::radians(45.0f), (float)pWinWidth / (float)pWinHeight, 0.1f, 2000.0f);
 	mViewMatrix = pViewMatrix;
 	mModelMatrix = glm::rotate(mModelMatrix, glm::radians(pDegreeRotate.first), pDegreeRotate.second);
 	mModelMatrix = glm::translate(mModelMatrix, pTranslation);

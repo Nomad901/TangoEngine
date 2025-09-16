@@ -37,9 +37,10 @@ auto LightManager::getSize() const noexcept -> size_t
 	return mStrgLight.size();
 }
 
-auto LightManager::sendAllToShader(Shader& pShader) -> void
+auto LightManager::sendAllToShader(Shader& pShader, Material* pMaterial, bool pIsJustColored) -> void
 {
 	uint32_t counter = 0;
+	pShader.bind();
 	for (auto& [key, value] : mStrgLight)
 	{
 		std::string lightStr = "light[" + std::to_string(counter) + "]";
@@ -67,7 +68,9 @@ auto LightManager::sendAllToShader(Shader& pShader) -> void
 			pShader.setUniform1f(lightStr + ".linear", value->getAttenuationSettings().mLinear);
 			pShader.setUniform1f(lightStr + ".quadratic", value->getAttenuationSettings().mQuadratic);
 		}
-		
+		pShader.setUniform1i("uNumberOfLights", mStrgLight.size());
+
+		pMaterial->sendToShader(pShader, pIsJustColored);
 		counter++;
 	}
 }

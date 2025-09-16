@@ -48,6 +48,11 @@ void Shader::setUniform3fv(std::string_view pName, const glm::vec3& pData)
 	glUniform3fv(getUniformLocation(pName), 1, &pData[0]);
 }
 
+std::string Shader::getResourcePath() const noexcept
+{
+	return RESOURCES_PATH;
+}
+
 uint32_t Shader::createShaders(std::string_view pVertexSource, std::string_view pFragmentSource)
 {
 	uint32_t program = glCreateProgram();

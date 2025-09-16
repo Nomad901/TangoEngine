@@ -27,6 +27,8 @@ public:
 	void setMatrixUniform4fv(std::string_view pName, const glm::mat4& pValue);
 	void setUniform3fv(std::string_view pName, const glm::vec3& pData);
 
+	std::string getResourcePath() const noexcept;
+
 	GLuint getUniformLocation(std::string_view pName);
 private:
 	uint32_t createShaders(std::string_view pVertexSource, std::string_view pFragmentSource);

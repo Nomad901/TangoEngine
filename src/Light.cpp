@@ -142,6 +142,15 @@ glm::vec3 DirectionalLight::getPosLight() const noexcept
 	return mPos;
 }
 
+void DirectionalLight::setDirectionLight(const glm::vec3& pDirectionLight)
+{
+}
+
+glm::vec3 DirectionalLight::getDirectionLight() const noexcept
+{
+	return glm::vec3();
+}
+
 void DirectionalLight::setDirection(const glm::vec3& pDirection)
 {
 	mDirection = pDirection;
@@ -194,6 +203,188 @@ void PointLight::setDirectionLight(const glm::vec3& pDirectionLight)
 }
 
 glm::vec3 PointLight::getDirectionLight() const noexcept
+{
+	return glm::vec3();
+}
+
+Spotlight::Spotlight(const glm::vec3& pPosLight, const glm::vec3& pDirection, float pRadius, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+Spotlight::Spotlight(const glm::vec3& pPosLight, const glm::vec3& pDirection, float pRadius, float pConstant, float pLinear, float pQuadratic, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void Spotlight::init(const glm::vec3& pPosLight, const glm::vec3& pDirection, float pRadius, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void Spotlight::init(const glm::vec3& pPosLight, const glm::vec3& pDirection, float pRadius, float pConstant, float pLinear, float pQuadratic, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void Spotlight::setRadius(float pRadius)
+{
+}
+
+float Spotlight::getRadius() const noexcept
+{
+	return 0.0f;
+}
+
+void Spotlight::setCutOff(float pCutOff)
+{
+}
+
+float Spotlight::getCutOff() const noexcept
+{
+	return 0.0f;
+}
+
+void Spotlight::setDirectionLight(const glm::vec3& pDirectionLight)
+{
+}
+
+glm::vec3 Spotlight::getDirectionLight() const noexcept
+{
+	return glm::vec3();
+}
+
+void Spotlight::setPosLight(const glm::vec3& pPosLight)
+{
+}
+
+glm::vec3 Spotlight::getPosLight() const noexcept
+{
+	return glm::vec3();
+}
+
+Flashlight::Flashlight(const glm::vec3& pPosLight, const glm::vec3& pDirection, float pInnerCutOff, float pOuterCutOff, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void Flashlight::init(const glm::vec3& pPosLight, const glm::vec3& pDirection, float pInnerCutOff, float pOuterCutOff, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void Flashlight::setOuterCutOff(float pOuterCutOff)
+{
+}
+
+void Flashlight::setCutOff(float pCutOff)
+{
+}
+
+float Flashlight::getOuterCutOff() const noexcept
+{
+	return 0.0f;
+}
+
+float Flashlight::getCutOff() const noexcept
+{
+	return 0.0f;
+}
+
+void Flashlight::setPosLight(const glm::vec3& pPosLight)
+{
+}
+
+glm::vec3 Flashlight::getPosLight() const noexcept
+{
+	return glm::vec3();
+}
+
+void Flashlight::setDirectionLight(const glm::vec3& pDirectionLight)
+{
+}
+
+glm::vec3 Flashlight::getDirectionLight() const noexcept
+{
+	return glm::vec3();
+}
+
+AreaLight::AreaLight(const glm::vec3& pPosLight, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+AreaLight::AreaLight(const glm::vec3& pPosLight, float pConstant, float pLinear, float pQuadratic, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void AreaLight::init(const glm::vec3& pPosLight, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void AreaLight::init(const glm::vec3& pPosLight, float pConstant, float pLinear, float pQuadratic, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void AreaLight::setPosLight(const glm::vec3& pPosLight)
+{
+}
+
+glm::vec3 AreaLight::getPosLight() const noexcept
+{
+	return glm::vec3();
+}
+
+void AreaLight::setDirectionLight(const glm::vec3& pDirectionLight)
+{
+}
+
+glm::vec3 AreaLight::getDirectionLight() const noexcept
+{
+	return glm::vec3();
+}
+
+EmissiveLight::EmissiveLight(const glm::vec3& pPosLight, bool pFlashing, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void EmissiveLight::init(const glm::vec3& pPosLight, bool pFlashing, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void EmissiveLight::setFlashing(bool pFlashing)
+{
+}
+
+bool EmissiveLight::isFlashing() const noexcept
+{
+	return false;
+}
+
+void EmissiveLight::setPosLight(const glm::vec3& pPosLight)
+{
+}
+
+glm::vec3 EmissiveLight::getPosLight() const noexcept
+{
+	return glm::vec3();
+}
+
+AttenuationLight::AttenuationLight(const glm::vec3& pPosLight, float pConstant, float pLinear, float pQuadratic, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void AttenuationLight::init(const glm::vec3& pPosLight, float pConstant, float pLinear, float pQuadratic, float pIntensity, const glm::vec3& pColorLight)
+{
+}
+
+void AttenuationLight::setPosLight(const glm::vec3& pPosLight)
+{
+}
+
+glm::vec3 AttenuationLight::getPosLight() const noexcept
+{
+	return glm::vec3();
+}
+
+void AttenuationLight::setDirectionLight(const glm::vec3& pDirectionLight)
+{
+}
+
+glm::vec3 AttenuationLight::getDirectionLight() const noexcept
 {
 	return glm::vec3();
 }

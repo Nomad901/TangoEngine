@@ -20,14 +20,15 @@
 #include "Primitive.h"
 #include "OBJLoader.h"
 #include "UI.h"
-#include "Light.h"
+#include "LightManager.h"
 #include "Collider.h"
+#include "ShadowMapFBO.h"
 
 class Program
 {
 public:
-	Program(uint32_t pWindowWidth = 1920, uint32_t pWindowHeight = 1080);
-	//Program(uint32_t pWindowWidth = 1280, uint32_t pWindowHeight = 720);
+	//Program(uint32_t pWindowWidth = 1920, uint32_t pWindowHeight = 1080);
+	Program(uint32_t pWindowWidth = 1280, uint32_t pWindowHeight = 720);
 	~Program();
 
 	void run();
@@ -38,7 +39,7 @@ private:
 	void draw();
 
 	void initAll();
-	void initShader();
+	void initShaders();
 	void initTextures();
 	void initPrimitives();
 	void initMeshes();
@@ -59,12 +60,12 @@ private:
 	void setModels();
 
 	static void debugOutput(GLenum source,
-		GLenum type,
-		GLuint id,
-		GLenum severity,
-		GLsizei length,
-		const GLchar* message,
-		const void* userParam);
+							GLenum type,
+							GLuint id,
+							GLenum severity,
+							GLsizei length,
+							const GLchar* message,
+							const void* userParam);
 private:
 	struct programProtperties
 	{
@@ -82,23 +83,19 @@ private:
 
 		Camera mCamera;
 		Shader mShader;
-		Shader mLightShader;
-
+		ShadowMapFBO mFBO;
 	} mProgramProperties;
 
 	struct lightProperties
 	{
-		glm::vec3 mLightColor{ 1.0f, 1.0f, 1.0f };
-		glm::vec3 mPosLight{ 3.0f, 5.0f, 1.0f };
-
-		PointLight mPointLight;
-		std::vector<PointLight> mStrgLights;
+		glm::vec3 mPosLight{ 1.0f };
+		LightManager mLightManager;
 	} mLightProperties;
 
 	struct materialProperties
 	{
-		glm::vec3 mAmbient{ 1.0f };
-		glm::vec3 mDiffuse{ 1.0f };
+		glm::vec3 mAmbient{ 0.172f, 0.172f, 0.172f };
+		glm::vec3 mDiffuse{ 0.160f, 0.160f, 0.160f };
 		glm::vec3 mSpecular{ 1.0f };
 		float mShines{ 32.0f };
 
@@ -121,9 +118,6 @@ private:
 		FactoryMesh mFactoryMeshes;
 		OBJLoader mOBJLoader;
 	} mModelProperties;
-
-	glm::vec3 size{ 1.0f };
-	glm::vec3 pos{ 1.0f };
 
 	UI mUI;
 	friend class UI;

@@ -132,27 +132,26 @@ void Program::draw()
 
 void Program::initAll()
 {
-	initShader();
+	initShaders();
 	initTextures();
 	initPrimitives();
 	initMeshes();
 	initMaterial();
 	initModels();
 	initLights();
+	mProgramProperties.mFBO.init(1280, 720);
 }
 
-void Program::initShader()
+void Program::initShaders()
 {
-	mProgramProperties.mShader.init(mProgramProperties.mResourcePath + "vert.glsl", 
-									mProgramProperties.mResourcePath + "frag.glsl");
-	mProgramProperties.mLightShader.init(mProgramProperties.mResourcePath + "vert.glsl", mProgramProperties.mResourcePath + "light.glsl");
+	mProgramProperties.mShader.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
+									mProgramProperties.mShader.getResourcePath() + "Shaders/frag.glsl");
 }
 
 void Program::initTextures()
 {
 	mModelProperties.mTextures.reserve(32);
-	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "dcq.png", "material.textures");
-	
+	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "CrystalImg.png", "material.textures");
 }
 
 void Program::initPrimitives()
@@ -160,9 +159,14 @@ void Program::initPrimitives()
 	// the room
 	mModelProperties.mPrimitives.insert_or_assign("museum", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	
+	// floor 
+	mModelProperties.mPrimitives.insert_or_assign("floor", std::make_shared<Quad>(mModelProperties.mTextures[0]));
+
 	// light block
 	mModelProperties.mPrimitives.insert_or_assign("lightBlock", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
+	// character
+	mModelProperties.mPrimitives.insert_or_assign("character", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 }
 
 void Program::initMeshes()
@@ -175,6 +179,13 @@ void Program::initMeshes()
 	std::weak_ptr<Primitive> lightBlock = mModelProperties.mPrimitives["lightBlock"];
 	mModelProperties.mFactoryMeshes.pushMesh("lightBlock", std::make_unique<Mesh>(lightBlock));
 
+	// floor
+	std::weak_ptr<Primitive> floor = mModelProperties.mPrimitives["floor"];
+	mModelProperties.mFactoryMeshes.pushMesh("floor", std::make_unique<Mesh>(floor, mModelProperties.mTextures));
+
+	// character
+	std::weak_ptr<Primitive> character = mModelProperties.mPrimitives["character"];
+	mModelProperties.mFactoryMeshes.pushMesh("character", std::make_unique<Mesh>(character));
 }
 
 void Program::initMaterial()
@@ -188,20 +199,16 @@ void Program::initMaterial()
 void Program::initModels()
 {
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
-														      mProgramProperties.mResourcePath + "museum.obj", 
+														      mProgramProperties.mResourcePath + "Models/museum.obj", 
 															  std::vector<Texture2>()));
 }
 
 void Program::initLights()
 {
-	mLightProperties.mPointLight.init(mLightProperties.mPosLight, false);
-
-	PointLight pointLight0(mLightProperties.mPointLight.getPosLight(), false);
-	pointLight0.setColor(mLightProperties.mLightColor);
-	pointLight0.setIntensity(0.7f);
-
-	mLightProperties.mStrgLights.reserve(3);
-	mLightProperties.mStrgLights.push_back(std::move(pointLight0));
+	mLightProperties.mLightManager.pushLight("pointLight1", std::make_unique<PointLight>(glm::vec3( 12.0f,  91.0f, -302.0f), 1.0f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 1.0f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3( 5.0f,   94.0f, -724.0f), 1.0f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 1.0f, 0.045f, 0.075f));
 }
 
 void Program::controlScreen()
@@ -281,52 +288,14 @@ void Program::takerCursor()
 
 void Program::setLights()
 {
-	//mLightProperties.mStrgLights[0].setPosLight(mLightProperties.mPosLight);
-	mLightProperties.mStrgLights[0].setPosLight(mProgramProperties.mCamera.getPos());
-	mLightProperties.mStrgLights[0].setColor(mLightProperties.mLightColor);
-
 	setMaterials();
 
-	mProgramProperties.mShader.bind();
-	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, true);
-	mLightProperties.mStrgLights[0].sendToShaderArray(mProgramProperties.mShader, 0);
-	mProgramProperties.mShader.setUniform3fv("point_light[0].ambient", glm::vec3(0.1f, 0.1f, 0.1f));
-	mProgramProperties.mShader.setUniform3fv("point_light[0].diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
-	mProgramProperties.mShader.setUniform3fv("point_light[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-	
-	mProgramProperties.mShader.setUniform1f("point_light[0].constant", 1.0f);
-	mProgramProperties.mShader.setUniform1f("point_light[0].linear", 0.09f);
-	mProgramProperties.mShader.setUniform1f("point_light[0].quadratic", 0.032f);
-	
-	mProgramProperties.mShader.setUniform1i("uNumberOfLights", mLightProperties.mStrgLights.size());
-	mProgramProperties.mShader.setUniform3fv("point_light[0].direction", mProgramProperties.mCamera.getDirection());
-	mProgramProperties.mShader.setUniform1f("point_light[0].cutOff", glm::cos(glm::radians(12.5f)));
-	mProgramProperties.mShader.setUniform1f("point_light[0].outerCutOff", glm::cos(glm::radians(17.5f)));
+	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShader, mMaterialProperties.mMaterial.get(), true);
 }
 
 void Program::setLightCube()
 {
-	//mProgramProperties.mLightShader.bind();
-	//mModelProperties.mModel[0]->initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight, mProgramProperties.mCamera.getViewMatrix(),
-	//									mLightProperties.mStrgLights[0].getPosLight(),
-	//									std::make_pair(45.0f, glm::vec3(0.0f, 0.0f, 0.0f)), 
-	//									glm::vec3(1.0f, 1.0f, 1.0f));
-	//mModelProperties.mModel[0]->setPos(mLightProperties.mStrgLights[0].getPosLight(), true);
-	//mProgramProperties.mLightShader.setMatrixUniform4fv("uModel", mModelProperties.mModel[0]->getModelMatrix());
-	//mProgramProperties.mLightShader.setMatrixUniform4fv("uMVP", mModelProperties.mModel[0]->getMVP(false));
-	//mProgramProperties.mLightShader.setUniform3fv("uColor", mLightProperties.mStrgLights[0].getColor());
-	//mModelProperties.mModel[0]->render();
-
-	mProgramProperties.mLightShader.bind();
-	mModelProperties.mFactoryMeshes.getMesh("lightBlock").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight, 
-																  mProgramProperties.mCamera.getViewMatrix(),
-																  mLightProperties.mStrgLights[0].getPosLight(), 
-																  std::make_pair(0.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-																  glm::vec3(1.0f, 1.0f, 1.0f));
-	mProgramProperties.mLightShader.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("lightBlock").getModelMatrix());
-	mProgramProperties.mLightShader.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("lightBlock").getMVP(false));
-	mProgramProperties.mLightShader.setUniform3fv("uColor", mLightProperties.mStrgLights[0].getColor());
-	//mModelProperties.mFactoryMeshes.getMesh("lightBlock").draw();
+	
 }
 
 void Program::setMaterials()
@@ -351,10 +320,12 @@ void Program::setModels()
 	//mLightProperties.mPointLight.setPosLight(mLightProperties.mPosLight);
 	//mModelProperties.mFactoryMeshes.getMesh("Room").draw();
 
+	// museum
+	mProgramProperties.mFBO.bindWrite();
 	mProgramProperties.mShader.bind();
 	mModelProperties.mModel[0]->initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
 										mProgramProperties.mCamera.getViewMatrix(),
-										glm::vec3(1.0f, 1.0f, -1000.0f),
+										glm::vec3(1.0f, -34.5f, -1147.0f),
 										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 										glm::vec3(1.0f, 1.0f, 1.0f));
 	mProgramProperties.mShader.setUniform3fv("uObjectColor", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -364,6 +335,19 @@ void Program::setModels()
 	mProgramProperties.mShader.setMatrixUniform4fv("uMVP", mModelProperties.mModel[0]->getMVP(false));
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, true);
 	mModelProperties.mModel[0]->render();
+	
+
+	// floor
+	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+															  mProgramProperties.mCamera.getViewMatrix(),
+															  glm::vec3(1.0f, 1.0f, -23.0f),
+															  std::make_pair(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
+															  glm::vec3(3000.0f, 3000.0f, 1.0f));
+	mProgramProperties.mShader.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("floor").getModelMatrix());
+	mProgramProperties.mShader.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("floor").getMVP(false));
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, false);
+	mModelProperties.mFactoryMeshes.getMesh("floor").draw();
+
 }
 
 void Program::debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)

@@ -7,6 +7,7 @@
 #include <expected>
 
 #include "Light.h"
+#include "Material.h"
 
 class LightManager
 {
@@ -20,7 +21,7 @@ public:
 	auto getStorageLight() -> std::unordered_map<std::string, std::unique_ptr<Light>>&;
 	auto getSize() const noexcept -> size_t;
 	
-	auto sendAllToShader(Shader& pShader) -> void;
+	auto sendAllToShader(Shader& pShader, Material* pMaterial, bool pIsJustColored) -> void;
 
 private:
 	std::unordered_map<std::string, std::unique_ptr<Light>> mStrgLight;
