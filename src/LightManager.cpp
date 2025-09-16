@@ -20,14 +20,14 @@ auto LightManager::popLight(std::string_view pNameLight) -> void
 	mStrgLight[std::string(pNameLight)] = nullptr;
 }
 
-auto LightManager::getLight(std::string_view pNameLight) -> std::expected<std::unique_ptr<Light>&, std::string_view>
+auto LightManager::getLight(std::string_view pNameLight) -> std::expected<std::reference_wrapper<std::unique_ptr<Light>>, std::string_view>
 {
 	if (!mStrgLight.contains(std::string(pNameLight)))
 		return std::unexpected("Storage does not contain this!\n");
-	return mStrgLight[std::string(pNameLight)];
+	return std::ref(mStrgLight[std::string(pNameLight)]);
 }
 
-auto LightManager::getStorageLight() const noexcept -> const std::unordered_map<std::string, std::unique_ptr<Light>>
+auto LightManager::getStorageLight() -> std::unordered_map<std::string, std::unique_ptr<Light>>&
 {
 	return mStrgLight;
 }
@@ -37,11 +37,11 @@ auto LightManager::getSize() const noexcept -> size_t
 	return mStrgLight.size();
 }
 
-auto LightManager::sendAllToShader(Shader& pShader)
+auto LightManager::sendAllToShader(Shader& pShader) -> void
 {
+	uint32_t counter = 0;
 	for (auto& [key, value] : mStrgLight)
 	{
-		static uint32_t counter = 0;
 		std::string lightStr = "light[" + std::to_string(counter) + "]";
 		pShader.setUniform3fv(lightStr + ".position", value->getPosLight());
 		pShader.setUniform3fv(lightStr + ".direction", value->getDirectionLight());
