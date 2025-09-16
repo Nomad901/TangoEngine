@@ -11,6 +11,8 @@
 
 class Light
 {
+private:
+	struct Attenuation;
 public:
 	Light() = default;
 	Light(float pIntensity, const glm::vec3& pColorLight);
@@ -22,15 +24,22 @@ public:
 
 	void init(float pIntensity, const glm::vec3& pColorLight);
 
-	virtual void sendToShader(Shader& pShader) = 0;
-	virtual void sendToShaderArray(Shader& pShader, int32_t pIndex) = 0;
-	
 	virtual void setPosLight(const glm::vec3& pPosLight) = 0;
 	virtual glm::vec3 getPosLight() const noexcept = 0;
+	virtual void setDirectionLight(const glm::vec3& pDirectionLight) = 0;
+	virtual glm::vec3 getDirectionLight() const noexcept = 0;
 
 	void enableAttenuation(float pConstant, float pLinear, float pQuadratic);
+	const Attenuation getAttenuationSettings() const noexcept;
 	void disableAttenuation();
 	bool attenuationIsEnabled() const noexcept;
+
+	void setAmbient(const glm::vec3& pAmbient);
+	void setDiffuse(const glm::vec3& pDiffuse);
+	void setSpecular(const glm::vec3& pSpecular);
+	glm::vec3 getAmbient() const noexcept;
+	glm::vec3 getDiffuse() const noexcept;
+	glm::vec3 getSpecular() const noexcept;
 
 	void setIntensity(float pIntensity);
 	void setColor(const glm::vec3& pColor);
@@ -41,6 +50,7 @@ public:
 private:
 	bool mBlockIsVisible{};
 	float mIntensity{};
+	glm::vec3 mAmbient{ 0.1f, 0.1f, 0.1f }, mDiffuse{ 0.8f, 0.8f, 0.8f }, mSpecular{ 1.0f, 1.0f, 1.0f };
 	glm::vec3 mColorLight{};
 
 	struct Attenuation
@@ -83,9 +93,8 @@ public:
 
 	void setPosLight(const glm::vec3& pPos) override;
 	glm::vec3 getPosLight() const noexcept override;
-
-	void sendToShader(Shader& pShader) override;
-	void sendToShaderArray(Shader& pShader, int32_t pIndex) override;
+	void setDirectionLight(const glm::vec3& pDirectionLight) override;
+	glm::vec3 getDirectionLight() const noexcept override;
 
 	void setPathForShader(const std::filesystem::path& pFragmentPath, 
 						  const std::filesystem::path& pVertexPath);
@@ -96,8 +105,6 @@ public:
 private:
 	glm::vec3 mPos{ 1.0f };
 	glm::vec3 mDirection{ 1.0f };
-
-	Shader mDirectionalLightShader;
 };
 
 class PointLight : public Light
@@ -129,19 +136,13 @@ public:
 			  float pIntensity = 1.0f,
 		  	  const glm::vec3& pColorLight = glm::vec3(1.0f));
 
-	void sendToShader(Shader& pShader) override;
-	void sendToShaderArray(Shader& pShader, int32_t pIndex) override;
-
 	void setPosLight(const glm::vec3& pPosLight) override;
 	glm::vec3 getPosLight() const noexcept override;
-
-	void setPathForShader(const std::filesystem::path& pFragmentPath,
-						  const std::filesystem::path& pVertexPath);
+	void setDirectionLight(const glm::vec3& pDirectionLight) override;
+	glm::vec3 getDirectionLight() const noexcept override;
 
 private:
 	glm::vec3 mPosLight{ 1.0f };
-
-	Shader mPointLightShader;
 };
 
 class Spotlight : public Light
@@ -176,22 +177,20 @@ public:
 	void setRadius(float pRadius);
 	float getRadius() const noexcept;
 
-	void setDirection(const glm::vec3& pDirection);
-	glm::vec3 getDirection() const noexcept;
+	void setCutOff(float pCutOff);
+	float getCutOff() const noexcept;
 
-	void sendToShader(Shader& pShader) override;
-	void sendToShaderArray(Shader& pShader, int32_t pIndex) override;
+	void setDirectionLight(const glm::vec3& pDirectionLight) override;
+	glm::vec3 getDirectionLight() const noexcept override;
 
 	void setPosLight(const glm::vec3& pPosLight) override;
 	glm::vec3 getPosLight() const noexcept override;
 
 private:
-	float mRadius{ 1.0f };
+	float CutOff{ 12.5f };
 
 	glm::vec3 mPosLight{ 1.0f };
 	glm::vec3 mDirection{ 1.0f };
-
-	Shader mSpotLightShader;
 };
 
 class Flashlight : public Spotlight
@@ -215,27 +214,22 @@ public:
 			  float pIntensity = 1.0f,
 			  const glm::vec3& pColorLight = glm::vec3(1.0f));
 
-	void setPathForShader(const std::filesystem::path& pFragmentPath,
-						  const std::filesystem::path& pVertexPath);
-
-	void setOuterCos(float pOuterCos);
-	void setInnerCos(float pInnerCos);
-	float getOuterCos() const noexcept;
-	float getInnerCos() const noexcept;
-
-	void sendToShader(Shader& pShader) override;
-	void sendToShaderArray(Shader& pShader, int32_t pIndex) override;
+	void setOuterCutOff(float pOuterCutOff);
+	void setCutOff(float pCutOff);
+	float getOuterCutOff() const noexcept;
+	float getCutOff() const noexcept;
 
 	void setPosLight(const glm::vec3& pPosLight) override;
 	glm::vec3 getPosLight() const noexcept override;
 
+	void setDirectionLight(const glm::vec3& pDirectionLight) override;
+	glm::vec3 getDirectionLight() const noexcept override;
+
 private:
+	float outerCutOff{ 17.5f }, CutOff{ 12.5f };
+
 	glm::vec3 mPos{ 1.0f };
 	glm::vec3 mDirection{ 1.0f };
-
-	Shader mFlashlightShader;
-
-	float outerCutOff, innerCutOff;
 };
 
 class AreaLight : public Light
@@ -271,16 +265,14 @@ public:
 	void setPathForShader(const std::filesystem::path& pFragmentPath,
 						  const std::filesystem::path& pVertexPath);
 
-	void sendToShader(Shader& pShader) override;
-	void sendToShaderArray(Shader& pShader, int32_t pIndex) override;
-
 	void setPosLight(const glm::vec3& pPosLight) override;
 	glm::vec3 getPosLight() const noexcept override;
 
+	void setDirectionLight(const glm::vec3& pDirectionLight) override;
+	glm::vec3 getDirectionLight() const noexcept override;
+
 private:
 	glm::vec3 mPos{ 1.0f };
-	
-	Shader mAreaLight;
 };
 
 //
@@ -298,9 +290,6 @@ public:
 	void setFlashing(bool pFlashing);
 	bool isFlashing() const noexcept;
 
-	void sendToShader(Shader& pShader) override;
-	void sendToShaderArray(Shader& pShader, int32_t pIndex) override;
-
 	void setPosLight(const glm::vec3& pPosLight) override;
 	glm::vec3 getPosLight() const noexcept override;
 
@@ -308,8 +297,6 @@ private:
 	bool mIsFlashing{ false };
 
 	glm::vec3 mPos{ 1.0f };
-
-	Shader mEmissiveLightShader;
 };
 
 class AttenuationLight : public Light
@@ -325,14 +312,12 @@ public:
 			  float pIntensity = 1.0f,
 			  const glm::vec3& pColorLight = glm::vec3(1.0f));
 
-	void sendToShader(Shader& pShader) override;
-	void sendToShaderArray(Shader& pShader, int32_t pIndex) override;
-
 	void setPosLight(const glm::vec3& pPosLight) override;
 	glm::vec3 getPosLight() const noexcept override;
 
+	void setDirectionLight(const glm::vec3& pDirectionLight) override;
+	glm::vec3 getDirectionLight() const noexcept override;
+
 private:
 	glm::vec3 mPos{ 1.0f };
-
-	Shader mAttenuationLightShader;
 };
