@@ -118,8 +118,10 @@ void Program::preDraw()
 	SDL_GetMouseState(&mousePos.x, &mousePos.y);
 	mProgramProperties.mMousePicker.update(mProgramProperties.mCamera, { mousePos.x, mousePos.y });
 
-	auto posMouseRay = mProgramProperties.mMousePicker.getPosRay();
-	std::cout << std::format("Mouse pos: {}-{}-{}\n", posMouseRay.x, posMouseRay.y, posMouseRay.z);
+	mProgramProperties.mCrosshairShader.bind();
+	mProgramProperties.mCrosshairShader.setUniform3fv("uColor", glm::vec3(1.0f, 1.0f, 1.0f));
+	mProgramProperties.mCrosshairShader.setUniform3fv("fragPos", glm::vec3(25.0f, 25.0f, 25.0f));
+	mProgramProperties.mCrosshairShader.setUniform2fv("uResolution", glm::vec2(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight));
 
 	setLights();
 	setLightCube();
@@ -129,7 +131,7 @@ void Program::preDraw()
 	glStencilMask(0xFF);
 	mProgramProperties.mShader.bind();
 	setModels();
-
+	
 	float deltaTime = SDL_GetTicks() - beginFrame;
 	if (deltaTime < 8)
 		SDL_Delay(8 - deltaTime);
@@ -166,6 +168,8 @@ void Program::initShaders()
 {
 	mProgramProperties.mShader.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
 									mProgramProperties.mShader.getResourcePath() + "Shaders/frag.glsl");
+	mProgramProperties.mCrosshairShader.init(mProgramProperties.mShader.getResourcePath() + "Shaders/crosshairVert.glsl",
+											 mProgramProperties.mShader.getResourcePath() + "Shaders/crosshair.glsl");
 	mProgramProperties.mShaderSingleColor.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
 											   mProgramProperties.mShader.getResourcePath() + "Shaders/shaderSingleColor.glsl");
 }
@@ -380,6 +384,7 @@ void Program::setModels()
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, true);
 	mModelProperties.mModel[0]->render();
 	
+
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);
 	mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
@@ -415,26 +420,30 @@ void Program::setModels()
 	mProgramProperties.mShader.unbind();
 	mProgramProperties.mShaderSingleColor.bind();
 	float scale = 5.1f;
-	mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-										mProgramProperties.mCamera.getViewMatrix(),
-										glm::vec3(1.0f, 1.0f, 1.0f),
-										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-										glm::vec3(scale, scale, scale));
-	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
-	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block1").getModelMatrix());
-	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("block1").getMVP(false));
-	mModelProperties.mFactoryMeshes.getMesh("block1").draw();
-	
-	mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-															  mProgramProperties.mCamera.getViewMatrix(),
-															  glm::vec3(10.0f, 10.0f, 10.0f),
-															  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-															  glm::vec3(scale, scale, scale));
-	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
-	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block2").getModelMatrix());
-	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("block2").getMVP(false));
-	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
-	
+	if (mProgramProperties.mMousePicker.checkIntersection(mModelProperties.mFactoryMeshes.getMesh("block1")))
+	{
+		mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+											mProgramProperties.mCamera.getViewMatrix(),
+											glm::vec3(1.0f, 1.0f, 1.0f),
+											std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+											glm::vec3(scale, scale, scale));
+		mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
+		mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block1").getModelMatrix());
+		mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("block1").getMVP(false));
+		mModelProperties.mFactoryMeshes.getMesh("block1").draw();
+	}
+	if (mProgramProperties.mMousePicker.checkIntersection(mModelProperties.mFactoryMeshes.getMesh("block2")))
+	{
+		mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+																  mProgramProperties.mCamera.getViewMatrix(),
+																  glm::vec3(10.0f, 10.0f, 10.0f),
+																  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+																  glm::vec3(scale, scale, scale));
+		mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
+		mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block2").getModelMatrix());
+		mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("block2").getMVP(false));
+		mModelProperties.mFactoryMeshes.getMesh("block2").draw();
+	}
 
 	glStencilMask(0xFF);
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
