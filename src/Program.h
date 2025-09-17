@@ -84,6 +84,7 @@ private:
 
 		Camera mCamera;
 		Shader mShader;
+		Shader mCrosshairShader;
 		Shader mShaderSingleColor;
 		ShadowMapFBO mFBO;
 
