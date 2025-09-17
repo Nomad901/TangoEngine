@@ -15,6 +15,7 @@ Program::Program(uint32_t pWindowWidth, uint32_t pWindowHeight)
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
 	mProgramProperties.mWindowWidth  = pWindowWidth;
 	mProgramProperties.mWindowHeight = pWindowHeight;
@@ -101,17 +102,32 @@ void Program::preDraw()
 	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
 	mUI.control(*this);
-	
+
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 	glViewport(0, 0, mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
 	if (mProgramProperties.mWhiteScreen)
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	else
 		glClearColor(0.20f, 0.20f, 0.20f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+	glEnable(GL_STENCIL_TEST);
+
+	glm::vec2 mousePos;
+	SDL_GetMouseState(&mousePos.x, &mousePos.y);
+	mProgramProperties.mMousePicker.update(mProgramProperties.mCamera, { mousePos.x, mousePos.y });
+
+	auto posMouseRay = mProgramProperties.mMousePicker.getPosRay();
+	std::cout << std::format("Mouse pos: {}-{}-{}\n", posMouseRay.x, posMouseRay.y, posMouseRay.z);
 
 	setLights();
 	setLightCube();
+
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glStencilMask(0xFF);
+	mProgramProperties.mShader.bind();
 	setModels();
 
 	float deltaTime = SDL_GetTicks() - beginFrame;
@@ -139,13 +155,19 @@ void Program::initAll()
 	initMaterial();
 	initModels();
 	initLights();
-	mProgramProperties.mFBO.init(1280, 720);
+	mProgramProperties.mMousePicker.init(mProgramProperties.mCamera,
+										 glm::perspective(glm::radians(45.0f), (float)mProgramProperties.mWindowWidth /
+										 (float)mProgramProperties.mWindowHeight, 0.1f, 2000.0f), 
+										 { mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight });
+	//mProgramProperties.mFBO.init(1280, 720);
 }
 
 void Program::initShaders()
 {
 	mProgramProperties.mShader.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
 									mProgramProperties.mShader.getResourcePath() + "Shaders/frag.glsl");
+	mProgramProperties.mShaderSingleColor.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
+											   mProgramProperties.mShader.getResourcePath() + "Shaders/shaderSingleColor.glsl");
 }
 
 void Program::initTextures()
@@ -167,6 +189,10 @@ void Program::initPrimitives()
 
 	// character
 	mModelProperties.mPrimitives.insert_or_assign("character", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+
+	// blocks to choose
+	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	mModelProperties.mPrimitives.insert_or_assign("block2", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 }
 
 void Program::initMeshes()
@@ -186,6 +212,12 @@ void Program::initMeshes()
 	// character
 	std::weak_ptr<Primitive> character = mModelProperties.mPrimitives["character"];
 	mModelProperties.mFactoryMeshes.pushMesh("character", std::make_unique<Mesh>(character));
+
+	// blocks to choose
+	std::weak_ptr<Primitive> block1 = mModelProperties.mPrimitives["block1"];
+	mModelProperties.mFactoryMeshes.pushMesh("block1", std::make_unique<Mesh>(block1));
+	std::weak_ptr<Primitive> block2 = mModelProperties.mPrimitives["block2"];
+	mModelProperties.mFactoryMeshes.pushMesh("block2", std::make_unique<Mesh>(block2));
 }
 
 void Program::initMaterial()
@@ -320,9 +352,21 @@ void Program::setModels()
 	//mLightProperties.mPointLight.setPosLight(mLightProperties.mPosLight);
 	//mModelProperties.mFactoryMeshes.getMesh("Room").draw();
 
-	// museum
-	mProgramProperties.mFBO.bindWrite();
+	glStencilMask(0x00);
+	// floor
 	mProgramProperties.mShader.bind();
+	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+															  mProgramProperties.mCamera.getViewMatrix(),
+															  glm::vec3(1.0f, 1.0f, -23.0f),
+															  std::make_pair(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
+															  glm::vec3(3000.0f, 3000.0f, 1.0f));
+	mProgramProperties.mShader.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("floor").getModelMatrix());
+	mProgramProperties.mShader.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("floor").getMVP(false));
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, false);
+	mModelProperties.mFactoryMeshes.getMesh("floor").draw();
+
+	// museum
+	//mProgramProperties.mFBO.bindWrite();
 	mModelProperties.mModel[0]->initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
 										mProgramProperties.mCamera.getViewMatrix(),
 										glm::vec3(1.0f, -34.5f, -1147.0f),
@@ -336,18 +380,66 @@ void Program::setModels()
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, true);
 	mModelProperties.mModel[0]->render();
 	
-
-	// floor
-	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glStencilMask(0xFF);
+	mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
 															  mProgramProperties.mCamera.getViewMatrix(),
-															  glm::vec3(1.0f, 1.0f, -23.0f),
-															  std::make_pair(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
-															  glm::vec3(3000.0f, 3000.0f, 1.0f));
-	mProgramProperties.mShader.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("floor").getModelMatrix());
-	mProgramProperties.mShader.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("floor").getMVP(false));
-	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, false);
-	mModelProperties.mFactoryMeshes.getMesh("floor").draw();
+															  glm::vec3(1.0f, 1.0f, 1.0f),
+															  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+															  glm::vec3(5.0f, 5.0f, 5.0f));
+	mProgramProperties.mShader.setUniform3fv("uObjectColor", glm::vec3(1.0f, 1.0f, 1.0f));
+	mProgramProperties.mShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
+	mProgramProperties.mShader.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
+	mProgramProperties.mShader.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block1").getModelMatrix());
+	mProgramProperties.mShader.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("block1").getMVP(false));
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, true);
+	mModelProperties.mFactoryMeshes.getMesh("block1").draw();
 
+	mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+															  mProgramProperties.mCamera.getViewMatrix(),
+															  glm::vec3(10.0f, 10.0f, 10.0f),
+															  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+															  glm::vec3(5.0f, 5.0f, 5.0f));
+	mProgramProperties.mShader.setUniform3fv("uObjectColor", glm::vec3(1.0f, 1.0f, 1.0f));
+	mProgramProperties.mShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
+	mProgramProperties.mShader.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
+	mProgramProperties.mShader.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block2").getModelMatrix());
+	mProgramProperties.mShader.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("block2").getMVP(false));
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, true);
+	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
+
+
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilMask(0x00);
+	glDisable(GL_DEPTH_TEST);
+	mProgramProperties.mShader.unbind();
+	mProgramProperties.mShaderSingleColor.bind();
+	float scale = 5.1f;
+	mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+										mProgramProperties.mCamera.getViewMatrix(),
+										glm::vec3(1.0f, 1.0f, 1.0f),
+										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+										glm::vec3(scale, scale, scale));
+	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
+	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block1").getModelMatrix());
+	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("block1").getMVP(false));
+	mModelProperties.mFactoryMeshes.getMesh("block1").draw();
+	
+	mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+															  mProgramProperties.mCamera.getViewMatrix(),
+															  glm::vec3(10.0f, 10.0f, 10.0f),
+															  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+															  glm::vec3(scale, scale, scale));
+	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
+	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block2").getModelMatrix());
+	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("block2").getMVP(false));
+	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
+	
+
+	glStencilMask(0xFF);
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glEnable(GL_DEPTH_TEST);
+	mProgramProperties.mShaderSingleColor.unbind();
 }
 
 void Program::debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)

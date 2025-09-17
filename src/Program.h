@@ -23,6 +23,7 @@
 #include "LightManager.h"
 #include "Collider.h"
 #include "ShadowMapFBO.h"
+#include "MousePicker.h"
 
 class Program
 {
@@ -83,7 +84,11 @@ private:
 
 		Camera mCamera;
 		Shader mShader;
+		Shader mShaderSingleColor;
 		ShadowMapFBO mFBO;
+
+		MousePicker mMousePicker;
+
 	} mProgramProperties;
 
 	struct lightProperties
