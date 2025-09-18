@@ -24,6 +24,7 @@
 #include "Collider.h"
 #include "ShadowMapFBO.h"
 #include "MousePicker.h"
+#include "Crosshair.h"
 
 class Program
 {
@@ -47,6 +48,7 @@ private:
 	void initMaterial();
 	void initModels();
 	void initLights();
+	void initCrosshair();
 
 	void controlScreen();
 	void controlCamera();
@@ -84,12 +86,11 @@ private:
 
 		Camera mCamera;
 		Shader mShader;
-		Shader mCrosshairShader;
 		Shader mShaderSingleColor;
 		ShadowMapFBO mFBO;
 
 		MousePicker mMousePicker;
-
+		std::unique_ptr<Crosshair> mCrosshair;
 	} mProgramProperties;
 
 	struct lightProperties
@@ -113,7 +114,7 @@ private:
 		bool mRotatedMode{ false };
 		float mDistanceFromCamera{ 5.0f };
 		float mRotateDegree{ 1.0f };
-
+		
 		glm::vec3 mRotateForFloor{ 0.0f, 1.0f, 0.0f };
 		glm::vec3 mLastPos{ 1.0f };
 
