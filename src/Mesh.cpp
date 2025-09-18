@@ -85,7 +85,8 @@ void Mesh::init(const std::weak_ptr<Primitive>& pPrimitive)
 	if (std::shared_ptr primitive = pPrimitive.lock())
 	{
 		mPrimitive = primitive;
-	
+		mTexture = mPrimitive->getTexture();
+
 		mVAO.generate();
 		mVAO.bind();
 		mVBO.init(mPrimitive->getVertexStrg(), GL_STATIC_DRAW);
@@ -265,10 +266,11 @@ bool Mesh::meshIsTaken() const noexcept
 
 void Mesh::draw()
 {
-	for (size_t i = 0; i < mTextures.size(); ++i)
-	{
-		mTextures[i].bind(i);
-	}
+	//for (size_t i = 0; i < mTextures.size(); ++i)
+	//{
+	//	mTextures[i].bind(i);
+	//}
+	mTexture.bind(mPrimitive->getTexSloth());
 	mVAO.bind();
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
 }

@@ -50,11 +50,35 @@ void Program::run()
 	mProgramProperties.mResourcePath = RESOURCES_PATH;
 	initAll();
 
+	float prevTime = 0.0f;
+	float currTime = 0.0f;
+	float timeDiff;
+	uint32_t counter = 0;
+
 	while (mProgramProperties.mProgIsRunning)
 	{
+		float beginFrame = SDL_GetTicks();
+
+		currTime = SDL_GetTicks();
+		timeDiff = currTime - prevTime;
+		counter++;
+		if (timeDiff >= 1.0f / 100.0f)
+		{
+			std::string fps = std::to_string((1.0f / timeDiff) * counter * 1000);
+			std::string ms  = std::to_string((timeDiff / counter) * 1000);
+			std::string newTitle = std::format("Museum of lights. FPS: {} | MS: {}", fps, ms);
+			SDL_SetWindowTitle(mProgramProperties.mWindow, newTitle.c_str());
+			prevTime = currTime;
+			counter = 0;
+		}
+
 		input();
 		preDraw();
 		draw();
+
+		float deltaTime = SDL_GetTicks() - beginFrame;
+		if (deltaTime < 8)
+			SDL_Delay(8 - deltaTime);
 
 		SDL_GL_SwapWindow(mProgramProperties.mWindow);
 	}
@@ -94,8 +118,6 @@ void Program::input()
 
 void Program::preDraw()
 {
-	float beginFrame = SDL_GetTicks();
-
 	takerCursor();
 
 	ImGui_ImplOpenGL3_NewFrame();
@@ -105,6 +127,11 @@ void Program::preDraw()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// optimization
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -131,10 +158,6 @@ void Program::preDraw()
 	glStencilMask(0xFF);
 	mProgramProperties.mShader.bind();
 	setModels();
-	
-	float deltaTime = SDL_GetTicks() - beginFrame;
-	if (deltaTime < 8)
-		SDL_Delay(8 - deltaTime);
 }
 
 void Program::draw()
@@ -173,6 +196,7 @@ void Program::initTextures()
 {
 	mModelProperties.mTextures.reserve(32);
 	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "blending_transparent_window.png", "material.textures");
+	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "light2.png", "material.textures");
 	//mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "grass.png", "material.textures");
 }
 
@@ -182,7 +206,7 @@ void Program::initPrimitives()
 	mModelProperties.mPrimitives.insert_or_assign("museum", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	
 	// floor 
-	mModelProperties.mPrimitives.insert_or_assign("floor", std::make_shared<Quad>(mModelProperties.mTextures[0]));
+	mModelProperties.mPrimitives.insert_or_assign("floor", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
 
 	// light block
 	mModelProperties.mPrimitives.insert_or_assign("lightBlock", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
@@ -191,8 +215,14 @@ void Program::initPrimitives()
 	mModelProperties.mPrimitives.insert_or_assign("character", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// blocks to choose
-	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(mModelProperties.mTextures[0]));
+	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(mModelProperties.mTextures[0], 0));
 	mModelProperties.mPrimitives.insert_or_assign("block2", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+
+	// lights on ligths-post
+	mModelProperties.mPrimitives.insert_or_assign("lightPost1", std::make_shared<Quad>(mModelProperties.mTextures[1], 1));
+	mModelProperties.mPrimitives.insert_or_assign("lightPost2", std::make_shared<Quad>(mModelProperties.mTextures[1], 1));
+	mModelProperties.mPrimitives.insert_or_assign("lightPost3", std::make_shared<Quad>(mModelProperties.mTextures[1], 1));
+	mModelProperties.mPrimitives.insert_or_assign("lightPost4", std::make_shared<Quad>(mModelProperties.mTextures[1], 1));
 }
 
 void Program::initMeshes()
@@ -218,6 +248,16 @@ void Program::initMeshes()
 	mModelProperties.mFactoryMeshes.pushMesh("block1", std::make_unique<Mesh>(block1));
 	std::weak_ptr<Primitive> block2 = mModelProperties.mPrimitives["block2"];
 	mModelProperties.mFactoryMeshes.pushMesh("block2", std::make_unique<Mesh>(block2));
+
+	// light-posts
+	std::weak_ptr<Primitive> light1 = mModelProperties.mPrimitives["lightPost1"];
+	mModelProperties.mFactoryMeshes.pushMesh("lightPost1", std::make_unique<Mesh>(light1));
+	std::weak_ptr<Primitive> light2 = mModelProperties.mPrimitives["lightPost2"];
+	mModelProperties.mFactoryMeshes.pushMesh("lightPost2", std::make_unique<Mesh>(light2));
+	std::weak_ptr<Primitive> light3 = mModelProperties.mPrimitives["lightPost3"];
+	mModelProperties.mFactoryMeshes.pushMesh("lightPost3", std::make_unique<Mesh>(light3));
+	std::weak_ptr<Primitive> light4 = mModelProperties.mPrimitives["lightPost4"];
+	mModelProperties.mFactoryMeshes.pushMesh("lightPost4", std::make_unique<Mesh>(light4));
 }
 
 void Program::initMaterial()
@@ -233,14 +273,27 @@ void Program::initModels()
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
 														      mProgramProperties.mResourcePath + "Models/museum.obj", 
 															  std::vector<Texture2>()));
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+									  mProgramProperties.mResourcePath + "Models/lamppost.obj",
+									  std::vector<Texture2>()));
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+									  mProgramProperties.mResourcePath + "Models/lamppost.obj",
+									  std::vector<Texture2>()));
 }
 
 void Program::initLights()
 {
-	mLightProperties.mLightManager.pushLight("pointLight1", std::make_unique<PointLight>(glm::vec3( 12.0f,  91.0f, -302.0f), 1.0f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 1.0f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3( 5.0f,   94.0f, -724.0f), 1.0f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 1.0f, 0.045f, 0.075f));
+	// lamps in the museum
+	mLightProperties.mLightManager.pushLight("pointLight1", std::make_unique<PointLight>(glm::vec3( 12.0f,  91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3( 5.0f,   94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
+
+	// lampPosts outside
+	mLightProperties.mLightManager.pushLight("lampPost1", std::make_unique<PointLight>(glm::vec3( 38.399986, 75.799416, -71.39948),  0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("lampPost2", std::make_unique<PointLight>(glm::vec3( 38.399986, 75.799416, -91.09918),  0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("lampPost3", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -68.599525), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("lampPost4", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -88.19923),  0.5f, 0.045f, 0.075f));
 }
 
 void Program::initCrosshair()
@@ -377,7 +430,39 @@ void Program::setModels()
 											glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mProgramProperties.mShader,
 											*mMaterialProperties.mMaterial.get(), true);
 	mModelProperties.mModel[0]->render();
-	
+
+	// light posts
+
+	auto setLightModels = [&](const glm::vec3& pPos, int32_t pInd)
+		{
+			mModelProperties.mModel[pInd]->initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+												mProgramProperties.mCamera.getViewMatrix(),
+												pPos, std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+												glm::vec3(20.0f, 20.0f, 20.0f));
+			mModelProperties.mModel[pInd]->setUniforms(mProgramProperties.mCamera.getPos(), mProgramProperties.mCamera.getViewMatrix(),
+												    glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mProgramProperties.mShader,
+												    *mMaterialProperties.mMaterial.get(), true);
+			mModelProperties.mModel[pInd]->render();
+
+		};
+	auto setLightLights = [&](const glm::vec3& pPos, std::string_view pName)
+		{
+			mModelProperties.mFactoryMeshes.getMesh(pName).initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+																	  mProgramProperties.mCamera.getViewMatrix(),
+																	  pPos, std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+																	  glm::vec3(5.0f, 5.0f, 5.0f));
+			mModelProperties.mFactoryMeshes.getMesh(pName).setUniforms(mProgramProperties.mCamera.getPos(), mProgramProperties.mCamera.getViewMatrix(),
+																		  glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mProgramProperties.mShader,
+																		  *mMaterialProperties.mMaterial.get(), false);
+			mModelProperties.mFactoryMeshes.getMesh(pName).draw();
+		};
+	setLightModels(glm::vec3(22.900051, 25.700062, -78.89937), 1);
+	setLightModels(glm::vec3(-140.900051, 25.700062, -78.89937), 2);
+
+	setLightLights(glm::vec3( 38.399986,  75.799416, -69.39948),  "lightPost1");
+	setLightLights(glm::vec3( 38.399986,  75.799416, -88.09918),  "lightPost2");
+	setLightLights(glm::vec3(-125.79866,  75.899414, -65.599525), "lightPost3");
+	setLightLights(glm::vec3(-125.79866,  75.899414, -85.19923),  "lightPost4");
 
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);

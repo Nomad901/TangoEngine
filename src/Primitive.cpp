@@ -1,4 +1,4 @@
-#include "Primitive.h"
+﻿#include "Primitive.h"
 
 void Primitive::setVertexStrg(const std::vector<Vertex>& pVertexStrg)
 {
@@ -13,6 +13,16 @@ void Primitive::setIndexStrg(const std::vector<uint32_t>& pIndexStrg)
 void Primitive::setTexture(const Texture2& pTexture)
 {
 	mTexture = pTexture;
+}
+
+void Primitive::setTexSloth(uint32_t pTexSloth)
+{
+	mTexSloth = pTexSloth;
+}
+
+uint32_t Primitive::getTexSloth() noexcept
+{
+	return mTexSloth;
 }
 
 std::vector<Vertex>& Primitive::getVertexStrg() noexcept
@@ -30,7 +40,7 @@ Texture2& Primitive::getTexture() noexcept
 	return mTexture;
 }
 
-Triangle::Triangle(const Texture2& pTexture)
+Triangle::Triangle(const Texture2& pTexture, uint32_t pSloth)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(6);
@@ -49,11 +59,12 @@ Triangle::Triangle(const Texture2& pTexture)
 		0, 1, 2
 	};
 
+	setTexSloth(pSloth);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
 
-Triangle::Triangle(const Texture2& pTexture, const glm::vec4& pColor)
+Triangle::Triangle(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(6);
@@ -72,6 +83,7 @@ Triangle::Triangle(const Texture2& pTexture, const glm::vec4& pColor)
 		0, 1, 2
 	};
 
+	setTexSloth(pSloth);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
@@ -98,7 +110,7 @@ Triangle::Triangle(const glm::vec4& pColor)
 	setIndexStrg(indices);
 }
 
-Pyramid::Pyramid(const Texture2& pTexture)
+Pyramid::Pyramid(const Texture2& pTexture, uint32_t pSloth)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(16); 
@@ -143,11 +155,12 @@ Pyramid::Pyramid(const Texture2& pTexture)
 		2, 1, 4
 	};
 
+	setTexSloth(pSloth);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
 
-Pyramid::Pyramid(const Texture2& pTexture, const glm::vec4& pColor)
+Pyramid::Pyramid(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(16);
@@ -192,6 +205,7 @@ Pyramid::Pyramid(const Texture2& pTexture, const glm::vec4& pColor)
 		2, 1, 4
 	};
 
+	setTexSloth(pSloth);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
@@ -244,7 +258,7 @@ Pyramid::Pyramid(const glm::vec4& pColor)
 	setIndexStrg(indices);
 }
 
-Quad::Quad(const Texture2& pTexture)
+Quad::Quad(const Texture2& pTexture, uint32_t pSloth)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(6);
@@ -265,11 +279,12 @@ Quad::Quad(const Texture2& pTexture)
 		2, 3, 0
 	};
 
+	setTexSloth(pSloth);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
 
-Quad::Quad(const Texture2& pTexture, const glm::vec4& pColor)
+Quad::Quad(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(6);
@@ -290,6 +305,7 @@ Quad::Quad(const Texture2& pTexture, const glm::vec4& pColor)
 		2, 3, 0
 	};
 
+	setTexSloth(pSloth);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
@@ -318,7 +334,7 @@ Quad::Quad(const glm::vec4& pColor)
 	setIndexStrg(indices);
 }
 
-Cube::Cube(const Texture2& pTexture)
+Cube::Cube(const Texture2& pTexture, uint32_t pSloth)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(24);
@@ -375,11 +391,12 @@ Cube::Cube(const Texture2& pTexture)
 		22, 23, 20
 	};
 
+	setTexSloth(pSloth);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
 
-Cube::Cube(const Texture2& pTexture, const glm::vec4& pColor)
+Cube::Cube(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(24);
@@ -436,6 +453,7 @@ Cube::Cube(const Texture2& pTexture, const glm::vec4& pColor)
 		22, 23, 20
 	};
 
+	setTexSloth(pSloth);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }

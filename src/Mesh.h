@@ -83,6 +83,7 @@ private:
 
 	std::shared_ptr<Primitive> mPrimitive;
 	std::vector<Texture2> mTextures;
+	Texture2 mTexture;
 
 	VAO mVAO;
 	VBO mVBO;
