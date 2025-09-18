@@ -118,10 +118,7 @@ void Program::preDraw()
 	SDL_GetMouseState(&mousePos.x, &mousePos.y);
 	mProgramProperties.mMousePicker.update(mProgramProperties.mCamera, { mousePos.x, mousePos.y });
 
-	mProgramProperties.mCrosshairShader.bind();
-	mProgramProperties.mCrosshairShader.setUniform3fv("uColor", glm::vec3(1.0f, 1.0f, 1.0f));
-	mProgramProperties.mCrosshairShader.setUniform3fv("fragPos", glm::vec3(25.0f, 25.0f, 25.0f));
-	mProgramProperties.mCrosshairShader.setUniform2fv("uResolution", glm::vec2(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight));
+	mProgramProperties.mCrosshair->render(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
 
 	setLights();
 	setLightCube();
@@ -157,19 +154,17 @@ void Program::initAll()
 	initMaterial();
 	initModels();
 	initLights();
+	initCrosshair();
 	mProgramProperties.mMousePicker.init(mProgramProperties.mCamera,
 										 glm::perspective(glm::radians(45.0f), (float)mProgramProperties.mWindowWidth /
 										 (float)mProgramProperties.mWindowHeight, 0.1f, 2000.0f), 
 										 { mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight });
-	//mProgramProperties.mFBO.init(1280, 720);
 }
 
 void Program::initShaders()
 {
 	mProgramProperties.mShader.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
 									mProgramProperties.mShader.getResourcePath() + "Shaders/frag.glsl");
-	mProgramProperties.mCrosshairShader.init(mProgramProperties.mShader.getResourcePath() + "Shaders/crosshairVert.glsl",
-											 mProgramProperties.mShader.getResourcePath() + "Shaders/crosshair.glsl");
 	mProgramProperties.mShaderSingleColor.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
 											   mProgramProperties.mShader.getResourcePath() + "Shaders/shaderSingleColor.glsl");
 }
@@ -245,6 +240,11 @@ void Program::initLights()
 	mLightProperties.mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 1.0f, 0.045f, 0.075f));
 	mLightProperties.mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3( 5.0f,   94.0f, -724.0f), 1.0f, 0.045f, 0.075f));
 	mLightProperties.mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 1.0f, 0.045f, 0.075f));
+}
+
+void Program::initCrosshair()
+{
+	mProgramProperties.mCrosshair = std::make_unique<Crosshair>(0.01f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 void Program::controlScreen()
