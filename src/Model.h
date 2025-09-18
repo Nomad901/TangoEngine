@@ -38,6 +38,10 @@ public:
 	glm::mat4 getProjMatrix() const noexcept;
 	glm::mat4 getMVP(bool pWithComputations);
 
+	void setUniforms(const glm::vec3& pCameraPos, const glm::mat4& pViewMatrix,
+					 const glm::vec4& pColor,
+					 Shader& pShader, Material& pMaterial, bool pIsJustColored);
+
 	void setPos(const glm::vec3& pPos, bool pRecomputeMVP);
 	void setSize(const glm::vec3& pSize, bool pRecomputeMVP);
 	glm::vec3 getPos() const noexcept;

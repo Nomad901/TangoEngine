@@ -72,6 +72,16 @@ glm::mat4 Model::getMVP(bool pWithComputations)
 	return mMeshes[0]->getMVP(false);
 }
 
+void Model::setUniforms(const glm::vec3& pCameraPos, const glm::mat4& pViewMatrix, 
+						const glm::vec4& pColor, 
+						Shader& pShader, Material& pMaterial, bool pIsJustColored)
+{
+	for (auto& i : mMeshes)
+	{
+		i->setUniforms(pCameraPos, pViewMatrix, pColor, pShader, pMaterial, pIsJustColored);
+	}
+}
+
 void Model::setPos(const glm::vec3& pPos, bool pRecomputeMVP)
 {
 	mMeshes[0]->setPos(pPos, pRecomputeMVP);

@@ -17,6 +17,24 @@ glm::vec3 MousePicker::getPosRay() const noexcept
 	return mPosRay;
 }
 
+bool MousePicker::checkIntersection(const Mesh& pMesh)
+{
+	const glm::vec3 rayOrigin = mCamera.getPos();
+	const glm::vec3 rayDir = mPosRay;
+
+	constexpr float closestDistance = std::numeric_limits<float>().max();
+	
+	const glm::vec3 minBounds = pMesh.getPos() - pMesh.getSize() / 2.0f;
+	const glm::vec3 maxBounds = pMesh.getPos() + pMesh.getSize() / 2.0f;
+
+	auto intersection = intersectRayAABB(rayOrigin, rayDir, minBounds, maxBounds);
+	
+	if (intersection.has_value() && intersection.value() < closestDistance)
+		return true;
+
+	return false;
+}
+
 void MousePicker::update(Camera& pCamera, const glm::vec2& pMousePos)
 {
 	mCamera = pCamera;
@@ -55,4 +73,24 @@ glm::vec2 MousePicker::getNormalizedDeviceCoord(const glm::vec2& pMousePos)
 	float x = (2.0f * pMousePos.x) / mWinSize.x - 1.0f;
 	float y = (2.0f * pMousePos.y) / mWinSize.y - 1.0f;
 	return glm::vec2(x, y); // maybe need to invert y axis
+}
+
+std::optional<float> MousePicker::intersectRayAABB(const glm::vec3& pRayOrigin, const glm::vec3& pRayDir, 
+												   const glm::vec3& pMinBounds, const glm::vec3& pMaxBounds)
+{
+	const glm::vec3 invDir = 1.0f / pRayDir;
+
+	const float t1 = (pMinBounds.x - pRayOrigin.x) * invDir.x;
+	const float t2 = (pMaxBounds.x - pRayOrigin.x) * invDir.x;
+	const float t3 = (pMinBounds.y - pRayOrigin.y) * invDir.y;
+	const float t4 = (pMaxBounds.y - pRayOrigin.y) * invDir.y;
+	const float t5 = (pMinBounds.z - pRayOrigin.z) * invDir.z;
+	const float t6 = (pMaxBounds.z - pRayOrigin.z) * invDir.z;
+	
+	const float tMin = std::max(std::max(std::min(t1, t2), std::min(t3, t4)), std::min(t5, t6));
+	const float tMax = std::min(std::min(std::max(t1, t2), std::max(t3, t4)), std::max(t5, t6));
+
+	if (tMax < 0.0f || tMin > tMax)
+		return std::nullopt;
+	return tMin;
 }

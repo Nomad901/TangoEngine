@@ -38,17 +38,10 @@ void Crosshair::init(float pRadius, const glm::vec3& pColor)
 
 void Crosshair::render(uint32_t pWinWidth, uint32_t pWinHeight)
 {
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	//glDisable(GL_DEPTH_TEST);
-
 	mShader.bind();
 	updateUniforms(pWinWidth, pWinHeight);
 	mVAO.bind();
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
-
-	//glEnable(GL_DEPTH_TEST);
 }
 
 void Crosshair::updateUniforms(uint32_t pWinWidth, uint32_t pWinHeight)

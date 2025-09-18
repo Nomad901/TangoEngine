@@ -273,39 +273,6 @@ void Mesh::draw()
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 
-void Mesh::drawForModels(Shader& pShader)
-{
-	uint32_t diffuseNr = 0;
-	uint32_t specularNr = 0;
-	uint32_t heightNr = 0;
-	uint32_t normalNr = 0;
-	for (uint32_t i = 0; i < mTextures.size(); ++i)
-	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		std::string number;
-		std::string name = mTextures[i].getType();
-		if (name == "texture_diffuse")
-			number = std::to_string(++diffuseNr);
-		else if (name == "texture_specular")
-			number = std::to_string(++specularNr);
-		else if (name == "texture_height")
-			number = std::to_string(++heightNr);
-		else if (name == "texture_normal")
-			number = std::to_string(++normalNr);
-		glUniform1i(pShader.getUniformLocation((name + number).c_str()), i);
-		glBindTexture(GL_TEXTURE_2D, mTextures[i].getID());
-	}
-
-	mVAO.bind();
-	for (auto& i : mTextures)
-	{
-		i.bind();
-	}
-	glDrawElements(GL_TRIANGLES, mPrimitive->getIndexStrg().size(), GL_UNSIGNED_INT, nullptr);
-
-	glActiveTexture(GL_TEXTURE0);
-}
-
 void Mesh::rebuildMatrix(bool pRecomputeMVP)
 {
 	mModelMatrix = glm::mat4(1.0f);

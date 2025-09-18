@@ -49,6 +49,7 @@ private:
 	void initModels();
 	void initLights();
 	void initCrosshair();
+	void initMousePicker();
 
 	void controlScreen();
 	void controlCamera();

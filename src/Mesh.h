@@ -74,7 +74,6 @@ public:
 	bool meshIsTaken() const noexcept;
 
 	void draw();
-	void drawForModels(Shader& pShader);
 
 private:
 	void rebuildMatrix(bool pRecomputeMVP); 
