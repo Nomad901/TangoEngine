@@ -7,7 +7,6 @@ Texture2::Texture2(const std::filesystem::path& pPath, std::string_view pUniform
 
 Texture2::~Texture2()
 {
-	std::cout << "destructor of texture was called!\n";
 	glDeleteTextures(1, &mRendererID);
 }
 
@@ -68,11 +67,6 @@ void Texture2::unbind()
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-uint32_t Texture2::getRendererId() const noexcept
-{
-	return mRendererID;
-}
-
 std::string Texture2::getUniformName() const noexcept
 {
 	return mUniformName;
@@ -106,4 +100,9 @@ std::string Texture2::getType() const noexcept
 std::filesystem::path Texture2::getPath() const noexcept
 {
 	return mFilePath;
+}
+
+void Texture2::destroyTexture()
+{
+	glDeleteTextures(1, &mRendererID);
 }
