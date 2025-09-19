@@ -19,9 +19,10 @@ public:
 
 	void bind();
 	void unbind();
+	void clearColor();
 
 	uint32_t getFBO() const noexcept;
-	Texture2 getTexture() const noexcept;
+	Texture2& getTexture() noexcept;
 	uint32_t getRenderBufferID() const noexcept;
 	void getSize(uint32_t& pWidht, uint32_t& pHeight);
 	

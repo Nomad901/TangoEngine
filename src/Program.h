@@ -25,6 +25,7 @@
 #include "ShadowMapFBO.h"
 #include "MousePicker.h"
 #include "Crosshair.h"
+#include "FBO.h"
 
 class Program
 {
@@ -63,6 +64,8 @@ private:
 	void setMaterials();
 	void setModels();
 
+	void drawModels();
+
 	static void debugOutput(GLenum source,
 							GLenum type,
 							GLuint id,
@@ -88,7 +91,10 @@ private:
 		Camera mCamera;
 		Shader mShader;
 		Shader mShaderSingleColor;
-		ShadowMapFBO mFBO;
+		Shader mShaderSecondScreen;
+
+		FBO mFBO;
+		std::vector<FBO> mFBOstrg;
 
 		MousePicker mMousePicker;
 		std::unique_ptr<Crosshair> mCrosshair;

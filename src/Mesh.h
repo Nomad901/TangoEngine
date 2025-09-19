@@ -74,6 +74,7 @@ public:
 	bool meshIsTaken() const noexcept;
 
 	void draw();
+	void drawInFrameBuffer(Texture2& pTexture);
 
 private:
 	void rebuildMatrix(bool pRecomputeMVP); 

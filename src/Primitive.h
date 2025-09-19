@@ -58,7 +58,6 @@ public:
 	Quad(const Texture2& pTexture, uint32_t pSloth);
 	Quad(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor);
 	Quad(const glm::vec4& pColor);
-
 };
 
 class Cube : public Primitive

@@ -33,7 +33,7 @@ void FBO::init(uint32_t pWidth, uint32_t pHeight)
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mRenderBufferID);
     
-    // completness 
+    // completeness 
     int32_t status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -54,12 +54,21 @@ void FBO::unbind()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void FBO::clearColor()
+{
+    float r{ mClearColors.x };
+    float g{ mClearColors.y };
+    float b{ mClearColors.z };
+    float a{ mClearColors.w };
+    glClearColor(r, g, b, a);
+}
+
 uint32_t FBO::getFBO() const noexcept
 {
     return mFBO;
 }
 
-Texture2 FBO::getTexture() const noexcept
+Texture2& FBO::getTexture() noexcept
 {
     return mTexture;
 }

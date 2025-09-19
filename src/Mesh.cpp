@@ -275,6 +275,14 @@ void Mesh::draw()
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 
+void Mesh::drawInFrameBuffer(Texture2& pTexture)
+{
+	mVAO.bind();
+	glDisable(GL_DEPTH_TEST);
+	pTexture.bind();
+	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
+}
+
 void Mesh::rebuildMatrix(bool pRecomputeMVP)
 {
 	mModelMatrix = glm::mat4(1.0f);

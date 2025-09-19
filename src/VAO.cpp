@@ -39,3 +39,8 @@ void VAO::unbind() const
 {
 	glBindVertexArray(0);
 }
+
+uint32_t VAO::getID() const noexcept
+{
+	return mRendererID;
+}
