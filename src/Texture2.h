@@ -21,7 +21,6 @@ public:
 	void bind(uint32_t pSlot = 0);
 	void unbind();
 
-	uint32_t getRendererId() const noexcept;
 	std::string getUniformName() const noexcept;
 
 	void setID(uint32_t pID);
@@ -31,6 +30,8 @@ public:
 	uint32_t getID() const noexcept;
 	std::string getType() const noexcept;
 	std::filesystem::path getPath() const noexcept;
+
+	void destroyTexture();
 
 private:
 	int32_t mWidth{}, mHeight{}, mBPP{};
