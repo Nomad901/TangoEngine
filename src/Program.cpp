@@ -128,10 +128,13 @@ void Program::preDraw()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	mProgramProperties.mFBO.init(800, 600);
+	mProgramProperties.mFBO.setClearColors({ 0.1f, 0.1f, 0.1f, 0.1f });
+	
 	// optimization
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -190,13 +193,14 @@ void Program::initShaders()
 									mProgramProperties.mShader.getResourcePath() + "Shaders/frag.glsl");
 	mProgramProperties.mShaderSingleColor.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
 											   mProgramProperties.mShader.getResourcePath() + "Shaders/shaderSingleColor.glsl");
+	mProgramProperties.mShaderSecondScreen.init(mProgramProperties.mShaderSecondScreen.getResourcePath() + "Shaders/vertFrameBuffer.glsl",
+												mProgramProperties.mShader.getResourcePath() + "Shaders/fragFrameBuffer.glsl");
 }
 
 void Program::initTextures()
 {
 	mModelProperties.mTextures.reserve(32);
-	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "blending_transparent_window.png", "material.textures");
-	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "light2.png", "material.textures");
+	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "container.png", "material.textures");
 	//mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "grass.png", "material.textures");
 }
 
@@ -218,11 +222,14 @@ void Program::initPrimitives()
 	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(mModelProperties.mTextures[0], 0));
 	mModelProperties.mPrimitives.insert_or_assign("block2", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
-	// lights on ligths-post
-	mModelProperties.mPrimitives.insert_or_assign("lightPost1", std::make_shared<Quad>(mModelProperties.mTextures[1], 1));
-	mModelProperties.mPrimitives.insert_or_assign("lightPost2", std::make_shared<Quad>(mModelProperties.mTextures[1], 1));
-	mModelProperties.mPrimitives.insert_or_assign("lightPost3", std::make_shared<Quad>(mModelProperties.mTextures[1], 1));
-	mModelProperties.mPrimitives.insert_or_assign("lightPost4", std::make_shared<Quad>(mModelProperties.mTextures[1], 1));
+	// lights on ligth-posts
+	mModelProperties.mPrimitives.insert_or_assign("lightPost1", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
+	mModelProperties.mPrimitives.insert_or_assign("lightPost2", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
+	mModelProperties.mPrimitives.insert_or_assign("lightPost3", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
+	mModelProperties.mPrimitives.insert_or_assign("lightPost4", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
+
+	// test quad
+	mModelProperties.mPrimitives.insert_or_assign("testQuad", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
 }
 
 void Program::initMeshes()
@@ -237,7 +244,7 @@ void Program::initMeshes()
 
 	// floor
 	std::weak_ptr<Primitive> floor = mModelProperties.mPrimitives["floor"];
-	mModelProperties.mFactoryMeshes.pushMesh("floor", std::make_unique<Mesh>(floor, mModelProperties.mTextures));
+	mModelProperties.mFactoryMeshes.pushMesh("floor", std::make_unique<Mesh>(floor));
 
 	// character
 	std::weak_ptr<Primitive> character = mModelProperties.mPrimitives["character"];
@@ -258,6 +265,10 @@ void Program::initMeshes()
 	mModelProperties.mFactoryMeshes.pushMesh("lightPost3", std::make_unique<Mesh>(light3));
 	std::weak_ptr<Primitive> light4 = mModelProperties.mPrimitives["lightPost4"];
 	mModelProperties.mFactoryMeshes.pushMesh("lightPost4", std::make_unique<Mesh>(light4));
+
+	// test quad
+	std::weak_ptr<Primitive> testQuad = mModelProperties.mPrimitives["testQuad"];
+	mModelProperties.mFactoryMeshes.pushMesh("testQuad", std::make_unique<Mesh>(testQuad));
 }
 
 void Program::initMaterial()
@@ -270,9 +281,9 @@ void Program::initMaterial()
 
 void Program::initModels()
 {
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
-														      mProgramProperties.mResourcePath + "Models/museum.obj", 
-															  std::vector<Texture2>()));
+	//mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+	//													      mProgramProperties.mResourcePath + "Models/museum.obj", 
+	//														  std::vector<Texture2>()));
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
 									  mProgramProperties.mResourcePath + "Models/lamppost.obj",
 									  std::vector<Texture2>()));
@@ -407,6 +418,13 @@ void Program::setMaterials()
 void Program::setModels()
 {
 	glStencilMask(0x00);
+
+	mProgramProperties.mFBO.bind();
+	//glViewport(0, 0, 800, 600);
+	mProgramProperties.mFBO.clearColor();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	
 	// floor
 	mProgramProperties.mShader.bind();
 	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
@@ -420,21 +438,21 @@ void Program::setModels()
 	mModelProperties.mFactoryMeshes.getMesh("floor").draw();
 
 	// museum
-	//mProgramProperties.mFBO.bindWrite();
-	mModelProperties.mModel[0]->initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-										mProgramProperties.mCamera.getViewMatrix(),
-										glm::vec3(1.0f, -34.5f, -1147.0f),
-										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-										glm::vec3(1.0f, 1.0f, 1.0f));
-	mModelProperties.mModel[0]->setUniforms(mProgramProperties.mCamera.getPos(), mProgramProperties.mCamera.getViewMatrix(),
-											glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mProgramProperties.mShader,
-											*mMaterialProperties.mMaterial.get(), true);
-	mModelProperties.mModel[0]->render();
+	//mModelProperties.mModel[0]->initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
+	//									mProgramProperties.mCamera.getViewMatrix(),
+	//									glm::vec3(1.0f, -34.5f, -1147.0f),
+	//									std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+	//									glm::vec3(1.0f, 1.0f, 1.0f));
+	//mModelProperties.mModel[0]->setUniforms(mProgramProperties.mCamera.getPos(), mProgramProperties.mCamera.getViewMatrix(),
+	//										glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mProgramProperties.mShader,
+	//										*mMaterialProperties.mMaterial.get(), true);
+	//mModelProperties.mModel[0]->render();
 
 	// light posts
 
 	auto setLightModels = [&](const glm::vec3& pPos, int32_t pInd)
 		{
+			mProgramProperties.mShader.bind();
 			mModelProperties.mModel[pInd]->initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
 												mProgramProperties.mCamera.getViewMatrix(),
 												pPos, std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -447,6 +465,7 @@ void Program::setModels()
 		};
 	auto setLightLights = [&](const glm::vec3& pPos, std::string_view pName)
 		{
+			mProgramProperties.mShader.bind();
 			mModelProperties.mFactoryMeshes.getMesh(pName).initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
 																	  mProgramProperties.mCamera.getViewMatrix(),
 																	  pPos, std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -456,13 +475,13 @@ void Program::setModels()
 																		  *mMaterialProperties.mMaterial.get(), false);
 			mModelProperties.mFactoryMeshes.getMesh(pName).draw();
 		};
-	setLightModels(glm::vec3(22.900051, 25.700062, -78.89937), 1);
-	setLightModels(glm::vec3(-140.900051, 25.700062, -78.89937), 2);
+	setLightModels(glm::vec3(22.900051, 25.700062, -78.89937), 0);
+	setLightModels(glm::vec3(-140.900051, 25.700062, -78.89937), 1);
 
 	setLightLights(glm::vec3( 38.399986,  75.799416, -69.39948),  "lightPost1");
 	setLightLights(glm::vec3( 38.399986,  75.799416, -88.09918),  "lightPost2");
-	setLightLights(glm::vec3(-125.79866,  75.899414, -65.599525), "lightPost3");
-	setLightLights(glm::vec3(-125.79866,  75.899414, -85.19923),  "lightPost4");
+	setLightLights(glm::vec3(-125.79866,  75.899414, -68.599525), "lightPost3");
+	setLightLights(glm::vec3(-125.79866,  75.899414, -88.19923),  "lightPost4");
 
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);
@@ -521,6 +540,13 @@ void Program::setModels()
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glEnable(GL_DEPTH_TEST);
 	mProgramProperties.mShaderSingleColor.unbind();
+	
+	mProgramProperties.mFBO.unbind();
+	mProgramProperties.mFBO.setClearColors({ 1.0f, 1.0f, 1.0f, 1.0f });
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+	mProgramProperties.mShaderSecondScreen.bind();
+	mModelProperties.mFactoryMeshes.getMesh("testQuad").drawInFrameBuffer(mProgramProperties.mFBO.getTexture());
 }
 
 void Program::debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
