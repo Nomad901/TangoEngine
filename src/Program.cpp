@@ -50,6 +50,8 @@ void Program::run()
 	mProgramProperties.mResourcePath = RESOURCES_PATH;
 	initAll();
 
+	mProgramProperties.mCamera.setSensivity(0.2f);
+
 	float prevTime = 0.0f;
 	float currTime = 0.0f;
 	float timeDiff;
@@ -107,7 +109,7 @@ void Program::input()
 
 		// CAMERA MOVING
 		if (event.type == SDL_EVENT_MOUSE_MOTION && mProgramProperties.mTakeCursor)
-			mProgramProperties.mCamera.mouseMovement(glm::vec2(event.motion.xrel / 5, event.motion.yrel / 5));
+			mProgramProperties.mCamera.mouseMovement(glm::vec2(event.motion.xrel, event.motion.yrel));
 	}
 
 	controlScreen();
@@ -335,21 +337,21 @@ void Program::controlScreen()
 
 void Program::controlCamera()
 {
-	float speedCamera = 0.5f;
+	float speed = 0.5f;
 	if (mProgramProperties.mKeyCodes[SDLK_LSHIFT])
-		speedCamera = 2.0f;
+		speed = 2.0f;
 	if (mProgramProperties.mKeyCodes[SDLK_W])
-		mProgramProperties.mCamera.moveForward(speedCamera);
+		mProgramProperties.mCamera.moveCamera(moveSides::FORWARD, speed);
 	if (mProgramProperties.mKeyCodes[SDLK_S])
-		mProgramProperties.mCamera.moveBackward(speedCamera);
+		mProgramProperties.mCamera.moveCamera(moveSides::BACKWARD, speed);
 	if (mProgramProperties.mKeyCodes[SDLK_A])
-		mProgramProperties.mCamera.moveLeft(speedCamera);
+		mProgramProperties.mCamera.moveCamera(moveSides::LEFT, speed);
 	if (mProgramProperties.mKeyCodes[SDLK_D])
-		mProgramProperties.mCamera.moveRight(speedCamera);
+		mProgramProperties.mCamera.moveCamera(moveSides::RIGHT, speed);
 	if (mProgramProperties.mKeyCodes[SDLK_LCTRL])
-		mProgramProperties.mCamera.moveDown(speedCamera);
+		mProgramProperties.mCamera.moveCamera(moveSides::DOWN, speed);
 	if (mProgramProperties.mKeyCodes[SDLK_SPACE])
-		mProgramProperties.mCamera.moveUp(speedCamera);
+		mProgramProperties.mCamera.moveCamera(moveSides::UP, speed);
 }
 
 void Program::controlModel()
@@ -420,6 +422,7 @@ void Program::setModels()
 	glStencilMask(0x00);
 
 	mProgramProperties.mFBO.bind();
+	glViewport(0, 0, 800, 600);
 	mProgramProperties.mFBO.clearColor();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -437,7 +440,7 @@ void Program::setModels()
 	
 	glDisable(GL_DEPTH_TEST);
 	mProgramProperties.mShaderSecondScreen.bind();
-	mProgramProperties.mShaderSecondScreen.setMatrixUniform4fv("uModel", glm::translate(glm::vec3(0.0f, 0.8f, 0.0f)));
+	mProgramProperties.mShaderSecondScreen.setMatrixUniform4fv("uModel", glm::translate(glm::vec3(0.0f, 0.8f, 1.0f)));
 	mModelProperties.mFactoryMeshes.getMesh("testQuad").drawInFrameBuffer(mProgramProperties.mFBO.getTexture());
 }
 
