@@ -79,7 +79,7 @@ private:
 		bool mProgIsRunning{ true };
 		bool mWhiteScreen{ false };
 		bool mTakeCursor{ true };
-
+		
 		uint32_t mWindowWidth, mWindowHeight;
 		std::unordered_map<SDL_Keycode, bool> mKeyCodes;
 		std::string mResourcePath;
@@ -122,6 +122,8 @@ private:
 		float mDistanceFromCamera{ 5.0f };
 		float mRotateDegree{ 1.0f };
 		
+		glm::mat4 mProjMatrix{ 1.0f };
+
 		glm::vec3 mRotateForFloor{ 0.0f, 1.0f, 0.0f };
 		glm::vec3 mLastPos{ 1.0f };
 

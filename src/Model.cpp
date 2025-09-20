@@ -42,13 +42,13 @@ void Model::init(const glm::vec3& pOriginPos, Material* pMaterialPtr,
 	mMeshes.push_back(std::make_unique<Mesh>(vertices, indices, pTextures));
 }
 
-void Model::initMVP(int32_t pWinWidth, int32_t pWinHeight,
+void Model::initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4& pProjMatrix,
 					const glm::mat4& pViewMatrix, const glm::vec3& pTranslation, 
 					const std::pair<float, glm::vec3>& pDegreeRotate, const glm::vec3& pScale)
 {
 	for (auto& i : mMeshes)
 	{
-		i->initMVP(pWinWidth, pWinHeight, pViewMatrix, pTranslation, pDegreeRotate, pScale);
+		i->initMVP(pWinWidth, pWinHeight, pProjMatrix, pViewMatrix, pTranslation, pDegreeRotate, pScale);
 	}
 }
 
@@ -67,30 +67,28 @@ glm::mat4 Model::getProjMatrix() const noexcept
 	return mMeshes[0]->getProjMatrix();
 }
 
-glm::mat4 Model::getMVP(bool pWithComputations)
+glm::mat4 Model::getMVP()
 {
-	return mMeshes[0]->getMVP(false);
+	return mMeshes[0]->getMVP();
 }
 
-void Model::setUniforms(const glm::vec3& pCameraPos, const glm::mat4& pViewMatrix, 
-						const glm::vec4& pColor, 
-						Shader& pShader, Material& pMaterial, bool pIsJustColored)
+void Model::setUniforms(Shader& pShader, const glm::vec4& pColor)
 {
 	for (auto& i : mMeshes)
 	{
-		i->setUniforms(pCameraPos, pViewMatrix, pColor, pShader, pMaterial, pIsJustColored);
+		i->setUniforms(pShader, pColor);
 	}
 }
 
-void Model::setPos(const glm::vec3& pPos, bool pRecomputeMVP)
+void Model::setPos(const glm::vec3& pPos)
 {
-	mMeshes[0]->setPos(pPos, pRecomputeMVP);
+	mMeshes[0]->setPos(pPos);
 	mPos = pPos;
 }
 
-void Model::setSize(const glm::vec3& pSize, bool pRecomputeMVP)
+void Model::setSize(const glm::vec3& pSize)
 {
-	mMeshes[0]->setSize(pSize, pRecomputeMVP);
+	mMeshes[0]->setSize(pSize);
 	mSize = pSize;
 }
 
@@ -140,6 +138,6 @@ void Model::render()
 void Model::updateUniforms(Shader& pShader)
 {
 	pShader.setMatrixUniform4fv("uModel", getModelMatrix());
-	pShader.setMatrixUniform4fv("uMVP", getMVP(false));
+	pShader.setMatrixUniform4fv("uMVP", getMVP());
 	mMaterial->sendToShader(pShader);
 }

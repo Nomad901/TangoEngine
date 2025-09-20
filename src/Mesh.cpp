@@ -99,7 +99,8 @@ void Mesh::init(const std::weak_ptr<Primitive>& pPrimitive)
 	}
 }
 
-void Mesh::initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4& pViewMatrix,
+void Mesh::initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4 pProjMatrix, 
+				   const glm::mat4& pViewMatrix,
 				   const glm::vec3& pTranslation, const std::pair<float, glm::vec3>& pDegreeRotate,
 				   const glm::vec3& pScale)
 {
@@ -108,9 +109,9 @@ void Mesh::initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4& pView
 	mRotate = pDegreeRotate;
 	mPos = pTranslation;
 	mSize = pScale;
-
-	mProjMatrix = glm::perspective(glm::radians(45.0f), (float)pWinWidth / (float)pWinHeight, 0.1f, 2000.0f);
+	mProjMatrix = pProjMatrix;
 	mViewMatrix = pViewMatrix;
+
 	mModelMatrix = glm::rotate(mModelMatrix, glm::radians(pDegreeRotate.first), pDegreeRotate.second);
 	mModelMatrix = glm::translate(mModelMatrix, pTranslation);
 	mModelMatrix = glm::scale(mModelMatrix, pScale);
@@ -140,6 +141,11 @@ void Mesh::setMVP(const glm::mat4& pModelMatrix,
 	mModelMatrix = pModelMatrix;
 	mViewMatrix = pViewMatrix;
 	mProjMatrix = pProjMatrix;
+	mMVP = mProjMatrix * mViewMatrix * mModelMatrix;
+}
+
+void Mesh::recomputeMVP()
+{
 	mMVP = mProjMatrix * mViewMatrix * mModelMatrix;
 }
 
@@ -178,80 +184,73 @@ Primitive& Mesh::getPrimitive()
 	return *mPrimitive.get();
 }
 
-void Mesh::setPos(const glm::vec3& pPos, bool pRecomputeMVP)
+void Mesh::setPos(const glm::vec3& pPos)
 {
 	mPos = pPos;
-	rebuildMatrix(pRecomputeMVP);
+	rebuildMatrix();
 }
 
-void Mesh::setSize(const glm::vec3& pSize, bool pRecomputeMVP)
+void Mesh::setSize(const glm::vec3& pSize)
 {
 	mSize = pSize;
-	rebuildMatrix(pRecomputeMVP);
+	rebuildMatrix();
 }
 
-glm::mat4 Mesh::getModelMatrix() const noexcept
+const glm::mat4& Mesh::getModelMatrix() const noexcept
 {
 	return mModelMatrix;
 }
 
-glm::mat4 Mesh::getViewMatrix() const noexcept
+const glm::mat4& Mesh::getViewMatrix() const noexcept
 {
 	return mViewMatrix;
 }
 
-glm::mat4 Mesh::getProjMatrix() const noexcept
+const glm::mat4& Mesh::getProjMatrix() const noexcept
 {
 	return mProjMatrix;
 }
 
-glm::mat4 Mesh::getMVP(bool pWithComputations)
+const glm::mat4& Mesh::getMVP()
 {
-	if(pWithComputations)
-		mMVP = mProjMatrix * mViewMatrix * mModelMatrix;
 	return mMVP;
 }
 
-glm::vec3 Mesh::getPos() const noexcept
+const glm::vec3& Mesh::getPos() const noexcept
 {
 	return mPos;
 }
 
-glm::vec3 Mesh::getSize() const noexcept
+const glm::vec3& Mesh::getSize() const noexcept
 {
 	return mSize;
 }
 
-VAO Mesh::getVAO() const noexcept
+const VAO&Mesh::getVAO() const noexcept
 {
 	return mVAO;
 }
 
-VBO Mesh::getVBO() const noexcept
+const VBO& Mesh::getVBO() const noexcept
 {
 	return mVBO;
 }
 
-EBO Mesh::getEBO() const noexcept
+const EBO& Mesh::getEBO() const noexcept
 {
 	return mEBO;
 }
 
-VBOLayout Mesh::getVBOLayout() const noexcept
+const VBOLayout& Mesh::getVBOLayout() const noexcept
 {
 	return mVBOLayout;
 }
 
-void Mesh::setUniforms(const glm::vec3& pCameraPos, const glm::mat4& pViewMatrix, 
-					   const glm::vec4& pColor,
-					   Shader& pShader, Material& pMaterial, bool pIsJustColored)
+void Mesh::setUniforms(Shader& pShader, const glm::vec3& pColor)
 {
 	pShader.setUniform3fv("uObjectColor", pColor);
-	pShader.setUniform3fv("cameraPos", pCameraPos);
-	pShader.setMatrixUniform4fv("uViewMatrix", pViewMatrix);
 	pShader.setMatrixUniform4fv("uModel", getModelMatrix());
-	pShader.setMatrixUniform4fv("uMVP", getMVP(false));
-	pMaterial.sendToShader(pShader, pIsJustColored);
+	pShader.setMatrixUniform4fv("uMVP", getMVP());
 }
 
 void Mesh::takeMesh(bool pTake)
@@ -283,13 +282,10 @@ void Mesh::drawInFrameBuffer(Texture2& pTexture)
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 
-void Mesh::rebuildMatrix(bool pRecomputeMVP)
+void Mesh::rebuildMatrix()
 {
 	mModelMatrix = glm::mat4(1.0f);
 	mModelMatrix = glm::rotate(mModelMatrix, glm::radians(mRotate.first), mRotate.second);
 	mModelMatrix = glm::translate(mModelMatrix, mPos);
 	mModelMatrix = glm::translate(mModelMatrix, mSize);
-
-	if(pRecomputeMVP)
-		mMVP = mProjMatrix * mViewMatrix * mModelMatrix;
 }

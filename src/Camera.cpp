@@ -8,7 +8,7 @@ Camera::Camera()
 
     mYaw = -90.0f;
     mPitch = 0.0f;
-    mSensivity = 45.0f;
+    mSensivity = 0.2f;
 }
 
 glm::mat4 Camera::getViewMatrix()

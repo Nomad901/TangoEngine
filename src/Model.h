@@ -30,20 +30,19 @@ public:
 	void init(const glm::vec3& pOriginPos, Material* pMaterialPtr, 
 			  const std::filesystem::path& pPath, const std::vector<Texture2>& pTextures);
 
-	void initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4& pViewMatrix,
+	void initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4& pProjMatrix,
+				 const glm::mat4& pViewMatrix,
 				 const glm::vec3& pTranslation, const std::pair<float, glm::vec3>& pDegreeRotate,
 				 const glm::vec3& pScale);
 	glm::mat4 getModelMatrix() const noexcept;
 	glm::mat4 getViewMatrix() const noexcept;
 	glm::mat4 getProjMatrix() const noexcept;
-	glm::mat4 getMVP(bool pWithComputations);
+	glm::mat4 getMVP();
 
-	void setUniforms(const glm::vec3& pCameraPos, const glm::mat4& pViewMatrix,
-					 const glm::vec4& pColor,
-					 Shader& pShader, Material& pMaterial, bool pIsJustColored);
+	void setUniforms(Shader& pShader, const glm::vec4& pColor);
 
-	void setPos(const glm::vec3& pPos, bool pRecomputeMVP);
-	void setSize(const glm::vec3& pSize, bool pRecomputeMVP);
+	void setPos(const glm::vec3& pPos);
+	void setSize(const glm::vec3& pSize);
 	glm::vec3 getPos() const noexcept;
 	glm::vec3 getSize() const noexcept;
 	glm::vec3 getOriginPos() const noexcept;

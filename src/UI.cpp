@@ -40,30 +40,6 @@ void UI::control(Program& pProgram)
 
 	ImGui::Begin("Control", &pProgram.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
 	
-	//ImGui::SliderFloat("Pos X", &pProgram.pos.x, -3000.0f, 3000.0f);
-	//ImGui::SliderFloat("Pos Y", &pProgram.pos.y, -3000.0f, 3000.0f);
-	//ImGui::SliderFloat("Pos Z", &pProgram.pos.z, -3000.0f, 3000.0f);
-	//
-	//ImGui::Spacing();
-
-	//ImGui::SliderFloat("Pos floor X", &pProgram.posFloor.x, -3000.0f, 3000.0f);
-	//ImGui::SliderFloat("Pos floor Y", &pProgram.posFloor.y, -3000.0f, 3000.0f);
-	//ImGui::SliderFloat("Pos floor Z", &pProgram.posFloor.z, -3000.0f, 3000.0f);
-
-	//ImGui::Spacing();
-
-	//ImGui::SliderFloat("Size floor X", &pProgram.sizeFloor.x, -3000.0f, 3000.0f);
-	//ImGui::SliderFloat("Size floor Y", &pProgram.sizeFloor.y, -3000.0f, 3000.0f);
-	//ImGui::SliderFloat("Size floor Z", &pProgram.sizeFloor.z, -3000.0f, 3000.0f);
-	//
-	//ImGui::Spacing();
-
-	//ImGui::SliderFloat("Level of rotate", &pProgram.levelOfRotate, -360.0f, 360.0f);
-
-	//ImGui::SliderFloat("Light pos X", &pProgram.posLights.x, -500.0f, 500.0f);
-	//ImGui::SliderFloat("Light pos Y", &pProgram.posLights.y, -500.0f, 500.0f);
-	//ImGui::SliderFloat("Light pos Z", &pProgram.posLights.z, -1000.0f, 500.0f);
-
 	ImGui::Spacing();
 	ImGui::Spacing();
 	ImGui::Spacing();
