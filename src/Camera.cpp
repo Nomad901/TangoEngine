@@ -20,7 +20,7 @@ void Camera::mouseMovement(const glm::vec2& pPos, bool pConstraintPitch)
 {
     glm::vec2 mousePos = pPos;
     mousePos.x *= mSensivity;
-    mousePos.y *= mSensivity;
+    mousePos.y *= -mSensivity;
 
     mYaw   += mousePos.x;
     mPitch += mousePos.y;
@@ -29,47 +29,45 @@ void Camera::mouseMovement(const glm::vec2& pPos, bool pConstraintPitch)
     {
         if (mPitch > 89.0f)
             mPitch = 89.0f;
-        if (mYaw < -89.0f)
-            mYaw = -89.0f;
+        if (mPitch < -89.0f)
+            mPitch = -89.0f;
     }
 
     updateCameraVertex();
-    
-    //mDirection = glm::rotate(mDirection, glm::radians(-pPos.x), mUpVec);
-    //glm::vec3 mTmpVec = glm::normalize(glm::cross(mDirection, mUpVec));
-    //mDirection = glm::rotate(mDirection, glm::radians(-pPos.y), mTmpVec);
 }
 
-void Camera::moveRight(float pSpeed)
+void Camera::moveCamera(moveSides pMoveSide, float pSpeed)
 {
-    glm::vec3 tmpVec = glm::normalize(glm::cross(mDirection, mUpVec));
-    mEye += tmpVec * pSpeed;
+    glm::vec3 tmpVec;
+
+    switch (pMoveSide)
+    {
+    case moveSides::RIGHT:
+        tmpVec = glm::normalize(glm::cross(mDirection, mUpVec));
+        mEye += tmpVec * pSpeed;
+        break;
+    case moveSides::LEFT:
+        tmpVec = glm::normalize(glm::cross(mUpVec, mDirection));
+        mEye += tmpVec * pSpeed;
+        break;
+    case moveSides::FORWARD:
+        mEye += mDirection * pSpeed;
+        break;
+    case moveSides::BACKWARD:
+        mEye -= mDirection * pSpeed;
+        break;
+    case moveSides::UP:
+        mEye += mUpVec * pSpeed;
+        break;
+    case moveSides::DOWN:
+        mEye -= mUpVec * pSpeed;
+        break;
+    }
 }
 
-void Camera::moveLeft(float pSpeed)
+void Camera::setMovementSpeed(float pMovementSpeed)
 {
-    glm::vec3 tmpVec = glm::normalize(glm::cross(mUpVec, mDirection));
-    mEye += tmpVec * pSpeed;
-}
-
-void Camera::moveForward(float pSpeed)
-{
-    mEye += mDirection * pSpeed;
-}
-
-void Camera::moveBackward(float pSpeed)
-{
-    mEye -= mDirection * pSpeed;
-}
-
-void Camera::moveDown(float pSpeed)
-{
-    mEye -= mUpVec * pSpeed;
-}
-
-void Camera::moveUp(float pSpeed)
-{
-    mEye += mUpVec * pSpeed;
+    mMovementSpeed = pMovementSpeed;
 }
 
 void Camera::setSensivity(float pSensivity)
@@ -90,6 +88,11 @@ void Camera::setYaw(float pYaw)
 void Camera::setPitch(float pPitch)
 {
     mPitch = pPitch;
+}
+
+float Camera::getMovementSpeed() const noexcept
+{
+    return mMovementSpeed;
 }
 
 float Camera::getYaw() const noexcept
@@ -118,7 +121,7 @@ void Camera::setUpVec(const glm::vec3& pUpVec)
 }
 
 glm::vec3 Camera::getPos() const noexcept
-{
+{   
     return mEye;
 }
 
@@ -139,6 +142,5 @@ void Camera::updateCameraVertex()
     front.y = sin(glm::radians(mPitch));
     front.z = sin(glm::radians(mYaw)) * cos(glm::radians(mPitch));
     front = glm::normalize(front);
-
-
+    mDirection = glm::normalize(front);
 }
