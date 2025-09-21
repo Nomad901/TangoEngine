@@ -40,6 +40,9 @@ void UI::control(Program& pProgram)
 
 	ImGui::Begin("Control", &pProgram.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
 	
+	ImGui::SliderFloat("surroundNum", &pProgram.surroundNum, -100, 100);
+	ImGui::SliderFloat("insideNum", &pProgram.insideNum, -100, 100);
+
 	ImGui::Spacing();
 	ImGui::Spacing();
 	ImGui::Spacing();

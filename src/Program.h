@@ -92,10 +92,12 @@ private:
 		SDL_Event mEvent;
 
 		Camera mCamera;
+
 		Shader mShader;
 		Shader mShaderSingleColor;
 		Shader mShaderSecondScreen;
 		Shader mSkyboxShader;
+		Shader mSkyboxBlockShader;
 
 		FBO mFBO;
 		std::vector<FBO> mFBOstrg;
@@ -140,6 +142,9 @@ private:
 		FactoryMesh mFactoryMeshes;
 		OBJLoader mOBJLoader;
 	} mModelProperties;
+
+	float surroundNum{ -1 };
+	float insideNum{ 9 };
 
 	UI mUI;
 	friend class UI;
