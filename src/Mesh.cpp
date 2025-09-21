@@ -99,8 +99,7 @@ void Mesh::init(const std::weak_ptr<Primitive>& pPrimitive)
 	}
 }
 
-void Mesh::initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4 pProjMatrix, 
-				   const glm::mat4& pViewMatrix,
+void Mesh::initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix,
 				   const glm::vec3& pTranslation, const std::pair<float, glm::vec3>& pDegreeRotate,
 				   const glm::vec3& pScale)
 {
@@ -265,10 +264,6 @@ bool Mesh::meshIsTaken() const noexcept
 
 void Mesh::draw()
 {
-	//for (size_t i = 0; i < mTextures.size(); ++i)
-	//{
-	//	mTextures[i].bind(i);
-	//}
 	mTexture.bind(mPrimitive->getTexSloth());
 	mVAO.bind();
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
@@ -279,6 +274,13 @@ void Mesh::drawInFrameBuffer(Texture2& pTexture)
 	mVAO.bind();
 	glDisable(GL_DEPTH_TEST);
 	pTexture.bind();
+	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
+}
+
+void Mesh::drawSkybox()
+{
+	mTexture.bindSkybox(mPrimitive->getTexSloth());
+	mVAO.bind();
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 

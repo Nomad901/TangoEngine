@@ -30,10 +30,8 @@ public:
 	void init(const glm::vec3& pOriginPos, Material* pMaterialPtr, 
 			  const std::filesystem::path& pPath, const std::vector<Texture2>& pTextures);
 
-	void initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4& pProjMatrix,
-				 const glm::mat4& pViewMatrix,
-				 const glm::vec3& pTranslation, const std::pair<float, glm::vec3>& pDegreeRotate,
-				 const glm::vec3& pScale);
+	void initMVP(const glm::mat4& pProjMatrix, const glm::mat4& pViewMatrix, const glm::vec3& pTranslation, 
+				 const std::pair<float, glm::vec3>& pDegreeRotate, const glm::vec3& pScale);
 	glm::mat4 getModelMatrix() const noexcept;
 	glm::mat4 getViewMatrix() const noexcept;
 	glm::mat4 getProjMatrix() const noexcept;

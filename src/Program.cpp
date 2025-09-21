@@ -155,8 +155,6 @@ void Program::preDraw()
 	SDL_GetMouseState(&mousePos.x, &mousePos.y);
 	mProgramProperties.mMousePicker.update(mProgramProperties.mCamera, { mousePos.x, mousePos.y });
 
-	mProgramProperties.mCrosshair->render(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
-
 	setLights();
 	setLightCube();
 
@@ -189,22 +187,25 @@ void Program::initAll()
 	initLights();
 	initCrosshair();
 	initMousePicker();
+	initSkybox();
 }
 
 void Program::initShaders()
 {
 	mProgramProperties.mShader.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
-		mProgramProperties.mShader.getResourcePath() + "Shaders/frag.glsl");
+									mProgramProperties.mShader.getResourcePath() + "Shaders/frag.glsl");
 	mProgramProperties.mShaderSingleColor.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
-		mProgramProperties.mShader.getResourcePath() + "Shaders/shaderSingleColor.glsl");
+											   mProgramProperties.mShader.getResourcePath() + "Shaders/shaderSingleColor.glsl");
 	mProgramProperties.mShaderSecondScreen.init(mProgramProperties.mShaderSecondScreen.getResourcePath() + "Shaders/vertFrameBuffer.glsl",
-		mProgramProperties.mShader.getResourcePath() + "Shaders/fragFrameBuffer.glsl");
+												mProgramProperties.mShader.getResourcePath() + "Shaders/fragFrameBuffer.glsl");
+	mProgramProperties.mSkyboxShader.init(mProgramProperties.mSkyboxShader.getResourcePath() + "Shaders/vertSkybox.glsl",
+										  mProgramProperties.mSkyboxShader.getResourcePath() + "Shaders/fragSkybox.glsl");
 }
 
 void Program::initTextures()
 {
 	mModelProperties.mTextures.reserve(32);
-	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "container.png", "material.textures");
+	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "blending_transparent_window.png", "material.textures");
 	//mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "grass.png", "material.textures");
 }
 
@@ -223,7 +224,7 @@ void Program::initPrimitives()
 	mModelProperties.mPrimitives.insert_or_assign("character", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// blocks to choose
-	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(mModelProperties.mTextures[0], 0));
+	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(mModelProperties.mTextures[0], 0, false));
 	mModelProperties.mPrimitives.insert_or_assign("block2", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// lights on ligth-posts
@@ -292,11 +293,11 @@ void Program::initModels()
 													          mProgramProperties.mResourcePath + "Models/mirror.obj", 
 														      std::vector<Texture2>()));
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
-		mProgramProperties.mResourcePath + "Models/lamppost.obj",
-		std::vector<Texture2>()));
+															  mProgramProperties.mResourcePath + "Models/lamppost.obj",
+															  std::vector<Texture2>()));
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
-		mProgramProperties.mResourcePath + "Models/lamppost.obj",
-		std::vector<Texture2>()));
+															  mProgramProperties.mResourcePath + "Models/lamppost.obj",
+															  std::vector<Texture2>()));
 }
 
 void Program::initLights()
@@ -325,6 +326,23 @@ void Program::initMousePicker()
 		glm::perspective(glm::radians(45.0f), (float)mProgramProperties.mWindowWidth /
 			(float)mProgramProperties.mWindowHeight, 0.1f, 2000.0f),
 		{ mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight });
+}
+
+void Program::initSkybox()
+{
+	std::string resourcePath = RESOURCES_PATH;
+	std::array<std::filesystem::path, 6> paths =
+	{
+		resourcePath + "ulukai/corona_lf.png",
+		resourcePath + "ulukai/corona_rt.png",
+		resourcePath + "ulukai/corona_up.png",
+		resourcePath + "ulukai/corona_dn.png",
+		resourcePath + "ulukai/corona_ft.png",
+		resourcePath + "ulukai/corona_bk.png"
+	};
+	mProgramProperties.mSkyboxShader.bind();
+	mProgramProperties.mSkybox = std::make_unique<Skybox>(typeSkybox::CUBE, paths, 1);
+	mProgramProperties.mSkyboxShader.setUniform1i("uSkybox", 1);
 }
 
 void Program::controlScreen()
@@ -433,6 +451,8 @@ void Program::setModels()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
+	setSkybox();
+
 	mProgramProperties.mCamera.setYaw(mProgramProperties.mCamera.getYaw() + 180.0f);
 	mProgramProperties.mCamera.mouseMovement({ 0, 0 }, false);
 	drawModels();
@@ -446,13 +466,15 @@ void Program::setModels()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glStencilMask(0x00);
 
+	setSkybox();
+
 	drawModels();
 	
 	glDisable(GL_DEPTH_TEST);
-	mProgramProperties.mShaderSecondScreen.bind();
+	mProgramProperties.mCrosshair->render(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
 
-	mModelProperties.mFactoryMeshes.getMesh("testQuad").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-																mModelProperties.mProjMatrix,
+	mProgramProperties.mShaderSecondScreen.bind();
+	mModelProperties.mFactoryMeshes.getMesh("testQuad").initMVP(mModelProperties.mProjMatrix,
 																mProgramProperties.mCamera.getViewMatrix(),
 																glm::vec3(-3.0f, 30.0f, -150.0f),
 																std::make_pair(-180.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -463,6 +485,30 @@ void Program::setModels()
 	mModelProperties.mFactoryMeshes.getMesh("testQuad").drawInFrameBuffer(mProgramProperties.mFBO.getTexture());
 }
 
+void Program::setSkybox()
+{
+	glDepthFunc(GL_LEQUAL);
+	glDisable(GL_CULL_FACE);
+
+	mProgramProperties.mSkyboxShader.bind();
+
+	glm::mat4 view = glm::mat4(glm::mat3(mProgramProperties.mCamera.getViewMatrix()));
+	glm::mat4 model = glm::scale(glm::vec3(3000.0f, 3000.0f, 3000.0f));
+	glm::mat4 skyboxMVP = mModelProperties.mProjMatrix * view * model;
+	
+	//mProgramProperties.mSkybox->getMesh().initMVP(mModelProperties.mProjMatrix, mProgramProperties.mCamera.getViewMatrix(),
+	//											  glm::vec3(1.0, 1.0f, 1.0f),
+	//											  std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
+	//											  glm::vec3(3000.0f, 3000.0f, 3000.0f));
+
+	//mProgramProperties.mSkyboxShader.setMatrixUniform4fv("uMVP", mProgramProperties.mSkybox->getMesh().getMVP());
+	mProgramProperties.mSkyboxShader.setMatrixUniform4fv("uMVP", skyboxMVP);
+
+	mProgramProperties.mSkybox->getMesh().drawSkybox();
+	glDepthFunc(GL_LESS);
+	glEnable(GL_CULL_FACE);
+}
+
 void Program::drawModels()
 {
 	// floor
@@ -471,8 +517,7 @@ void Program::drawModels()
 	mProgramProperties.mShader.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, true);
 
-	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-															 mModelProperties.mProjMatrix,
+	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mModelProperties.mProjMatrix,
 															 mProgramProperties.mCamera.getViewMatrix(),
 															 glm::vec3(1.0f, 1.0f, -23.0f),
 															 std::make_pair(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
@@ -481,8 +526,7 @@ void Program::drawModels()
 	mModelProperties.mFactoryMeshes.getMesh("floor").draw();
 
 	// museum
-	mModelProperties.mModel[0]->initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-										mModelProperties.mProjMatrix,
+	mModelProperties.mModel[0]->initMVP(mModelProperties.mProjMatrix,
 										mProgramProperties.mCamera.getViewMatrix(),
 										glm::vec3(1.0f, -34.5f, -1147.0f),
 										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -494,8 +538,7 @@ void Program::drawModels()
 
 	auto setLightModels = [&](const glm::vec3& pPos, int32_t pInd)
 		{
-			mModelProperties.mModel[pInd]->initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-												   mModelProperties.mProjMatrix, 
+			mModelProperties.mModel[pInd]->initMVP(mModelProperties.mProjMatrix, 
 												   mProgramProperties.mCamera.getViewMatrix(),
 												   pPos, std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 												   glm::vec3(20.0f, 20.0f, 20.0f));
@@ -505,8 +548,7 @@ void Program::drawModels()
 		};
 	auto setLightLights = [&](const glm::vec3& pPos, std::string_view pName)
 		{
-			mModelProperties.mFactoryMeshes.getMesh(pName).initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-																   mModelProperties.mProjMatrix,
+			mModelProperties.mFactoryMeshes.getMesh(pName).initMVP(mModelProperties.mProjMatrix,
 																   mProgramProperties.mCamera.getViewMatrix(),
 																   pPos, std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 																   glm::vec3(5.0f, 5.0f, 5.0f));
@@ -524,8 +566,7 @@ void Program::drawModels()
 
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);
-	mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-															  mModelProperties.mProjMatrix,
+	mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mModelProperties.mProjMatrix,
 															  mProgramProperties.mCamera.getViewMatrix(),
 															  glm::vec3(10.0f, 10.0f, 10.0f),
 															  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -535,8 +576,7 @@ void Program::drawModels()
 
 
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, false);
-	mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-															  mModelProperties.mProjMatrix, 
+	mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mModelProperties.mProjMatrix, 
 															  mProgramProperties.mCamera.getViewMatrix(),
 															  glm::vec3(1.0f, 1.0f, 1.0f),
 															  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -551,8 +591,7 @@ void Program::drawModels()
 	float scale = 5.1f;
 	if (mProgramProperties.mMousePicker.checkIntersection(mModelProperties.mFactoryMeshes.getMesh("block2")))
 	{
-		mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-																  mModelProperties.mProjMatrix,
+		mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mModelProperties.mProjMatrix,
 																  mProgramProperties.mCamera.getViewMatrix(),
 																  glm::vec3(10.0f, 10.0f, 10.0f),
 																  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -564,8 +603,7 @@ void Program::drawModels()
 	}
 	if (mProgramProperties.mMousePicker.checkIntersection(mModelProperties.mFactoryMeshes.getMesh("block1")))
 	{
-		mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight,
-																  mModelProperties.mProjMatrix, 
+		mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mModelProperties.mProjMatrix, 
 																  mProgramProperties.mCamera.getViewMatrix(),
 																  glm::vec3(1.0f, 1.0f, 1.0f),
 																  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),

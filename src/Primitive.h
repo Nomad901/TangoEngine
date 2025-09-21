@@ -63,8 +63,17 @@ public:
 class Cube : public Primitive
 {
 public:
-	Cube(const Texture2& pTexture, uint32_t pSloth);
+	Cube(const Texture2& pTexture, uint32_t pSloth, bool pForSkybox);
 	Cube(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor);
 	Cube(const glm::vec4& pColor);
+
+};
+
+class Sphere : public Primitive
+{
+public:
+	Sphere(const Texture2& pTexture, uint32_t pSloth);
+	Sphere(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor);
+	Sphere(const glm::vec4& pColor);
 
 };

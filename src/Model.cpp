@@ -42,13 +42,12 @@ void Model::init(const glm::vec3& pOriginPos, Material* pMaterialPtr,
 	mMeshes.push_back(std::make_unique<Mesh>(vertices, indices, pTextures));
 }
 
-void Model::initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4& pProjMatrix,
-					const glm::mat4& pViewMatrix, const glm::vec3& pTranslation, 
+void Model::initMVP(const glm::mat4& pProjMatrix,const glm::mat4& pViewMatrix, const glm::vec3& pTranslation, 
 					const std::pair<float, glm::vec3>& pDegreeRotate, const glm::vec3& pScale)
 {
 	for (auto& i : mMeshes)
 	{
-		i->initMVP(pWinWidth, pWinHeight, pProjMatrix, pViewMatrix, pTranslation, pDegreeRotate, pScale);
+		i->initMVP(pProjMatrix, pViewMatrix, pTranslation, pDegreeRotate, pScale);
 	}
 }
 

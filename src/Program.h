@@ -26,6 +26,7 @@
 #include "MousePicker.h"
 #include "Crosshair.h"
 #include "FBO.h"
+#include "Skybox.h"
 
 class Program
 {
@@ -51,6 +52,7 @@ private:
 	void initLights();
 	void initCrosshair();
 	void initMousePicker();
+	void initSkybox();
 
 	void controlScreen();
 	void controlCamera();
@@ -63,6 +65,7 @@ private:
 	void setLightCube();
 	void setMaterials();
 	void setModels();
+	void setSkybox();
 
 	void drawModels();
 
@@ -92,9 +95,12 @@ private:
 		Shader mShader;
 		Shader mShaderSingleColor;
 		Shader mShaderSecondScreen;
+		Shader mSkyboxShader;
 
 		FBO mFBO;
 		std::vector<FBO> mFBOstrg;
+		
+		std::unique_ptr<Skybox> mSkybox;
 
 		MousePicker mMousePicker;
 		std::unique_ptr<Crosshair> mCrosshair;

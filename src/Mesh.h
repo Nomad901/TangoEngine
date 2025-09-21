@@ -34,8 +34,7 @@ public:
 			  const std::vector<Texture2>& pTextures);
 	void init(const std::weak_ptr<Primitive>& pPrimitive);
 
-	void initMVP(int32_t pWinWidth, int32_t pWinHeight, const glm::mat4 pProjMatrix, 
-				 const glm::mat4& pViewMatrix,
+	void initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix,
 				 const glm::vec3& pTranslation, const std::pair<float, glm::vec3>& pDegreeRotate,
 				 const glm::vec3& pScale);
 	void setModelMatrix(const glm::mat4& pModelMatrix);
@@ -76,6 +75,7 @@ public:
 
 	void draw();
 	void drawInFrameBuffer(Texture2& pTexture);
+	void drawSkybox();
 
 private:
 	void rebuildMatrix(); 

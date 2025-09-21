@@ -54,10 +54,49 @@ void Texture2::initEmpty(int32_t pWidth, int32_t pHeight)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture2::initCubeMaps(const std::array<std::filesystem::path, 6>& pPaths)
+{
+	stbi_set_flip_vertically_on_load(false);
+
+	glGenTextures(1, &mRendererID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, mRendererID);
+	
+	int32_t width, height, nrChannels;
+	for (size_t i = 0; i < pPaths.size(); ++i)
+	{
+		mLocalBuffer = stbi_load(pPaths[i].string().c_str(), &width, &height, &nrChannels, 0);
+		if (mLocalBuffer)
+		{			
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
+						 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, mLocalBuffer);
+			stbi_image_free(mLocalBuffer);
+		}
+		else
+		{
+			std::cout << "couldnt load the image\n";
+			break;
+		}
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
 void Texture2::bind(uint32_t pSlot)
 {
 	glActiveTexture(GL_TEXTURE0 + pSlot);
 	glBindTexture(GL_TEXTURE_2D, mRendererID);
+}
+
+void Texture2::bindSkybox(uint32_t pSlot)
+{
+	glActiveTexture(GL_TEXTURE0 + pSlot);
+	glBindTexture(GL_TEXTURE_CUBE_MAP , mRendererID);
 }
 
 void Texture2::unbind()
