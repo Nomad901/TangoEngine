@@ -5,10 +5,13 @@ layout(location = 1) in vec3 normals;
 layout(location = 2) in vec4 color;
 layout(location = 3) in vec2 posTex;
 
-out vec3 fragPos;
-out vec4 fragColor;
-out vec2 fragPosTex;
-out vec3 fragNormals;
+out fragOut
+{
+	vec3 fragPos;
+	vec4 fragColor;
+	vec2 fragPosTex;
+	vec3 fragNormals;
+} outFragOut;
 
 uniform mat4 uMVP;
 uniform mat4 uModel;
@@ -19,8 +22,8 @@ void main()
 {
 	gl_Position = uMVP * vec4(pos, 1.0);
 
-	fragColor = color;
-	fragPosTex = posTex;
-	fragNormals = mat3(transpose(inverse(uModel))) * normals;
-	fragPos = vec3(uModel * vec4(pos, 1.0f));
+	outFragOut.fragColor = color;
+	outFragOut.fragPosTex = posTex;
+	outFragOut.fragNormals = mat3(transpose(inverse(uModel))) * normals;
+	outFragOut.fragPos = vec3(uModel * vec4(pos, 1.0f));
 }
