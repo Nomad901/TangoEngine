@@ -17,6 +17,7 @@ public:
 	~Texture2();
 
 	void init(const std::filesystem::path& pPath, std::string_view pUniformName, bool pRepeatTexture = false);
+	void init(const std::filesystem::path& pPath, bool pRepeatTexture = false);
 	void initEmpty(int32_t pWidth, int32_t pHeight);
 	void initCubeMaps(const std::array<std::filesystem::path, 6>& pPaths);
 

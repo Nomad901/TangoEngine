@@ -27,6 +27,7 @@
 #include "Crosshair.h"
 #include "FBO.h"
 #include "Skybox.h"
+#include "Skydome.h"
 
 class Program
 {
@@ -98,6 +99,8 @@ private:
 		Shader mShaderSecondScreen;
 		Shader mSkyboxShader;
 		Shader mSkyboxBlockShader;
+
+		std::unique_ptr<Skydome> mSkydome;
 
 		FBO mFBO;
 		std::vector<FBO> mFBOstrg;
