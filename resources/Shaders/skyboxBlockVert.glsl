@@ -1,4 +1,4 @@
-#version 440
+#version 430
 
 layout(location = 0) in vec3 pos;
 layout(location = 1) in vec3 normals;
@@ -7,6 +7,12 @@ layout(location = 3) in vec2 posTex;
 
 out vec3 fragPos;
 out vec3 fragNormals;
+
+layout (std140, binding = 0) uniform Matrices
+{
+	mat4 uProj;
+	mat4 uViewMatrix;
+};
 
 uniform mat4 uMVP;
 uniform mat4 uModel;
