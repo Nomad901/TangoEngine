@@ -27,7 +27,7 @@
 #include "Crosshair.h"
 #include "FBO.h"
 #include "Skybox.h"
-#include "Skydome.h"
+#include "UBO.h"
 
 class Program
 {
@@ -54,6 +54,7 @@ private:
 	void initCrosshair();
 	void initMousePicker();
 	void initSkybox();
+	void initUBO();
 
 	void controlScreen();
 	void controlCamera();
@@ -69,6 +70,7 @@ private:
 	void setSkybox();
 
 	void drawModels();
+	void drawNormals();
 
 	static void debugOutput(GLenum source,
 							GLenum type,
@@ -83,7 +85,8 @@ private:
 		bool mProgIsRunning{ true };
 		bool mWhiteScreen{ false };
 		bool mTakeCursor{ true };
-		
+		bool mWireFrameMode{ false };
+
 		uint32_t mWindowWidth, mWindowHeight;
 		std::unordered_map<SDL_Keycode, bool> mKeyCodes;
 		std::string mResourcePath;
@@ -99,8 +102,9 @@ private:
 		Shader mShaderSecondScreen;
 		Shader mSkyboxShader;
 		Shader mSkyboxBlockShader;
+		Shader mShaderNormals;
 
-		std::unique_ptr<Skydome> mSkydome;
+		UBO mUBO;
 
 		FBO mFBO;
 		std::vector<FBO> mFBOstrg;
@@ -148,6 +152,10 @@ private:
 
 	float surroundNum{ -1 };
 	float insideNum{ 9 };
+
+
+	uint32_t mUBOnumber;
+
 
 	UI mUI;
 	friend class UI;

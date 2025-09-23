@@ -5,6 +5,11 @@ Shader::Shader(const std::filesystem::path& pPathVertex, const std::filesystem::
 	init(pPathVertex, pPathFragment);
 }
 
+Shader::Shader(const std::filesystem::path& pPathVertex, const std::filesystem::path& pPathFragment, const std::filesystem::path& pPathGeometry)
+{
+	init(pPathVertex, pPathFragment, pPathGeometry);
+}
+
 Shader::~Shader()
 {
 	glDeleteProgram(mShaderID);
@@ -18,6 +23,15 @@ void Shader::init(const std::filesystem::path& pPathVertex, const std::filesyste
 	mShaderID = createShaders(vertexSource, fragmentSource);
 }
 
+void Shader::init(const std::filesystem::path& pPathVertex, const std::filesystem::path& pPathFragment, const std::filesystem::path& pPathGeometry)
+{
+	std::string vertexSource = parsePath(pPathVertex);
+	std::string fragmentSource = parsePath(pPathFragment);
+	std::string geometrySource = parsePath(pPathGeometry);
+
+	mShaderID = createShaders(vertexSource, fragmentSource, geometrySource);
+}
+
 void Shader::bind()
 {
 	glUseProgram(mShaderID);
@@ -26,6 +40,11 @@ void Shader::bind()
 void Shader::unbind()
 {
 	glUseProgram(0);
+}
+
+uint32_t Shader::getID() const noexcept
+{
+	return mShaderID;
 }
 
 void Shader::setUniform1i(std::string_view pName, int32_t pValue)
@@ -75,6 +94,31 @@ uint32_t Shader::createShaders(std::string_view pVertexSource, std::string_view 
 
 	glDeleteShader(vertexSource);
 	glDeleteShader(fragmentSource);
+
+	return program;
+}
+
+uint32_t Shader::createShaders(std::string_view pVertexSource, std::string_view pFragmentSource, std::string_view pGeometrySource)
+{
+	uint32_t program = glCreateProgram();
+	uint32_t vertexSource = compileShaders(GL_VERTEX_SHADER, std::string(pVertexSource));
+	uint32_t fragmentSource = compileShaders(GL_FRAGMENT_SHADER, std::string(pFragmentSource));
+	uint32_t geometrySource = compileShaders(GL_GEOMETRY_SHADER, std::string(pGeometrySource));
+
+	glAttachShader(program, vertexSource);
+	glAttachShader(program, fragmentSource);
+	glAttachShader(program, geometrySource);
+
+	glLinkProgram(program);
+	glValidateProgram(program);
+
+	glDetachShader(program, vertexSource);
+	glDetachShader(program, fragmentSource);
+	glDetachShader(program, geometrySource);
+
+	glDeleteShader(vertexSource);
+	glDeleteShader(fragmentSource);
+	glDeleteShader(geometrySource);
 
 	return program;
 }

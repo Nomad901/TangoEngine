@@ -136,9 +136,16 @@ void Program::preDraw()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// optimization
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+
+	glEnable(GL_PROGRAM_POINT_SIZE);
+
+	if(mProgramProperties.mWireFrameMode)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -188,20 +195,35 @@ void Program::initAll()
 	initLights();
 	initCrosshair();
 	initMousePicker();
+	initUBO();
 }
 
 void Program::initShaders()
 {
+	// main shader
 	mProgramProperties.mShader.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
 									mProgramProperties.mShader.getResourcePath() + "Shaders/frag.glsl");
+
+	// was create for creating source of lights. like white block
 	mProgramProperties.mShaderSingleColor.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
 											   mProgramProperties.mShader.getResourcePath() + "Shaders/shaderSingleColor.glsl");
+
+	// FBO shader
 	mProgramProperties.mShaderSecondScreen.init(mProgramProperties.mShaderSecondScreen.getResourcePath() + "Shaders/vertFrameBuffer.glsl",
 												mProgramProperties.mShader.getResourcePath() + "Shaders/fragFrameBuffer.glsl");
+
+	// skybox shader
 	mProgramProperties.mSkyboxShader.init(mProgramProperties.mSkyboxShader.getResourcePath() + "Shaders/vertSkybox.glsl",
 										  mProgramProperties.mSkyboxShader.getResourcePath() + "Shaders/fragSkybox.glsl");
+
+	// skybox block shader
 	mProgramProperties.mSkyboxBlockShader.init(mProgramProperties.mSkyboxBlockShader.getResourcePath() + "Shaders/skyboxBlockVert.glsl",
 											   mProgramProperties.mSkyboxBlockShader.getResourcePath() + "Shaders/skyboxBlockFrag.glsl");
+
+	// shader of normals
+	mProgramProperties.mShaderNormals.init(mProgramProperties.mSkyboxBlockShader.getResourcePath() + "Shaders/normalsVert.glsl",
+										   mProgramProperties.mSkyboxBlockShader.getResourcePath() + "Shaders/normalsFrag.glsl",
+										   mProgramProperties.mSkyboxBlockShader.getResourcePath() + "Shaders/normalsGeom.geom");
 }
 
 void Program::initTextures()
@@ -347,6 +369,13 @@ void Program::initSkybox()
 	mProgramProperties.mSkyboxShader.setUniform1i("uSkybox", 1);
 }
 
+void Program::initUBO()
+{
+	mProgramProperties.mUBO.init({ {mProgramProperties.mShader.getID(), "Matrices"},
+							       {mProgramProperties.mSkyboxBlockShader.getID(), "Matrices"} },
+								    0, 2 * sizeof(glm::mat4));
+}
+
 void Program::controlScreen()
 {
 	// WHITE/BLACK SCREEN
@@ -453,13 +482,13 @@ void Program::setModels()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
-	setSkybox();
-
+	setSkybox();	
 	mProgramProperties.mCamera.setYaw(mProgramProperties.mCamera.getYaw() + 180.0f);
 	mProgramProperties.mCamera.mouseMovement({ 0, 0 }, false);
 	drawModels();
 	mProgramProperties.mCamera.setYaw(mProgramProperties.mCamera.getYaw() - 180.0f);
 	mProgramProperties.mCamera.mouseMovement({ 0, 0 }, true);
+	drawNormals();
 
 	mProgramProperties.mFBO.unbind();
 	glViewport(0, 0, mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
@@ -469,8 +498,8 @@ void Program::setModels()
 	glStencilMask(0x00);
 
 	setSkybox();
-
 	drawModels();
+	drawNormals();
 	
 	glDisable(GL_DEPTH_TEST);
 	mProgramProperties.mCrosshair->render(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
@@ -513,9 +542,11 @@ void Program::setSkybox()
 
 void Program::drawModels()
 {
+	mProgramProperties.mUBO.appendData(0, glm::value_ptr(mModelProperties.mProjMatrix));
+	mProgramProperties.mUBO.appendData(sizeof(glm::mat4), glm::value_ptr(mProgramProperties.mCamera.getViewMatrix()));
+	
 	mProgramProperties.mShader.bind();
 	mProgramProperties.mShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
-	mProgramProperties.mShader.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, true);
 
 	//// floor
@@ -624,6 +655,21 @@ void Program::drawModels()
 	glStencilMask(0xFF);
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glEnable(GL_DEPTH_TEST);
+}
+
+void Program::drawNormals()
+{
+	mProgramProperties.mShaderNormals.bind();
+	mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mModelProperties.mProjMatrix,
+															  mProgramProperties.mCamera.getViewMatrix(),
+															  glm::vec3(10.0f, 10.0f, 10.0f),
+															  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+															  glm::vec3(5.0f, 5.0f, 5.0f));
+	mProgramProperties.mShaderNormals.setUniform3fv("uColor", glm::vec3(1.0f, 0.0f, 1.0f));
+	mProgramProperties.mShaderNormals.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block2").getModelMatrix());
+	mProgramProperties.mShaderNormals.setMatrixUniform4fv("uView", mModelProperties.mFactoryMeshes.getMesh("block2").getViewMatrix());
+	mProgramProperties.mShaderNormals.setMatrixUniform4fv("uProj", mModelProperties.mProjMatrix);
+	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
 }
 
 void Program::debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)

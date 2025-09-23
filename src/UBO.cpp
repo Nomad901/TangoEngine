@@ -1,6 +1,6 @@
 #include "UBO.h"
 
-UBO::UBO(const std::vector<std::pair<std::reference_wrapper<Shader>, std::string_view>>& pUniform,
+UBO::UBO(const std::vector<std::pair<uint32_t, std::string_view>>& pUniform,
 		 uint32_t pIndex, size_t pSize)
 {
 	init(pUniform, pIndex, pSize);
@@ -12,14 +12,14 @@ UBO::~UBO()
 		glDeleteBuffers(1, &mUBOid);
 }
 
-void UBO::init(const std::vector<std::pair<std::reference_wrapper<Shader>, std::string_view>>& pUniform,
+void UBO::init(const std::vector<std::pair<uint32_t, std::string_view>>& pUniform,
 			   uint32_t pIndex, size_t pSize)
 {
 	for (auto& [key, value] : pUniform)
 	{
 		std::string convertedStr = std::string(value);
 
-		uint32_t uniformIndex = glGetUniformBlockIndex(key.get().getID(), convertedStr.c_str());
+		uint32_t uniformIndex = glGetUniformBlockIndex(key, convertedStr.c_str());
 
 		if (uniformIndex == GL_INVALID_INDEX)
 		{
@@ -28,7 +28,7 @@ void UBO::init(const std::vector<std::pair<std::reference_wrapper<Shader>, std::
 		}
 
 		mStorageID[convertedStr] = uniformIndex;
-		glUniformBlockBinding(key.get().getID(), uniformIndex, pIndex);
+		glUniformBlockBinding(key, uniformIndex, pIndex);
 	}
 
 	glGenBuffers(1, &mUBOid);
@@ -39,14 +39,14 @@ void UBO::init(const std::vector<std::pair<std::reference_wrapper<Shader>, std::
 	glBindBufferRange(GL_UNIFORM_BUFFER, pIndex, mUBOid, 0, pSize);
 }
 
-void UBO::correlateData(const std::vector<std::pair<std::reference_wrapper<Shader>, std::string_view>>& pUniform,
+void UBO::correlateData(const std::vector<std::pair<uint32_t, std::string_view>>& pUniform,
 						uint32_t pIndex)
 {
 	for (auto& [key, value] : pUniform)
 	{
 		std::string convertedStr = std::string(value);
 
-		uint32_t uniformIndex = glGetUniformBlockIndex(key.get().getID(), convertedStr.c_str());
+		uint32_t uniformIndex = glGetUniformBlockIndex(key, convertedStr.c_str());
 
 		if (uniformIndex == GL_INVALID_INDEX)
 		{
@@ -55,7 +55,7 @@ void UBO::correlateData(const std::vector<std::pair<std::reference_wrapper<Shade
 		}
 
 		mStorageID[convertedStr] = uniformIndex;
-		glUniformBlockBinding(key.get().getID(), uniformIndex, pIndex);
+		glUniformBlockBinding(key, uniformIndex, pIndex);
 	}
 }
 
@@ -67,6 +67,13 @@ void UBO::bind()
 void UBO::unbind()
 {
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void UBO::appendData(uint32_t pOffset, const void* pData)
+{
+	bind();
+	glBufferSubData(GL_UNIFORM_BUFFER, pOffset, sizeof(pData), pData);
+	unbind();
 }
 
 uint32_t UBO::getID() const noexcept

@@ -17,7 +17,10 @@ class UBO
 {
 public:
 	UBO() = default;
-	UBO(const std::vector<std::pair<std::reference_wrapper<Shader>, std::string_view>>& pUniform,
+	//
+	// pair - first takes id of the shader / second - takes the name of the uniform 
+	//
+	UBO(const std::vector<std::pair<uint32_t, std::string_view>>& pUniform,
 		uint32_t pIndex, size_t pSize);
 	~UBO();
 	UBO(const UBO&) = delete;
@@ -25,15 +28,17 @@ public:
 	UBO(UBO&&) = default;
 	UBO& operator=(UBO&&) = default;
 
-	void init(const std::vector<std::pair<std::reference_wrapper<Shader>, std::string_view>>& pUniform,
+	//
+	// pair - first takes id of the shader / second - takes the name of the uniform 
+	//
+	void init(const std::vector<std::pair<uint32_t, std::string_view>>& pUniform,
 			  uint32_t pIndex, size_t pSize);
-	void correlateData(const std::vector<std::pair<std::reference_wrapper<Shader>, std::string_view>>& pUniform,
+	void correlateData(const std::vector<std::pair<uint32_t, std::string_view>>& pUniform,
 					   uint32_t pIndex);
 
 	void bind();
 	void unbind();
-	template<typename T>
-	void appendData(uint32_t pOffset, const T& pData);
+	void appendData(uint32_t pOffset, const void* pData);
 
 	uint32_t getID() const noexcept;
 	uint32_t getUniformID(std::string_view pName);
@@ -43,11 +48,3 @@ private:
 	std::unordered_map<std::string, uint32_t> mStorageID;
 
 };
-
-template<typename T>
-inline void UBO::appendData(uint32_t pOffset, const T& pData)
-{
-	bind();
-	glBufferSubData(GL_UNIFORM_BUFFER, pOffset, sizeof(pData), pData);
-	unbind();
-}

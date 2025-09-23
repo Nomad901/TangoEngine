@@ -68,7 +68,14 @@ public:
 	const EBO& getEBO() const noexcept;
 	const VBOLayout& getVBOLayout() const noexcept;
 
+	// 
+	// sets uniforms for the usual shader
+	//
 	void setUniforms(Shader& pShader, const glm::vec3& pColor);
+	//
+	// sets uniforms for normals-shader;
+	//
+	void setUniformsNormals(Shader& pShader, const glm::vec3& pColor);
 
 	void takeMesh(bool pTake);
 	bool meshIsTaken() const noexcept;

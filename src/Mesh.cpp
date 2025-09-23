@@ -252,6 +252,13 @@ void Mesh::setUniforms(Shader& pShader, const glm::vec3& pColor)
 	pShader.setMatrixUniform4fv("uMVP", getMVP());
 }
 
+void Mesh::setUniformsNormals(Shader& pShader, const glm::vec3& pColor)
+{
+	pShader.setUniform3fv("uColor", pColor);
+	pShader.setMatrixUniform4fv("uModel", getModelMatrix());
+	pShader.setMatrixUniform4fv("uView", getViewMatrix());
+}
+
 void Mesh::takeMesh(bool pTake)
 {
 	mIsTaken = pTake;
