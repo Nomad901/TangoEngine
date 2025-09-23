@@ -153,9 +153,9 @@ private:
 	float surroundNum{ -1 };
 	float insideNum{ 9 };
 
+	std::vector<glm::vec3> translations;
 
 	uint32_t mUBOnumber;
-
 
 	UI mUI;
 	friend class UI;

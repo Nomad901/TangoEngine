@@ -70,7 +70,7 @@ auto LightManager::sendAllToShader(Shader& pShader, Material* pMaterial, bool pI
 		}
 		pShader.setUniform1i("uNumberOfLights", mStrgLight.size());
 
-		pMaterial->sendToShader(pShader, pIsJustColored);
+		pMaterial->sendToShader(pShader, 0, 1, pIsJustColored);
 		counter++;
 	}
 }

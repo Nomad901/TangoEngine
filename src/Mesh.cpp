@@ -276,6 +276,13 @@ void Mesh::draw()
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 
+void Mesh::drawInstances(uint32_t pNumber)
+{
+	mTexture.bind(mPrimitive->getTexSloth());
+	mVAO.bind();
+	glDrawArraysInstanced(GL_TRIANGLES, 0, mEBO.getCount(), pNumber);
+}
+
 void Mesh::drawInFrameBuffer(Texture2& pTexture)
 {
 	mVAO.bind();

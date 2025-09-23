@@ -81,6 +81,7 @@ public:
 	bool meshIsTaken() const noexcept;
 
 	void draw();
+	void drawInstances(uint32_t pNumber);
 	void drawInFrameBuffer(Texture2& pTexture);
 	void drawSkybox();
 

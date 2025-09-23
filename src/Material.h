@@ -27,7 +27,8 @@ public:
 			  float pShines,
 			  std::vector<Texture2>& pTextures);
 
-	void sendToShader(Shader& pShader, bool isJustColored = false);
+	void sendToShader(Shader& pShader, uint32_t pDiffuseIndex, uint32_t pSpecularIndex,
+					  bool isJustColored = false);
 
 	void setAmbient(const glm::vec3& pAmbient);
 	void setDiffuse(const glm::vec3& pDiffuse);

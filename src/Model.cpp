@@ -138,5 +138,5 @@ void Model::updateUniforms(Shader& pShader)
 {
 	pShader.setMatrixUniform4fv("uModel", getModelMatrix());
 	pShader.setMatrixUniform4fv("uMVP", getMVP());
-	mMaterial->sendToShader(pShader);
+	mMaterial->sendToShader(pShader, 0, 0);
 }

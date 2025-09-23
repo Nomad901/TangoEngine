@@ -20,7 +20,8 @@ void Material::init(glm::vec3 pAmbient, glm::vec3 pDiffuse, glm::vec3 pSpecular,
 	mShines = pShines;
 }
 
-void Material::sendToShader(Shader& pShader, bool isJustColored)
+void Material::sendToShader(Shader& pShader, uint32_t pDiffuseIndex, uint32_t pSpecularIndex,
+							bool isJustColored)
 {
 	pShader.setUniform3fv("material.ambient", mAmbient);
 	pShader.setUniform3fv("material.diffuse", mDiffuse);
@@ -31,8 +32,8 @@ void Material::sendToShader(Shader& pShader, bool isJustColored)
 		std::string unifString = mTextures[i].getUniformName() + '[' + std::to_string(i) + ']';
 		pShader.setUniform1i(unifString, i);
 	}
-	pShader.setUniform1i("material.diffuseIndex", 0);
-	pShader.setUniform1i("material.specularIndex", 1);
+	pShader.setUniform1i("material.diffuseIndex", pDiffuseIndex);
+	pShader.setUniform1i("material.specularIndex", pSpecularIndex);
 	if (isJustColored)
 		pShader.setUniform1i("material.isJustColored", 1);
 	else 

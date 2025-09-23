@@ -196,6 +196,23 @@ void Program::initAll()
 	initCrosshair();
 	initMousePicker();
 	initUBO();
+
+	//translations.reserve(100);
+	//glm::vec3 pos = glm::vec3(10.0f, 10.0f, 10.0f);
+	//for (size_t i = 0; i < 100; ++i)
+	//{
+	//	translations.push_back(pos);
+	//	pos.z += 10.0f;
+	//	pos.x += 5.0f;
+	//}
+	//mProgramProperties.mShader.bind();
+	//for (size_t i = 0; i < translations.size(); ++i)
+	//{
+	//	std::string offset = "uOffsets[" + std::to_string(i) + ']';
+	//	mProgramProperties.mShader.setUniform3fv(offset, translations[i]);
+	//}
+
+
 }
 
 void Program::initShaders()
@@ -229,7 +246,8 @@ void Program::initShaders()
 void Program::initTextures()
 {
 	mModelProperties.mTextures.reserve(32);
-	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "blending_transparent_window.png", "material.textures");
+	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "planet/mars.png", "material.textures");
+	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "rock/rock.png", "material.textures");
 	//mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "grass.png", "material.textures");
 }
 
@@ -310,18 +328,30 @@ void Program::initMaterial()
 
 void Program::initModels()
 {
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
-														      mProgramProperties.mResourcePath + "Models/museum.obj", 
-															  std::vector<Texture2>()));
+	// museum
+	//mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+	//													      mProgramProperties.mResourcePath + "Models/museum.obj", 
+	//														  std::vector<Texture2>()));
+	mModelProperties.mModel.push_back(std::make_unique<Model>());
+	// mirror
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
 													          mProgramProperties.mResourcePath + "Models/mirror.obj", 
 														      std::vector<Texture2>()));
+	// lamp posts
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
 															  mProgramProperties.mResourcePath + "Models/lamppost.obj",
 															  std::vector<Texture2>()));
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
 															  mProgramProperties.mResourcePath + "Models/lamppost.obj",
 															  std::vector<Texture2>()));
+	// planet
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+									  mProgramProperties.mResourcePath + "Models/planet/planet.obj", 
+									  std::vector<Texture2>({ mModelProperties.mTextures[0] })));
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+									  mProgramProperties.mResourcePath + "Models/rock/rock.obj",
+									  std::vector<Texture2>({ mModelProperties.mTextures[1] })));
+
 }
 
 void Program::initLights()
@@ -547,7 +577,7 @@ void Program::drawModels()
 	
 	mProgramProperties.mShader.bind();
 	mProgramProperties.mShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
-	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, true);
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, 0, 0, true);
 
 	//// floor
 	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mModelProperties.mProjMatrix,
@@ -559,13 +589,13 @@ void Program::drawModels()
 	mModelProperties.mFactoryMeshes.getMesh("floor").draw();
 
 	//// museum
-	mModelProperties.mModel[0]->initMVP(mModelProperties.mProjMatrix,
-										mProgramProperties.mCamera.getViewMatrix(),
-										glm::vec3(1.0f, -34.5f, -1147.0f),
-										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-										glm::vec3(1.0f, 1.0f, 1.0f));
-	mModelProperties.mModel[0]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	mModelProperties.mModel[0]->render();
+	//mModelProperties.mModel[0]->initMVP(mModelProperties.mProjMatrix,
+	//									mProgramProperties.mCamera.getViewMatrix(),
+	//									glm::vec3(1.0f, -34.5f, -1147.0f),
+	//									std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+	//									glm::vec3(1.0f, 1.0f, 1.0f));
+	//mModelProperties.mModel[0]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	//mModelProperties.mModel[0]->render();
 
 	//// light posts
 
@@ -577,7 +607,6 @@ void Program::drawModels()
 												   glm::vec3(20.0f, 20.0f, 20.0f));
 			mModelProperties.mModel[pInd]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 			mModelProperties.mModel[pInd]->render();
-
 		};
 	auto setLightLights = [&](const glm::vec3& pPos, std::string_view pName)
 		{
@@ -599,6 +628,7 @@ void Program::drawModels()
 
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);
+
 	mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mModelProperties.mProjMatrix,
 															  mProgramProperties.mCamera.getViewMatrix(),
 															  glm::vec3(10.0f, 10.0f, 10.0f),
@@ -606,9 +636,26 @@ void Program::drawModels()
 															  glm::vec3(5.0f, 5.0f, 5.0f));
 	mModelProperties.mFactoryMeshes.getMesh("block2").setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
+	
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, 0, 0, false);
 
+	mModelProperties.mModel[4]->initMVP(mModelProperties.mProjMatrix,
+										mProgramProperties.mCamera.getViewMatrix(),
+										glm::vec3(10.0f, 50.0f, -160.0f),
+										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+										glm::vec3(20.0f, 20.0f, 20.0f));
+	mModelProperties.mModel[4]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	mModelProperties.mModel[4]->render();
 
-	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, false);
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, 1, 1, false);
+
+	mModelProperties.mModel[5]->initMVP(mModelProperties.mProjMatrix,
+										mProgramProperties.mCamera.getViewMatrix(),
+										glm::vec3(10.0f, 50.0f, -300.0f),
+										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+										glm::vec3(20.0f, 20.0f, 20.0f));
+	mModelProperties.mModel[5]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	mModelProperties.mModel[5]->render();
 	mProgramProperties.mSkyboxBlockShader.bind();
 
 	mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mModelProperties.mProjMatrix, 
@@ -660,14 +707,9 @@ void Program::drawModels()
 void Program::drawNormals()
 {
 	mProgramProperties.mShaderNormals.bind();
-	mModelProperties.mFactoryMeshes.getMesh("block2").initMVP(mModelProperties.mProjMatrix,
-															  mProgramProperties.mCamera.getViewMatrix(),
-															  glm::vec3(10.0f, 10.0f, 10.0f),
-															  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-															  glm::vec3(5.0f, 5.0f, 5.0f));
 	mProgramProperties.mShaderNormals.setUniform3fv("uColor", glm::vec3(1.0f, 0.0f, 1.0f));
 	mProgramProperties.mShaderNormals.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block2").getModelMatrix());
-	mProgramProperties.mShaderNormals.setMatrixUniform4fv("uView", mModelProperties.mFactoryMeshes.getMesh("block2").getViewMatrix());
+	mProgramProperties.mShaderNormals.setMatrixUniform4fv("uView", mProgramProperties.mCamera.getViewMatrix());
 	mProgramProperties.mShaderNormals.setMatrixUniform4fv("uProj", mModelProperties.mProjMatrix);
 	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
 }
