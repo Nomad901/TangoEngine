@@ -36,13 +36,15 @@ struct Light
 	int useBounds;
 };
 
-in VS_OUT
+in DATA
 {
-	vec3 fragPos;
-	vec4 fragColor;
-	vec2 fragPosTex;
-	vec3 fragNormals;
-} vs_in;
+	vec3 normal;
+	vec3 color;
+	vec2 texCoord;
+	mat4 proj;
+} data_in;
+
+in vec3 fragPos;
 
 out vec4 finalColor;
 
@@ -71,7 +73,7 @@ void main()
 
 	if(material.isJustColored != 1)
 	{
-		texColor = texture(material.textures[material.diffuseIndex], vs_in.fragPosTex);
+		texColor = texture(material.textures[material.diffuseIndex], data_in.texCoord);
 	    alpha = texColor.a;
 	}
 
@@ -90,8 +92,8 @@ void main()
 		}
 		
 		// difuse 
-		vec3 norm = normalize(vs_in.fragNormals);
-		vec3 lightDir = normalize(light[i].position - vs_in.fragPos);
+		vec3 norm = normalize(data_in.normal);
+		vec3 lightDir = normalize(light[i].position - fragPos);
 		float diff = max(dot(norm, lightDir), 0.0f);
 		vec4 diffuse = vec4(0.0f);
 		if(material.isJustColored == 1)
@@ -105,7 +107,7 @@ void main()
 		}
 
 		// specular
-		vec3 viewDir = normalize(cameraPos - vs_in.fragPos);
+		vec3 viewDir = normalize(cameraPos - fragPos);
 		vec3 reflectDir = reflect(-lightDir, norm);
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shines);
 		vec4 specular = vec4(0.0f);
@@ -116,7 +118,7 @@ void main()
 		else
 		{
 			specular = vec4(light[i].color, 1.0f) * vec4(light[i].specular, 1.0f) * vec4((spec * material.specular), 1.0f) *
-					   light[i].intensity * vec4(texture(material.textures[material.specularIndex], vs_in.fragPosTex).rgb, 1.0f);
+					   light[i].intensity * vec4(texture(material.textures[material.specularIndex], data_in.texCoord).rgb, 1.0f);
 		}
 		
 		// attenuation

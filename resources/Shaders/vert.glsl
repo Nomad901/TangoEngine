@@ -5,13 +5,14 @@ layout(location = 1) in vec3 normals;
 layout(location = 2) in vec4 color;
 layout(location = 3) in vec2 posTex;
 
-out VS_OUT
+out vec3 fragPos;
+out DATA
 {
-	vec3 fragPos;
-	vec4 fragColor;
-	vec2 fragPosTex;
-	vec3 fragNormals;
-} vs_out;
+	vec3 normal;
+	vec3 color;
+	vec2 texCoord;
+	mat4 proj;
+} data_out;
 
 layout (std140, binding = 0) uniform Matrices
 {
@@ -25,9 +26,10 @@ uniform mat4 uModel;
 void main()
 {
 	gl_Position = uMVP * vec4(pos, 1.0);
-	
-	vs_out.fragColor = color;
-	vs_out.fragPosTex = posTex;
-	vs_out.fragNormals = mat3(transpose(inverse(uModel))) * normals;
-	vs_out.fragPos = vec3(uModel * vec4(pos, 1.0f));
+
+	data_out.color = vec3(color);
+	data_out.texCoord = posTex;
+	data_out.normal = mat3(transpose(inverse(uModel))) * normals;
+	data_out.proj = uProj;
+	fragPos = vec3(uModel * vec4(pos, 1.0f));
 }

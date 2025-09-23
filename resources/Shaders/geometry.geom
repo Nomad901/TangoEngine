@@ -1,37 +1,53 @@
 #version 430 core
-layout(triangles) in;
-layout(triangle_strip, max_vertices = 3) out;
 
-in DATA {
-    vec3 normal;
-    vec3 color;
-    vec2 texCoord;
-    mat4 proj;
+layout (triangles) in;
+layout (line_strip, max_vertices = 6) out;
+
+// in
+in DATA
+{
+	vec3 normal;
+	vec3 color;
+	vec2 texCoord;
+	mat4 proj;
 } data_in[];
+in vec3 fragPos[];
 
-in vec3 fragPos[];  // Need to pass fragPos through!
+// out
+out DATA 
+{
+	vec3 normal;
+	vec3 color;
+	vec2 texCoord;
+	mat4 proj;
+} data_out;	
+out vec3 outFragPos;
 
-out DATA {
-    vec3 normal;
-    vec3 color;
-    vec2 texCoord;
-    mat4 proj;
-} data_out;
+const float magnitude = 0.4f;
 
-out vec3 fragPosOut;  // Pass fragPos to fragment shader
+void generateLine(int pIndex)
+{
+	gl_Position = data_in[pIndex].proj * gl_in[pIndex].gl_Position;
+	data_out.normal = data_in[0].normal;
+	data_out.color = data_in[0].color;
+	data_out.texCoord = data_in[0].texCoord;
+	data_out.proj = data_in[0].proj;
+	outFragPos = fragPos[0];
+	EmitVertex();
+	gl_Position = data_in[pIndex].proj * (gl_in[pIndex].gl_Position + 
+										  vec4(data_in[pIndex].normal, 0.0f) * magnitude);
+	data_out.normal = data_in[0].normal;
+	data_out.color = data_in[0].color;
+	data_out.texCoord = data_in[0].texCoord;
+	data_out.proj = data_in[0].proj;
+	outFragPos = fragPos[0];
+	EmitVertex();
+	EndPrimitive();
+}
 
-void main() {
-    for(int i = 0; i < 3; i++) {
-        gl_Position = data_in[i].proj * gl_in[i].gl_Position;
-        
-        data_out.normal = data_in[i].normal;
-        data_out.color = data_in[i].color;
-        data_out.texCoord = data_in[i].texCoord;
-        data_out.proj = data_in[i].proj;
-        
-        fragPosOut = fragPos[i];  // Pass through fragPos
-        
-        EmitVertex();
-    }
-    EndPrimitive();
+void main()
+{
+	generateLine(0);
+	generateLine(1);
+	generateLine(2);
 }
