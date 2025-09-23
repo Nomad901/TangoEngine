@@ -17,5 +17,5 @@ void main()
 {
 	gl_Position = uView * uModel * vec4(pos, 1.0);
 	mat3 normalMatrix = mat3(transpose(inverse(uView * uModel)));
-	vs_out.normal = normalize(vec3(vec4(normalMatrix * vs_out.normal, 0.0f)));
+	vs_out.normal = normalize(vec3(vec4(normalMatrix * normals, 0.0f)));
 }
