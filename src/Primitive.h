@@ -89,13 +89,14 @@ public:
 
 };
 
-//class Sphere : public Primitive
-//{
-//public:
-//	Sphere(std::pair<Texture2&, Texture2&>& pTexture, 
-//		   std::pair<uint32_t, uint32_t> pSlots);
-//	Sphere(std::pair<Texture2&, Texture2&>& pTexture, 
-//		   std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
-//	Sphere(const glm::vec4& pColor);
-//
-//};
+class Sphere : public Primitive
+{
+public:
+	Sphere(const std::pair<Texture2&, Texture2&>& pTexture, 
+		   std::pair<uint32_t, uint32_t> pSlots);
+	Sphere(Texture2& pTexture, uint32_t pSlot, bool pForSkybox);
+	Sphere(const std::pair<Texture2&, Texture2&>& pTexture, 
+		   std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
+	Sphere(const glm::vec4& pColor, float pRadius, int32_t pSectors, int32_t pStacks);
+
+};
