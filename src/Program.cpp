@@ -280,6 +280,9 @@ void Program::initPrimitives()
 
 	// test quad
 	mModelProperties.mPrimitives.insert_or_assign("testQuad", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+
+	// sphere
+	mModelProperties.mPrimitives.insert_or_assign("sphere", std::make_shared<Sphere>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0f, 32, 16));
 }
 
 void Program::initMeshes()
@@ -319,6 +322,10 @@ void Program::initMeshes()
 	// test quad
 	std::weak_ptr<Primitive> testQuad = mModelProperties.mPrimitives["testQuad"];
 	mModelProperties.mFactoryMeshes.pushMesh("testQuad", std::make_unique<Mesh>(testQuad));
+
+	// sphere
+	std::weak_ptr<Primitive> sphere = mModelProperties.mPrimitives["sphere"];
+	mModelProperties.mFactoryMeshes.pushMesh("sphere", std::make_unique<Mesh>(sphere));
 }
 
 void Program::initMaterial()
@@ -558,24 +565,14 @@ void Program::setModels()
 
 void Program::setSkybox()
 {
-	glDepthFunc(GL_LEQUAL);
-	glDisable(GL_CULL_FACE);
-
-	mProgramProperties.mSkyboxShader.bind();
 	static float pNumber = 1.0f;
 	glm::mat4 model = model = glm::scale(glm::vec3(3000.0f, 3000.0f, 3000.0f));
 	glm::mat4 view = glm::mat4(glm::mat3(mProgramProperties.mCamera.getViewMatrix()));
 	view = glm::rotate(view, glm::radians(pNumber), glm::vec3(0.0f, 1.0f, 0.0f));
 	pNumber += 0.01f;
-	glm::mat4 skyboxMVP = mModelProperties.mProjMatrix * view * model;
 
-	mProgramProperties.mSkyboxShader.setMatrixUniform4fv("uMVP", skyboxMVP);
-
-	mProgramProperties.mSkybox->getTexture().bindSkybox();
-	mProgramProperties.mSkybox->getMesh().draw();
-
-	glDepthFunc(GL_LESS);
-	glEnable(GL_CULL_FACE);
+	mProgramProperties.mSkybox->setMVP(model, mModelProperties.mProjMatrix, view);
+	mProgramProperties.mSkybox->render(mProgramProperties.mSkyboxShader);
 }
 
 void Program::drawModels()
@@ -586,7 +583,7 @@ void Program::drawModels()
 	mProgramProperties.mShader.bind();
 	mProgramProperties.mShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
 	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShader);
-
+	
 	//// floor
 	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mModelProperties.mProjMatrix,
 															 mProgramProperties.mCamera.getViewMatrix(),
@@ -604,6 +601,15 @@ void Program::drawModels()
 	//									glm::vec3(1.0f, 1.0f, 1.0f));
 	//mModelProperties.mModel[0]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	//mModelProperties.mModel[0]->render();
+
+	// sphere
+	mModelProperties.mFactoryMeshes.getMesh("sphere").initMVP(mModelProperties.mProjMatrix,
+															  mProgramProperties.mCamera.getViewMatrix(),
+															  glm::vec3(10.0f, 30.0f, -10.0f),
+															  std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
+															  glm::vec3(2.0f, 2.0f, 2.0f));
+	mModelProperties.mFactoryMeshes.getMesh("sphere").setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	mModelProperties.mFactoryMeshes.getMesh("sphere").draw();
 
 	//// light posts
 
