@@ -10,19 +10,19 @@ void Primitive::setIndexStrg(const std::vector<uint32_t>& pIndexStrg)
 	mIndexStrg = pIndexStrg;
 }
 
-void Primitive::setTexture(const Texture2& pTexture)
+void Primitive::setTexture(const std::pair<Texture2, Texture2>& pTexture)
 {
-	mTexture = pTexture;
+	mTextures = pTexture;
 }
 
-void Primitive::setTexSloth(uint32_t pTexSloth)
+void Primitive::setTexSlots(std::pair<uint32_t, uint32_t> pTexSlots)
 {
-	mTexSloth = pTexSloth;
+	mTexSlots = pTexSlots;
 }
 
-uint32_t Primitive::getTexSloth() noexcept
+std::pair<uint32_t, uint32_t> Primitive::getTexSlots() const noexcept
 {
-	return mTexSloth;
+	return mTexSlots;
 }
 
 std::vector<Vertex>& Primitive::getVertexStrg() noexcept
@@ -35,12 +35,13 @@ std::vector<uint32_t>& Primitive::getIndexStrg() noexcept
 	return mIndexStrg;
 }
 
-Texture2& Primitive::getTexture() noexcept
+std::pair<Texture2, Texture2>& Primitive::getTextures() noexcept
 {
-	return mTexture;
+	return mTextures;
 }
 
-Triangle::Triangle(const Texture2& pTexture, uint32_t pSloth)
+Triangle::Triangle(const std::pair<Texture2, Texture2>& pTexture,
+						 std::pair<uint32_t, uint32_t> pSlots)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(6);
@@ -59,12 +60,13 @@ Triangle::Triangle(const Texture2& pTexture, uint32_t pSloth)
 		0, 1, 2
 	};
 
-	setTexSloth(pSloth);
+	setTexSlots(pSlots);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
 
-Triangle::Triangle(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
+Triangle::Triangle(const std::pair<Texture2, Texture2>& pTexture,
+						 std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(6);
@@ -83,7 +85,7 @@ Triangle::Triangle(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& p
 		0, 1, 2
 	};
 
-	setTexSloth(pSloth);
+	setTexSlots(pSlots);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
@@ -110,7 +112,8 @@ Triangle::Triangle(const glm::vec4& pColor)
 	setIndexStrg(indices);
 }
 
-Pyramid::Pyramid(const Texture2& pTexture, uint32_t pSloth)
+Pyramid::Pyramid(const std::pair<Texture2, Texture2>& pTexture,
+					   std::pair<uint32_t, uint32_t> pSlots)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(16); 
@@ -155,12 +158,13 @@ Pyramid::Pyramid(const Texture2& pTexture, uint32_t pSloth)
 		2, 1, 4
 	};
 
-	setTexSloth(pSloth);
+	setTexSlots(pSlots);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
 
-Pyramid::Pyramid(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
+Pyramid::Pyramid(const std::pair<Texture2, Texture2>& pTexture,
+					   std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(16);
@@ -205,7 +209,7 @@ Pyramid::Pyramid(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pCo
 		2, 1, 4
 	};
 
-	setTexSloth(pSloth);
+	setTexSlots(pSlots);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
@@ -258,7 +262,8 @@ Pyramid::Pyramid(const glm::vec4& pColor)
 	setIndexStrg(indices);
 }
 
-Quad::Quad(const Texture2& pTexture, uint32_t pSloth)
+Quad::Quad(const std::pair<Texture2, Texture2>& pTexture,
+			 	 std::pair<uint32_t, uint32_t> pSlots)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(6);
@@ -279,12 +284,13 @@ Quad::Quad(const Texture2& pTexture, uint32_t pSloth)
 		2, 3, 0
 	};
 
-	setTexSloth(pSloth);
+	setTexSlots(pSlots);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
 
-Quad::Quad(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
+Quad::Quad(const std::pair<Texture2, Texture2>& pTexture,
+			     std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(6);
@@ -305,7 +311,7 @@ Quad::Quad(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
 		2, 3, 0
 	};
 
-	setTexSloth(pSloth);
+	setTexSlots(pSlots);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
@@ -334,7 +340,8 @@ Quad::Quad(const glm::vec4& pColor)
 	setIndexStrg(indices);
 }
 
-Cube::Cube(const Texture2& pTexture, uint32_t pSloth, bool pForSkybox)
+Cube::Cube(const std::pair<Texture2, Texture2>& pTexture,
+				 std::pair<uint32_t, uint32_t> pSlots, bool pForSkybox)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(24);
@@ -428,12 +435,13 @@ Cube::Cube(const Texture2& pTexture, uint32_t pSloth, bool pForSkybox)
 		22, 23, 20
 	};
 
-	setTexSloth(pSloth);
+	setTexSlots(pSlots);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
 
-Cube::Cube(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
+Cube::Cube(const std::pair<Texture2, Texture2>& pTexture,
+				 std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(24);
@@ -490,7 +498,7 @@ Cube::Cube(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
 		22, 23, 20
 	};
 
-	setTexSloth(pSloth);
+	setTexSlots(pSlots);
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
 }
@@ -555,11 +563,13 @@ Cube::Cube(const glm::vec4& pColor)
 	setIndexStrg(indices);
 }
 
-Sphere::Sphere(const Texture2& pTexture, uint32_t pSloth)
+Sphere::Sphere(const std::pair<Texture2, Texture2>& pTexture,
+					 std::pair<uint32_t, uint32_t> pSlots)
 {
 }
 
-Sphere::Sphere(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor)
+Sphere::Sphere(const std::pair<Texture2, Texture2>& pTexture,
+					 std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor)
 {
 }
 

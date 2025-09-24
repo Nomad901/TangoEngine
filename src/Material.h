@@ -8,6 +8,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "Shader.h"
+#include "Texture2.h"
 
 class Texture2;
 
@@ -18,37 +19,33 @@ public:
 	Material(glm::vec3 pAmbient,
 			 glm::vec3 pDiffuse,
 			 glm::vec3 pSpecular,
-			 float pShines,
-			 std::vector<Texture2>& pTextures);
+			 float pShines);
 
 	void init(glm::vec3 pAmbient,
 			  glm::vec3 pDiffuse,
 			  glm::vec3 pSpecular,
-			  float pShines,
-			  std::vector<Texture2>& pTextures);
+			  float pShines);
 
-	void sendToShader(Shader& pShader, uint32_t pDiffuseIndex, uint32_t pSpecularIndex,
-					  bool isJustColored = false);
+	void sendToShader(Shader& pShader, std::pair<uint32_t, uint32_t> pPosInArrayTex,
+					  const std::pair<Texture2, Texture2>& pTextures,
+					  std::pair<uint32_t, uint32_t> pSlots,
+					  uint32_t pDiffuseIndex, uint32_t pSpecularIndex);
+	void sendToShaderColored(Shader& pShader);
 
 	void setAmbient(const glm::vec3& pAmbient);
 	void setDiffuse(const glm::vec3& pDiffuse);
 	void setSpecular(const glm::vec3& pSpecular);
 	void setShines(float pShines);
-	void setCurrentIndex(int32_t pIndex);
 
 	glm::vec3 getAmbient() const noexcept;
 	glm::vec3 getDiffuse() const noexcept;
 	glm::vec3 getSpecular() const noexcept;
 	float getShines() const noexcept;
-	int32_t getCurrentIndex() const noexcept;
 
 private:
 	float mShines{ 32 };
-	int32_t mCurrentIndex{ 0 };
 	glm::vec3 mAmbient;
 	glm::vec3 mDiffuse;
 	glm::vec3 mSpecular;
-	std::vector<Texture2> mTextures;
-
 };
 

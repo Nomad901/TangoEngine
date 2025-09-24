@@ -18,27 +18,31 @@ public:
 
 	void setVertexStrg(const std::vector<Vertex>& pVertexStrg);
 	void setIndexStrg(const std::vector<uint32_t>& pIndexStrg); 
-	void setTexture(const Texture2& pTexture);
-	void setTexSloth(uint32_t pTexSloth);
 
-	uint32_t getTexSloth() noexcept;
+	void setTexture(const std::pair<Texture2, Texture2>& pTexture);
+	void setTexSlots(std::pair<uint32_t, uint32_t> pTexSlots);
+
 	std::vector<Vertex>& getVertexStrg() noexcept;
 	std::vector<uint32_t>& getIndexStrg() noexcept;
-	Texture2& getTexture() noexcept;
+	std::pair<uint32_t, uint32_t> getTexSlots() const noexcept;
+	std::pair<Texture2, Texture2>& getTextures() noexcept;
 
 private:
-	uint32_t mTexSloth{};
 	std::vector<Vertex> mVertexStrg;
 	std::vector<uint32_t> mIndexStrg;
-	Texture2 mTexture;
+
+	std::pair<uint32_t, uint32_t> mTexSlots{};
+	std::pair<Texture2, Texture2> mTextures;
 
 };
 
 class Triangle : public Primitive
 {
 public:
-	Triangle(const Texture2& pTexture, uint32_t pSloth);
-	Triangle(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor);
+	Triangle(const std::pair<Texture2, Texture2>& pTexture, 
+				   std::pair<uint32_t, uint32_t> pSlots);
+	Triangle(const std::pair<Texture2, Texture2>& pTexture, 
+				   std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Triangle(const glm::vec4& pColor);
 
 };
@@ -46,8 +50,10 @@ public:
 class Pyramid : public Primitive
 {
 public:
-	Pyramid(const Texture2& pTexture, uint32_t pSloth);
-	Pyramid(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor);
+	Pyramid(const std::pair<Texture2, Texture2>& pTexture, 
+				  std::pair<uint32_t, uint32_t> pSlots);
+	Pyramid(const std::pair<Texture2, Texture2>& pTexture, 
+				  std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Pyramid(const glm::vec4& pColor);
 
 };
@@ -55,16 +61,20 @@ public:
 class Quad : public Primitive
 {
 public:
-	Quad(const Texture2& pTexture, uint32_t pSloth);
-	Quad(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor);
+	Quad(const std::pair<Texture2, Texture2>& pTexture, 
+			   std::pair<uint32_t, uint32_t> pSlots);
+	Quad(const std::pair<Texture2, Texture2>& pTexture, 
+			   std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Quad(const glm::vec4& pColor);
 };
 
 class Cube : public Primitive
 {
 public:
-	Cube(const Texture2& pTexture, uint32_t pSloth, bool pForSkybox);
-	Cube(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor);
+	Cube(const std::pair<Texture2, Texture2>& pTexture, 
+			   std::pair<uint32_t, uint32_t> pSlots, bool pForSkybox);
+	Cube(const std::pair<Texture2, Texture2>& pTexture, 
+			   std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Cube(const glm::vec4& pColor);
 
 };
@@ -72,8 +82,10 @@ public:
 class Sphere : public Primitive
 {
 public:
-	Sphere(const Texture2& pTexture, uint32_t pSloth);
-	Sphere(const Texture2& pTexture, uint32_t pSloth, const glm::vec4& pColor);
+	Sphere(const std::pair<Texture2, Texture2>& pTexture, 
+				 std::pair<uint32_t, uint32_t> pSlots);
+	Sphere(const std::pair<Texture2, Texture2>& pTexture, 
+				 std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Sphere(const glm::vec4& pColor);
 
 };

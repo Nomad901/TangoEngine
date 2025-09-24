@@ -1,46 +1,13 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const std::vector<Vertex>& pVertices, 
-		   const std::vector<uint32_t>& pIndices, 
-		   const std::vector<Texture2>& pTexture)
-{
-	init(pVertices, pIndices, pTexture);
-}
-
 Mesh::Mesh(const std::vector<Vertex>& pVertices, const std::vector<uint32_t>& pIndices)
 {
 	init(pVertices, pIndices);
 }
 
-Mesh::Mesh(const std::weak_ptr<Primitive>& pPrimitive,
-		   const std::vector<Texture2>& pTexture)
-{
-	init(pPrimitive, pTexture);
-}
-
 Mesh::Mesh(const std::weak_ptr<Primitive>& pPrimitive)
 {
 	init(pPrimitive);
-}
-
-void Mesh::init(const std::vector<Vertex>& pVertices,
-				const std::vector<uint32_t>& pIndices,
-				const std::vector<Texture2>& pTextures)
-{
-	mPrimitive = std::make_unique<Primitive>();
-	
-	mVAO.generate();
-	mVAO.bind();
-	mVBO.init(pVertices, GL_STATIC_DRAW);
-	mVBOLayout.pushLayout(GL_FLOAT, 3);
-	mVBOLayout.pushLayout(GL_FLOAT, 3);
-	mVBOLayout.pushLayout(GL_FLOAT, 4);
-	mVBOLayout.pushLayout(GL_FLOAT, 2);
-	mVAO.addBuffer(mVBO, mVBOLayout);
-	mEBO.init(pIndices.data(), pIndices.size());
-	mTextures = pTextures;
-	mPrimitive->setVertexStrg(pVertices);
-	mPrimitive->setIndexStrg(pIndices);
 }
 
 void Mesh::init(const std::vector<Vertex>& pVertices, const std::vector<uint32_t>& pIndices)
@@ -60,32 +27,11 @@ void Mesh::init(const std::vector<Vertex>& pVertices, const std::vector<uint32_t
 	mPrimitive->setIndexStrg(pIndices);
 }
 
-void Mesh::init(const std::weak_ptr<Primitive>& pPrimitive,
-				const std::vector<Texture2>& pTextures)
-{
-	if (std::shared_ptr primitive = pPrimitive.lock())
-	{
-		mPrimitive = primitive;
-
-		mVAO.generate();
-		mVAO.bind();
-		mVBO.init(mPrimitive->getVertexStrg(), GL_STATIC_DRAW);
-		mVBOLayout.pushLayout(GL_FLOAT, 3);
-		mVBOLayout.pushLayout(GL_FLOAT, 3);
-		mVBOLayout.pushLayout(GL_FLOAT, 4);
-		mVBOLayout.pushLayout(GL_FLOAT, 2);
-		mVAO.addBuffer(mVBO, mVBOLayout);
-		mEBO.init(mPrimitive->getIndexStrg().data(), mPrimitive->getIndexStrg().size());
-		mTextures = pTextures;
-	}
-}
-
 void Mesh::init(const std::weak_ptr<Primitive>& pPrimitive)
 {
 	if (std::shared_ptr primitive = pPrimitive.lock())
 	{
 		mPrimitive = primitive;
-		mTexture = mPrimitive->getTexture();
 
 		mVAO.generate();
 		mVAO.bind();
@@ -158,11 +104,6 @@ void Mesh::setIndices(const std::vector<uint32_t>& pIndices)
 	mPrimitive->setIndexStrg(pIndices);
 }
 
-void Mesh::setTextures(const std::vector<Texture2>& pTextures)
-{
-	mTextures = pTextures;
-}
-
 std::vector<Vertex>& Mesh::getVertices()
 {
 	return mPrimitive->getVertexStrg();
@@ -171,11 +112,6 @@ std::vector<Vertex>& Mesh::getVertices()
 std::vector<uint32_t>& Mesh::getIndices()
 {
 	return mPrimitive->getIndexStrg();
-}
-
-std::vector<Texture2>& Mesh::getTextures()
-{
-	return mTextures;
 }
 
 Primitive& Mesh::getPrimitive()
@@ -271,14 +207,12 @@ bool Mesh::meshIsTaken() const noexcept
 
 void Mesh::draw()
 {
-	mTexture.bind(mPrimitive->getTexSloth());
 	mVAO.bind();
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 
 void Mesh::drawInstances(uint32_t pNumber)
 {
-	mTexture.bind(mPrimitive->getTexSloth());
 	mVAO.bind();
 	glDrawArraysInstanced(GL_TRIANGLES, 0, mEBO.getCount(), pNumber);
 }
@@ -288,13 +222,6 @@ void Mesh::drawInFrameBuffer(Texture2& pTexture)
 	mVAO.bind();
 	glDisable(GL_DEPTH_TEST);
 	pTexture.bind();
-	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
-}
-
-void Mesh::drawSkybox()
-{
-	mTexture.bindSkybox(mPrimitive->getTexSloth());
-	mVAO.bind();
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 

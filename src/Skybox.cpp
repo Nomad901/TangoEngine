@@ -1,16 +1,16 @@
 #include "Skybox.h"
 
-Skybox::Skybox(typeSkybox pTypeSkybox, const std::array<std::filesystem::path, 6>& pPaths, uint32_t pSloth)
+Skybox::Skybox(typeSkybox pTypeSkybox, const std::array<std::filesystem::path, 6>& pPaths, uint32_t pSlot)
 {
-	init(pTypeSkybox, pPaths, pSloth);
+	init(pTypeSkybox, pPaths, pSlot);
 }
 
-void Skybox::init(typeSkybox pTypeSkybox, const std::array<std::filesystem::path, 6>& pPaths, uint32_t pSloth)
+void Skybox::init(typeSkybox pTypeSkybox, const std::array<std::filesystem::path, 6>& pPaths, uint32_t pSlot)
 {
 	if (pTypeSkybox == typeSkybox::CUBE)
 	{
 		mTexture.initCubeMaps(pPaths);
-		std::shared_ptr<Primitive> primitive = std::make_shared<Cube>(mTexture, pSloth, true);
+		std::shared_ptr<Primitive> primitive = std::make_shared<Cube>(std::make_pair(mTexture, mTexture), std::make_pair(pSlot, pSlot), true);
 		std::weak_ptr<Primitive> weakCube = primitive;
 		mSkybox.init(weakCube);
 	}
@@ -25,7 +25,7 @@ Mesh& Skybox::getMesh() noexcept
 	return mSkybox;
 }
 
-Texture2& Skybox::getTextures() noexcept
+Texture2& Skybox::getTexture() noexcept
 {
 	return mTexture;
 }

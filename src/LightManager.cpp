@@ -37,7 +37,7 @@ auto LightManager::getSize() const noexcept -> size_t
 	return mStrgLight.size();
 }
 
-auto LightManager::sendAllToShader(Shader& pShader, Material* pMaterial, bool pIsJustColored) -> void
+auto LightManager::sendAllToShader(Shader& pShader) -> void
 {
 	uint32_t counter = 0;
 	pShader.bind();
@@ -70,7 +70,6 @@ auto LightManager::sendAllToShader(Shader& pShader, Material* pMaterial, bool pI
 		}
 		pShader.setUniform1i("uNumberOfLights", mStrgLight.size());
 
-		pMaterial->sendToShader(pShader, 0, 1, pIsJustColored);
 		counter++;
 	}
 }

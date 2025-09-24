@@ -212,7 +212,6 @@ void Program::initAll()
 	//	mProgramProperties.mShader.setUniform3fv(offset, translations[i]);
 	//}
 
-
 }
 
 void Program::initShaders()
@@ -257,7 +256,7 @@ void Program::initPrimitives()
 	mModelProperties.mPrimitives.insert_or_assign("museum", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// floor 
-	mModelProperties.mPrimitives.insert_or_assign("floor", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
+	mModelProperties.mPrimitives.insert_or_assign("floor", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// light block
 	mModelProperties.mPrimitives.insert_or_assign("lightBlock", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
@@ -266,17 +265,19 @@ void Program::initPrimitives()
 	mModelProperties.mPrimitives.insert_or_assign("character", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// blocks to choose
-	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(mProgramProperties.mSkybox->getTextures(), 1, false));
+	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(std::make_pair(mProgramProperties.mSkybox->getTexture(),
+																								  mProgramProperties.mSkybox->getTexture()), 
+																								  std::make_pair(0,0), false));
 	mModelProperties.mPrimitives.insert_or_assign("block2", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// lights on ligth-posts
-	mModelProperties.mPrimitives.insert_or_assign("lightPost1", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
-	mModelProperties.mPrimitives.insert_or_assign("lightPost2", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
-	mModelProperties.mPrimitives.insert_or_assign("lightPost3", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
-	mModelProperties.mPrimitives.insert_or_assign("lightPost4", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
+	mModelProperties.mPrimitives.insert_or_assign("lightPost1", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	mModelProperties.mPrimitives.insert_or_assign("lightPost2", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	mModelProperties.mPrimitives.insert_or_assign("lightPost3", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	mModelProperties.mPrimitives.insert_or_assign("lightPost4", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// test quad
-	mModelProperties.mPrimitives.insert_or_assign("testQuad", std::make_shared<Quad>(mModelProperties.mTextures[0], 0));
+	mModelProperties.mPrimitives.insert_or_assign("testQuad", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 }
 
 void Program::initMeshes()
@@ -321,37 +322,39 @@ void Program::initMeshes()
 void Program::initMaterial()
 {
 	mMaterialProperties.mMaterial = std::make_unique<Material>(mMaterialProperties.mAmbient,
-		mMaterialProperties.mDiffuse,
-		mMaterialProperties.mSpecular,
-		32.0f, mModelProperties.mTextures);
+															   mMaterialProperties.mDiffuse,
+															   mMaterialProperties.mSpecular,
+															   32.0f);
 }
 
 void Program::initModels()
 {
 	// museum
-	//mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+	//mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 	//													      mProgramProperties.mResourcePath + "Models/museum.obj", 
 	//														  std::vector<Texture2>()));
 	mModelProperties.mModel.push_back(std::make_unique<Model>());
 	// mirror
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 													          mProgramProperties.mResourcePath + "Models/mirror.obj", 
-														      std::vector<Texture2>()));
+														      std::make_pair(Texture2(), Texture2()), std::make_pair(0,0)));
 	// lamp posts
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 															  mProgramProperties.mResourcePath + "Models/lamppost.obj",
-															  std::vector<Texture2>()));
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+															  std::make_pair(Texture2(), Texture2()), std::make_pair(0,0)));
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 															  mProgramProperties.mResourcePath + "Models/lamppost.obj",
-															  std::vector<Texture2>()));
+															  std::make_pair(Texture2(), Texture2()), std::make_pair(0, 0)));
 	// planet
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 									  mProgramProperties.mResourcePath + "Models/planet/planet.obj", 
-									  std::vector<Texture2>({ mModelProperties.mTextures[0] })));
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f), mMaterialProperties.mMaterial.get(),
+									  std::make_pair(mModelProperties.mTextures[0], mModelProperties.mTextures[0]),
+								      std::make_pair(0, 0)));
+	// rocks
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 									  mProgramProperties.mResourcePath + "Models/rock/rock.obj",
-									  std::vector<Texture2>({ mModelProperties.mTextures[1] })));
-
+									  std::make_pair(mModelProperties.mTextures[1], mModelProperties.mTextures[1]),
+									  std::make_pair(1, 1)));
 }
 
 void Program::initLights()
@@ -395,8 +398,8 @@ void Program::initSkybox()
 		resourcePath + "ulukai/corona_bk.png"
 	};
 	mProgramProperties.mSkyboxShader.bind();
-	mProgramProperties.mSkybox = std::make_unique<Skybox>(typeSkybox::CUBE, paths, 1);
-	mProgramProperties.mSkyboxShader.setUniform1i("uSkybox", 1);
+	mProgramProperties.mSkybox = std::make_unique<Skybox>(typeSkybox::CUBE, paths, 0);
+	mProgramProperties.mSkyboxShader.setUniform1i("uSkybox", 0);
 }
 
 void Program::initUBO()
@@ -485,7 +488,8 @@ void Program::setLights()
 {
 	setMaterials();
 
-	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShader, mMaterialProperties.mMaterial.get(), true);
+	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShader);
+	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShader);
 }
 
 void Program::setLightCube()
@@ -564,7 +568,8 @@ void Program::setSkybox()
 
 	mProgramProperties.mSkyboxShader.setMatrixUniform4fv("uMVP", skyboxMVP);
 
-	mProgramProperties.mSkybox->getMesh().drawSkybox();
+	mProgramProperties.mSkybox->getTexture().bind();
+	mProgramProperties.mSkybox->getMesh().draw();
 
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
@@ -577,7 +582,7 @@ void Program::drawModels()
 	
 	mProgramProperties.mShader.bind();
 	mProgramProperties.mShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
-	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, 0, 0, true);
+	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShader);
 
 	//// floor
 	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mModelProperties.mProjMatrix,
@@ -637,7 +642,10 @@ void Program::drawModels()
 	mModelProperties.mFactoryMeshes.getMesh("block2").setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
 	
-	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, 0, 0, false);
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, std::make_pair(0,0), 
+												mModelProperties.mModel[4]->getTextures(),
+												mModelProperties.mModel[4]->getSlots(), 
+												0, 0);
 
 	mModelProperties.mModel[4]->initMVP(mModelProperties.mProjMatrix,
 										mProgramProperties.mCamera.getViewMatrix(),
@@ -645,9 +653,14 @@ void Program::drawModels()
 										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 										glm::vec3(20.0f, 20.0f, 20.0f));
 	mModelProperties.mModel[4]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	mModelProperties.mModel[4]->getTextures().first.bind(0);
+	mModelProperties.mModel[4]->getTextures().second.bind(0);
 	mModelProperties.mModel[4]->render();
 
-	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, 1, 1, false);
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, std::make_pair(0, 0),
+												mModelProperties.mModel[5]->getTextures(),
+												mModelProperties.mModel[5]->getSlots(),
+												0, 0);
 
 	mModelProperties.mModel[5]->initMVP(mModelProperties.mProjMatrix,
 										mProgramProperties.mCamera.getViewMatrix(),
@@ -655,9 +668,11 @@ void Program::drawModels()
 										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 										glm::vec3(20.0f, 20.0f, 20.0f));
 	mModelProperties.mModel[5]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	mModelProperties.mModel[5]->getTextures().first.bind(0);
+	mModelProperties.mModel[5]->getTextures().second.bind(0);
 	mModelProperties.mModel[5]->render();
 	mProgramProperties.mSkyboxBlockShader.bind();
-
+	
 	mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mModelProperties.mProjMatrix, 
 															  mProgramProperties.mCamera.getViewMatrix(),
 															  glm::vec3(1.0f, 1.0f, 1.0f),
@@ -668,7 +683,7 @@ void Program::drawModels()
 	mProgramProperties.mSkyboxBlockShader.setUniform3fv("uCameraPos", mProgramProperties.mCamera.getPos());
 	mProgramProperties.mSkyboxBlockShader.setUniform1i("uSkybox", 1);
 
-	mModelProperties.mFactoryMeshes.getMesh("block1").drawSkybox();
+	mModelProperties.mFactoryMeshes.getMesh("block1").draw();
 
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	glStencilMask(0x00);
@@ -697,7 +712,7 @@ void Program::drawModels()
 		mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uViewMatrix", mProgramProperties.mCamera.getViewMatrix());
 		mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block1").getModelMatrix());
 		mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("block1").getMVP());
-		mModelProperties.mFactoryMeshes.getMesh("block1").drawSkybox();
+		mModelProperties.mFactoryMeshes.getMesh("block1").draw();
 	}	
 	glStencilMask(0xFF);
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);

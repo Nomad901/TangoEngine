@@ -22,7 +22,7 @@ public:
 	void init(typeSkybox pTypeSkybox, const std::array<std::filesystem::path, 6>& pPaths, uint32_t pSloth);
 
 	Mesh& getMesh() noexcept;
-	Texture2& getTextures() noexcept;
+	Texture2& getTexture() noexcept;
 
 	void render();
 

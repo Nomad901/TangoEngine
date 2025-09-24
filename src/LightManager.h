@@ -21,7 +21,7 @@ public:
 	auto getStorageLight() -> std::unordered_map<std::string, std::unique_ptr<Light>>&;
 	auto getSize() const noexcept -> size_t;
 	
-	auto sendAllToShader(Shader& pShader, Material* pMaterial, bool pIsJustColored) -> void;
+	auto sendAllToShader(Shader& pShader) -> void;
 
 private:
 	std::unordered_map<std::string, std::unique_ptr<Light>> mStrgLight;

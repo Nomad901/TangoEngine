@@ -17,21 +17,11 @@ class Mesh
 public:
 	Mesh() = default;
 	Mesh(const std::vector<Vertex>& pVertices,
-		 const std::vector<uint32_t>& pIndices,
-		 const std::vector<Texture2>& pTexture);
-	Mesh(const std::vector<Vertex>& pVertices,
 		 const std::vector<uint32_t>& pIndices);
-	Mesh(const std::weak_ptr<Primitive>& pPrimitive,
-		 const std::vector<Texture2>& pTexture);
 	Mesh(const std::weak_ptr<Primitive>& pPrimitive);
 
 	void init(const std::vector<Vertex>& pVertices,
-			  const std::vector<uint32_t>& pIndices, 
-			  const std::vector<Texture2>& pTexture);
-	void init(const std::vector<Vertex>& pVertices,
 			  const std::vector<uint32_t>& pIndices);
-	void init(const std::weak_ptr<Primitive>& pPrimitive,
-			  const std::vector<Texture2>& pTextures);
 	void init(const std::weak_ptr<Primitive>& pPrimitive);
 
 	void initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix,
@@ -52,10 +42,8 @@ public:
 
 	void setVertices(const std::vector<Vertex>& pVertices);
 	void setIndices(const std::vector<uint32_t>& pIndices);
-	void setTextures(const std::vector<Texture2>& pTextures);
 	std::vector<Vertex>& getVertices();
 	std::vector<uint32_t>& getIndices();
-	std::vector<Texture2>& getTextures();
 	Primitive& getPrimitive();
 
 	void setPos(const glm::vec3& pPos);
@@ -83,7 +71,6 @@ public:
 	void draw();
 	void drawInstances(uint32_t pNumber);
 	void drawInFrameBuffer(Texture2& pTexture);
-	void drawSkybox();
 
 private:
 	void rebuildMatrix(); 
@@ -92,8 +79,6 @@ private:
 	bool mIsTaken{ false };
 
 	std::shared_ptr<Primitive> mPrimitive;
-	std::vector<Texture2> mTextures;
-	Texture2 mTexture;
 
 	VAO mVAO;
 	VBO mVBO;

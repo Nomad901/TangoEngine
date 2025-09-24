@@ -11,24 +11,30 @@ class Model
 {
 public:
 	Model() = default;
-	Model(const glm::vec3& pOriginPos, Material* pMaterialPtr,
-		  const std::vector<Texture2>& pTextures, 
-		  std::vector<std::unique_ptr<Mesh>>& pMeshes);
-	Model(const glm::vec3& pOriginPos, Material* pMaterialPtr, 
-		  const std::filesystem::path& pPath, const std::vector<Texture2>& pTextures);
+	Model(const glm::vec3& pOriginPos, 
+		  const std::pair<Texture2, Texture2>& pTextures,
+				std::pair<uint32_t, uint32_t> pSlots,
+			    std::vector<std::unique_ptr<Mesh>>& pMeshes);
+	Model(const glm::vec3& pOriginPos, const std::filesystem::path& pPath,
+		  const std::pair<Texture2, Texture2>& pTextures,
+				std::pair<uint32_t, uint32_t> pSlots);
 	~Model() = default;
 	
 	//
-	// init with the storage of meshes
+	// init with the storage of meshes;
+	// Textures - pair of meshes, like diffuse and specular
 	//
-	void init(const glm::vec3& pOriginPos, Material* pMaterialPtr,
-			  const std::vector<Texture2>& pTextures,
-			  std::vector<std::unique_ptr<Mesh>>& pMeshes);
+	void init(const glm::vec3& pOriginPos,
+			  const std::pair<Texture2, Texture2>& pTextures, 
+					std::pair<uint32_t, uint32_t> pSlots,
+					std::vector<std::unique_ptr<Mesh>>& pMeshes);
 	//
 	// init with .obj file
+	// Textures - pair of meshes, like diffuse and specular
 	//
-	void init(const glm::vec3& pOriginPos, Material* pMaterialPtr, 
-			  const std::filesystem::path& pPath, const std::vector<Texture2>& pTextures);
+	void init(const glm::vec3& pOriginPos, const std::filesystem::path& pPath,
+			  const std::pair<Texture2, Texture2>& pTextures,
+				    std::pair<uint32_t, uint32_t> pSlots);
 
 	void initMVP(const glm::mat4& pProjMatrix, const glm::mat4& pViewMatrix, const glm::vec3& pTranslation, 
 				 const std::pair<float, glm::vec3>& pDegreeRotate, const glm::vec3& pScale);
@@ -45,6 +51,9 @@ public:
 	glm::vec3 getSize() const noexcept;
 	glm::vec3 getOriginPos() const noexcept;
 
+	std::pair<Texture2, Texture2>& getTextures() noexcept;
+	std::pair<uint32_t, uint32_t> getSlots() const noexcept;
+
 	void takeModel(bool pTake);
 	bool modelIsTaken() const noexcept;
 
@@ -58,7 +67,8 @@ private:
 	bool mIsTaken;
 
 	Material* mMaterial;
-	std::vector<Texture2> mTextures;
+	std::pair<Texture2, Texture2> mTextures;
+	std::pair<uint32_t, uint32_t> mSlots;
 	std::vector<std::unique_ptr<Mesh>> mMeshes;
 
 	OBJLoader mOBJLoader;
