@@ -17,9 +17,9 @@ class Skybox
 {
 public:
 	Skybox() = default;
-	Skybox(typeSkybox pTypeSkybox, const std::array<std::filesystem::path, 6>& pPaths, uint32_t pSloth);
+	Skybox(typeSkybox pTypeSkybox, const std::array<std::filesystem::path, 6>& pPaths, uint32_t pSlot);
 	
-	void init(typeSkybox pTypeSkybox, const std::array<std::filesystem::path, 6>& pPaths, uint32_t pSloth);
+	void init(typeSkybox pTypeSkybox, const std::array<std::filesystem::path, 6>& pPaths, uint32_t pSlot);
 
 	Mesh& getMesh() noexcept;
 	Texture2& getTexture() noexcept;
@@ -28,7 +28,5 @@ public:
 
 private:
 	Mesh mSkybox;
-	Texture2 mTexture;
-
 };
 
