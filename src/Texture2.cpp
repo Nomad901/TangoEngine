@@ -7,7 +7,53 @@ Texture2::Texture2(const std::filesystem::path& pPath, std::string_view pUniform
 
 Texture2::~Texture2()
 {
+	std::cout << std::format("Texture was deleted! ID: {}\n", mRendererID);
 	glDeleteTextures(1, &mRendererID);
+}
+
+Texture2::Texture2(Texture2&& pAnotherTexture) noexcept
+{
+	mWidth = pAnotherTexture.mWidth;
+	mHeight = pAnotherTexture.mHeight;
+	mBPP = pAnotherTexture.mBPP;
+	mRendererID = pAnotherTexture.mRendererID;
+	mLocalBuffer = pAnotherTexture.mLocalBuffer;
+	mType = pAnotherTexture.mType;
+	mUniformName = std::move(pAnotherTexture.mUniformName);
+	mFilePath = std::move(pAnotherTexture.mFilePath);
+
+	pAnotherTexture.mWidth = 0;
+	pAnotherTexture.mHeight = 0;
+	pAnotherTexture.mBPP = 0;
+	pAnotherTexture.mRendererID = 0;
+	pAnotherTexture.mLocalBuffer = nullptr;
+}
+
+Texture2& Texture2::operator=(Texture2&& pAnotherTexture) noexcept
+{
+	if (&pAnotherTexture == this)
+		return *this;
+
+	if (mRendererID != 0)
+		glDeleteTextures(1, &mRendererID);
+	delete mLocalBuffer;
+
+	mWidth = pAnotherTexture.mWidth;
+	mHeight = pAnotherTexture.mHeight;
+	mBPP = pAnotherTexture.mBPP;
+	mRendererID = pAnotherTexture.mRendererID;
+	mLocalBuffer = pAnotherTexture.mLocalBuffer;
+	mType = pAnotherTexture.mType;
+	mUniformName = std::move(pAnotherTexture.mUniformName);
+	mFilePath = std::move(pAnotherTexture.mFilePath);
+	
+	pAnotherTexture.mWidth = 0;
+	pAnotherTexture.mHeight = 0;
+	pAnotherTexture.mBPP = 0;
+	pAnotherTexture.mRendererID = 0;
+	pAnotherTexture.mLocalBuffer = nullptr;
+
+	return *this;
 }
 
 void Texture2::init(const std::filesystem::path& pPath, std::string_view pUniformName, bool pRepeatTexture)

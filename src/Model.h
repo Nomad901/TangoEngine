@@ -12,11 +12,11 @@ class Model
 public:
 	Model() = default;
 	Model(const glm::vec3& pOriginPos, 
-		  const std::pair<Texture2, Texture2>& pTextures,
+		  const std::pair<Texture2&, Texture2&>& pTextures,
 				std::pair<uint32_t, uint32_t> pSlots,
 			    std::vector<std::unique_ptr<Mesh>>& pMeshes);
 	Model(const glm::vec3& pOriginPos, const std::filesystem::path& pPath,
-		  const std::pair<Texture2, Texture2>& pTextures,
+		  const std::pair<Texture2&, Texture2&>& pTextures,
 				std::pair<uint32_t, uint32_t> pSlots);
 	~Model() = default;
 	
@@ -25,7 +25,7 @@ public:
 	// Textures - pair of meshes, like diffuse and specular
 	//
 	void init(const glm::vec3& pOriginPos,
-			  const std::pair<Texture2, Texture2>& pTextures, 
+			  const std::pair<Texture2&, Texture2&>& pTextures,
 					std::pair<uint32_t, uint32_t> pSlots,
 					std::vector<std::unique_ptr<Mesh>>& pMeshes);
 	//
@@ -33,7 +33,7 @@ public:
 	// Textures - pair of meshes, like diffuse and specular
 	//
 	void init(const glm::vec3& pOriginPos, const std::filesystem::path& pPath,
-			  const std::pair<Texture2, Texture2>& pTextures,
+		      const std::pair<Texture2&, Texture2&>& pTextures,
 				    std::pair<uint32_t, uint32_t> pSlots);
 
 	void initMVP(const glm::mat4& pProjMatrix, const glm::mat4& pViewMatrix, const glm::vec3& pTranslation, 
@@ -51,8 +51,9 @@ public:
 	glm::vec3 getSize() const noexcept;
 	glm::vec3 getOriginPos() const noexcept;
 
-	std::pair<Texture2, Texture2>& getTextures() noexcept;
-	std::pair<uint32_t, uint32_t> getSlots() const noexcept;
+	Texture2& getFirstTex() noexcept;
+	Texture2& getSecondTex() noexcept;
+ 	std::pair<uint32_t, uint32_t> getSlots() const noexcept;
 
 	void takeModel(bool pTake);
 	bool modelIsTaken() const noexcept;

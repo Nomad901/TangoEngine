@@ -17,18 +17,13 @@ void Material::init(glm::vec3 pAmbient, glm::vec3 pDiffuse, glm::vec3 pSpecular,
 	mShines = pShines;
 }
 
-void Material::sendToShader(Shader& pShader, std::pair<uint32_t, uint32_t> pPosInArrayTex,
-							const std::pair<Texture2, Texture2>& pTextures,
-							std::pair<uint32_t, uint32_t> pSlots,
+void Material::sendToShader(Shader& pShader, std::pair<uint32_t, uint32_t> pSlots,
 							uint32_t pDiffuseIndex, uint32_t pSpecularIndex)
 {
 	pShader.setUniform3fv("material.ambient", mAmbient);
 	pShader.setUniform3fv("material.diffuse", mDiffuse);
 	pShader.setUniform3fv("material.specular", mSpecular);
 	pShader.setUniform1f("material.shines", mShines);
-
-	pShader.setUniform1i(pTextures.first.getUniformName() + std::to_string(pPosInArrayTex.first), pSlots.first);
-	pShader.setUniform1i(pTextures.second.getUniformName() + std::to_string(pPosInArrayTex.second), pSlots.second);
 
 	pShader.setUniform1i("material.diffuseIndex", pDiffuseIndex);
 	pShader.setUniform1i("material.specularIndex", pSpecularIndex);

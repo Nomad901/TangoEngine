@@ -26,9 +26,7 @@ public:
 			  glm::vec3 pSpecular,
 			  float pShines);
 
-	void sendToShader(Shader& pShader, std::pair<uint32_t, uint32_t> pPosInArrayTex,
-					  const std::pair<Texture2, Texture2>& pTextures,
-					  std::pair<uint32_t, uint32_t> pSlots,
+	void sendToShader(Shader& pShader, std::pair<uint32_t, uint32_t> pSlots,
 					  uint32_t pDiffuseIndex, uint32_t pSpecularIndex);
 	void sendToShaderColored(Shader& pShader);
 

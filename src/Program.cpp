@@ -245,8 +245,12 @@ void Program::initShaders()
 void Program::initTextures()
 {
 	mModelProperties.mTextures.reserve(32);
-	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "planet/mars.png", "material.textures");
-	mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "rock/rock.png", "material.textures");
+	mModelProperties.mTextures.emplace_back(std::make_pair(Texture2({ mProgramProperties.mResourcePath + "error.png", "material.textures" }),
+														   Texture2({ mProgramProperties.mResourcePath + "error.png", "material.textures" })));
+	mModelProperties.mTextures.emplace_back(std::make_pair(Texture2({ mProgramProperties.mResourcePath + "Models/planet/mars.png", "material.textures" }),
+														   Texture2({ mProgramProperties.mResourcePath + "Models/planet/mars.png", "material.textures" })));
+	mModelProperties.mTextures.emplace_back(std::make_pair(Texture2({ mProgramProperties.mResourcePath + "Models/rock/rock.png", "material.textures" }),
+														   Texture2({ mProgramProperties.mResourcePath + "Models/rock/rock.png", "material.textures" })));
 	//mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "grass.png", "material.textures");
 }
 
@@ -265,9 +269,7 @@ void Program::initPrimitives()
 	mModelProperties.mPrimitives.insert_or_assign("character", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// blocks to choose
-	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(std::make_pair(mProgramProperties.mSkybox->getTexture(),
-																								  mProgramProperties.mSkybox->getTexture()), 
-																								  std::make_pair(0,0), false));
+	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	mModelProperties.mPrimitives.insert_or_assign("block2", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// lights on ligth-posts
@@ -334,26 +336,27 @@ void Program::initModels()
 	//													      mProgramProperties.mResourcePath + "Models/museum.obj", 
 	//														  std::vector<Texture2>()));
 	mModelProperties.mModel.push_back(std::make_unique<Model>());
+
 	// mirror
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 													          mProgramProperties.mResourcePath + "Models/mirror.obj", 
-														      std::make_pair(Texture2(), Texture2()), std::make_pair(0,0)));
+															  mModelProperties.mTextures[0], std::make_pair(0,0)));
 	// lamp posts
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 															  mProgramProperties.mResourcePath + "Models/lamppost.obj",
-															  std::make_pair(Texture2(), Texture2()), std::make_pair(0,0)));
+															  mModelProperties.mTextures[0], std::make_pair(0,0)));
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 															  mProgramProperties.mResourcePath + "Models/lamppost.obj",
-															  std::make_pair(Texture2(), Texture2()), std::make_pair(0, 0)));
+															  mModelProperties.mTextures[0], std::make_pair(0, 0)));
 	// planet
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 									  mProgramProperties.mResourcePath + "Models/planet/planet.obj", 
-									  std::make_pair(mModelProperties.mTextures[0], mModelProperties.mTextures[0]),
+									  mModelProperties.mTextures[1],
 								      std::make_pair(0, 0)));
 	// rocks
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
 									  mProgramProperties.mResourcePath + "Models/rock/rock.obj",
-									  std::make_pair(mModelProperties.mTextures[1], mModelProperties.mTextures[1]),
+									  mModelProperties.mTextures[2],
 									  std::make_pair(1, 1)));
 }
 
@@ -568,7 +571,7 @@ void Program::setSkybox()
 
 	mProgramProperties.mSkyboxShader.setMatrixUniform4fv("uMVP", skyboxMVP);
 
-	mProgramProperties.mSkybox->getTexture().bind();
+	mProgramProperties.mSkybox->getTexture().bindSkybox();
 	mProgramProperties.mSkybox->getMesh().draw();
 
 	glDepthFunc(GL_LESS);
@@ -642,10 +645,11 @@ void Program::drawModels()
 	mModelProperties.mFactoryMeshes.getMesh("block2").setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
 	
-	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, std::make_pair(0,0), 
-												mModelProperties.mModel[4]->getTextures(),
-												mModelProperties.mModel[4]->getSlots(), 
-												0, 0);
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, mModelProperties.mModel[4]->getSlots(), 0, 0);
+	mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[4]->getFirstTex().getUniformName() + '0',
+											mModelProperties.mModel[4]->getSlots().first);
+	mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[4]->getSecondTex().getUniformName() + '0',
+											mModelProperties.mModel[4]->getSlots().second);
 
 	mModelProperties.mModel[4]->initMVP(mModelProperties.mProjMatrix,
 										mProgramProperties.mCamera.getViewMatrix(),
@@ -653,14 +657,16 @@ void Program::drawModels()
 										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 										glm::vec3(20.0f, 20.0f, 20.0f));
 	mModelProperties.mModel[4]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	mModelProperties.mModel[4]->getTextures().first.bind(0);
-	mModelProperties.mModel[4]->getTextures().second.bind(0);
+	mModelProperties.mModel[4]->getFirstTex().bind(0);
+	mModelProperties.mModel[4]->getSecondTex().bind(0);
 	mModelProperties.mModel[4]->render();
 
-	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, std::make_pair(0, 0),
-												mModelProperties.mModel[5]->getTextures(),
-												mModelProperties.mModel[5]->getSlots(),
-												0, 0);
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, mModelProperties.mModel[5]->getSlots(),
+												0, 0); 
+	mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[5]->getFirstTex().getUniformName() + '1',
+											mModelProperties.mModel[5]->getSlots().first);
+	mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[5]->getSecondTex().getUniformName() + '1',
+											mModelProperties.mModel[5]->getSlots().second);
 
 	mModelProperties.mModel[5]->initMVP(mModelProperties.mProjMatrix,
 										mProgramProperties.mCamera.getViewMatrix(),
@@ -668,8 +674,8 @@ void Program::drawModels()
 										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 										glm::vec3(20.0f, 20.0f, 20.0f));
 	mModelProperties.mModel[5]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	mModelProperties.mModel[5]->getTextures().first.bind(0);
-	mModelProperties.mModel[5]->getTextures().second.bind(0);
+	mModelProperties.mModel[5]->getFirstTex().bind(0);
+	mModelProperties.mModel[5]->getSecondTex().bind(0);
 	mModelProperties.mModel[5]->render();
 	mProgramProperties.mSkyboxBlockShader.bind();
 	

@@ -10,7 +10,7 @@ void Skybox::init(typeSkybox pTypeSkybox, const std::array<std::filesystem::path
 	if (pTypeSkybox == typeSkybox::CUBE)
 	{
 		mTexture.initCubeMaps(pPaths);
-		std::shared_ptr<Primitive> primitive = std::make_shared<Cube>(std::make_pair(mTexture, mTexture), std::make_pair(pSlot, pSlot), true);
+		std::shared_ptr<Primitive> primitive = std::make_shared<Cube>(mTexture, pSlot, true);
 		std::weak_ptr<Primitive> weakCube = primitive;
 		mSkybox.init(weakCube);
 	}

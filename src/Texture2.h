@@ -15,6 +15,10 @@ public:
 	Texture2() = default;
 	Texture2(const std::filesystem::path& pPath, std::string_view pUniformName, bool pRepeatTexture = false);
 	~Texture2();
+	Texture2(const Texture2&) = delete;
+	Texture2& operator=(const Texture2&) = delete;
+	Texture2(Texture2&& pAnotherTexture) noexcept;
+	Texture2& operator=(Texture2&& pAnotherTexture) noexcept;
 
 	void init(const std::filesystem::path& pPath, std::string_view pUniformName, bool pRepeatTexture = false);
 	void init(const std::filesystem::path& pPath, bool pRepeatTexture = false);

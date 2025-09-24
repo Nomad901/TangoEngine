@@ -143,7 +143,7 @@ private:
 		glm::vec3 mLastPos{ 1.0f };
 
 		std::unordered_map<std::string, std::shared_ptr<Primitive>> mPrimitives;
-		std::vector<Texture2> mTextures;
+		std::vector<std::pair<Texture2, Texture2>> mTextures;
 		std::vector<std::unique_ptr<Model>> mModel;
 		Collider mCollider;
 		FactoryMesh mFactoryMeshes;

@@ -1,7 +1,7 @@
 #include "Model.h"
 
 Model::Model(const glm::vec3& pOriginPos,
-			 const std::pair<Texture2, Texture2>& pTextures, 
+		     const std::pair<Texture2&, Texture2&>& pTextures, 
 				   std::pair<uint32_t, uint32_t> pSlots,
 				   std::vector<std::unique_ptr<Mesh>>& pMeshes)
 {
@@ -9,19 +9,20 @@ Model::Model(const glm::vec3& pOriginPos,
 }
 
 Model::Model(const glm::vec3& pOriginPos, const std::filesystem::path& pPath, 
-			 const std::pair<Texture2, Texture2>& pTextures,
-				   std::pair<uint32_t, uint32_t> pSlots)
+			 const std::pair<Texture2&, Texture2&>& pTextures,
+			 std::pair<uint32_t, uint32_t> pSlots)
 {
 	init(pOriginPos, pPath, pTextures, pSlots);
 }
 
 void Model::init(const glm::vec3& pOriginPos,
-				 const std::pair<Texture2, Texture2>& pTextures, 
+				 const std::pair<Texture2&, Texture2&>& pTextures,
 					   std::pair<uint32_t, uint32_t> pSlots,
 					   std::vector<std::unique_ptr<Mesh>>& pMeshes)
 {
 	mOriginPos = pOriginPos;
-	mTextures = pTextures;
+	mTextures.first = std::move(pTextures.first);
+	mTextures.second = std::move(pTextures.second);
 	mSlots = pSlots;
 	for (auto& i : pMeshes)
 	{
@@ -30,12 +31,13 @@ void Model::init(const glm::vec3& pOriginPos,
 }
 
 void Model::init(const glm::vec3& pOriginPos, const std::filesystem::path& pPath,
-				 const std::pair<Texture2, Texture2>& pTextures, 
+				 const std::pair<Texture2&, Texture2&>& pTextures,
 					   std::pair<uint32_t, uint32_t> pSlots)
 {
 	mOriginPos = pOriginPos;
 	mPos = pOriginPos;
-	mTextures = pTextures;
+	mTextures.first = std::move(pTextures.first);
+	mTextures.second = std::move(pTextures.second);
 	mSlots = pSlots;
 	std::vector<Vertex> vertices = mOBJLoader.loadOBJ(pPath);
 	std::vector<uint32_t> indices(vertices.size());
@@ -110,9 +112,14 @@ glm::vec3 Model::getOriginPos() const noexcept
 	return mOriginPos;
 }
 
-std::pair<Texture2, Texture2>& Model::getTextures() noexcept
+Texture2& Model::getFirstTex() noexcept
 {
-	return mTextures;
+	return mTextures.first;
+}
+
+Texture2& Model::getSecondTex() noexcept
+{
+	return mTextures.second;
 }
 
 std::pair<uint32_t, uint32_t> Model::getSlots() const noexcept
