@@ -197,21 +197,32 @@ void Program::initAll()
 	initMousePicker();
 	initUBO();
 
-	//translations.reserve(100);
-	//glm::vec3 pos = glm::vec3(10.0f, 10.0f, 10.0f);
-	//for (size_t i = 0; i < 100; ++i)
-	//{
-	//	translations.push_back(pos);
-	//	pos.z += 10.0f;
-	//	pos.x += 5.0f;
-	//}
-	//mProgramProperties.mShader.bind();
-	//for (size_t i = 0; i < translations.size(); ++i)
-	//{
-	//	std::string offset = "uOffsets[" + std::to_string(i) + ']';
-	//	mProgramProperties.mShader.setUniform3fv(offset, translations[i]);
-	//}
+	uint32_t amount = 1000;
+	mModels.reserve(1000);
+	srand(SDL_GetTicks());
+	float radius = 150.0f;
+	float offset = 3.0f;
+	for (uint32_t i = 0; i < amount; ++i)
+	{
+		glm::mat4 model = glm::mat4(1.0f);
 
+		float angle = (float)i / (float)amount * 360.0f;
+		float displacement = (rand() % (int32_t)(2 * offset * 100)) / 100.0f - offset + 10.0f;
+		float x = sin(angle) * radius + displacement;
+		displacement = (rand() % (int32_t)(2 * offset * 100)) / 100.0f - offset + 350.0f;
+		float y = displacement * 0.4f;
+		displacement = (rand() % (int32_t)(2 * offset * 100)) / 100.0f - offset - 200.0f;
+		float z = cos(angle) * radius + displacement;
+		model = glm::translate(model, glm::vec3(x, y, z));
+
+		float scale = (rand() % 20) / 100.0f + 0.5f;
+		model = glm::scale(model, glm::vec3(scale));
+
+		float rotate = (rand() % 360);
+		model = glm::rotate(model, rotate, glm::vec3(0.4f, 0.6f, 0.8f));
+
+		mModels.push_back(model);
+	}
 }
 
 void Program::initShaders()
@@ -280,9 +291,6 @@ void Program::initPrimitives()
 
 	// test quad
 	mModelProperties.mPrimitives.insert_or_assign("testQuad", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-
-	// sphere
-	mModelProperties.mPrimitives.insert_or_assign("sphere", std::make_shared<Sphere>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0f, 32, 16));
 }
 
 void Program::initMeshes()
@@ -322,10 +330,6 @@ void Program::initMeshes()
 	// test quad
 	std::weak_ptr<Primitive> testQuad = mModelProperties.mPrimitives["testQuad"];
 	mModelProperties.mFactoryMeshes.pushMesh("testQuad", std::make_unique<Mesh>(testQuad));
-
-	// sphere
-	std::weak_ptr<Primitive> sphere = mModelProperties.mPrimitives["sphere"];
-	mModelProperties.mFactoryMeshes.pushMesh("sphere", std::make_unique<Mesh>(sphere));
 }
 
 void Program::initMaterial()
@@ -408,7 +412,7 @@ void Program::initSkybox()
 		resourcePath + "ulukai/corona_bk.png"
 	};
 	mProgramProperties.mSkyboxShader.bind();
-	mProgramProperties.mSkybox = std::make_unique<Skybox>(typeSkybox::CUBE, paths, 0);
+	mProgramProperties.mSkybox = std::make_unique<Skybox>(typeSkybox::SPHERE, paths, 0);
 	mProgramProperties.mSkyboxShader.setUniform1i("uSkybox", 0);
 }
 
@@ -602,15 +606,6 @@ void Program::drawModels()
 	//mModelProperties.mModel[0]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	//mModelProperties.mModel[0]->render();
 
-	// sphere
-	mModelProperties.mFactoryMeshes.getMesh("sphere").initMVP(mModelProperties.mProjMatrix,
-															  mProgramProperties.mCamera.getViewMatrix(),
-															  glm::vec3(10.0f, 30.0f, -10.0f),
-															  std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
-															  glm::vec3(2.0f, 2.0f, 2.0f));
-	mModelProperties.mFactoryMeshes.getMesh("sphere").setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	mModelProperties.mFactoryMeshes.getMesh("sphere").draw();
-
 	//// light posts
 
 	auto setLightModels = [&](const glm::vec3& pPos, int32_t pInd)
@@ -659,7 +654,7 @@ void Program::drawModels()
 
 	mModelProperties.mModel[4]->initMVP(mModelProperties.mProjMatrix,
 										mProgramProperties.mCamera.getViewMatrix(),
-										glm::vec3(10.0f, 50.0f, -160.0f),
+										glm::vec3(10.0f, 150.0f, -200.0f),
 										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 										glm::vec3(20.0f, 20.0f, 20.0f));
 	mModelProperties.mModel[4]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -673,16 +668,17 @@ void Program::drawModels()
 											mModelProperties.mModel[5]->getSlots().first);
 	mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[5]->getSecondTex().getUniformName() + '1',
 											mModelProperties.mModel[5]->getSlots().second);
-
-	mModelProperties.mModel[5]->initMVP(mModelProperties.mProjMatrix,
-										mProgramProperties.mCamera.getViewMatrix(),
-										glm::vec3(10.0f, 50.0f, -300.0f),
-										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-										glm::vec3(20.0f, 20.0f, 20.0f));
-	mModelProperties.mModel[5]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	mModelProperties.mModel[5]->getFirstTex().bind(0);
-	mModelProperties.mModel[5]->getSecondTex().bind(0);
-	mModelProperties.mModel[5]->render();
+	
+	for (auto& model : mModels)
+	{ 
+		mModelProperties.mModel[5]->initMVP(mModelProperties.mProjMatrix,
+											mProgramProperties.mCamera.getViewMatrix(),
+											model);
+		mModelProperties.mModel[5]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		mModelProperties.mModel[5]->getFirstTex().bind(0);
+		mModelProperties.mModel[5]->getSecondTex().bind(0);
+		mModelProperties.mModel[5]->render();
+	}
 	mProgramProperties.mSkyboxBlockShader.bind();
 	
 	mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mModelProperties.mProjMatrix, 

@@ -38,6 +38,8 @@ public:
 
 	void initMVP(const glm::mat4& pProjMatrix, const glm::mat4& pViewMatrix, const glm::vec3& pTranslation, 
 				 const std::pair<float, glm::vec3>& pDegreeRotate, const glm::vec3& pScale);
+	void initMVP(const glm::mat4& pProjMatrix, const glm::mat4& pViewMatrix, const glm::mat4& pModel);
+
 	glm::mat4 getModelMatrix() const noexcept;
 	glm::mat4 getViewMatrix() const noexcept;
 	glm::mat4 getProjMatrix() const noexcept;

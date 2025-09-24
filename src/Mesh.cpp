@@ -64,6 +64,14 @@ void Mesh::initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix,
 	mMVP = mProjMatrix * mViewMatrix * mModelMatrix;
 }
 
+void Mesh::initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix, const glm::mat4& pModel)
+{
+	mModelMatrix = pModel;
+	mProjMatrix = pProjMatrix;
+	mViewMatrix = pViewMatrix;
+	mMVP = mProjMatrix * mViewMatrix * mModelMatrix;
+}
+
 void Mesh::setModelMatrix(const glm::mat4& pModelMatrix)
 {
 	mModelMatrix = pModelMatrix;

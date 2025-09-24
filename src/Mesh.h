@@ -27,6 +27,8 @@ public:
 	void initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix,
 				 const glm::vec3& pTranslation, const std::pair<float, glm::vec3>& pDegreeRotate,
 				 const glm::vec3& pScale);
+	void initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix,	const glm::mat4& pModel);
+
 	void setModelMatrix(const glm::mat4& pModelMatrix);
 	void setViewMatrix(const glm::mat4& pViewMatrix);
 	void setProjMatrix(const glm::mat4& pProjMatrix);

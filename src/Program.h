@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <memory>
 #include <array>
+#include <random>
 
 #include "glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -153,7 +154,7 @@ private:
 	float surroundNum{ -1 };
 	float insideNum{ 9 };
 
-	std::vector<glm::vec3> translations;
+	std::vector<glm::mat4> mModels;
 
 	uint32_t mUBOnumber;
 

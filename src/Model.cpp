@@ -57,6 +57,14 @@ void Model::initMVP(const glm::mat4& pProjMatrix,const glm::mat4& pViewMatrix, c
 	}
 }
 
+void Model::initMVP(const glm::mat4& pProjMatrix, const glm::mat4& pViewMatrix, const glm::mat4& pModel)
+{
+	for (auto& i : mMeshes)
+	{
+		i->initMVP(pProjMatrix, pViewMatrix, pModel);
+	}
+}
+
 glm::mat4 Model::getModelMatrix() const noexcept
 {
 	return mMeshes[0]->getModelMatrix();
