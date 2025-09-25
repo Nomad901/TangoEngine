@@ -108,8 +108,8 @@ void main()
 
 		// specular
 		vec3 viewDir = normalize(cameraPos - fragPos);
-		vec3 reflectDir = reflect(-lightDir, norm);
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shines);
+		vec3 halfwayDir = normalize(lightDir + viewDir);
+		float spec = pow(max(dot(data_in.normal, halfwayDir), 0.0f), material.shines);
 		vec4 specular = vec4(0.0f);
 		if(material.isJustColored == 1)
 		{	
