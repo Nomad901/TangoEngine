@@ -48,6 +48,14 @@ void Model::init(const glm::vec3& pOriginPos, const std::filesystem::path& pPath
 	mMeshes.push_back(std::make_unique<Mesh>(vertices, indices));
 }
 
+void Model::setInstancedData(const std::vector<glm::mat4>& pMatrices, GLenum pUsage)
+{
+	for (auto& i : mMeshes)
+	{
+		i->initInstancedData(pMatrices, pUsage);
+	}
+}
+
 void Model::initMVP(const glm::mat4& pProjMatrix,const glm::mat4& pViewMatrix, const glm::vec3& pTranslation,
 					const std::pair<float, glm::vec3>& pDegreeRotate, const glm::vec3& pScale)
 {
@@ -160,6 +168,14 @@ void Model::render()
 	for (auto& i : mMeshes)
 	{
 		i->draw();
+	}
+}
+
+void Model::renderInstanced(uint32_t pNumber)
+{
+	for (auto& i : mMeshes)
+	{
+		i->drawInstances(pNumber);
 	}
 }
 

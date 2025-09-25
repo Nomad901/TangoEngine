@@ -104,6 +104,7 @@ private:
 		Shader mSkyboxShader;
 		Shader mSkyboxBlockShader;
 		Shader mShaderNormals;
+		Shader mInstancedShader;
 
 		UBO mUBO;
 

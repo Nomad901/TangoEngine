@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <memory>
+#include <vector>
 
 #include "glm.hpp"
 #include "VBO.h"
@@ -18,11 +19,13 @@ public:
 	Mesh() = default;
 	Mesh(const std::vector<Vertex>& pVertices,
 		 const std::vector<uint32_t>& pIndices);
-	Mesh(const std::weak_ptr<Primitive>& pPrimitive);
 
+	Mesh(const std::weak_ptr<Primitive>& pPrimitive);
 	void init(const std::vector<Vertex>& pVertices,
 			  const std::vector<uint32_t>& pIndices);
 	void init(const std::weak_ptr<Primitive>& pPrimitive);
+
+	void initInstancedData(const std::vector<glm::mat4>& pInstancedData, GLenum pUsage);
 
 	void initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix,
 				 const glm::vec3& pTranslation, const std::pair<float, glm::vec3>& pDegreeRotate,
@@ -81,9 +84,11 @@ private:
 	bool mIsTaken{ false };
 
 	std::shared_ptr<Primitive> mPrimitive;
+	std::vector<glm::mat4> mInstancedData;
 
 	VAO mVAO;
 	VBO mVBO;
+	VBO mInstancedVBO;
 	EBO mEBO;
 	VBOLayout mVBOLayout;
 

@@ -42,6 +42,24 @@ void Mesh::init(const std::weak_ptr<Primitive>& pPrimitive)
 		mVBOLayout.pushLayout(GL_FLOAT, 2);
 		mVAO.addBuffer(mVBO, mVBOLayout);
 		mEBO.init(mPrimitive->getIndexStrg().data(), mPrimitive->getIndexStrg().size());
+	} 
+}
+
+void Mesh::initInstancedData(const std::vector<glm::mat4>& pInstancedData, GLenum pUsage)
+{
+	if (mVAO.getID() == 0)
+	{
+		std::cout << std::format("VAO is zero. Can not continue. ID: {}\n", mVAO.getID());
+		return;
+	}
+	mInstancedData = pInstancedData;
+	mVAO.bind();
+	mInstancedVBO.init(pInstancedData.data(), pInstancedData.size(), pUsage);
+	for (uint32_t i = 0; i < 4; ++i)
+	{
+		glEnableVertexAttribArray(4 + i);
+		glVertexAttribPointer(4 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(i * sizeof(glm::vec4)));
+		glVertexAttribDivisor(4 + i, 1);
 	}
 }
 
@@ -222,7 +240,7 @@ void Mesh::draw()
 void Mesh::drawInstances(uint32_t pNumber)
 {
 	mVAO.bind();
-	glDrawArraysInstanced(GL_TRIANGLES, 0, mEBO.getCount(), pNumber);
+	glDrawElementsInstanced(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, 0, pNumber);
 }
 
 void Mesh::drawInFrameBuffer(Texture2& pTexture)
@@ -240,3 +258,5 @@ void Mesh::rebuildMatrix()
 	mModelMatrix = glm::translate(mModelMatrix, mPos);
 	mModelMatrix = glm::translate(mModelMatrix, mSize);
 }
+
+

@@ -589,7 +589,7 @@ void Program::drawModels()
 {
 	mProgramProperties.mUBO.appendData(0, glm::value_ptr(mModelProperties.mProjMatrix));
 	mProgramProperties.mUBO.appendData(sizeof(glm::mat4), glm::value_ptr(mProgramProperties.mCamera.getViewMatrix()));
-	
+
 	mProgramProperties.mShader.bind();
 	mProgramProperties.mShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
 	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShader);
@@ -653,11 +653,6 @@ void Program::drawModels()
 	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
 	
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, mModelProperties.mModel[4]->getSlots(), 0, 0);
-	//mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[4]->getFirstTex().getUniformName() + "[0]",
-	//										mModelProperties.mModel[4]->getSlots().first);
-	//mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[4]->getSecondTex().getUniformName() + "[0]",
-	//										mModelProperties.mModel[4]->getSlots().second);
-
 	mModelProperties.mModel[4]->initMVP(mModelProperties.mProjMatrix,
 										mProgramProperties.mCamera.getViewMatrix(),
 										glm::vec3(10.0f, 150.0f, -200.0f),
@@ -669,12 +664,15 @@ void Program::drawModels()
 	mModelProperties.mModel[4]->render();
 
 	mProgramProperties.mInstancedShader.bind();
+	mProgramProperties.mInstancedShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mInstancedShader, mModelProperties.mModel[5]->getSlots(),
 												0, 0); 
-	//mProgramProperties.mInstancedShader.setUniform1i(mModelProperties.mModel[5]->getFirstTex().getUniformName() + "[1]",
-	//												 mModelProperties.mModel[5]->getSlots().first);
-	//mProgramProperties.mInstancedShader.setUniform1i(mModelProperties.mModel[5]->getSecondTex().getUniformName() + "[1]",
-	//												 mModelProperties.mModel[5]->getSlots().second);
+	mModelProperties.mModel[5]->initMVP(mModelProperties.mProjMatrix,
+										mProgramProperties.mCamera.getViewMatrix(),
+										glm::vec3(10.0f, 150.0f, -200.0f),
+										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+										glm::vec3(20.0f, 20.0f, 20.0f));
+	mModelProperties.mModel[5]->setUniforms(mProgramProperties.mInstancedShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	mModelProperties.mModel[5]->getFirstTex().bind(0);
 	mModelProperties.mModel[5]->getSecondTex().bind(0);
 	mModelProperties.mModel[5]->renderInstanced(mModels.size());

@@ -36,6 +36,8 @@ public:
 		      const std::pair<Texture2&, Texture2&>& pTextures,
 				    std::pair<uint32_t, uint32_t> pSlots);
 
+	void setInstancedData(const std::vector<glm::mat4>& pMatrices, GLenum pUsage);
+
 	void initMVP(const glm::mat4& pProjMatrix, const glm::mat4& pViewMatrix, const glm::vec3& pTranslation, 
 				 const std::pair<float, glm::vec3>& pDegreeRotate, const glm::vec3& pScale);
 	void initMVP(const glm::mat4& pProjMatrix, const glm::mat4& pViewMatrix, const glm::mat4& pModel);
@@ -62,6 +64,7 @@ public:
 
 	void render(Shader& pShader);
 	void render();
+	void renderInstanced(uint32_t pNumber);
 
 private:
 	void updateUniforms(Shader& pShader);
