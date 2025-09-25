@@ -154,10 +154,10 @@ private:
 
 	float surroundNum{ -1 };
 	float insideNum{ 9 };
-
 	std::vector<glm::mat4> mModels;
-
 	uint32_t mUBOnumber;
+
+	float mRadius{ 5.0f };
 
 	UI mUI;
 	friend class UI;

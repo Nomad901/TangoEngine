@@ -69,13 +69,6 @@ void UBO::unbind()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void UBO::appendData(uint32_t pOffset, const void* pData)
-{
-	bind();
-	glBufferSubData(GL_UNIFORM_BUFFER, pOffset, sizeof(pData), pData);
-	unbind();
-}
-
 uint32_t UBO::getID() const noexcept
 {
 	return mUBOid;

@@ -22,11 +22,12 @@ public:
 
 	void init(const std::filesystem::path& pPath, std::string_view pUniformName, bool pRepeatTexture = false);
 	void init(const std::filesystem::path& pPath, bool pRepeatTexture = false);
+	void initWithMSAA(const std::filesystem::path& pPath, std::string_view pUniformName, uint32_t pSamples);
+	void initWithMSAA(const std::filesystem::path& pPath, uint32_t pSamples);
 	void initEmpty(int32_t pWidth, int32_t pHeight);
 	void initCubeMaps(const std::array<std::filesystem::path, 6>& pPaths);
 
-	void bind(uint32_t pSlot = 0);
-	void bindSkybox(uint32_t pSlot = 0);
+	void bind(GLenum pTarget, uint32_t pSlot = 0);
 	void unbind();
 
 	std::string getUniformName() const noexcept;

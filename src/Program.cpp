@@ -13,6 +13,9 @@ Program::Program(uint32_t pWindowWidth, uint32_t pWindowHeight)
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+	
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
@@ -115,6 +118,13 @@ void Program::input()
 		// CAMERA MOVING
 		if (event.type == SDL_EVENT_MOUSE_MOTION && mProgramProperties.mTakeCursor)
 			mProgramProperties.mCamera.mouseMovement(glm::vec2(event.motion.xrel, event.motion.yrel));
+
+		if (event.type == SDL_EVENT_MOUSE_WHEEL) {
+			if (event.wheel.y > 0)
+				mRadius += 0.5f;
+			if (event.wheel.y < 0)
+				mRadius -= 0.5f;
+		}
 	}
 
 	controlScreen();
@@ -135,13 +145,16 @@ void Program::preDraw()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	// MSAA
+	glEnable(GL_MULTISAMPLE);
+
 	// optimization
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
-
+	
 	if(mProgramProperties.mWireFrameMode)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
@@ -197,11 +210,12 @@ void Program::initAll()
 	initMousePicker();
 	initUBO();
 
-	uint32_t amount = 1000;
-	mModels.reserve(1000);
+	uint32_t amount = 10000;
+	mModels.reserve(10000);
 	srand(SDL_GetTicks());
-	float radius = 150.0f;
-	float offset = 3.0f;
+	float radius = 200.0f;
+	float offset = 50.0f;
+
 	for (uint32_t i = 0; i < amount; ++i)
 	{
 		glm::mat4 model = glm::mat4(1.0f);
@@ -209,13 +223,13 @@ void Program::initAll()
 		float angle = (float)i / (float)amount * 360.0f;
 		float displacement = (rand() % (int32_t)(2 * offset * 100)) / 100.0f - offset + 10.0f;
 		float x = sin(angle) * radius + displacement;
-		displacement = (rand() % (int32_t)(2 * offset * 100)) / 100.0f - offset + 350.0f;
+		displacement = (rand() % (int32_t)(2 * offset * 100)) / 100.0f - offset + 850.0f;
 		float y = displacement * 0.4f;
 		displacement = (rand() % (int32_t)(2 * offset * 100)) / 100.0f - offset - 200.0f;
 		float z = cos(angle) * radius + displacement;
 		model = glm::translate(model, glm::vec3(x, y, z));
 
-		float scale = (rand() % 20) / 100.0f + 0.5f;
+		float scale = (rand() % 20) / 100.0f + 1.0f;
 		model = glm::scale(model, glm::vec3(scale));
 
 		float rotate = (rand() % 360);
@@ -224,7 +238,6 @@ void Program::initAll()
 		mModels.push_back(model);
 	}
 	mModelProperties.mModel[5]->setInstancedData(mModels, GL_DYNAMIC_DRAW);
-	
 }
 
 void Program::initShaders()
@@ -297,6 +310,9 @@ void Program::initPrimitives()
 
 	// test quad
 	mModelProperties.mPrimitives.insert_or_assign("testQuad", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+
+	// light quad
+	mModelProperties.mPrimitives.insert_or_assign("light", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 }
 
 void Program::initMeshes()
@@ -336,6 +352,10 @@ void Program::initMeshes()
 	// test quad
 	std::weak_ptr<Primitive> testQuad = mModelProperties.mPrimitives["testQuad"];
 	mModelProperties.mFactoryMeshes.pushMesh("testQuad", std::make_unique<Mesh>(testQuad));
+
+	// light block
+	std::weak_ptr<Primitive> lightCube = mModelProperties.mPrimitives["light"];
+	mModelProperties.mFactoryMeshes.pushMesh("lightCube", std::make_unique<Mesh>(lightCube));
 }
 
 void Program::initMaterial()
@@ -349,10 +369,9 @@ void Program::initMaterial()
 void Program::initModels()
 {
 	// museum
-	//mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-	//													      mProgramProperties.mResourcePath + "Models/museum.obj", 
-	//														  std::vector<Texture2>()));
-	mModelProperties.mModel.push_back(std::make_unique<Model>());
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
+														      mProgramProperties.mResourcePath + "Models/museum.obj", 
+															  mModelProperties.mTextures[0], std::make_pair(0, 0)));
 
 	// mirror
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
@@ -381,15 +400,15 @@ void Program::initLights()
 {
 	// lamps in the museum
 	mLightProperties.mLightManager.pushLight("pointLight1", std::make_unique<PointLight>(glm::vec3(12.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3(5.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
+	//mLightProperties.mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
+	//mLightProperties.mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3(5.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
+	//mLightProperties.mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
 
 	// lampPosts outside
-	mLightProperties.mLightManager.pushLight("lampPost1", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -71.39948), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("lampPost2", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -91.09918), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("lampPost3", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -68.599525), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("lampPost4", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -88.19923), 0.5f, 0.045f, 0.075f));
+	//mLightProperties.mLightManager.pushLight("lampPost1", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -71.39948), 0.5f, 0.045f, 0.075f));
+	//mLightProperties.mLightManager.pushLight("lampPost2", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -91.09918), 0.5f, 0.045f, 0.075f));
+	//mLightProperties.mLightManager.pushLight("lampPost3", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -68.599525), 0.5f, 0.045f, 0.075f));
+	//mLightProperties.mLightManager.pushLight("lampPost4", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -88.19923), 0.5f, 0.045f, 0.075f));
 }
 
 void Program::initCrosshair()
@@ -510,11 +529,25 @@ void Program::setLights()
 
 	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShader);
 	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShader);
+
+	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mInstancedShader);
+	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShaderSingleColor);
 }
 
 void Program::setLightCube()
 {
+	glDisable(GL_CULL_FACE);
+	mProgramProperties.mShaderSingleColor.bind();
+	
+	mModelProperties.mFactoryMeshes.getMesh("lightCube").initMVP(mModelProperties.mProjMatrix, mProgramProperties.mCamera.getViewMatrix(),
+															 mProgramProperties.mCamera.getPos() + mProgramProperties.mCamera.getDirection() * mRadius,
+															 std::make_pair(glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+															 glm::vec3(1.0f, 1.0f, 1.0f));
+	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("lightCube").getMVP());
+	mModelProperties.mFactoryMeshes.getMesh("lightCube").draw();
 
+	mLightProperties.mLightManager.getLight("pointLight1")->get()->setPosLight(mProgramProperties.mCamera.getPos() + mProgramProperties.mCamera.getDirection() * mRadius);
+	glEnable(GL_CULL_FACE);
 }
 
 void Program::setMaterials()
@@ -543,6 +576,7 @@ void Program::setModels()
 	mProgramProperties.mCamera.setYaw(mProgramProperties.mCamera.getYaw() - 180.0f);
 	mProgramProperties.mCamera.mouseMovement({ 0, 0 }, true);
 	drawNormals();
+	setLightCube();
 
 	mProgramProperties.mFBO.unbind();
 	glViewport(0, 0, mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
@@ -554,14 +588,15 @@ void Program::setModels()
 	setSkybox();
 	drawModels();
 	drawNormals();
-	
+	setLightCube();
+
 	glDisable(GL_DEPTH_TEST);
 	mProgramProperties.mCrosshair->render(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
 
 	mProgramProperties.mShaderSecondScreen.bind();
 	mModelProperties.mFactoryMeshes.getMesh("testQuad").initMVP(mModelProperties.mProjMatrix,
 																mProgramProperties.mCamera.getViewMatrix(),
-																glm::vec3(-3.0f, 30.0f, -150.0f),
+																glm::vec3(-3.0f, 30.0f, 0.0f),
 																std::make_pair(-180.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 																glm::vec3(25.0f, 78.0f, 1.0f));
 	mProgramProperties.mShaderSecondScreen.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("testQuad").getMVP());
@@ -587,8 +622,8 @@ void Program::setSkybox()
 
 void Program::drawModels()
 {
-	mProgramProperties.mUBO.appendData(0, glm::value_ptr(mModelProperties.mProjMatrix));
-	mProgramProperties.mUBO.appendData(sizeof(glm::mat4), glm::value_ptr(mProgramProperties.mCamera.getViewMatrix()));
+	mProgramProperties.mUBO.appendData(0, mModelProperties.mProjMatrix);
+	mProgramProperties.mUBO.appendData(sizeof(glm::mat4), mProgramProperties.mCamera.getViewMatrix());
 
 	mProgramProperties.mShader.bind();
 	mProgramProperties.mShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
@@ -604,13 +639,13 @@ void Program::drawModels()
 	mModelProperties.mFactoryMeshes.getMesh("floor").draw();
 
 	//// museum
-	//mModelProperties.mModel[0]->initMVP(mModelProperties.mProjMatrix,
-	//									mProgramProperties.mCamera.getViewMatrix(),
-	//									glm::vec3(1.0f, -34.5f, -1147.0f),
-	//									std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-	//									glm::vec3(1.0f, 1.0f, 1.0f));
-	//mModelProperties.mModel[0]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	//mModelProperties.mModel[0]->render();
+	mModelProperties.mModel[0]->initMVP(mModelProperties.mProjMatrix,
+										mProgramProperties.mCamera.getViewMatrix(),
+										glm::vec3(1.0f, -34.5f, -1147.0f),
+										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+										glm::vec3(1.0f, 1.0f, 1.0f));
+	mModelProperties.mModel[0]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	mModelProperties.mModel[0]->render();
 
 	//// light posts
 
@@ -655,26 +690,21 @@ void Program::drawModels()
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, mModelProperties.mModel[4]->getSlots(), 0, 0);
 	mModelProperties.mModel[4]->initMVP(mModelProperties.mProjMatrix,
 										mProgramProperties.mCamera.getViewMatrix(),
-										glm::vec3(10.0f, 150.0f, -200.0f),
+										glm::vec3(10.0f, 350.0f, -200.0f),
 										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 										glm::vec3(20.0f, 20.0f, 20.0f));
 	mModelProperties.mModel[4]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	mModelProperties.mModel[4]->getFirstTex().bind(0);
-	mModelProperties.mModel[4]->getSecondTex().bind(0);
+	mModelProperties.mModel[4]->getFirstTex().bind(GL_TEXTURE_2D, 0);
+	mModelProperties.mModel[4]->getSecondTex().bind(GL_TEXTURE_2D, 0);
 	mModelProperties.mModel[4]->render();
 
 	mProgramProperties.mInstancedShader.bind();
 	mProgramProperties.mInstancedShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mInstancedShader, mModelProperties.mModel[5]->getSlots(),
 												0, 0); 
-	mModelProperties.mModel[5]->initMVP(mModelProperties.mProjMatrix,
-										mProgramProperties.mCamera.getViewMatrix(),
-										glm::vec3(10.0f, 150.0f, -200.0f),
-										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-										glm::vec3(20.0f, 20.0f, 20.0f));
 	mModelProperties.mModel[5]->setUniforms(mProgramProperties.mInstancedShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	mModelProperties.mModel[5]->getFirstTex().bind(0);
-	mModelProperties.mModel[5]->getSecondTex().bind(0);
+	mModelProperties.mModel[5]->getFirstTex().bind(GL_TEXTURE_2D, 0);
+	mModelProperties.mModel[5]->getSecondTex().bind(GL_TEXTURE_2D, 0);
 	mModelProperties.mModel[5]->renderInstanced(mModels.size());
 	
 	mProgramProperties.mSkyboxBlockShader.bind();

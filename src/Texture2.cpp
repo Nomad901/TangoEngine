@@ -115,6 +115,49 @@ void Texture2::init(const std::filesystem::path& pPath, bool pRepeatTexture)
 		stbi_image_free(mLocalBuffer);
 }
 
+void Texture2::initWithMSAA(const std::filesystem::path& pPath, std::string_view pUniformName, uint32_t pSamples)
+{
+	mUniformName = pUniformName;
+	mFilePath = pPath;
+	stbi_set_flip_vertically_on_load(1);
+	mLocalBuffer = stbi_load(pPath.string().c_str(), &mWidth, &mHeight, &mBPP, 4);
+
+	glGenTextures(1, &mRendererID);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mRendererID);
+	
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, pSamples, GL_RGB, mWidth, mHeight, GL_TRUE);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+	if (mLocalBuffer)
+		stbi_image_free(mLocalBuffer);
+}
+
+void Texture2::initWithMSAA(const std::filesystem::path& pPath, uint32_t pSamples)
+{
+	mFilePath = pPath;
+	stbi_set_flip_vertically_on_load(1);
+	mLocalBuffer = stbi_load(pPath.string().c_str(), &mWidth, &mHeight, &mBPP, 4);
+
+	glGenTextures(1, &mRendererID);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mRendererID);
+
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, pSamples, GL_RGB, mWidth, mHeight, GL_TRUE);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+	if (mLocalBuffer)
+		stbi_image_free(mLocalBuffer);
+}
+
 void Texture2::initEmpty(int32_t pWidth, int32_t pHeight)
 {
 	mWidth = pWidth;
@@ -162,16 +205,10 @@ void Texture2::initCubeMaps(const std::array<std::filesystem::path, 6>& pPaths)
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-void Texture2::bind(uint32_t pSlot)
+void Texture2::bind(GLenum pTarget, uint32_t pSlot)
 {
 	glActiveTexture(GL_TEXTURE0 + pSlot);
-	glBindTexture(GL_TEXTURE_2D, mRendererID);
-}
-
-void Texture2::bindSkybox(uint32_t pSlot)
-{
-	glActiveTexture(GL_TEXTURE0 + pSlot);
-	glBindTexture(GL_TEXTURE_CUBE_MAP , mRendererID);
+	glBindTexture(pTarget, mRendererID);
 }
 
 void Texture2::unbind()

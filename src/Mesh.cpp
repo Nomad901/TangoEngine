@@ -54,7 +54,7 @@ void Mesh::initInstancedData(const std::vector<glm::mat4>& pInstancedData, GLenu
 	}
 	mInstancedData = pInstancedData;
 	mVAO.bind();
-	mInstancedVBO.init(pInstancedData.data(), pInstancedData.size(), pUsage);
+	mInstancedVBO.init(pInstancedData.data(), pInstancedData.size() * sizeof(glm::mat4), pUsage);
 	for (uint32_t i = 0; i < 4; ++i)
 	{
 		glEnableVertexAttribArray(4 + i);
@@ -67,7 +67,6 @@ void Mesh::initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix,
 				   const glm::vec3& pTranslation, const std::pair<float, glm::vec3>& pDegreeRotate,
 				   const glm::vec3& pScale)
 {
-	mProjMatrix = glm::mat4(1.0f);
 	mModelMatrix = glm::mat4(1.0f);
 	mRotate = pDegreeRotate;
 	mPos = pTranslation;
@@ -247,7 +246,7 @@ void Mesh::drawInFrameBuffer(Texture2& pTexture)
 {
 	mVAO.bind();
 	glDisable(GL_DEPTH_TEST);
-	pTexture.bind();
+	pTexture.bind(GL_TEXTURE_2D);
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 

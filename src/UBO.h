@@ -38,7 +38,10 @@ public:
 
 	void bind();
 	void unbind();
-	void appendData(uint32_t pOffset, const void* pData);
+	template<typename T>
+	void appendData(uint32_t pOffset, const T& pData);
+	template<>
+	void appendData<glm::mat4>(uint32_t pOffset, const glm::mat4& pData);
 
 	uint32_t getID() const noexcept;
 	uint32_t getUniformID(std::string_view pName);
@@ -48,3 +51,19 @@ private:
 	std::unordered_map<std::string, uint32_t> mStorageID;
 
 };
+
+template<typename T>
+inline void UBO::appendData(uint32_t pOffset, const T& pData)
+{
+	bind();
+	glBufferSubData(GL_UNIFORM_BUFFER, pOffset, sizeof(T), pData);
+	unbind();
+}
+
+template<>
+inline void UBO::appendData(uint32_t pOffset, const glm::mat4& pData)
+{
+	bind();
+	glBufferSubData(GL_UNIFORM_BUFFER, pOffset, sizeof(glm::mat4), glm::value_ptr(pData));
+	unbind();
+}

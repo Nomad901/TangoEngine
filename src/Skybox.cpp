@@ -51,7 +51,7 @@ void Skybox::render(Shader& pShader)
 	pShader.bind();
 	pShader.setMatrixUniform4fv("uMVP", mMVP);
 	
-	getTexture().bindSkybox();
+	getTexture().bind(GL_TEXTURE_CUBE_MAP);
 	mSkybox.draw();
 	
 	glDepthFunc(GL_LESS);
