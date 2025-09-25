@@ -223,6 +223,8 @@ void Program::initAll()
 
 		mModels.push_back(model);
 	}
+	mModelProperties.mModel[5]->setInstancedData(mModels, GL_DYNAMIC_DRAW);
+	
 }
 
 void Program::initShaders()
@@ -251,6 +253,10 @@ void Program::initShaders()
 	mProgramProperties.mShaderNormals.init(mProgramProperties.mSkyboxBlockShader.getResourcePath() + "Shaders/normalsVert.glsl",
 										   mProgramProperties.mSkyboxBlockShader.getResourcePath() + "Shaders/normalsFrag.glsl",
 										   mProgramProperties.mSkyboxBlockShader.getResourcePath() + "Shaders/normalsGeom.geom");
+	// instanced shader
+	mProgramProperties.mInstancedShader.init(mProgramProperties.mInstancedShader.getResourcePath() + "Shaders/instancedVert.glsl",
+											 mProgramProperties.mInstancedShader.getResourcePath() + "Shaders/instancedFrag.glsl");
+	
 }
 
 void Program::initTextures()
@@ -647,10 +653,10 @@ void Program::drawModels()
 	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
 	
 	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, mModelProperties.mModel[4]->getSlots(), 0, 0);
-	mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[4]->getFirstTex().getUniformName() + '0',
-											mModelProperties.mModel[4]->getSlots().first);
-	mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[4]->getSecondTex().getUniformName() + '0',
-											mModelProperties.mModel[4]->getSlots().second);
+	//mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[4]->getFirstTex().getUniformName() + "[0]",
+	//										mModelProperties.mModel[4]->getSlots().first);
+	//mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[4]->getSecondTex().getUniformName() + "[0]",
+	//										mModelProperties.mModel[4]->getSlots().second);
 
 	mModelProperties.mModel[4]->initMVP(mModelProperties.mProjMatrix,
 										mProgramProperties.mCamera.getViewMatrix(),
@@ -662,23 +668,17 @@ void Program::drawModels()
 	mModelProperties.mModel[4]->getSecondTex().bind(0);
 	mModelProperties.mModel[4]->render();
 
-	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mShader, mModelProperties.mModel[5]->getSlots(),
+	mProgramProperties.mInstancedShader.bind();
+	mMaterialProperties.mMaterial->sendToShader(mProgramProperties.mInstancedShader, mModelProperties.mModel[5]->getSlots(),
 												0, 0); 
-	mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[5]->getFirstTex().getUniformName() + '1',
-											mModelProperties.mModel[5]->getSlots().first);
-	mProgramProperties.mShader.setUniform1i(mModelProperties.mModel[5]->getSecondTex().getUniformName() + '1',
-											mModelProperties.mModel[5]->getSlots().second);
+	//mProgramProperties.mInstancedShader.setUniform1i(mModelProperties.mModel[5]->getFirstTex().getUniformName() + "[1]",
+	//												 mModelProperties.mModel[5]->getSlots().first);
+	//mProgramProperties.mInstancedShader.setUniform1i(mModelProperties.mModel[5]->getSecondTex().getUniformName() + "[1]",
+	//												 mModelProperties.mModel[5]->getSlots().second);
+	mModelProperties.mModel[5]->getFirstTex().bind(0);
+	mModelProperties.mModel[5]->getSecondTex().bind(0);
+	mModelProperties.mModel[5]->renderInstanced(mModels.size());
 	
-	for (auto& model : mModels)
-	{ 
-		mModelProperties.mModel[5]->initMVP(mModelProperties.mProjMatrix,
-											mProgramProperties.mCamera.getViewMatrix(),
-											model);
-		mModelProperties.mModel[5]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		mModelProperties.mModel[5]->getFirstTex().bind(0);
-		mModelProperties.mModel[5]->getSecondTex().bind(0);
-		mModelProperties.mModel[5]->render();
-	}
 	mProgramProperties.mSkyboxBlockShader.bind();
 	
 	mModelProperties.mFactoryMeshes.getMesh("block1").initMVP(mModelProperties.mProjMatrix, 
