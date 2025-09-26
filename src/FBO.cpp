@@ -26,6 +26,9 @@ void FBO::init(uint32_t pWidth, uint32_t pHeight)
     mTexture.initEmpty(pWidth, pHeight);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture.getID(), 0);
 
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
     // depth and stencil
     glGenRenderbuffers(1, &mRenderBufferID);
     glBindRenderbuffer(GL_RENDERBUFFER, mRenderBufferID);

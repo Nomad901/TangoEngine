@@ -67,6 +67,11 @@ void Shader::setUniform3fv(std::string_view pName, const glm::vec3& pData)
 	glUniform3fv(getUniformLocation(pName), 1, &pData[0]);
 }
 
+void Shader::setUniform4fv(std::string_view pName, const glm::vec4& pData)
+{
+	glUniform4fv(getUniformLocation(pName), 1, &pData[0]);
+}
+
 void Shader::setUniform2fv(std::string_view pName, const glm::vec2& pData)
 {
 	glUniform2fv(getUniformLocation(pName), 1, &pData[0]);

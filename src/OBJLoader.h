@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <filesystem>
+#include <thread>
 
 #include "glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -23,7 +24,7 @@ public:
 	std::vector<Vertex> loadOBJ(const std::filesystem::path& pPath);
 
 	std::vector<Vertex> getVertices() const noexcept;
-
+	
 private:
 	std::vector<Vertex> mVertices;
 

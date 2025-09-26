@@ -34,6 +34,7 @@ public:
 	void setUniform1f(std::string_view pName, float pValue);
 	void setMatrixUniform4fv(std::string_view pName, const glm::mat4& pValue);
 	void setUniform3fv(std::string_view pName, const glm::vec3& pData);
+	void setUniform4fv(std::string_view pName, const glm::vec4& pData);
 	void setUniform2fv(std::string_view pName, const glm::vec2& pData);
 
 	std::string getResourcePath() const noexcept;

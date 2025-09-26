@@ -57,7 +57,7 @@ void Program::run()
 
 	mModelProperties.mProjMatrix = glm::perspective(glm::radians(45.0f), (float)mProgramProperties.mWindowWidth / 
 																		 (float)mProgramProperties.mWindowHeight, 0.1f, 2000.0f);
-	mProgramProperties.mFBO.init(800, 600);
+	mProgramProperties.mFBO.init(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
 	mProgramProperties.mFBO.setClearColors({ 0.1f, 0.1f, 0.1f, 0.1f });
 
 	float prevTime = 0.0f;
@@ -270,6 +270,9 @@ void Program::initShaders()
 	mProgramProperties.mInstancedShader.init(mProgramProperties.mInstancedShader.getResourcePath() + "Shaders/instancedVert.glsl",
 											 mProgramProperties.mInstancedShader.getResourcePath() + "Shaders/instancedFrag.glsl");
 	
+	// shield
+	mProgramProperties.mShieldShader.init(mProgramProperties.mShieldShader.getResourcePath() + "Shaders/shieldVert.glsl",
+										  mProgramProperties.mShieldShader.getResourcePath() + "Shaders/shieldFrag.glsl");
 }
 
 void Program::initTextures()
@@ -369,9 +372,10 @@ void Program::initMaterial()
 void Program::initModels()
 {
 	// museum
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-														      mProgramProperties.mResourcePath + "Models/museum.obj", 
-															  mModelProperties.mTextures[0], std::make_pair(0, 0)));
+	//mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
+	//													      mProgramProperties.mResourcePath + "Models/museum.obj", 
+	//														  mModelProperties.mTextures[0], std::make_pair(0, 0)));
+	mModelProperties.mModel.push_back(std::make_unique<Model>());
 
 	// mirror
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
@@ -394,6 +398,10 @@ void Program::initModels()
 									  mProgramProperties.mResourcePath + "Models/rock/rock.obj",
 									  mModelProperties.mTextures[2],
 									  std::make_pair(1, 1)));
+	// sphere
+	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
+									  mProgramProperties.mResourcePath + "Models/sphere.obj", 
+									  mModelProperties.mTextures[0], std::make_pair(0, 0)));
 }
 
 void Program::initLights()
@@ -563,7 +571,7 @@ void Program::setModels()
 	glStencilMask(0x00);
 
 	mProgramProperties.mFBO.bind();
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
 	mProgramProperties.mFBO.setClearColors({ 0.7f, 0.7f, 0.7f, 0.7f });
 	mProgramProperties.mFBO.clearColor();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -596,7 +604,7 @@ void Program::setModels()
 	mProgramProperties.mShaderSecondScreen.bind();
 	mModelProperties.mFactoryMeshes.getMesh("testQuad").initMVP(mModelProperties.mProjMatrix,
 																mProgramProperties.mCamera.getViewMatrix(),
-																glm::vec3(-3.0f, 30.0f, 0.0f),
+																glm::vec3(-3.0f, 30.0f, -50.0f),
 																std::make_pair(-180.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
 																glm::vec3(25.0f, 78.0f, 1.0f));
 	mProgramProperties.mShaderSecondScreen.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("testQuad").getMVP());
@@ -639,13 +647,13 @@ void Program::drawModels()
 	mModelProperties.mFactoryMeshes.getMesh("floor").draw();
 
 	//// museum
-	mModelProperties.mModel[0]->initMVP(mModelProperties.mProjMatrix,
-										mProgramProperties.mCamera.getViewMatrix(),
-										glm::vec3(1.0f, -34.5f, -1147.0f),
-										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-										glm::vec3(1.0f, 1.0f, 1.0f));
-	mModelProperties.mModel[0]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	mModelProperties.mModel[0]->render();
+	//mModelProperties.mModel[0]->initMVP(mModelProperties.mProjMatrix,
+	//									mProgramProperties.mCamera.getViewMatrix(),
+	//									glm::vec3(1.0f, -34.5f, -1147.0f),
+	//									std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+	//									glm::vec3(1.0f, 1.0f, 1.0f));
+	//mModelProperties.mModel[0]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	//mModelProperties.mModel[0]->render();
 
 	//// light posts
 
@@ -718,8 +726,18 @@ void Program::drawModels()
 	mProgramProperties.mSkyboxBlockShader.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block1").getModelMatrix());
 	mProgramProperties.mSkyboxBlockShader.setUniform3fv("uCameraPos", mProgramProperties.mCamera.getPos());
 	mProgramProperties.mSkyboxBlockShader.setUniform1i("uSkybox", 1);
-
 	mModelProperties.mFactoryMeshes.getMesh("block1").draw();
+
+	// sphere
+	mProgramProperties.mShieldShader.bind();
+	mModelProperties.mModel[6]->initMVP(mModelProperties.mProjMatrix,
+										mProgramProperties.mCamera.getViewMatrix(),
+										glm::vec3(1.0f, 10.0f, 10.0f),
+										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+										glm::vec3(10.0f, 10.0f, 10.0f));
+	mProgramProperties.mShieldShader.setUniform4fv("uRealColor", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+	mModelProperties.mModel[6]->setUniforms(mProgramProperties.mShieldShader, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+	mModelProperties.mModel[6]->render();
 
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	glStencilMask(0x00);
