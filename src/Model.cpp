@@ -8,11 +8,19 @@ Model::Model(const glm::vec3& pOriginPos,
 	init(pOriginPos, pTextures, pSlots, pMeshes);
 }
 
-Model::Model(const glm::vec3& pOriginPos, const std::filesystem::path& pPath, 
+Model::Model(const glm::vec3& pOriginPos, const std::filesystem::path& pPath, typeModels pType,
 			 const std::pair<Texture2&, Texture2&>& pTextures,
 			 std::pair<uint32_t, uint32_t> pSlots)
 {
-	init(pOriginPos, pPath, pTextures, pSlots);
+	switch (pType)
+	{
+	case typeModels::OBJ:
+		initOBJmodel(pOriginPos, pPath, pTextures, pSlots);
+		break;
+	case typeModels::ANY:
+		init(pOriginPos, pPath, pTextures, pSlots);
+		break;
+	}
 }
 
 void Model::init(const glm::vec3& pOriginPos,
@@ -43,7 +51,9 @@ void Model::init(const glm::vec3& pOriginPos, const std::filesystem::path& pPath
 	mMeshes = std::move(mAssimpLoader.getMeshes());
 }
 
-void Model::initOBJmodel(const glm::vec3& pOriginPos, const std::filesystem::path& pPath, const std::pair<Texture2&, Texture2&>& pTextures, std::pair<uint32_t, uint32_t> pSlots)
+void Model::initOBJmodel(const glm::vec3& pOriginPos, const std::filesystem::path& pPath, 
+						 const std::pair<Texture2&, Texture2&>& pTextures,
+						 std::pair<uint32_t, uint32_t> pSlots)
 {
 	mOriginPos = pOriginPos;
 	mPos = pOriginPos;

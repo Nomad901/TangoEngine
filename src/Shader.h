@@ -18,6 +18,10 @@ public:
 		   const std::filesystem::path& pPathFragment,
 		   const std::filesystem::path& pPathGeometry);
 	~Shader();
+	Shader(const Shader&) = delete;
+	Shader& operator=(const Shader&) noexcept = delete;
+	Shader(Shader&&) = default;
+	Shader& operator=(Shader&&) noexcept = default;
 
 	void init(const std::filesystem::path& pPathVertex,
 			  const std::filesystem::path& pPathFragment);

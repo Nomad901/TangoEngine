@@ -8,6 +8,12 @@
 #include "OBJLoader.h"
 #include "AssimpLoader.h"
 
+enum class typeModels
+{
+	OBJ = 0,
+	ANY = 1
+};
+
 class Model
 {
 public:
@@ -16,7 +22,7 @@ public:
 		  const std::pair<Texture2&, Texture2&>& pTextures,
 				std::pair<uint32_t, uint32_t> pSlots,
 			    std::vector<std::unique_ptr<Mesh>>& pMeshes);
-	Model(const glm::vec3& pOriginPos, const std::filesystem::path& pPath,
+	Model(const glm::vec3& pOriginPos, const std::filesystem::path& pPath, typeModels pType,
 		  const std::pair<Texture2&, Texture2&>& pTextures,
 				std::pair<uint32_t, uint32_t> pSlots);
 	~Model() = default;

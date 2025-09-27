@@ -196,50 +196,6 @@ void Program::draw()
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Program::initAll()
-{
-	initShaders();
-	initTextures();
-	initSkybox();
-	initPrimitives();
-	initMeshes();
-	initMaterial();
-	initModels();
-	initLights();
-	initCrosshair();
-	initMousePicker();
-	initUBO();
-
-	uint32_t amount = 10000;
-	mModels.reserve(10000);
-	srand(SDL_GetTicks());
-	float radius = 200.0f;
-	float offset = 50.0f;
-
-	for (uint32_t i = 0; i < amount; ++i)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-
-		float angle = (float)i / (float)amount * 360.0f;
-		float displacement = (rand() % (int32_t)(2 * offset * 100)) / 100.0f - offset + 10.0f;
-		float x = sin(angle) * radius + displacement;
-		displacement = (rand() % (int32_t)(2 * offset * 100)) / 100.0f - offset + 850.0f;
-		float y = displacement * 0.4f;
-		displacement = (rand() % (int32_t)(2 * offset * 100)) / 100.0f - offset - 200.0f;
-		float z = cos(angle) * radius + displacement;
-		model = glm::translate(model, glm::vec3(x, y, z));
-
-		float scale = (rand() % 20) / 100.0f + 1.0f;
-		model = glm::scale(model, glm::vec3(scale));
-
-		float rotate = (rand() % 360);
-		model = glm::rotate(model, rotate, glm::vec3(0.4f, 0.6f, 0.8f));
-
-		mModels.push_back(model);
-	}
-	mModelProperties.mModel[5]->setInstancedData(mModels, GL_DYNAMIC_DRAW);
-}
-
 void Program::initShaders()
 {
 	// main shader
@@ -273,41 +229,21 @@ void Program::initTextures()
 
 void Program::initPrimitives()
 {
-	// the room
-	mModelProperties.mPrimitives.insert_or_assign("museum", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-
 	// floor 
 	mModelProperties.mPrimitives.insert_or_assign("floor", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// light block
 	mModelProperties.mPrimitives.insert_or_assign("lightBlock", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
-	// character
-	mModelProperties.mPrimitives.insert_or_assign("character", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-
-	// blocks to choose
-	mModelProperties.mPrimitives.insert_or_assign("block1", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	mModelProperties.mPrimitives.insert_or_assign("block2", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-
 	// lights on ligth-posts
 	mModelProperties.mPrimitives.insert_or_assign("lightPost1", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	mModelProperties.mPrimitives.insert_or_assign("lightPost2", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	mModelProperties.mPrimitives.insert_or_assign("lightPost3", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	mModelProperties.mPrimitives.insert_or_assign("lightPost4", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-
-	// test quad
-	mModelProperties.mPrimitives.insert_or_assign("testQuad", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-
-	// light quad
-	mModelProperties.mPrimitives.insert_or_assign("light", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 }
 
 void Program::initMeshes()
 {
-	// the room
-	std::weak_ptr<Primitive> museum = mModelProperties.mPrimitives["museum"];
-	mModelProperties.mFactoryMeshes.pushMesh("Room", std::make_unique<Mesh>(museum));
-
 	// light block
 	std::weak_ptr<Primitive> lightBlock = mModelProperties.mPrimitives["lightBlock"];
 	mModelProperties.mFactoryMeshes.pushMesh("lightBlock", std::make_unique<Mesh>(lightBlock));
@@ -315,16 +251,6 @@ void Program::initMeshes()
 	// floor
 	std::weak_ptr<Primitive> floor = mModelProperties.mPrimitives["floor"];
 	mModelProperties.mFactoryMeshes.pushMesh("floor", std::make_unique<Mesh>(floor));
-
-	// character
-	std::weak_ptr<Primitive> character = mModelProperties.mPrimitives["character"];
-	mModelProperties.mFactoryMeshes.pushMesh("character", std::make_unique<Mesh>(character));
-
-	// blocks to choose
-	std::weak_ptr<Primitive> block1 = mModelProperties.mPrimitives["block1"];
-	mModelProperties.mFactoryMeshes.pushMesh("block1", std::make_unique<Mesh>(block1));
-	std::weak_ptr<Primitive> block2 = mModelProperties.mPrimitives["block2"];
-	mModelProperties.mFactoryMeshes.pushMesh("block2", std::make_unique<Mesh>(block2));
 
 	// light-posts
 	std::weak_ptr<Primitive> light1 = mModelProperties.mPrimitives["lightPost1"];
@@ -335,14 +261,6 @@ void Program::initMeshes()
 	mModelProperties.mFactoryMeshes.pushMesh("lightPost3", std::make_unique<Mesh>(light3));
 	std::weak_ptr<Primitive> light4 = mModelProperties.mPrimitives["lightPost4"];
 	mModelProperties.mFactoryMeshes.pushMesh("lightPost4", std::make_unique<Mesh>(light4));
-
-	// test quad
-	std::weak_ptr<Primitive> testQuad = mModelProperties.mPrimitives["testQuad"];
-	mModelProperties.mFactoryMeshes.pushMesh("testQuad", std::make_unique<Mesh>(testQuad));
-
-	// light block
-	std::weak_ptr<Primitive> lightCube = mModelProperties.mPrimitives["light"];
-	mModelProperties.mFactoryMeshes.pushMesh("lightCube", std::make_unique<Mesh>(lightCube));
 }
 
 void Program::initMaterial()
@@ -357,48 +275,30 @@ void Program::initModels()
 {
 	// museum
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-														      mProgramProperties.mResourcePath + "Models/museum.obj", 
+															  mProgramProperties.mResourcePath + "Models/museum.obj", typeModels::OBJ,
 															  mModelProperties.mTextures[0], std::make_pair(0, 0)));
-	// mirror
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-													          mProgramProperties.mResourcePath + "Models/mirror.obj", 
-															  mModelProperties.mTextures[0], std::make_pair(0,0)));
 	// lamp posts
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-															  mProgramProperties.mResourcePath + "Models/lamppost.obj",
+															  mProgramProperties.mResourcePath + "Models/lamppost.obj", typeModels::OBJ,
 															  mModelProperties.mTextures[0], std::make_pair(0,0)));
 	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-															  mProgramProperties.mResourcePath + "Models/lamppost.obj",
+															  mProgramProperties.mResourcePath + "Models/lamppost.obj", typeModels::OBJ,
 															  mModelProperties.mTextures[0], std::make_pair(0, 0)));
-	// planet
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-									  mProgramProperties.mResourcePath + "Models/planet/planet.obj", 
-									  mModelProperties.mTextures[1],
-								      std::make_pair(0, 0)));
-	// rocks
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-									  mProgramProperties.mResourcePath + "Models/rock/rock.obj",
-									  mModelProperties.mTextures[2],
-									  std::make_pair(1, 1)));
-	// sphere
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-									  mProgramProperties.mResourcePath + "Models/sphere.obj", 
-									  mModelProperties.mTextures[0], std::make_pair(0, 0)));
 }
 
 void Program::initLights()
 {
 	// lamps in the museum
 	mLightProperties.mLightManager.pushLight("pointLight1", std::make_unique<PointLight>(glm::vec3(12.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
-	//mLightProperties.mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
-	//mLightProperties.mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3(5.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
-	//mLightProperties.mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3(5.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
 
 	// lampPosts outside
-	//mLightProperties.mLightManager.pushLight("lampPost1", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -71.39948), 0.5f, 0.045f, 0.075f));
-	//mLightProperties.mLightManager.pushLight("lampPost2", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -91.09918), 0.5f, 0.045f, 0.075f));
-	//mLightProperties.mLightManager.pushLight("lampPost3", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -68.599525), 0.5f, 0.045f, 0.075f));
-	//mLightProperties.mLightManager.pushLight("lampPost4", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -88.19923), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("lampPost1", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -71.39948), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("lampPost2", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -91.09918), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("lampPost3", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -68.599525), 0.5f, 0.045f, 0.075f));
+	mLightProperties.mLightManager.pushLight("lampPost4", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -88.19923), 0.5f, 0.045f, 0.075f));
 }
 
 void Program::initCrosshair()
@@ -548,52 +448,10 @@ void Program::setMaterials()
 
 void Program::setModels()
 {
-	glStencilMask(0x00);
-
-	mProgramProperties.mFBO.bind();
-	glViewport(0, 0, 800, 600);
-	mProgramProperties.mFBO.setClearColors({ 0.7f, 0.7f, 0.7f, 0.7f });
-	mProgramProperties.mFBO.clearColor();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-
-	setSkybox();	
-	mProgramProperties.mCamera.setYaw(mProgramProperties.mCamera.getYaw() + 180.0f);
-	mProgramProperties.mCamera.mouseMovement({ 0, 0 }, false);
-	drawModels();
-	mProgramProperties.mCamera.setYaw(mProgramProperties.mCamera.getYaw() - 180.0f);
-	mProgramProperties.mCamera.mouseMovement({ 0, 0 }, true);
-	drawNormals();
-	setLightCube();
-
-	mProgramProperties.mFBO.unbind();
-	glViewport(0, 0, mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
-	mProgramProperties.mFBO.setClearColors({ 0.1f, 0.1f, 0.1f, 0.1f });
-	mProgramProperties.mFBO.clearColor();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glStencilMask(0x00);
-
 	setSkybox();
 	drawModels();
 	drawNormals();
 	setLightCube();
-
-	glDisable(GL_DEPTH_TEST);
-	mProgramProperties.mCrosshair->render(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
-
-	mProgramProperties.mShaderSecondScreen.bind();
-	mModelProperties.mFactoryMeshes.getMesh("testQuad").initMVP(mModelProperties.mProjMatrix,
-																mProgramProperties.mCamera.getViewMatrix(),
-																glm::vec3(-3.0f, 30.0f, -50.0f),
-																std::make_pair(-180.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-																glm::vec3(25.0f, 78.0f, 1.0f));
-	mProgramProperties.mShaderSecondScreen.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("testQuad").getMVP());
-
-	mProgramProperties.mShaderSecondScreen.setUniform1i("uTexture", 0);
-	mProgramProperties.mShaderSecondScreen.setUniform1f("surroundNum", surroundNum);
-	mProgramProperties.mShaderSecondScreen.setUniform1f("insideNum", insideNum);
-
-	mModelProperties.mFactoryMeshes.getMesh("testQuad").drawInFrameBuffer(mProgramProperties.mFBO.getTexture());
 }
 
 void Program::setSkybox()
@@ -627,13 +485,13 @@ void Program::drawModels()
 	mModelProperties.mFactoryMeshes.getMesh("floor").draw();
 
 	//// museum
-	//mModelProperties.mModel[0]->initMVP(mModelProperties.mProjMatrix,
-	//									mProgramProperties.mCamera.getViewMatrix(),
-	//									glm::vec3(1.0f, -34.5f, -1147.0f),
-	//									std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-	//									glm::vec3(1.0f, 1.0f, 1.0f));
-	//mModelProperties.mModel[0]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	//mModelProperties.mModel[0]->render();
+	mModelProperties.mModel[0]->initMVP(mModelProperties.mProjMatrix,
+										mProgramProperties.mCamera.getViewMatrix(),
+										glm::vec3(1.0f, -34.5f, -1147.0f),
+										std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+										glm::vec3(1.0f, 1.0f, 1.0f));
+	mModelProperties.mModel[0]->setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	mModelProperties.mModel[0]->render();
 
 	//// light posts
 
