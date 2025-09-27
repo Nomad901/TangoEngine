@@ -9,7 +9,7 @@
 #include "SDL3/SDL.h"
 #include "glm.hpp"
 
-class Program;
+class SceneManager;
 
 class UI
 {
@@ -20,6 +20,6 @@ public:
 
 	void init(SDL_Window* pWindow, const SDL_GLContext& pContext);
 
-	void control(Program& pProgram);
+	void control(SceneManager& pSceneManager);
 };
 

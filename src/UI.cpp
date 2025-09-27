@@ -1,5 +1,5 @@
 #include "UI.h"
-#include "Program.h"
+#include "SceneManager.h"
 
 UI::UI(SDL_Window* pWindow, const SDL_GLContext& pContext)
 {
@@ -27,7 +27,7 @@ void UI::init(SDL_Window* pWindow, const SDL_GLContext& pContext)
 	ImGui_ImplOpenGL3_Init("#version 440");
 }
 
-void UI::control(Program& pProgram)
+void UI::control(SceneManager& pSceneManager)
 {
 	static bool firstTime = true;
 	if (firstTime)
@@ -38,7 +38,7 @@ void UI::control(Program& pProgram)
 		firstTime = false;
 	}
 
-	ImGui::Begin("Control", &pProgram.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
+	ImGui::Begin("Control", &pSceneManager.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
 	
 	
 

@@ -20,16 +20,16 @@ Program::Program(uint32_t pWindowWidth, uint32_t pWindowHeight)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-	mProgramProperties.mWindowWidth = pWindowWidth;
-	mProgramProperties.mWindowHeight = pWindowHeight;
+	mSceneManager.getProgramProperties().mWindowWidth = pWindowWidth;
+	mSceneManager.getProgramProperties().mWindowHeight = pWindowHeight;
 
-	mProgramProperties.mWindow = SDL_CreateWindow("Batch Renderer", pWindowWidth, pWindowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-	if (!mProgramProperties.mWindow)
+	mSceneManager.getProgramProperties().mWindow = SDL_CreateWindow("Batch Renderer", pWindowWidth, pWindowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	if (!mSceneManager.getProgramProperties().mWindow)
 		std::cout << "Couldnt set the window!\n";
-	mProgramProperties.mContext = SDL_GL_CreateContext(mProgramProperties.mWindow);
-	if (!mProgramProperties.mContext)
+	mSceneManager.getProgramProperties().mContext = SDL_GL_CreateContext(mSceneManager.getProgramProperties().mWindow);
+	if (!mSceneManager.getProgramProperties().mContext)
 		std::cout << "Couldnt set the context!\n";
-	if (!SDL_GL_MakeCurrent(mProgramProperties.mWindow, mProgramProperties.mContext))
+	if (!SDL_GL_MakeCurrent(mSceneManager.getProgramProperties().mWindow, mSceneManager.getProgramProperties().mContext))
 		std::cout << "Couldnt set the window and the context current!\n";
 	if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
 		std::cout << "Couldnt load the glad loader!\n";
@@ -38,13 +38,14 @@ Program::Program(uint32_t pWindowWidth, uint32_t pWindowHeight)
 	glDebugMessageCallback(debugOutput, nullptr);
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
-	mUI.init(mProgramProperties.mWindow, mProgramProperties.mContext);
+	mSceneManager.getProgramProperties().mUI.init(mSceneManager.getProgramProperties().mWindow, 
+												  mSceneManager.getProgramProperties().mContext);
 }
 
 Program::~Program()
 {
-	SDL_GL_DestroyContext(mProgramProperties.mContext);
-	SDL_DestroyWindow(mProgramProperties.mWindow);
+	SDL_GL_DestroyContext(mSceneManager.getProgramProperties().mContext);
+	SDL_DestroyWindow(mSceneManager.getProgramProperties().mWindow);
 	SDL_Quit();
 }
 
@@ -52,281 +53,26 @@ void Program::run()
 {
 	mInitializer.initAll();
 
-	while (mProgramProperties.mProgIsRunning)
+	while (mSceneManager.getProgramProperties().mProgIsRunning)
 	{
 		float beginFrame = SDL_GetTicks();
-
-		showFPS();
 		
-		input();
-		preDraw();
-		draw();
+		mRenderer.showFPS();
+
+		mControler.controlAll();
+		mRenderer.preDrawScene();
+		mRenderer.drawScene();
 
 		float deltaTime = SDL_GetTicks() - beginFrame;
 		if (deltaTime < 8)
 			SDL_Delay(8 - deltaTime);
 
-		SDL_GL_SwapWindow(mProgramProperties.mWindow);
+		SDL_GL_SwapWindow(mSceneManager.getProgramProperties().mWindow);
 	}
-}
-
-void Program::input()
-{
-	while (SDL_PollEvent(&mProgramProperties.mEvent))
-	{
-		SDL_Event event = mProgramProperties.mEvent;
-
-		ImGui_ImplSDL3_ProcessEvent(&event);
-
-		if (event.type == SDL_EVENT_QUIT ||
-			event.key.key == SDLK_ESCAPE)
-		{
-			mProgramProperties.mProgIsRunning = false;
-			break;
-		}
-
-		// KEYS CHECKERS
-		if (event.type == SDL_EVENT_KEY_DOWN)
-			mProgramProperties.mKeyCodes[event.key.key] = true;
-		if (event.type == SDL_EVENT_KEY_UP)
-			mProgramProperties.mKeyCodes[event.key.key] = false;
-
-		// CAMERA MOVING
-		if (event.type == SDL_EVENT_MOUSE_MOTION && mProgramProperties.mTakeCursor)
-			mProgramProperties.mCamera.mouseMovement(glm::vec2(event.motion.xrel, event.motion.yrel));
-
-		if (event.type == SDL_EVENT_MOUSE_WHEEL) {
-			if (event.wheel.y > 0)
-				mRadius += 0.5f;
-			if (event.wheel.y < 0)
-				mRadius -= 0.5f;
-		}
-	}
-
-	controlScreen();
-	controlCamera();
-	controlModel();
-	controlLight();
-}
-
-void Program::preDraw()
-{
-	takerCursor();
-
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplSDL3_NewFrame();
-	ImGui::NewFrame();
-	mUI.control(*this);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	// MSAA
-	glEnable(GL_MULTISAMPLE);
-
-	// optimization
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-
-	glEnable(GL_PROGRAM_POINT_SIZE);
-	
-	if(mProgramProperties.mWireFrameMode)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glViewport(0, 0, mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
-	if (mProgramProperties.mWhiteScreen)
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	else
-		glClearColor(0.20f, 0.20f, 0.20f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-	glEnable(GL_STENCIL_TEST);
-
-	glm::vec2 mousePos;
-	SDL_GetMouseState(&mousePos.x, &mousePos.y);
-	mProgramProperties.mMousePicker.update(mProgramProperties.mCamera, { mousePos.x, mousePos.y });
-
-	setLights();
-	setLightCube();
-
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	glStencilFunc(GL_ALWAYS, 1, 0xFF);
-	glStencilMask(0xFF);
-	mProgramProperties.mShader.bind();
-	setModels();
-}
-
-void Program::draw()
-{
-	ImGui::EndFrame();
-
-	//mModel[0]->render(mShader);
-	//mFactoryMeshes.render();
-
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void Program::showFPS()
-{
-	static float prevTime = 0.0f;
-	static float currTime = 0.0f;
-	static float timeDiff = 0.0f;
-	static uint32_t counter = 0;
-
-	static float currTime = SDL_GetTicks();
-	static float timeDiff = currTime - prevTime;
-	counter++;
-	if (timeDiff >= 1.0f / 100.0f)
-	{
-		std::string fps = std::to_string((1.0f / timeDiff) * counter * 1000);
-		std::string ms = std::to_string((timeDiff / counter) * 1000);
-		std::string newTitle = std::format("Museum of lights. FPS: {} | MS: {}", fps, ms);
-		SDL_SetWindowTitle(mProgramProperties.mWindow, newTitle.c_str());
-		prevTime = currTime;
-		counter = 0;
-	}
-}
-
-void Program::controlScreen()
-{
-	// WHITE/BLACK SCREEN
-	if (mProgramProperties.mKeyCodes[SDLK_V])
-		mProgramProperties.mWhiteScreen = true;
-	if (mProgramProperties.mKeyCodes[SDLK_B])
-		mProgramProperties.mWhiteScreen = false;
-
-	// CURSOR
-	if (mProgramProperties.mKeyCodes[SDLK_Z])
-		mProgramProperties.mTakeCursor = !mProgramProperties.mTakeCursor;
-}
-
-void Program::controlCamera()
-{
-	float speed = 1.0f;
-	if (mProgramProperties.mKeyCodes[SDLK_LSHIFT])
-		speed = 2.0f;
-	if (mProgramProperties.mKeyCodes[SDLK_W])
-		mProgramProperties.mCamera.moveCamera(moveSides::FORWARD, speed);
-	if (mProgramProperties.mKeyCodes[SDLK_S])
-		mProgramProperties.mCamera.moveCamera(moveSides::BACKWARD, speed);
-	if (mProgramProperties.mKeyCodes[SDLK_A])
-		mProgramProperties.mCamera.moveCamera(moveSides::LEFT, speed);
-	if (mProgramProperties.mKeyCodes[SDLK_D])
-		mProgramProperties.mCamera.moveCamera(moveSides::RIGHT, speed);
-	if (mProgramProperties.mKeyCodes[SDLK_LCTRL])
-		mProgramProperties.mCamera.moveCamera(moveSides::DOWN, speed);
-	if (mProgramProperties.mKeyCodes[SDLK_SPACE])
-		mProgramProperties.mCamera.moveCamera(moveSides::UP, speed);
-}
-
-void Program::controlModel()
-{
-	// ROTATE DEGREE
-	if (mProgramProperties.mKeyCodes[SDLK_R])
-		mModelProperties.mRotateDegree -= 0.4f;
-	if (mProgramProperties.mKeyCodes[SDLK_F])
-		mModelProperties.mRotateDegree += 0.4f;
-}
-
-void Program::controlLight()
-{
-	// MOVING LIGHT
-	float speedMovingLight = 0.1f;
-	if (!mModelProperties.mRotatedMode)
-	{
-		if (mProgramProperties.mKeyCodes[SDLK_LEFT])
-			mLightProperties.mPosLight.x -= speedMovingLight;
-		if (mProgramProperties.mKeyCodes[SDLK_RIGHT])
-			mLightProperties.mPosLight.x += speedMovingLight;
-		if (mProgramProperties.mKeyCodes[SDLK_UP])
-			mLightProperties.mPosLight.y += speedMovingLight;
-		if (mProgramProperties.mKeyCodes[SDLK_DOWN])
-			mLightProperties.mPosLight.y -= speedMovingLight;
-		if (mProgramProperties.mKeyCodes[SDLK_RCTRL])
-			mLightProperties.mPosLight.z -= speedMovingLight;
-		if (mProgramProperties.mKeyCodes[SDLK_RSHIFT])
-			mLightProperties.mPosLight.z += speedMovingLight;
-	}
-}
-
-void Program::takerCursor()
-{
-	if (mProgramProperties.mTakeCursor)
-	{
-		SDL_WarpMouseInWindow(mProgramProperties.mWindow,
-			mProgramProperties.mWindowWidth / 2,
-			mProgramProperties.mWindowHeight / 2);
-		SDL_SetWindowRelativeMouseMode(mProgramProperties.mWindow, true);
-	}
-	else
-		SDL_SetWindowRelativeMouseMode(mProgramProperties.mWindow, false);
-}
-
-void Program::setLights()
-{
-	setMaterials();
-
-	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShader);
-	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShader);
-
-	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShaderSingleColor);
-}
-
-void Program::setLightCube()
-{
-	glDisable(GL_CULL_FACE);
-	mProgramProperties.mShaderSingleColor.bind();
-	
-	mModelProperties.mFactoryMeshes.getMesh("lightCube").initMVP(mModelProperties.mProjMatrix, mProgramProperties.mCamera.getViewMatrix(),
-															 mProgramProperties.mCamera.getPos() + mProgramProperties.mCamera.getDirection() * mRadius,
-															 std::make_pair(glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-															 glm::vec3(1.0f, 1.0f, 1.0f));
-	mProgramProperties.mShaderSingleColor.setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("lightCube").getMVP());
-	mModelProperties.mFactoryMeshes.getMesh("lightCube").draw();
-
-	mLightProperties.mLightManager.getLight("pointLight1")->get()->setPosLight(mProgramProperties.mCamera.getPos() + mProgramProperties.mCamera.getDirection() * mRadius);
-	glEnable(GL_CULL_FACE);
-}
-
-void Program::setMaterials()
-{
-	mMaterialProperties.mMaterial->setAmbient(mMaterialProperties.mAmbient);
-	mMaterialProperties.mMaterial->setDiffuse(mMaterialProperties.mDiffuse);
-	mMaterialProperties.mMaterial->setSpecular(mMaterialProperties.mSpecular);
-	mMaterialProperties.mMaterial->setShines(mMaterialProperties.mShines);
-}
-
-void Program::setModels()
-{
-	setSkybox();
-	drawModels();
-	drawNormals();
-	setLightCube();
-}
-
-void Program::setSkybox()
-{
-	static float pNumber = 1.0f;
-	glm::mat4 model = model = glm::scale(glm::vec3(3000.0f, 3000.0f, 3000.0f));
-	glm::mat4 view = glm::mat4(glm::mat3(mProgramProperties.mCamera.getViewMatrix()));
-	view = glm::rotate(view, glm::radians(pNumber), glm::vec3(0.0f, 1.0f, 0.0f));
-	pNumber += 0.01f;
-
-	mProgramProperties.mSkybox->setMVP(model, mModelProperties.mProjMatrix, view);
-	mProgramProperties.mSkybox->render(mProgramProperties.mSkyboxShader);
 }
 
 void Program::drawModels()
 {
-	mProgramProperties.mUBO.appendData(0, mModelProperties.mProjMatrix);
-	mProgramProperties.mUBO.appendData(sizeof(glm::mat4), mProgramProperties.mCamera.getViewMatrix());
-
 	mProgramProperties.mShader.bind();
 	mProgramProperties.mShader.setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
 	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShader);
@@ -338,7 +84,7 @@ void Program::drawModels()
 															 std::make_pair(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
 															 glm::vec3(3000.0f, 3000.0f, 1.0f));
 	mModelProperties.mFactoryMeshes.getMesh("floor").setUniforms(mProgramProperties.mShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	mModelProperties.mFactoryMeshes.getMesh("floor").draw();
+	//mModelProperties.mFactoryMeshes.getMesh("floor").draw();
 
 	//// museum
 	mModelProperties.mModel[0]->initMVP(mModelProperties.mProjMatrix,
@@ -421,16 +167,6 @@ void Program::drawModels()
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glEnable(GL_DEPTH_TEST);
 } 
-
-void Program::drawNormals()
-{
-	//mProgramProperties.mShaderNormals.bind();
-	//mProgramProperties.mShaderNormals.setUniform3fv("uColor", glm::vec3(1.0f, 0.0f, 1.0f));
-	//mProgramProperties.mShaderNormals.setMatrixUniform4fv("uModel", mModelProperties.mFactoryMeshes.getMesh("block2").getModelMatrix());
-	//mProgramProperties.mShaderNormals.setMatrixUniform4fv("uView", mProgramProperties.mCamera.getViewMatrix());
-	//mProgramProperties.mShaderNormals.setMatrixUniform4fv("uProj", mModelProperties.mProjMatrix);
-	mModelProperties.mFactoryMeshes.getMesh("block2").draw();
-}
 
 void Program::debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {

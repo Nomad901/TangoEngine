@@ -1,12 +1,11 @@
 #pragma once
 #include "Includes.h"
-
-class Program;
+#include "SceneManager.h"
 
 class Initializer
 {
 public:
-	Initializer(Program* pProgram);
+	Initializer(SceneManager* pSceneManager);
 
 	void initAll();
 	void initShaders();
@@ -21,6 +20,6 @@ public:
 	void initSkybox();
 	void initUBO();
 private:
-	Program* mProgram;
+	SceneManager* mSceneManager;
 };
 
