@@ -1,5 +1,10 @@
 #include "ShaderManager.h"
 
+ShaderManager::ShaderManager()
+{
+	mStorageShaders.reserve(50);
+}
+
 ShaderManager::ShaderManager(std::string_view pName, const std::filesystem::path& pPathVertex,
 							 const std::filesystem::path& pPathFragment, 
 							 const std::filesystem::path& pGeometry)
@@ -14,14 +19,14 @@ ShaderManager::ShaderManager(std::string_view pName, std::unique_ptr<Shader> pSh
 
 Shader& ShaderManager::operator[](std::string_view pName)
 {
-	std::string name = std::string(pName);
+	std::string name{ pName };
 	assert(mStorageShaders.contains(name));
 	return *mStorageShaders[name];
 }
 
 const Shader& ShaderManager::operator[](std::string_view pName) const
 {
-	std::string name = std::string(pName);
+	std::string name{ pName };
 	assert(mStorageShaders.contains(name));
 	return *mStorageShaders.at(name);
 }
@@ -30,7 +35,7 @@ void ShaderManager::pushShader(std::string_view pName, const std::filesystem::pa
 							   const std::filesystem::path& pPathFragment, 
 							   const std::filesystem::path& pGeometry)
 {
-	std::string name = std::string(pName);
+	std::string name{ pName };
 	if (pGeometry != std::filesystem::current_path())
 		mStorageShaders[name] = std::make_unique<Shader>(pPathVertex, pPathFragment, pGeometry);
 	else 
@@ -50,7 +55,7 @@ void ShaderManager::popShader(std::string_view pName)
 
 Shader& ShaderManager::getShader(std::string_view pName)
 {
-	std::string name = std::string(pName);
+	std::string name{ pName };
 	assert(mStorageShaders.contains(name));
 	return *mStorageShaders[name];
 }

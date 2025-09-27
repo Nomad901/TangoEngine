@@ -50,38 +50,14 @@ Program::~Program()
 
 void Program::run()
 {
-	mProgramProperties.mResourcePath = RESOURCES_PATH;
-	initAll();
-
-	mProgramProperties.mCamera.setSensivity(0.2f);
-
-	mModelProperties.mProjMatrix = glm::perspective(glm::radians(45.0f), (float)mProgramProperties.mWindowWidth / 
-																		 (float)mProgramProperties.mWindowHeight, 0.1f, 2000.0f);
-	mProgramProperties.mFBO.init(mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight);
-	mProgramProperties.mFBO.setClearColors({ 0.1f, 0.1f, 0.1f, 0.1f });
-
-	float prevTime = 0.0f;
-	float currTime = 0.0f;
-	float timeDiff;
-	uint32_t counter = 0;
+	mInitializer.initAll();
 
 	while (mProgramProperties.mProgIsRunning)
 	{
 		float beginFrame = SDL_GetTicks();
 
-		currTime = SDL_GetTicks();
-		timeDiff = currTime - prevTime;
-		counter++;
-		if (timeDiff >= 1.0f / 100.0f)
-		{
-			std::string fps = std::to_string((1.0f / timeDiff) * counter * 1000);
-			std::string ms = std::to_string((timeDiff / counter) * 1000);
-			std::string newTitle = std::format("Museum of lights. FPS: {} | MS: {}", fps, ms);
-			SDL_SetWindowTitle(mProgramProperties.mWindow, newTitle.c_str());
-			prevTime = currTime;
-			counter = 0;
-		}
-
+		showFPS();
+		
 		input();
 		preDraw();
 		draw();
@@ -196,145 +172,25 @@ void Program::draw()
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Program::initShaders()
+void Program::showFPS()
 {
-	// main shader
-	mProgramProperties.mShader.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
-									mProgramProperties.mShader.getResourcePath() + "Shaders/frag.glsl");
+	static float prevTime = 0.0f;
+	static float currTime = 0.0f;
+	static float timeDiff = 0.0f;
+	static uint32_t counter = 0;
 
-	// was create for creating source of lights. like white block
-	mProgramProperties.mShaderSingleColor.init(mProgramProperties.mShader.getResourcePath() + "Shaders/vert.glsl",
-											   mProgramProperties.mShader.getResourcePath() + "Shaders/shaderSingleColor.glsl");
-
-	// FBO shader
-	mProgramProperties.mShaderSecondScreen.init(mProgramProperties.mShaderSecondScreen.getResourcePath() + "Shaders/vertFrameBuffer.glsl",
-												mProgramProperties.mShader.getResourcePath() + "Shaders/fragFrameBuffer.glsl");
-
-	// skybox shader
-	mProgramProperties.mSkyboxShader.init(mProgramProperties.mSkyboxShader.getResourcePath() + "Shaders/vertSkybox.glsl",
-										  mProgramProperties.mSkyboxShader.getResourcePath() + "Shaders/fragSkybox.glsl");
-}
-
-void Program::initTextures()
-{
-	mModelProperties.mTextures.reserve(32);
-	mModelProperties.mTextures.emplace_back(std::make_pair(Texture2({ mProgramProperties.mResourcePath + "error.png", "material.textures" }),
-														   Texture2({ mProgramProperties.mResourcePath + "error.png", "material.textures" })));
-	mModelProperties.mTextures.emplace_back(std::make_pair(Texture2({ mProgramProperties.mResourcePath + "Models/planet/mars.png", "material.textures" }),
-														   Texture2({ mProgramProperties.mResourcePath + "Models/planet/mars.png", "material.textures" })));
-	mModelProperties.mTextures.emplace_back(std::make_pair(Texture2({ mProgramProperties.mResourcePath + "Models/rock/rock.png", "material.textures" }),
-														   Texture2({ mProgramProperties.mResourcePath + "Models/rock/rock.png", "material.textures" })));
-	//mModelProperties.mTextures.emplace_back(mProgramProperties.mResourcePath + "grass.png", "material.textures");
-}
-
-void Program::initPrimitives()
-{
-	// floor 
-	mModelProperties.mPrimitives.insert_or_assign("floor", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-
-	// light block
-	mModelProperties.mPrimitives.insert_or_assign("lightBlock", std::make_shared<Cube>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-
-	// lights on ligth-posts
-	mModelProperties.mPrimitives.insert_or_assign("lightPost1", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	mModelProperties.mPrimitives.insert_or_assign("lightPost2", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	mModelProperties.mPrimitives.insert_or_assign("lightPost3", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	mModelProperties.mPrimitives.insert_or_assign("lightPost4", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-}
-
-void Program::initMeshes()
-{
-	// light block
-	std::weak_ptr<Primitive> lightBlock = mModelProperties.mPrimitives["lightBlock"];
-	mModelProperties.mFactoryMeshes.pushMesh("lightBlock", std::make_unique<Mesh>(lightBlock));
-
-	// floor
-	std::weak_ptr<Primitive> floor = mModelProperties.mPrimitives["floor"];
-	mModelProperties.mFactoryMeshes.pushMesh("floor", std::make_unique<Mesh>(floor));
-
-	// light-posts
-	std::weak_ptr<Primitive> light1 = mModelProperties.mPrimitives["lightPost1"];
-	mModelProperties.mFactoryMeshes.pushMesh("lightPost1", std::make_unique<Mesh>(light1));
-	std::weak_ptr<Primitive> light2 = mModelProperties.mPrimitives["lightPost2"];
-	mModelProperties.mFactoryMeshes.pushMesh("lightPost2", std::make_unique<Mesh>(light2));
-	std::weak_ptr<Primitive> light3 = mModelProperties.mPrimitives["lightPost3"];
-	mModelProperties.mFactoryMeshes.pushMesh("lightPost3", std::make_unique<Mesh>(light3));
-	std::weak_ptr<Primitive> light4 = mModelProperties.mPrimitives["lightPost4"];
-	mModelProperties.mFactoryMeshes.pushMesh("lightPost4", std::make_unique<Mesh>(light4));
-}
-
-void Program::initMaterial()
-{
-	mMaterialProperties.mMaterial = std::make_unique<Material>(mMaterialProperties.mAmbient,
-															   mMaterialProperties.mDiffuse,
-															   mMaterialProperties.mSpecular,
-															   32.0f);
-}
-
-void Program::initModels()
-{
-	// museum
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-															  mProgramProperties.mResourcePath + "Models/museum.obj", typeModels::OBJ,
-															  mModelProperties.mTextures[0], std::make_pair(0, 0)));
-	// lamp posts
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-															  mProgramProperties.mResourcePath + "Models/lamppost.obj", typeModels::OBJ,
-															  mModelProperties.mTextures[0], std::make_pair(0,0)));
-	mModelProperties.mModel.push_back(std::make_unique<Model>(glm::vec3(2.0f),
-															  mProgramProperties.mResourcePath + "Models/lamppost.obj", typeModels::OBJ,
-															  mModelProperties.mTextures[0], std::make_pair(0, 0)));
-}
-
-void Program::initLights()
-{
-	// lamps in the museum
-	mLightProperties.mLightManager.pushLight("pointLight1", std::make_unique<PointLight>(glm::vec3(12.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3(5.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
-
-	// lampPosts outside
-	mLightProperties.mLightManager.pushLight("lampPost1", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -71.39948), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("lampPost2", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -91.09918), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("lampPost3", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -68.599525), 0.5f, 0.045f, 0.075f));
-	mLightProperties.mLightManager.pushLight("lampPost4", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -88.19923), 0.5f, 0.045f, 0.075f));
-}
-
-void Program::initCrosshair()
-{
-	mProgramProperties.mCrosshair = std::make_unique<Crosshair>(0.01f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-}
-
-void Program::initMousePicker()
-{
-	mProgramProperties.mMousePicker.init(mProgramProperties.mCamera,
-		glm::perspective(glm::radians(45.0f), (float)mProgramProperties.mWindowWidth /
-			(float)mProgramProperties.mWindowHeight, 0.1f, 2000.0f),
-		{ mProgramProperties.mWindowWidth, mProgramProperties.mWindowHeight });
-}
-
-void Program::initSkybox()
-{
-	std::string resourcePath = RESOURCES_PATH;
-	std::array<std::filesystem::path, 6> paths =
+	static float currTime = SDL_GetTicks();
+	static float timeDiff = currTime - prevTime;
+	counter++;
+	if (timeDiff >= 1.0f / 100.0f)
 	{
-		resourcePath + "ulukai/corona_lf.png",
-		resourcePath + "ulukai/corona_rt.png",
-		resourcePath + "ulukai/corona_up.png",
-		resourcePath + "ulukai/corona_dn.png",
-		resourcePath + "ulukai/corona_ft.png",
-		resourcePath + "ulukai/corona_bk.png"
-	};
-	mProgramProperties.mSkyboxShader.bind();
-	mProgramProperties.mSkybox = std::make_unique<Skybox>(typeSkybox::SPHERE, paths, 0);
-	mProgramProperties.mSkyboxShader.setUniform1i("uSkybox", 0);
-}
-
-void Program::initUBO()
-{
-	mProgramProperties.mUBO.init({ {mProgramProperties.mShader.getID(), "Matrices"} },
-								    0, 2 * sizeof(glm::mat4));
+		std::string fps = std::to_string((1.0f / timeDiff) * counter * 1000);
+		std::string ms = std::to_string((timeDiff / counter) * 1000);
+		std::string newTitle = std::format("Museum of lights. FPS: {} | MS: {}", fps, ms);
+		SDL_SetWindowTitle(mProgramProperties.mWindow, newTitle.c_str());
+		prevTime = currTime;
+		counter = 0;
+	}
 }
 
 void Program::controlScreen()

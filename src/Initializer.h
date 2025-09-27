@@ -3,19 +3,24 @@
 
 class Program;
 
-struct Initializer
+class Initializer
 {
-	void initAll(Program& pProgram);
-	void initShaders(Program& pProgram);
-	void initTextures(Program& pProgram);
-	void initPrimitives(Program& pProgram);
-	void initMeshes(Program& pProgram);
-	void initMaterial(Program& pProgram);
-	void initModels(Program& pProgram);
-	void initLights(Program& pProgram);
-	void initCrosshair(Program& pProgram);
-	void initMousePicker(Program& pProgram);
-	void initSkybox(Program& pProgram);
-	void initUBO(Program& pProgram);
+public:
+	Initializer(Program* pProgram);
+
+	void initAll();
+	void initShaders();
+	void initTextures();
+	void initPrimitives();
+	void initMeshes();
+	void initMaterial();
+	void initModels();
+	void initLights();
+	void initCrosshair();
+	void initMousePicker();
+	void initSkybox();
+	void initUBO();
+private:
+	Program* mProgram;
 };
 

@@ -10,7 +10,7 @@
 class ShaderManager
 {
 public:
-	ShaderManager() = default;
+	ShaderManager();
 	ShaderManager(std::string_view pName, const std::filesystem::path& pPathVertex, 
 				  const std::filesystem::path& pPathFragment,
 				  const std::filesystem::path& pGeometry = std::filesystem::current_path());

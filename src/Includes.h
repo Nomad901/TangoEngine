@@ -29,3 +29,7 @@
 #include "Skybox.h"
 #include "UBO.h"
 #include "AssimpLoader.h"
+#include "ShaderManager.h"
+#include "TextureManager.h"
+#include "PrimitivesManager.h"
+#include "ModelManager.h"
