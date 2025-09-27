@@ -39,6 +39,17 @@ void Model::init(const glm::vec3& pOriginPos, const std::filesystem::path& pPath
 	mTextures.first = std::move(pTextures.first);
 	mTextures.second = std::move(pTextures.second);
 	mSlots = pSlots;
+	mAssimpLoader.loadModel(pPath);
+	mMeshes = std::move(mAssimpLoader.getMeshes());
+}
+
+void Model::initOBJmodel(const glm::vec3& pOriginPos, const std::filesystem::path& pPath, const std::pair<Texture2&, Texture2&>& pTextures, std::pair<uint32_t, uint32_t> pSlots)
+{
+	mOriginPos = pOriginPos;
+	mPos = pOriginPos;
+	mTextures.first = std::move(pTextures.first);
+	mTextures.second = std::move(pTextures.second);
+	mSlots = pSlots;
 	std::vector<Vertex> vertices = mOBJLoader.loadOBJ(pPath);
 	std::vector<uint32_t> indices(vertices.size());
 	for (size_t i = 0; i < indices.size(); ++i)

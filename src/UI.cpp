@@ -40,39 +40,7 @@ void UI::control(Program& pProgram)
 
 	ImGui::Begin("Control", &pProgram.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
 	
-	ImGui::Checkbox("Enable wireframe", &pProgram.mProgramProperties.mWireFrameMode);
-
-	ImGui::Spacing();
-	ImGui::Spacing();
-
-	ImGui::SliderFloat("surroundNum", &pProgram.surroundNum, -100, 100);
-	ImGui::SliderFloat("insideNum", &pProgram.insideNum, -100, 100);
-
-	ImGui::Spacing();
-	ImGui::Spacing();
-	ImGui::Spacing();
-
-	ImGui::Spacing();
-
-	ImGui::SliderFloat("Ambient R", &pProgram.mMaterialProperties.mAmbient.x, 0.0f, 1.0f);
-	ImGui::SliderFloat("Ambient G", &pProgram.mMaterialProperties.mAmbient.y, 0.0f, 1.0f);
-	ImGui::SliderFloat("Ambient B", &pProgram.mMaterialProperties.mAmbient.z, 0.0f, 1.0f);
-
-	ImGui::Spacing();
-
-	ImGui::SliderFloat("Diffuse R", &pProgram.mMaterialProperties.mDiffuse.x, 0.0f, 1.0f);
-	ImGui::SliderFloat("Diffuse G", &pProgram.mMaterialProperties.mDiffuse.y, 0.0f, 1.0f);
-	ImGui::SliderFloat("Diffuse B", &pProgram.mMaterialProperties.mDiffuse.z, 0.0f, 1.0f);
-
-	ImGui::Spacing();
-
-	ImGui::SliderFloat("Specular R", &pProgram.mMaterialProperties.mSpecular.x, 0.0f, 1.0f);
-	ImGui::SliderFloat("Specular G", &pProgram.mMaterialProperties.mSpecular.y, 0.0f, 1.0f);
-	ImGui::SliderFloat("Specular B", &pProgram.mMaterialProperties.mSpecular.z, 0.0f, 1.0f);
-
-	ImGui::Spacing();
-
-	ImGui::SliderFloat("Scale of shines", &pProgram.mMaterialProperties.mShines, 0.0f, 256.0f);
+	
 
 	ImGui::End();
 }

@@ -35,6 +35,10 @@ public:
 	VBO(const std::vector<Vertex>& pVertices, GLenum pUsage);
 	VBO(const void* pData, GLuint pSize, GLenum pUsage);
 	~VBO();
+	VBO(const VBO&) = delete;
+	VBO& operator=(const VBO&) = delete;
+	VBO(VBO&&) = default;
+	VBO& operator=(VBO&&) = default;
 
 	void init(const std::vector<Vertex>& pVertices, GLenum pUsage);
 	void init(const void* pData, GLuint pSize, GLenum pUsage);

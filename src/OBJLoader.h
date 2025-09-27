@@ -14,6 +14,7 @@
 #include "glad/glad.h"
 
 #include "VBO.h"
+#include "dependencies/rapidobj.hpp"
 
 class OBJLoader
 {

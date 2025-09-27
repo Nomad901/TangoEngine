@@ -23,12 +23,12 @@
 #include "UI.h"
 #include "LightManager.h"
 #include "Collider.h"
-#include "ShadowMapFBO.h"
 #include "MousePicker.h"
 #include "Crosshair.h"
 #include "FBO.h"
 #include "Skybox.h"
 #include "UBO.h"
+#include "AssimpLoader.h"
 
 class Program
 {
@@ -102,10 +102,6 @@ private:
 		Shader mShaderSingleColor;
 		Shader mShaderSecondScreen;
 		Shader mSkyboxShader;
-		Shader mSkyboxBlockShader;
-		Shader mShaderNormals;
-		Shader mInstancedShader;
-		Shader mShieldShader;
 
 		UBO mUBO;
 
@@ -151,6 +147,7 @@ private:
 		Collider mCollider;
 		FactoryMesh mFactoryMeshes;
 		OBJLoader mOBJLoader;
+		AssimpLoader mAssimpLoader;
 	} mModelProperties;
 
 	float surroundNum{ -1 };

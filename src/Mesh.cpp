@@ -1,4 +1,48 @@
 #include "Mesh.h"
+#include "Mesh.h"
+#include "Mesh.h"
+
+Mesh::Mesh(Mesh&& pAnotherMesh) noexcept
+{
+	mIsTaken = pAnotherMesh.mIsTaken;
+	mPrimitive = std::move(pAnotherMesh.mPrimitive);
+	mInstancedData = std::move(pAnotherMesh.mInstancedData);
+	mVAO = std::move(pAnotherMesh.mVAO);
+	mVBO = std::move(pAnotherMesh.mVBO);
+	mInstancedVBO = std::move(pAnotherMesh.mInstancedVBO);
+	mEBO = std::move(pAnotherMesh.mEBO);
+	mVBOLayout = pAnotherMesh.mVBOLayout;
+	mModelMatrix = std::move(pAnotherMesh.mModelMatrix);
+	mViewMatrix = std::move(pAnotherMesh.mViewMatrix);
+	mProjMatrix = std::move(pAnotherMesh.mProjMatrix);
+	mMVP = std::move(pAnotherMesh.mMVP);
+	mRotate = std::move(pAnotherMesh.mRotate);
+	mPos = std::move(pAnotherMesh.mPos);
+	mSize = std::move(pAnotherMesh.mSize);
+}
+
+Mesh& Mesh::operator=(Mesh&& pAnotherMesh) noexcept
+{
+	if (&pAnotherMesh == this)
+		return *this;
+	mIsTaken = pAnotherMesh.mIsTaken;
+	mPrimitive = std::move(pAnotherMesh.mPrimitive);
+	mInstancedData = std::move(pAnotherMesh.mInstancedData);
+	mVAO = std::move(pAnotherMesh.mVAO);
+	mVBO = std::move(pAnotherMesh.mVBO);
+	mInstancedVBO = std::move(pAnotherMesh.mInstancedVBO);
+	mEBO = std::move(pAnotherMesh.mEBO);
+	mVBOLayout = pAnotherMesh.mVBOLayout;
+	mModelMatrix = std::move(pAnotherMesh.mModelMatrix);
+	mViewMatrix = std::move(pAnotherMesh.mViewMatrix);
+	mProjMatrix = std::move(pAnotherMesh.mProjMatrix);
+	mMVP = std::move(pAnotherMesh.mMVP);
+	mRotate = std::move(pAnotherMesh.mRotate);
+	mPos = std::move(pAnotherMesh.mPos);
+	mSize = std::move(pAnotherMesh.mSize);
+
+	return *this;
+}
 
 Mesh::Mesh(const std::vector<Vertex>& pVertices, const std::vector<uint32_t>& pIndices)
 {

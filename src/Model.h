@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "Material.h"
 #include "OBJLoader.h"
+#include "AssimpLoader.h"
 
 class Model
 {
@@ -29,12 +30,20 @@ public:
 					std::pair<uint32_t, uint32_t> pSlots,
 					std::vector<std::unique_ptr<Mesh>>& pMeshes);
 	//
-	// init with .obj file
+	// init with any file
 	// Textures - pair of meshes, like diffuse and specular
 	//
 	void init(const glm::vec3& pOriginPos, const std::filesystem::path& pPath,
 		      const std::pair<Texture2&, Texture2&>& pTextures,
 				    std::pair<uint32_t, uint32_t> pSlots);
+	//
+	// init only .obj files
+	// Assimp is too slow, but my obj loader is much faster.
+	// if u can load models in obj - load them, this will be much faster;
+	//
+	void initOBJmodel(const glm::vec3& pOriginPos, const std::filesystem::path& pPath,
+					  const std::pair<Texture2&, Texture2&>& pTextures,
+					  std::pair<uint32_t, uint32_t> pSlots);
 
 	void setInstancedData(const std::vector<glm::mat4>& pMatrices, GLenum pUsage);
 
@@ -78,6 +87,7 @@ private:
 	std::vector<std::unique_ptr<Mesh>> mMeshes;
 
 	OBJLoader mOBJLoader;
+	AssimpLoader mAssimpLoader;
 
 	glm::vec3 mOriginPos;
 	glm::vec3 mPos;

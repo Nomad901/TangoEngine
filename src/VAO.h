@@ -12,6 +12,10 @@ class VAO
 public:
 	VAO();
 	~VAO();
+	VAO(const VAO&) = delete;
+	VAO& operator=(const VAO&) = delete;
+	VAO(VAO&&) = default;
+	VAO& operator=(VAO&&) = default;
 
 	void addBuffer(const VBO& pVBO, VBOLayout pVBOLayout);
 

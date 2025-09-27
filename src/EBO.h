@@ -9,6 +9,10 @@ public:
 	EBO() = default;
 	EBO(const void* pData, uint32_t pCount);
 	~EBO();
+	EBO(const EBO&) = delete;
+	EBO& operator=(const EBO&) = delete;
+	EBO(EBO&&) = default;
+	EBO& operator=(EBO&&) = default;
 
 	void init(const void* pData, uint32_t pCount);
 

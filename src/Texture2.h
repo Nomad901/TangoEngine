@@ -5,7 +5,7 @@
 #include <array>
 
 #include "glad/glad.h"
-#include "stb_image.h"
+#include "dependencies/stb_image.h"
 
 #include "Material.h"
 

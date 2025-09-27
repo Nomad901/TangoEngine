@@ -19,6 +19,11 @@ public:
 	Mesh() = default;
 	Mesh(const std::vector<Vertex>& pVertices,
 		 const std::vector<uint32_t>& pIndices);
+	~Mesh() = default;
+	Mesh(const Mesh&) = delete;
+	Mesh& operator=(const Mesh&) = delete;
+	Mesh(Mesh&& pAnotherMesh) noexcept;
+	Mesh& operator=(Mesh&& pAnotherMesh) noexcept;
 
 	Mesh(const std::weak_ptr<Primitive>& pPrimitive);
 	void init(const std::vector<Vertex>& pVertices,
