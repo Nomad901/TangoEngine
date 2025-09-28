@@ -32,6 +32,11 @@ Mesh& FactoryMesh::getMesh(std::string_view pName)
 	return *mMeshes[name].get();
 }
 
+auto FactoryMesh::getStorageMeshes() noexcept -> std::unordered_map<std::string, std::unique_ptr<Mesh>>&
+{
+	return mMeshes;
+}
+
 void FactoryMesh::render(Shader& pShader, const glm::vec3& pColor)
 {
 	for (auto& [key, value] : mMeshes)

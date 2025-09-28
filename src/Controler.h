@@ -1,6 +1,11 @@
 #pragma once
-#include "Includes.h"
+#include <iostream>
+#include <unordered_map>
+
+#include "SDL3/SDL.h"
+
 #include "SceneManager.h"
+#include "Player.h"
 
 class Controler
 {

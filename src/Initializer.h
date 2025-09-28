@@ -1,5 +1,4 @@
 #pragma once
-#include "Includes.h"
 #include "SceneManager.h"
 
 class Initializer

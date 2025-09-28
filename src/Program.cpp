@@ -66,10 +66,22 @@ void Program::run()
 		mSceneManager.setAll();
 		mRenderer.preDrawScene();
 		mRenderer.drawScene();
-
+		
 		float deltaTime = SDL_GetTicks() - beginFrame;
 		if (deltaTime < 8)
 			SDL_Delay(8 - deltaTime);
+		
+		for (auto& [key, value] : mSceneManager.getModelProperties().mFactoryMeshes.getStorageMeshes())
+		{
+			meshes.push_back(value.get());
+		}
+		for (auto& [key, value] : mSceneManager.getModelProperties().mModelManager.getStorageModels())
+		{
+			for (auto& mesh : value.get()->getMeshes())
+			{
+				meshes.push_back(mesh.get());
+			}
+		}
 
 		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, deltaTime, meshes);
 

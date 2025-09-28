@@ -73,8 +73,8 @@ public:
 		PrimitivesManager mPrimitivesManager;
 		TextureManager mTextureManager;
 		ModelManager mModelManager;
-		Collider mCollider;
 		FactoryMesh mFactoryMeshes;
+		Collider mCollider;
 		OBJLoader mOBJLoader;
 		AssimpLoader mAssimpLoader;
 	};

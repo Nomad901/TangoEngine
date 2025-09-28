@@ -21,7 +21,7 @@ void Camera::mouseMovement(const glm::vec2& pPos, bool pConstraintPitch)
     glm::vec2 mousePos = pPos;
     mousePos.x *= mSensivity;
     mousePos.y *= -mSensivity;
-
+  
     mYaw   += mousePos.x;
     mPitch += mousePos.y;
     

@@ -80,7 +80,7 @@ void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::v
 			mIsGrounded = true;
 		}
 	}
-
+	mCamera.setPos(mPos);
 	mPlayerHitbox.initMVP(pProjMatrix, mCamera.getViewMatrix(),
 		mPos,
 		std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),

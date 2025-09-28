@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Collider.h"
 #include "Model.h"
+#include "PhysicsEquations.h"
 
 enum class moveSidesPlayer
 {
@@ -45,7 +46,7 @@ private:
 	void solveCollision(const Mesh& pMesh);
 
 private:
-	bool mIsGrounded{ false };
+	bool mIsGrounded{ true };
 	bool mIsCollided{ false };
 	bool mIsSitting{ false };
 	bool mIsJumping{ false };

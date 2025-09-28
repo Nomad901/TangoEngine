@@ -15,7 +15,8 @@ public:
 	size_t getSize() const noexcept;
 
 	Mesh& getMesh(std::string_view pName);
-	
+	auto getStorageMeshes() noexcept -> std::unordered_map<std::string, std::unique_ptr<Mesh>>&;
+
 	void render(Shader& pShader, const glm::vec3& pColor = glm::vec3(1.0f, 1.0f, 1.0f));
 
 private:
