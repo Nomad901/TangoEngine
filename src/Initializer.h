@@ -7,6 +7,8 @@ class Initializer
 public:
 	Initializer(SceneManager* pSceneManager);
 
+	void init(bool pInitAll);
+
 	void initAll();
 	void initShaders();
 	void initTextures();

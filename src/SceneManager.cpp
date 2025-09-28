@@ -25,12 +25,12 @@ void SceneManager::setLightCube()
 	glDisable(GL_CULL_FACE);
 	mProgramProperties.mShaders["singleColorShader"].bind();
 
-	mModelProperties.mFactoryMeshes.getMesh("lightCube").initMVP(mModelProperties.mProjMatrix, mProgramProperties.mCamera.getViewMatrix(),
+	mModelProperties.mFactoryMeshes.getMesh("lightBlock").initMVP(mModelProperties.mProjMatrix, mProgramProperties.mCamera.getViewMatrix(),
 								    mProgramProperties.mCamera.getPos() + mProgramProperties.mCamera.getDirection() * mProgramProperties.mRadius,
 								    std::make_pair(glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
 								    glm::vec3(1.0f, 1.0f, 1.0f));
-	mProgramProperties.mShaders["singleColorShader"].setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("lightCube").getMVP());
-	mModelProperties.mFactoryMeshes.getMesh("lightCube").draw();
+	mProgramProperties.mShaders["singleColorShader"].setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("lightBlock").getMVP());
+	mModelProperties.mFactoryMeshes.getMesh("lightBlock").draw();
 
 	mLightProperties.mLightManager.getLight("pointLight1")->get()->setPosLight(mProgramProperties.mCamera.getPos() +
 																			   mProgramProperties.mCamera.getDirection() * mProgramProperties.mRadius);
@@ -47,7 +47,37 @@ void SceneManager::setMaterials()
 
 void SceneManager::setModels()
 {
+	mProgramProperties.mShaders["mainShader"].bind();
+	mProgramProperties.mShaders["mainShader"].setUniform3fv("cameraPos", mProgramProperties.mCamera.getPos());
+	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShaders["mainShader"]);
 
+	//// floor
+	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mModelProperties.mProjMatrix,
+		mProgramProperties.mCamera.getViewMatrix(),
+		glm::vec3(1.0f, 1.0f, -23.0f),
+		std::make_pair(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
+		glm::vec3(3000.0f, 3000.0f, 1.0f));
+	mModelProperties.mFactoryMeshes.getMesh("floor").setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	//// museum
+	mModelProperties.mModelManager.getModel("museum").initMVP(mModelProperties.mProjMatrix,
+		mProgramProperties.mCamera.getViewMatrix(),
+		glm::vec3(1.0f, -34.5f, -1147.0f),
+		std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+		glm::vec3(1.0f, 1.0f, 1.0f));
+	mModelProperties.mModelManager.getModel("museum").setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	//// light posts
+	auto setLightModels = [&](const glm::vec3& pPos, std::string_view pName)
+		{
+			mModelProperties.mModelManager[std::string(pName)].initMVP(mModelProperties.mProjMatrix,
+				mProgramProperties.mCamera.getViewMatrix(),
+				pPos, std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+				glm::vec3(20.0f, 20.0f, 20.0f));
+			mModelProperties.mModelManager[std::string(pName)].setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		};
+	setLightModels(glm::vec3(1.0f, -20.0f, 150.0f), "lampPost1");
+	setLightModels(glm::vec3(22.900051, 25.700062, -78.89937), "lampPost2");
 }
 
 void SceneManager::setSkybox()

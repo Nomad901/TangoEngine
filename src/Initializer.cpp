@@ -4,7 +4,10 @@
 Initializer::Initializer(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	
+}
+
+void Initializer::init(bool pInitAll)
+{
 	// resource path
 	mSceneManager->getProgramProperties().mResourcePath = RESOURCES_PATH;
 
@@ -13,11 +16,12 @@ Initializer::Initializer(SceneManager* pSceneManager)
 
 	// projection matrix
 	mSceneManager->getModelProperties().mProjMatrix = glm::perspective(glm::radians(45.0f), (float)mSceneManager->getProgramProperties().mWindowWidth /
-														     (float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
+		(float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
 	// fbo
 	mSceneManager->getProgramProperties().mFBO.init(mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight);
 	mSceneManager->getProgramProperties().mFBO.setClearColors({ 0.1f, 0.1f, 0.1f, 0.1f });
-
+	if (pInitAll)
+		initAll();
 }
 
 void Initializer::initAll()
@@ -41,16 +45,16 @@ void Initializer::initShaders()
 
 	// main shader
 	mSceneManager->getProgramProperties().mShaders.pushShader("mainShader", resourcePath + "Shaders/vert.glsl",
-																  resourcePath + "Shaders/frag.glsl");
+																		    resourcePath + "Shaders/frag.glsl");
 	// was created for implementing source of lights. like white block
 	mSceneManager->getProgramProperties().mShaders.pushShader("singleColorShader", resourcePath + "Shaders/vert.glsl",
-																		 resourcePath + "Shaders/shaderSingleColor.glsl");
+																				   resourcePath + "Shaders/shaderSingleColor.glsl");
 	// FBO shader
 	mSceneManager->getProgramProperties().mShaders.pushShader("FBOshader", resourcePath + "Shaders/vertFrameBuffer.glsl",
-																 resourcePath + "Shaders/fragFrameBuffer.glsl");
+																		   resourcePath + "Shaders/fragFrameBuffer.glsl");
 	// skybox shader
 	mSceneManager->getProgramProperties().mShaders.pushShader("skyboxShader", resourcePath + "Shaders/vertSkybox.glsl",
-																	resourcePath + "Shaders/fragSkybox.glsl");
+																			  resourcePath + "Shaders/fragSkybox.glsl");
 }
 
 void Initializer::initTextures()
@@ -112,7 +116,7 @@ void Initializer::initModels()
 	// lamp posts
 	mSceneManager->getModelProperties().mModelManager.pushModel("lampPost1", std::make_unique<Model>(glm::vec3(2.0f),
 													  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));
-	mSceneManager->getModelProperties().mModelManager.pushModel("lampPost1", std::make_unique<Model>(glm::vec3(2.0f),
+	mSceneManager->getModelProperties().mModelManager.pushModel("lampPost2", std::make_unique<Model>(glm::vec3(2.0f),
 													  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));
 }
 

@@ -20,8 +20,12 @@ void Renderer::drawScene()
 {
 	ImGui::EndFrame();
 
-	//mModel[0]->render(mShader);
-	//mFactoryMeshes.render();
+	// main shader part
+	mSceneManager->mProgramProperties.mShaders["mainShader"].bind();
+	mSceneManager->mModelProperties.mFactoryMeshes.getMesh("floor").draw();
+	mSceneManager->mModelProperties.mModelManager.getModel("museum").render();
+	mSceneManager->mModelProperties.mModelManager["lampPost1"].render();
+	mSceneManager->mModelProperties.mModelManager["lampPost2"].render();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -34,8 +38,8 @@ void Renderer::showFPS()
 	static float timeDiff = 0.0f;
 	static uint32_t counter = 0;
 
-	static float currTime = SDL_GetTicks();
-	static float timeDiff = currTime - prevTime;
+	currTime = SDL_GetTicks();
+	timeDiff = currTime - prevTime;
 	counter++;
 	if (timeDiff >= 1.0f / 100.0f)
 	{
@@ -66,7 +70,7 @@ void Renderer::setImGui()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
-	mSceneManager->mUI.control(*mSceneManager);
+	mSceneManager->mProgramProperties.mUI.control(*mSceneManager);
 }
 
 void Renderer::setGLproperties()

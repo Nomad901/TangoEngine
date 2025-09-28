@@ -21,7 +21,6 @@ private:
 							GLsizei length,
 							const GLchar* message,
 							const void* userParam);
-	void drawModels();
 private:
 
 	SceneManager mSceneManager;
