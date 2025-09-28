@@ -52,6 +52,9 @@ Program::~Program()
 void Program::run()
 {
 	mInitializer.init(true);
+	mControler = std::make_unique<Controler>(&mSceneManager);
+
+	std::vector<Mesh*> meshes;
 
 	while (mSceneManager.getProgramProperties().mProgIsRunning)
 	{
@@ -59,7 +62,7 @@ void Program::run()
 		
 		mRenderer.showFPS();
 
-		mControler.controlAll();
+		mControler->controlAll();
 		mSceneManager.setAll();
 		mRenderer.preDrawScene();
 		mRenderer.drawScene();
@@ -67,6 +70,8 @@ void Program::run()
 		float deltaTime = SDL_GetTicks() - beginFrame;
 		if (deltaTime < 8)
 			SDL_Delay(8 - deltaTime);
+
+		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, deltaTime, meshes);
 
 		SDL_GL_SwapWindow(mSceneManager.getProgramProperties().mWindow);
 	}

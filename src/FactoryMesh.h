@@ -16,7 +16,7 @@ public:
 
 	Mesh& getMesh(std::string_view pName);
 	
-	void render();
+	void render(Shader& pShader, const glm::vec3& pColor = glm::vec3(1.0f, 1.0f, 1.0f));
 
 private:
 	std::unordered_map<std::string, std::unique_ptr<Mesh>> mMeshes;

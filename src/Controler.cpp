@@ -4,10 +4,14 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
+	mPlayer.init(glm::vec3(1.0f, 3.0f, 1.0f), glm::vec3(2.0f, 4.0f, 2.0f), glm::vec3(3.0f, 5.0f, 3.0f), 3.0f);
 }
 
 void Controler::controlAll()
 {
+	mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getCamera().getViewMatrix();
+	mSceneManager->getProgramProperties().mCamera = mPlayer.getCamera();
+	
 	while (SDL_PollEvent(&mEvent))
 	{
 		ImGui_ImplSDL3_ProcessEvent(&mEvent);
@@ -27,7 +31,7 @@ void Controler::controlAll()
 
 		// CAMERA MOVING
 		if (mEvent.type == SDL_EVENT_MOUSE_MOTION && mSceneManager->getProgramProperties().mTakeCursor)
-			mSceneManager->getProgramProperties().mCamera.mouseMovement(glm::vec2(mEvent.motion.xrel, mEvent.motion.yrel));
+			mPlayer.getCamera().mouseMovement(glm::vec2(mEvent.motion.xrel, mEvent.motion.yrel));
 
 		// LIGHT BLOCK DISTANCE FROM CAMERA	
 		if (mEvent.type == SDL_EVENT_MOUSE_WHEEL) {
@@ -59,21 +63,22 @@ void Controler::controlScreen()
 
 void Controler::controlCamera()
 {
-	float speed = 1.0f;
 	if (mKeyCodes[SDLK_LSHIFT])
-		speed = 2.0f;
+		mPlayer.sprint(true);
+	else
+		mPlayer.sprint(false);
 	if (mKeyCodes[SDLK_W])
-		mSceneManager->getProgramProperties().mCamera.moveCamera(moveSides::FORWARD, speed);
+		mPlayer.move(moveSidesPlayer::FORWARD);
 	if (mKeyCodes[SDLK_S])
-		mSceneManager->getProgramProperties().mCamera.moveCamera(moveSides::BACKWARD, speed);
+		mPlayer.move(moveSidesPlayer::BACKWARD);
 	if (mKeyCodes[SDLK_A])
-		mSceneManager->getProgramProperties().mCamera.moveCamera(moveSides::LEFT, speed);
+		mPlayer.move(moveSidesPlayer::LEFT);
 	if (mKeyCodes[SDLK_D])
-		mSceneManager->getProgramProperties().mCamera.moveCamera(moveSides::RIGHT, speed);
-	if (mKeyCodes[SDLK_LCTRL])
-		mSceneManager->getProgramProperties().mCamera.moveCamera(moveSides::DOWN, speed);
+		mPlayer.move(moveSidesPlayer::RIGHT);
 	if (mKeyCodes[SDLK_SPACE])
-		mSceneManager->getProgramProperties().mCamera.moveCamera(moveSides::UP, speed);
+		mPlayer.jump(true);
+	else
+		mPlayer.jump(false);
 }
 
 void Controler::controlModel()
@@ -88,4 +93,9 @@ void Controler::controlModel()
 void Controler::controlLight()
 {	
 
+}
+
+Player& Controler::getPlayer() noexcept
+{
+	return mPlayer;
 }

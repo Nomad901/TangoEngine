@@ -274,7 +274,20 @@ bool Mesh::meshIsTaken() const noexcept
 	return mIsTaken;
 }
 
+void Mesh::draw(Shader& pShader, const glm::vec3& pColor)
+{
+	setUniforms(pShader, pColor);
+	mVAO.bind();
+	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
+}
+
 void Mesh::draw()
+{
+	mVAO.bind();
+	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);
+}
+
+void Mesh::drawModel()
 {
 	mVAO.bind();
 	glDrawElements(GL_TRIANGLES, mEBO.getCount(), GL_UNSIGNED_INT, nullptr);

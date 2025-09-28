@@ -89,6 +89,11 @@ glm::mat4 Model::getMVP()
 	return mMeshes[0]->getMVP();
 }
 
+std::vector<std::unique_ptr<Mesh>>& Model::getMeshes() noexcept
+{
+	return mMeshes;
+}
+
 void Model::setUniforms(Shader& pShader, const glm::vec4& pColor)
 {
 	for (auto& i : mMeshes)
@@ -134,21 +139,12 @@ bool Model::modelIsTaken() const noexcept
 	return mIsTaken;
 }
 
-void Model::render(Shader& pShader)
+void Model::render(Shader& pShader, const glm::vec3& pColor)
 {
-	pShader.bind();
 	updateUniforms(pShader);
 	for (auto& i : mMeshes)
 	{
-		i->draw();
-	}
-}
-
-void Model::render()
-{
-	for (auto& i : mMeshes)
-	{
-		i->draw();
+		i->drawModel();
 	}
 }
 

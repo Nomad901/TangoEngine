@@ -63,7 +63,7 @@ void Camera::moveCamera(moveSides pMoveSide, float pSpeed)
         mEye -= mUpVec * pSpeed;
         break;
     }
-}
+} 
 
 void Camera::setMovementSpeed(float pMovementSpeed)
 {

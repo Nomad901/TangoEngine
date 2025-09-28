@@ -44,6 +44,8 @@ public:
 	glm::mat4 getProjMatrix() const noexcept;
 	glm::mat4 getMVP();
 
+	std::vector<std::unique_ptr<Mesh>>& getMeshes() noexcept;
+
 	void setUniforms(Shader& pShader, const glm::vec4& pColor);
 
 	void setPos(const glm::vec3& pPos);
@@ -55,8 +57,7 @@ public:
 	void takeModel(bool pTake);
 	bool modelIsTaken() const noexcept;
 
-	void render(Shader& pShader);
-	void render();
+	void render(Shader& pShader, const glm::vec3& pColor = glm::vec3(1.0f, 1.0f, 1.0f));
 	void renderInstanced(uint32_t pNumber);
 
 private:

@@ -40,7 +40,22 @@ void UI::control(SceneManager& pSceneManager)
 
 	ImGui::Begin("Control", &pSceneManager.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
 	
+	ImGui::Checkbox("Wireframe", &pSceneManager.mProgramProperties.mWireFrameMode);
 	
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	ImGui::SliderFloat("Pos museum X", &pSceneManager.posMuseum.x, -3000.0f, 3000.0f);
+	ImGui::SliderFloat("Pos museum Y", &pSceneManager.posMuseum.y, -3000.0f, 3000.0f);
+	ImGui::SliderFloat("Pos museum Z", &pSceneManager.posMuseum.z, -3000.0f, 3000.0f);
+
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	ImGui::SliderFloat("Size museum X", &pSceneManager.sizeMuseum.x, -150.0f, 150.0f);
+	ImGui::SliderFloat("Size museum Y", &pSceneManager.sizeMuseum.y, -150.0f, 150.0f);
+	ImGui::SliderFloat("Size museum Z", &pSceneManager.sizeMuseum.z, -150.0f, 150.0f);
 
 	ImGui::End();
 }

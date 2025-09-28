@@ -26,7 +26,7 @@ private:
 	SceneManager mSceneManager;
 	Renderer mRenderer{ &mSceneManager };
 	Initializer mInitializer{ &mSceneManager };
-	Controler mControler{ &mSceneManager };
+	std::unique_ptr<Controler> mControler;
 	friend class Initializer;
 	friend class Controler;
 };

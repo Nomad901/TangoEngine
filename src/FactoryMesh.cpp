@@ -27,19 +27,15 @@ size_t FactoryMesh::getSize() const noexcept
 
 Mesh& FactoryMesh::getMesh(std::string_view pName)
 {
-	if (!mMeshes.contains(std::string(pName)))
-	{
-		Mesh errorMesh;
-		std::cout << "The storage doesnt contain the mesh!\n";
-		return errorMesh;
-	}
-	return *mMeshes[std::string(pName)].get();
+	std::string name{ pName };
+	assert(mMeshes.contains(name));
+	return *mMeshes[name].get();
 }
 
-void FactoryMesh::render()
+void FactoryMesh::render(Shader& pShader, const glm::vec3& pColor)
 {
 	for (auto& [key, value] : mMeshes)
 	{
-		value->draw();
+		value->draw(pShader, pColor);
 	}
 }

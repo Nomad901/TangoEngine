@@ -33,3 +33,4 @@
 #include "TextureManager.h"
 #include "PrimitivesManager.h"
 #include "ModelManager.h"
+#include "Player.h"

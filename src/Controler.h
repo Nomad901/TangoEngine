@@ -13,8 +13,11 @@ public:
 	void controlModel();
 	void controlLight();
 
+	Player& getPlayer() noexcept;
+
 private:
 	SceneManager* mSceneManager;
+	Player mPlayer;
 	std::unordered_map<SDL_Keycode, bool> mKeyCodes;
 	SDL_Event mEvent;
 };

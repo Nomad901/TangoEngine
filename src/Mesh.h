@@ -78,7 +78,9 @@ public:
 	void takeMesh(bool pTake);
 	bool meshIsTaken() const noexcept;
 
+	void draw(Shader& pShader, const glm::vec3& pColor = glm::vec3(1.0f, 1.0f, 1.0f));
 	void draw();
+	void drawModel();
 	void drawInstances(uint32_t pNumber);
 	void drawInFrameBuffer(Texture2& pTexture);
 
