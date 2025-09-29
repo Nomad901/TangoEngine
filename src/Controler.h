@@ -6,6 +6,7 @@
 
 #include "SceneManager.h"
 #include "Player.h"
+#include "TeleportSystem.h"
 
 class Controler
 {
@@ -23,6 +24,7 @@ public:
 private:
 	SceneManager* mSceneManager;
 	Player mPlayer;
+	TeleportSystem mTeleportSystem;
 	std::unordered_map<SDL_Keycode, bool> mKeyCodes;
 	SDL_Event mEvent;
 };

@@ -92,14 +92,19 @@ void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::v
 	mCamera.turnOnNoclip(mNoclip);
 	mCamera.setPos(mPos);
 	mPlayerHitbox.initMVP(pProjMatrix, mCamera.getViewMatrix(),
-		mPos,
-		std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
-		glm::vec3(1.0f, 1.0f, 1.0f));
+						  glm::vec3(1.0f, 1.0f, 1.0f),
+						  std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
+						  glm::vec3(2.0f, 4.0f, 2.0f));
 }
 
 void Player::turnOnNoclip(bool pNoclip)
 {
 	mNoclip = pNoclip;
+}
+
+void Player::setPos(const glm::vec3& pPos)
+{
+	mPos = pPos;
 }
 
 Mesh& Player::getHitbox() noexcept

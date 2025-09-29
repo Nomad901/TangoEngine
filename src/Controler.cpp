@@ -49,6 +49,8 @@ void Controler::controlAll(float pDeltaTime)
 		std::cout << std::format("Character pos: {}/{}/{}\n", mPos.x, mPos.y, mPos.z);
 	}
 
+	mTeleportSystem.update(mPlayer);
+
 	controlScreen();
 	controlCamera(pDeltaTime);
 	controlModel();

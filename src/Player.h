@@ -48,6 +48,8 @@ public:
 	
 	void turnOnNoclip(bool pNoclip);
 
+	void setPos(const glm::vec3& pPos);
+
 	Mesh& getHitbox() noexcept;
 	Camera& getCamera() noexcept;
 	glm::vec3 getPos() const noexcept;
