@@ -55,6 +55,7 @@ void Player::jump()
 		mPhysicsVelocity.y = mJumpForce;
 		mIsGrounded = false;
 	}
+	mCurrentState = states::JUMPING_UP;
 }
 
 void Player::sprint(bool pSprint)
@@ -64,16 +65,31 @@ void Player::sprint(bool pSprint)
 
 void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes)
 {
-	mInputVelocity *= std::pow(mFriction, pDeltaTime * 60.0f);
+	//mInputVelocity *= std::pow(mFriction, pDeltaTime * 60.0f);
 
-	if (!mIsGrounded)
-		mPhysicsVelocity -= mGravity * pDeltaTime;
+	//if (!mIsGrounded)
+	//	mPhysicsVelocity.y -= mGravity * pDeltaTime;
+	//
+	//glm::vec3 totalVelocity = mInputVelocity + mPhysicsVelocity;
+
+	//glm::vec3 newPos = mPos + mVelocity * pDeltaTime;
+
+	//mPos = newPos;
+
+	if (mCurrentState == states::JUMPING_UP)
+		mPos.y += mJumpForce;
+	if (mPos.y >= 40.0f)
+		mCurrentState = states::JUMPING_DOWN;
+	if (mCurrentState == states::JUMPING_DOWN)
+		mPos.y -= mJumpForce;
+	if (mPos.y <= 2.0f)
+		mCurrentState = states::STANDING;
 
 	mCamera.setPos(mPos);
 	mPlayerHitbox.initMVP(pProjMatrix, mCamera.getViewMatrix(),
-		mPos,
-		std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
-		glm::vec3(1.0f, 1.0f, 1.0f));
+						  mPos,
+						  std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
+						  glm::vec3(1.0f, 1.0f, 1.0f));
 }
 
 Mesh& Player::getHitbox() noexcept
@@ -99,8 +115,4 @@ float Player::getSpeed() const noexcept
 float Player::getSprintSpeed() const noexcept
 {
 	return mSprintSpeed;
-}
-
-void Player::solveCollision(const Mesh& pMesh)
-{
 }
