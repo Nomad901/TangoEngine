@@ -24,7 +24,7 @@ public:
 
 	glm::mat4 getViewMatrix();
 	void mouseMovement(const glm::vec2& pPos, bool pConstraintPitch = true);
-	void moveCamera(moveSides pMoveSide, float pSpeed);
+	void moveCamera(moveSides pMoveSide, float pSpeed, float pDeltaTime);
 
 	void setMovementSpeed(float pMovementSpeed);
 	void setSensivity(float pSensivity);

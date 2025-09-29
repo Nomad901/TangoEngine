@@ -4,10 +4,10 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	mPlayer.init(glm::vec3(1.0f, 3.0f, 1.0f), glm::vec3(2.0f, 4.0f, 2.0f), glm::vec3(3.0f, 5.0f, 3.0f), 3.0f);
+	mPlayer.init(glm::vec3(1.0f, 3.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.1f, 0.3f, 5.0f);
 }
 
-void Controler::controlAll()
+void Controler::controlAll(float pDeltaTime)
 {
 	mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getCamera().getViewMatrix();
 	mSceneManager->getProgramProperties().mCamera = mPlayer.getCamera();
@@ -43,7 +43,7 @@ void Controler::controlAll()
 	}
 
 	controlScreen();
-	controlCamera();
+	controlCamera(pDeltaTime);
 	controlModel();
 	//controlLight();
 }
@@ -61,24 +61,19 @@ void Controler::controlScreen()
 		mSceneManager->getProgramProperties().mTakeCursor = !mSceneManager->getProgramProperties().mTakeCursor;
 }
 
-void Controler::controlCamera()
+void Controler::controlCamera(float pDeltaTime)
 {
-	if (mKeyCodes[SDLK_LSHIFT])
-		mPlayer.sprint(true);
-	else
-		mPlayer.sprint(false);
+	mPlayer.sprint(mKeyCodes[SDLK_LSHIFT]);
 	if (mKeyCodes[SDLK_W])
-		mPlayer.move(moveSidesPlayer::FORWARD);
+		mPlayer.move(moveSidesPlayer::FORWARD, pDeltaTime);
 	if (mKeyCodes[SDLK_S])
-		mPlayer.move(moveSidesPlayer::BACKWARD);
+		mPlayer.move(moveSidesPlayer::BACKWARD, pDeltaTime);
 	if (mKeyCodes[SDLK_A])
-		mPlayer.move(moveSidesPlayer::LEFT);
+		mPlayer.move(moveSidesPlayer::LEFT, pDeltaTime);
 	if (mKeyCodes[SDLK_D])
-		mPlayer.move(moveSidesPlayer::RIGHT);
+		mPlayer.move(moveSidesPlayer::RIGHT, pDeltaTime);
 	if (mKeyCodes[SDLK_SPACE])
-		mPlayer.jump(true);
-	else
-		mPlayer.jump(false);
+		mPlayer.jump();
 }
 
 void Controler::controlModel()

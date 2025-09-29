@@ -59,10 +59,13 @@ void Program::run()
 	while (mSceneManager.getProgramProperties().mProgIsRunning)
 	{
 		float beginFrame = SDL_GetTicks();
-		
-		mRenderer.showFPS();
+		static uint32_t lastTime = SDL_GetTicks();
+		uint32_t currentTime = SDL_GetTicks();
 
-		mControler->controlAll();
+		float physicsDeltaTime = (currentTime - lastTime);
+		lastTime = currentTime;
+
+		mRenderer.showFPS();
 		mSceneManager.setAll();
 		mRenderer.preDrawScene();
 		mRenderer.drawScene();
@@ -83,8 +86,9 @@ void Program::run()
 			}
 		}
 
-		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, deltaTime, meshes);
-
+		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes);
+		mControler->controlAll(physicsDeltaTime);
+		
 		SDL_GL_SwapWindow(mSceneManager.getProgramProperties().mWindow);
 	}
 }

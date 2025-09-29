@@ -12,9 +12,9 @@ class Controler
 public:
 	Controler(SceneManager* pSceneManager);
 
-	void controlAll();
+	void controlAll(float pDeltaTime);
 	void controlScreen();
-	void controlCamera();
+	void controlCamera(float pDelaTime);
 	void controlModel();
 	void controlLight();
 

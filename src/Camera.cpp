@@ -36,31 +36,32 @@ void Camera::mouseMovement(const glm::vec2& pPos, bool pConstraintPitch)
     updateCameraVertex();
 }
 
-void Camera::moveCamera(moveSides pMoveSide, float pSpeed)
+void Camera::moveCamera(moveSides pMoveSide, float pSpeed, float pDeltaTime)
 {
     glm::vec3 tmpVec;
+    float velocity = pSpeed * pDeltaTime;
 
     switch (pMoveSide)
     {
     case moveSides::RIGHT:
         tmpVec = glm::normalize(glm::cross(mDirection, mUpVec));
-        mEye += tmpVec * pSpeed;
+        mEye += tmpVec * velocity;
         break;
     case moveSides::LEFT:
         tmpVec = glm::normalize(glm::cross(mUpVec, mDirection));
-        mEye += tmpVec * pSpeed;
+        mEye += tmpVec * velocity;
         break;
     case moveSides::FORWARD:
-        mEye += mDirection * pSpeed;
+        mEye += glm::vec3(mDirection.x, 0, mDirection.z) * velocity;
         break;
     case moveSides::BACKWARD:
-        mEye -= mDirection * pSpeed;
+        mEye -= glm::vec3(mDirection.x, 0, mDirection.z) * velocity;
         break;
     case moveSides::UP:
-        mEye += mUpVec * pSpeed;
+        mEye += mUpVec * velocity;
         break;
     case moveSides::DOWN:
-        mEye -= mUpVec * pSpeed;
+        mEye -= mUpVec * velocity;
         break;
     }
 } 
