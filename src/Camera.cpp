@@ -52,10 +52,16 @@ void Camera::moveCamera(moveSides pMoveSide, float pSpeed, float pDeltaTime)
         mEye += tmpVec * velocity;
         break;
     case moveSides::FORWARD:
-        mEye += glm::vec3(mDirection.x, 0, mDirection.z) * velocity;
+        if(!mIsInNoclip)
+            mEye += glm::vec3(mDirection.x, 0, mDirection.z) * velocity;
+        else 
+            mEye += mDirection * velocity;
         break;
     case moveSides::BACKWARD:
-        mEye -= glm::vec3(mDirection.x, 0, mDirection.z) * velocity;
+        if(!mIsInNoclip)
+            mEye -= glm::vec3(mDirection.x, 0, mDirection.z) * velocity;
+        else 
+            mEye -= mDirection * velocity;
         break;
     case moveSides::UP:
         mEye += mUpVec * velocity;
@@ -106,6 +112,11 @@ float Camera::getPitch() const noexcept
     return mPitch;
 }
 
+void Camera::turnOnNoclip(bool pNoclip)
+{
+    mIsInNoclip = pNoclip;
+}
+
 void Camera::setPos(const glm::vec3& pPos)
 {
     mEye = pPos;
@@ -134,6 +145,16 @@ glm::vec3 Camera::getDirection() const noexcept
 glm::vec3 Camera::getUpVec() const noexcept
 {
     return mUpVec;
+}
+
+glm::vec3 Camera::getRightVec() const noexcept
+{
+    return glm::normalize(glm::cross(mDirection, mUpVec));
+}
+
+glm::vec3 Camera::getLeftVec() const noexcept
+{
+    return glm::normalize(glm::cross(mUpVec, mDirection));
 }
 
 void Camera::updateCameraVertex()

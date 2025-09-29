@@ -57,18 +57,18 @@ void SceneManager::setModels()
 	//// floor
 	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mModelProperties.mProjMatrix,
 		mProgramProperties.mViewMatrix,
-		glm::vec3(1.0f, 1.0f, -23.0f),
+		glm::vec3(1.0f, 0.0f, -23.0f),
 		std::make_pair(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
 		glm::vec3(3000.0f, 3000.0f, 1.0f));
 	mModelProperties.mFactoryMeshes.getMesh("floor").setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	//// museum
-	//mModelProperties.mModelManager.getModel("museum").initMVP(mModelProperties.mProjMatrix,
-	//														  mProgramProperties.mViewMatrix,
-	//														  posMuseum,
-	//														  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-	//														  sizeMuseum);
-	//mModelProperties.mModelManager.getModel("museum").setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	mModelProperties.mModelManager.getModel("museum").initMVP(mModelProperties.mProjMatrix,
+															  mProgramProperties.mViewMatrix,
+															  glm::vec3(-257.0f, -65.0f, -503.0f),
+															  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+															  glm::vec3(9.0f, 11.0f, 9.0f));
+	mModelProperties.mModelManager.getModel("museum").setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	//// light posts
 	auto setLightModels = [&](const glm::vec3& pPos, std::string_view pName)
@@ -114,3 +114,34 @@ SceneManager::modelProperties& SceneManager::getModelProperties() noexcept
 {
 	return mModelProperties;
 }
+
+
+/*
+	FlashLight pos (first - up room. second - down room): 
+	Character pos: 9.7801485/14.863845/-304.78183
+	Character pos: 36.64512/-174.74876/-308.76395
+	spotlight:
+	Character pos: 10.37517/19.467102/-428.13168
+	Character pos: 24.842197/-176.02649/-506.9026
+	point:
+	Character pos: 9.424553/20.513628/-551.026
+	Character pos: 21.026344/-173.36757/-723.678
+	directional:
+	Character pos: 12.962267/10.982218/-666.49585
+	Character pos: 18.512012/-174.62334/-917.03394
+	main:
+	Character pos: -64.99592/27.617996/-709.5072
+	Character pos: -42.084026/-176.44987/-1019.4506
+	area:
+	Character pos: -146.69879/20.236301/-667.29083
+	Character pos: -129.31462/-175.0184/-914.53455
+	emissive:
+	Character pos: -146.52676/15.648167/-552.51
+	Character pos: -124.68435/-176.2005/-714.96747
+	multiple:
+	Character pos: -136.55302/15.825421/-432.32208
+	Character pos: -120.534386/-175.43192/-499.6635
+	attenuation:
+	Character pos: -135.90807/16.439344/-306.9898
+	Character pos: -117.718864/-177.81673/-306.48254
+*/

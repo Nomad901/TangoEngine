@@ -35,17 +35,23 @@ public:
 	float getYaw() const noexcept;
 	float getPitch() const noexcept;
 
+	void turnOnNoclip(bool pNoclip);
+
 	void setPos(const glm::vec3& pPos);
 	void setDirection(const glm::vec3& pDirection);
 	void setUpVec(const glm::vec3& pUpVec);
 	glm::vec3 getPos() const noexcept;
 	glm::vec3 getDirection() const noexcept;
 	glm::vec3 getUpVec() const noexcept;
+	glm::vec3 getRightVec() const noexcept;
+	glm::vec3 getLeftVec() const noexcept;
 
 private:
 	void updateCameraVertex();
 
 private:
+	bool mIsInNoclip;
+
 	float mYaw{}, mPitch{};
 	float mSensivity{};
 	float mMovementSpeed{};

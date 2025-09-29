@@ -4,14 +4,15 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	mPlayer.init(glm::vec3(1.0f, 3.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.1f, 0.3f, 5.0f);
+	mPlayer.init(glm::vec3(1.0f, 3.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.1f, 0.5f, 10.0f);
 }
 
 void Controler::controlAll(float pDeltaTime)
 {
 	mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getCamera().getViewMatrix();
 	mSceneManager->getProgramProperties().mCamera = mPlayer.getCamera();
-	
+	mPlayer.turnOnNoclip(mSceneManager->getProgramProperties().mNoclip);
+
 	while (SDL_PollEvent(&mEvent))
 	{
 		ImGui_ImplSDL3_ProcessEvent(&mEvent);
@@ -22,7 +23,7 @@ void Controler::controlAll(float pDeltaTime)
 			mSceneManager->getProgramProperties().mProgIsRunning = false;
 			break;
 		}
-
+		
 		// KEYS CHECKERS
 		if (mEvent.type == SDL_EVENT_KEY_DOWN)
 			mKeyCodes[mEvent.key.key] = true;
@@ -40,6 +41,12 @@ void Controler::controlAll(float pDeltaTime)
 			if (mEvent.wheel.y < 0)
 				mSceneManager->getProgramProperties().mRadius -= 0.5f;
 		}
+	}
+
+	if (mKeyCodes[SDLK_E])
+	{
+		glm::vec3 mPos = mPlayer.getPos();
+		std::cout << std::format("Character pos: {}/{}/{}\n", mPos.x, mPos.y, mPos.z);
 	}
 
 	controlScreen();

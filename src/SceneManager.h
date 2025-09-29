@@ -31,6 +31,7 @@ public:
 
 		Camera mCamera;
 		glm::mat4 mViewMatrix;
+		bool mNoclip{ false };
 
 		MousePicker mMousePicker;
 		ShaderManager mShaders;
@@ -90,10 +91,7 @@ private:
 	lightProperties mLightProperties;
 	materialProperties mMaterialProperties;
 	modelProperties mModelProperties;
-
-	glm::vec3 posMuseum{ 1.0f };
-	glm::vec3 sizeMuseum{ 1.0f };
-
+	
 	friend class UI;
 	friend class Renderer;
 };
