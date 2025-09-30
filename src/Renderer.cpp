@@ -20,6 +20,10 @@ void Renderer::drawScene()
 {
 	ImGui::EndFrame();
 
+	// crosshair
+	mSceneManager->mProgramProperties.mCrosshair->render(mSceneManager->mProgramProperties.mWindowWidth, 
+														 mSceneManager->mProgramProperties.mWindowHeight);
+
 	// main shader part
 	mSceneManager->mProgramProperties.mShaders["mainShader"].bind();
 	mSceneManager->mModelProperties.mFactoryMeshes.getMesh("floor").draw(mSceneManager->mProgramProperties.mShaders["mainShader"]);

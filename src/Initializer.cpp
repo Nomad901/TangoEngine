@@ -142,10 +142,10 @@ void Initializer::initCrosshair()
 
 void Initializer::initMousePicker()
 {
-	mSceneManager->getProgramProperties().mMousePicker.init(mSceneManager->getProgramProperties().mCamera,
-												  glm::perspective(glm::radians(45.0f), (float)mSceneManager->getProgramProperties().mWindowWidth /
-										 		  (float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f),
-												  { mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight });
+	//mSceneManager->getProgramProperties().mMousePicker.init(mSceneManager->getProgramProperties().mCamera,
+	//											  glm::perspective(glm::radians(45.0f), (float)mSceneManager->getProgramProperties().mWindowWidth /
+	//									 		  (float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f),
+	//											  { mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight });
 }
 
 void Initializer::initSkybox()

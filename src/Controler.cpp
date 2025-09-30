@@ -4,7 +4,7 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	mPlayer.init(glm::vec3(1.0f, 3.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.1f, 0.5f, 10.0f);
+	mPlayer.init(glm::vec3(1.0f, 16.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.1f, 0.5f, 10.0f);
 }
 
 void Controler::controlAll(float pDeltaTime)
@@ -49,12 +49,13 @@ void Controler::controlAll(float pDeltaTime)
 		std::cout << std::format("Character pos: {}/{}/{}\n", mPos.x, mPos.y, mPos.z);
 	}
 
-	mTeleportSystem.update(mPlayer);
 
 	controlScreen();
 	controlCamera(pDeltaTime);
 	controlModel();
 	//controlLight();
+
+	mTeleportSystem.update(mPlayer);
 }
 
 void Controler::controlScreen()

@@ -2,7 +2,6 @@
 #include "Initializer.h"
 #include "Controler.h"
 #include "Renderer.h"
-#include "SceneManager.h"
 
 class Program
 {

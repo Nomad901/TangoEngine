@@ -43,13 +43,12 @@ public:
 	void move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime);
 	void jump();
 	void sprint(bool pSprint);
+	void turnOnNoclip(bool pNoclip);
+	void freezePlayer(bool pFreeze);
 
 	void update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes);
 	
-	void turnOnNoclip(bool pNoclip);
-
 	void setPos(const glm::vec3& pPos);
-
 	Mesh& getHitbox() noexcept;
 	Camera& getCamera() noexcept;
 	glm::vec3 getPos() const noexcept;
@@ -60,7 +59,8 @@ private:
 	bool isOnGround() const noexcept;
 
 private:
-	bool mNoclip;
+	bool mNoclip{ false };
+	bool mIsFreezed{ false };
 	bool mIsGrounded{ false };
 	bool mIsJumping{ false };
 	bool mIsSprinting{ false };

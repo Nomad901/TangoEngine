@@ -52,24 +52,27 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 
 	float speed = mIsSprinting ? mSprintSpeed : mMoveSpeed;
 
-	switch (pMoveSidesPlayer)
+	if (!mIsFreezed)
 	{
-	case moveSidesPlayer::RIGHT:
-		mCamera.moveCamera(moveSides::RIGHT, speed, pDeltaTime);
-		mPos = mCamera.getPos();
-		break;
-	case moveSidesPlayer::LEFT:
-		mCamera.moveCamera(moveSides::LEFT, speed, pDeltaTime);
-		mPos = mCamera.getPos();
-		break;
-	case moveSidesPlayer::FORWARD:
-		mCamera.moveCamera(moveSides::FORWARD, speed, pDeltaTime);
-		mPos = mCamera.getPos();
-		break;
-	case moveSidesPlayer::BACKWARD:
-		mCamera.moveCamera(moveSides::BACKWARD, speed, pDeltaTime);
-		mPos = mCamera.getPos();
-		break;
+		switch (pMoveSidesPlayer)
+		{
+		case moveSidesPlayer::RIGHT:
+			mCamera.moveCamera(moveSides::RIGHT, speed, pDeltaTime);
+			mPos = mCamera.getPos();
+			break;
+		case moveSidesPlayer::LEFT:
+			mCamera.moveCamera(moveSides::LEFT, speed, pDeltaTime);
+			mPos = mCamera.getPos();
+			break;
+		case moveSidesPlayer::FORWARD:
+			mCamera.moveCamera(moveSides::FORWARD, speed, pDeltaTime);
+			mPos = mCamera.getPos();
+			break;
+		case moveSidesPlayer::BACKWARD:
+			mCamera.moveCamera(moveSides::BACKWARD, speed, pDeltaTime);
+			mPos = mCamera.getPos();
+			break;
+		}
 	}
 }
 
@@ -92,14 +95,19 @@ void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::v
 	mCamera.turnOnNoclip(mNoclip);
 	mCamera.setPos(mPos);
 	mPlayerHitbox.initMVP(pProjMatrix, mCamera.getViewMatrix(),
-						  glm::vec3(1.0f, 1.0f, 1.0f),
+						  mPos,
 						  std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
-						  glm::vec3(2.0f, 4.0f, 2.0f));
+						  glm::vec3(10.0f, 30.0f, 10.0f));
 }
 
 void Player::turnOnNoclip(bool pNoclip)
 {
 	mNoclip = pNoclip;
+}
+
+void Player::freezePlayer(bool pFreeze)
+{
+	mIsFreezed = pFreeze;
 }
 
 void Player::setPos(const glm::vec3& pPos)

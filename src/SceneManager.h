@@ -1,5 +1,37 @@
 #pragma once
-#include "Includes.h"
+#include <iostream>
+#include <format>
+#include <unordered_map>
+#include <memory>
+#include <array>
+#include <random>
+
+#include "glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "SDL3/SDL.h"
+#include "glad/glad.h"
+#include "imgui.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_opengl3.h"
+
+#include "FactoryMesh.h"
+#include "Shader.h"
+#include "Model.h"
+#include "Camera.h"
+#include "Primitive.h"
+#include "OBJLoader.h"
+#include "UI.h"
+#include "LightManager.h"
+#include "Collider.h"
+#include "Crosshair.h"
+#include "FBO.h"
+#include "Skybox.h"
+#include "UBO.h"
+#include "AssimpLoader.h"
+#include "ShaderManager.h"
+#include "TextureManager.h"
+#include "PrimitivesManager.h"
+#include "ModelManager.h"
 
 class Renderer;
 
@@ -33,7 +65,6 @@ public:
 		glm::mat4 mViewMatrix;
 		bool mNoclip{ false };
 
-		MousePicker mMousePicker;
 		ShaderManager mShaders;
 		UI mUI;
 		UBO mUBO;
