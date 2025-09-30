@@ -47,7 +47,8 @@ public:
 	void freezePlayer(bool pFreeze);
 
 	void update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes);
-	
+	void checkCollisions(const std::vector<Mesh*>& pCollisionMeshes);
+
 	void setPos(const glm::vec3& pPos);
 	Mesh& getHitbox() noexcept;
 	Camera& getCamera() noexcept;
@@ -57,6 +58,7 @@ public:
 
 private:
 	bool isOnGround() const noexcept;
+	void responseCollision(const Mesh& pObstacle);
 
 private:
 	bool mNoclip{ false };
