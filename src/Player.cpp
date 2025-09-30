@@ -91,13 +91,24 @@ void Player::sprint(bool pSprint)
 
 void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes)
 {
-
+	checkCollisions(pCollisionMeshes);
 	mCamera.turnOnNoclip(mNoclip);
 	mCamera.setPos(mPos);
 	mPlayerHitbox.initMVP(pProjMatrix, mCamera.getViewMatrix(),
 						  mPos,
 						  std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
 						  glm::vec3(10.0f, 30.0f, 10.0f));
+}
+
+void Player::checkCollisions(const std::vector<Mesh*>& pCollisionMeshes)
+{
+	for (auto& i : pCollisionMeshes)
+	{
+		if (mCollider.areCollided(*i, mPlayerHitbox))
+		{
+			//smth...
+		}
+	}
 }
 
 void Player::turnOnNoclip(bool pNoclip)
@@ -143,4 +154,13 @@ float Player::getSprintSpeed() const noexcept
 bool Player::isOnGround() const noexcept
 {
 	return mPos.y <= 0.0f || mIsGrounded;
+}
+
+void Player::responseCollision(const Mesh& pObstacle)
+{
+	glm::vec3 obstacleMinPoint = mCollider.getMinPoint(pObstacle.getPos(), pObstacle.getSize());
+	glm::vec3 obstacleMaxPoint = mCollider.getMaxPoint(pObstacle.getPos(), pObstacle.getSize());
+	glm::vec3 playerMinPoint = mCollider.getMinPoint(mPlayerHitbox.getPos(), mPlayerHitbox.getSize());
+	glm::vec3 playerMaxPoint = mCollider.getMaxPoint(mPlayerHitbox.getPos(), mPlayerHitbox.getSize());
+
 }
