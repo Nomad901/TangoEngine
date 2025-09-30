@@ -63,12 +63,12 @@ void SceneManager::setModels()
 	mModelProperties.mFactoryMeshes.getMesh("floor").setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	//// museum
-	mModelProperties.mModelManager.getModel("museum").initMVP(mModelProperties.mProjMatrix,
-															  mProgramProperties.mViewMatrix,
-															  glm::vec3(-257.0f, -65.0f, -503.0f),
-															  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-															  glm::vec3(9.0f, 11.0f, 9.0f));
-	mModelProperties.mModelManager.getModel("museum").setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	//mModelProperties.mModelManager.getModel("museum").initMVP(mModelProperties.mProjMatrix,
+	//														  mProgramProperties.mViewMatrix,
+	//														  glm::vec3(-257.0f, -65.0f, -503.0f),
+	//														  std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+	//														  glm::vec3(9.0f, 11.0f, 9.0f));
+	//mModelProperties.mModelManager.getModel("museum").setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	//// light posts
 	auto setLightModels = [&](const glm::vec3& pPos, std::string_view pName)

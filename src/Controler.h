@@ -20,6 +20,7 @@ public:
 	void controlLight();
 
 	Player& getPlayer() noexcept;
+	SDL_Event& getEvents() noexcept;
 
 private:
 	SceneManager* mSceneManager;

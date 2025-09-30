@@ -110,9 +110,9 @@ void Initializer::initMaterial()
 void Initializer::initModels()
 {
 	// museum
-	mSceneManager->getModelProperties().mModelManager.pushModel("museum", std::make_unique<Model>(glm::vec3(2.0f),
-													  mSceneManager->getProgramProperties().mResourcePath + "Models/museum.obj"));
-	
+	//mSceneManager->getModelProperties().mModelManager.pushModel("museum", std::make_unique<Model>(glm::vec3(2.0f),
+	//												  mSceneManager->getProgramProperties().mResourcePath + "Models/museum.obj"));
+	//
 	// lamp posts
 	mSceneManager->getModelProperties().mModelManager.pushModel("lampPost1", std::make_unique<Model>(glm::vec3(2.0f),
 													  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));

@@ -55,6 +55,8 @@ void Program::run()
 	mControler = std::make_unique<Controler>(&mSceneManager);
 
 	std::vector<Mesh*> meshes;
+	meshes.reserve(mSceneManager.getModelProperties().mFactoryMeshes.getStorageMeshes().size() + 
+				   mSceneManager.getModelProperties().mModelManager.getStorageModels().size());
 
 	while (mSceneManager.getProgramProperties().mProgIsRunning)
 	{
@@ -74,6 +76,7 @@ void Program::run()
 		if (deltaTime < 8)
 			SDL_Delay(8 - deltaTime);
 		
+		meshes.clear();
 		for (auto& [key, value] : mSceneManager.getModelProperties().mFactoryMeshes.getStorageMeshes())
 		{
 			meshes.push_back(value.get());
@@ -86,7 +89,8 @@ void Program::run()
 			}
 		}
 
-		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes);
+		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes, 
+			mSceneManager.getProgramProperties().mShaders["mainShader"], mControler->getEvents());
 		mControler->controlAll(physicsDeltaTime);
 		
 		SDL_GL_SwapWindow(mSceneManager.getProgramProperties().mWindow);

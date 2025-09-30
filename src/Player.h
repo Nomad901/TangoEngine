@@ -7,7 +7,7 @@
 #include "glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "Camera.h"
+#include "thirdPersonCam.h"
 #include "Collider.h"
 #include "Model.h"
 #include "PhysicsEquations.h"
@@ -35,21 +35,25 @@ class Player
 public:
 	Player() = default;
 	Player(const glm::vec3& pPos, const glm::vec3& pVelocity, float pSpeed, 
-		   float pSprintSpeed, float pJumpForce);
+		   float pSprintSpeed, float pJumpForce, bool pThirdPersonCam);
 
 	void init(const glm::vec3& pPos, const glm::vec3& pVelocity, float pSpeed, 
-			  float pSprintVelocity, float pJumpForce);
+			  float pSprintVelocity, float pJumpForce, bool pThirdPersonCam);
 
 	void move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime);
 	void jump();
 	void sprint(bool pSprint);
+
 	void turnOnNoclip(bool pNoclip);
 	void freezePlayer(bool pFreeze);
+	void turnOn3rdPersonCamera(bool p3rdPersonCamera);
 
-	void update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes);
+	void update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes,
+				Shader& pShader, SDL_Event& pEvents);
 	void checkCollisions(const std::vector<Mesh*>& pCollisionMeshes);
 
 	void setPos(const glm::vec3& pPos);
+
 	Mesh& getHitbox() noexcept;
 	Camera& getCamera() noexcept;
 	glm::vec3 getPos() const noexcept;
@@ -58,11 +62,13 @@ public:
 
 private:
 	bool isOnGround() const noexcept;
-	void responseCollision(const Mesh& pObstacle);
+	void responseCollision(Mesh& pObstacle);
 
 private:
+	bool m3rdPersonCamera{ false };
 	bool mNoclip{ false };
 	bool mIsFreezed{ false };
+
 	bool mIsGrounded{ false };
 	bool mIsJumping{ false };
 	bool mIsSprinting{ false };
@@ -86,5 +92,6 @@ private:
 	Collider mCollider;
 	Mesh mPlayerHitbox;
 	Camera mCamera;
+	thirdPersonCam mThirdPersonCam;
 };
 

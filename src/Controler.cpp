@@ -4,7 +4,7 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	mPlayer.init(glm::vec3(1.0f, 16.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.1f, 0.5f, 10.0f);
+	mPlayer.init(glm::vec3(1.0f, 16.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.1f, 0.5f, 10.0f, true);
 }
 
 void Controler::controlAll(float pDeltaTime)
@@ -55,7 +55,7 @@ void Controler::controlAll(float pDeltaTime)
 	controlModel();
 	//controlLight();
 
-	mTeleportSystem.update(mPlayer);
+	mTeleportSystem.update(mPlayer);	
 }
 
 void Controler::controlScreen()
@@ -103,4 +103,9 @@ void Controler::controlLight()
 Player& Controler::getPlayer() noexcept
 {
 	return mPlayer;
+}
+
+SDL_Event& Controler::getEvents() noexcept
+{
+	return mEvent;
 }
