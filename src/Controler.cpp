@@ -16,6 +16,7 @@ void Controler::controlAll(float pDeltaTime)
 	while (SDL_PollEvent(&mEvent))
 	{
 		ImGui_ImplSDL3_ProcessEvent(&mEvent);
+		mPlayer.updateEvents(mEvent);
 
 		if (mEvent.type == SDL_EVENT_QUIT ||
 			mEvent.key.key == SDLK_ESCAPE)
@@ -48,7 +49,6 @@ void Controler::controlAll(float pDeltaTime)
 		glm::vec3 mPos = mPlayer.getPos();
 		std::cout << std::format("Character pos: {}/{}/{}\n", mPos.x, mPos.y, mPos.z);
 	}
-
 
 	controlScreen();
 	controlCamera(pDeltaTime);

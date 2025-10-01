@@ -89,8 +89,8 @@ void Program::run()
 			}
 		}
 
-		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes, 
-			mSceneManager.getProgramProperties().mShaders["mainShader"], mControler->getEvents());
+		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes);
+		mControler->getPlayer().renderCharacter(mSceneManager.getProgramProperties().mShaders["mainShader"]);
 		mControler->controlAll(physicsDeltaTime);
 		
 		SDL_GL_SwapWindow(mSceneManager.getProgramProperties().mWindow);

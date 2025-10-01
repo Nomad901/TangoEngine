@@ -25,57 +25,61 @@ void Player::init(const glm::vec3& pPos, const glm::vec3& pVelocity, float pSpee
 
 void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 {
-	//const float ACCELERATION_RATIO = 0.1f;
-	//glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f);
-
-	//switch (pMoveSidesPlayer)
-	//{
-	//case moveSidesPlayer::RIGHT:
-	//	direction += mCamera.getRightVec();
-	//	break;
-	//case moveSidesPlayer::LEFT:
-	//	direction -= mCamera.getRightVec();
-	//	break;
-	//case moveSidesPlayer::FORWARD:
-	//	direction += mCamera.getDirection();
-	//	break;
-	//case moveSidesPlayer::BACKWARD:
-	//	direction -= mCamera.getDirection();
-	//	break;
-	//}
-
-	//if (glm::length(direction) > 0.0f)
-	//{
-	//	direction = glm::normalize(direction);
-	//	//					 move-speed 
-	//	const auto finalSpeed = 2.5f * ACCELERATION_RATIO * pDeltaTime;
-	//	mVelocity += finalSpeed * direction;
-	//}
+	if (mIsFreezed)
+		return;
 
 	float speed = mIsSprinting ? mSprintSpeed : mMoveSpeed;
 
-	if (!mIsFreezed)
+	if (m3rdPersonCamera)
+	{
+		glm::vec3 moveDirection{ 0.0f };
+
+		float playerYRotationRadians = glm::radians(mRotationY);
+		glm::vec3 cameraRight = glm::normalize(glm::vec3(glm::sin(playerYRotationRadians), 0.0f, glm::cos(playerYRotationRadians)));
+		glm::vec3 cameraFront = glm::normalize(glm::vec3(glm::cos(playerYRotationRadians), 0.0f, -glm::sin(playerYRotationRadians)));
+
+		switch (pMoveSidesPlayer)
+		{
+		case moveSidesPlayer::RIGHT:
+			moveDirection = cameraRight;
+			break;
+		case moveSidesPlayer::LEFT:
+			moveDirection = -cameraRight;
+			break;
+		case moveSidesPlayer::FORWARD:
+			moveDirection = -cameraFront;
+			break;
+		case moveSidesPlayer::BACKWARD:
+			moveDirection = cameraFront;
+			break;
+		}
+
+		moveDirection.y = 0.0f;
+		if (glm::length(moveDirection) > 0.0f)
+		{
+			moveDirection = glm::normalize(moveDirection);
+			mPos += moveDirection * speed * pDeltaTime;
+			mThirdPersonCam.setPos(mPos);
+		}
+	}
+	else
 	{
 		switch (pMoveSidesPlayer)
 		{
 		case moveSidesPlayer::RIGHT:
-			if (!m3rdPersonCamera)
-				mCamera.moveCamera(moveSides::RIGHT, speed, pDeltaTime);
+			mCamera.moveCamera(moveSides::RIGHT, speed, pDeltaTime);
 			mPos = mCamera.getPos();
 			break;
 		case moveSidesPlayer::LEFT:
-			if (!m3rdPersonCamera)
-				mCamera.moveCamera(moveSides::LEFT, speed, pDeltaTime);
+			mCamera.moveCamera(moveSides::LEFT, speed, pDeltaTime);
 			mPos = mCamera.getPos();
 			break;
 		case moveSidesPlayer::FORWARD:
-			if (!m3rdPersonCamera)
-				mCamera.moveCamera(moveSides::FORWARD, speed, pDeltaTime);
+			mCamera.moveCamera(moveSides::FORWARD, speed, pDeltaTime);
 			mPos = mCamera.getPos();
 			break;
 		case moveSidesPlayer::BACKWARD:
-			if (!m3rdPersonCamera)
-				mCamera.moveCamera(moveSides::BACKWARD, speed, pDeltaTime);
+			mCamera.moveCamera(moveSides::BACKWARD, speed, pDeltaTime);
 			mPos = mCamera.getPos();
 			break;
 		}
@@ -95,8 +99,7 @@ void Player::sprint(bool pSprint)
 	mIsSprinting = pSprint;
 }
 
-void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes,
-					Shader& pShader, SDL_Event& pEvents)
+void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes)
 {
 	checkCollisions(pCollisionMeshes);
 	if(mNoclip)
@@ -109,15 +112,22 @@ void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::v
 	}
 	else
 	{
-		mThirdPersonCam.update(pEvents, mPos);
 		mThirdPersonCam.setPos(mPos);
+		mThirdPersonCam.update(mEvents, mPos, mRotationY);
 		viewMatrix = mThirdPersonCam.getViewMatrix();
 	}
 	mPlayerHitbox.initMVP(pProjMatrix, viewMatrix,
 		mPos,
-		std::make_pair(1.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
+		std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
 		glm::vec3(10.0f, 30.0f, 10.0f));
+}
+
+void Player::renderCharacter(Shader& pShader)
+{
+	glDisable(GL_CULL_FACE);
+	pShader.bind();
 	mPlayerHitbox.draw(pShader);
+	glEnable(GL_CULL_FACE);
 }
 
 void Player::checkCollisions(const std::vector<Mesh*>& pCollisionMeshes)
@@ -151,6 +161,11 @@ void Player::setPos(const glm::vec3& pPos)
 	mPos = pPos;
 }
 
+void Player::updateEvents(const SDL_Event& pEvent)
+{
+	mEvents = pEvent;
+}
+
 Mesh& Player::getHitbox() noexcept
 {
 	return mPlayerHitbox;
@@ -174,6 +189,11 @@ float Player::getSpeed() const noexcept
 float Player::getSprintSpeed() const noexcept
 {
 	return mSprintSpeed;
+}
+
+float Player::getRotationY() const noexcept
+{
+	return mRotationY;
 }
 
 bool Player::isOnGround() const noexcept
@@ -201,7 +221,7 @@ void Player::responseCollision(Mesh& pObstacle)
 		else
 			mPos.x += overlap.x;
 	}
-	else if (overlap.x < overlap.z)
+	else if (overlap.y < overlap.z)
 	{
 		if (mPlayerHitbox.getPos().y < pObstacle.getPos().y)
 			mPos.y -= overlap.y;

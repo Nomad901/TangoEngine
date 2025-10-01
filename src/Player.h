@@ -48,17 +48,19 @@ public:
 	void freezePlayer(bool pFreeze);
 	void turnOn3rdPersonCamera(bool p3rdPersonCamera);
 
-	void update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes,
-				Shader& pShader, SDL_Event& pEvents);
+	void update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes);
+	void renderCharacter(Shader& pShader);
 	void checkCollisions(const std::vector<Mesh*>& pCollisionMeshes);
 
 	void setPos(const glm::vec3& pPos);
+	void updateEvents(const SDL_Event& pEvent);
 
 	Mesh& getHitbox() noexcept;
 	Camera& getCamera() noexcept;
 	glm::vec3 getPos() const noexcept;
 	float getSpeed() const noexcept;
 	float getSprintSpeed() const noexcept;
+	float getRotationY() const noexcept;
 
 private:
 	bool isOnGround() const noexcept;
@@ -74,6 +76,7 @@ private:
 	bool mIsSprinting{ false };
 	states mCurrentState{ states::STANDING };
 
+	float mRotationY{ 1.0f };
 	float mJumpForce{ 1.0f };
 	float mMoveSpeed{ 1.0f };
 	float mSprintSpeed{ 1.0f };
@@ -93,5 +96,6 @@ private:
 	Mesh mPlayerHitbox;
 	Camera mCamera;
 	thirdPersonCam mThirdPersonCam;
+	SDL_Event mEvents;
 };
 
