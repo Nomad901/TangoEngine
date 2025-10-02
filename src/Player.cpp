@@ -41,10 +41,10 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 		switch (pMoveSidesPlayer)
 		{
 		case moveSidesPlayer::RIGHT:
-			moveDirection = cameraRight;
+			moveDirection = -cameraRight;
 			break;
 		case moveSidesPlayer::LEFT:
-			moveDirection = -cameraRight;
+			moveDirection = cameraRight;
 			break;
 		case moveSidesPlayer::FORWARD:
 			moveDirection = -cameraFront;
@@ -61,6 +61,7 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 			mPos += moveDirection * speed * pDeltaTime;
 			mThirdPersonCam.setPos(mPos);
 		}
+
 	}
 	else
 	{
@@ -112,14 +113,14 @@ void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::v
 	}
 	else
 	{
-		mThirdPersonCam.setPos(mPos);
+		//mThirdPersonCam.setPos(mPos);
 		mThirdPersonCam.update(mEvents, mPos, mRotationY);
 		viewMatrix = mThirdPersonCam.getViewMatrix();
 	}
 	mPlayerHitbox.initMVP(pProjMatrix, viewMatrix,
-		mPos,
-		std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
-		glm::vec3(10.0f, 30.0f, 10.0f));
+						  mPos,
+						  std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
+						  glm::vec3(10.0f, 30.0f, 10.0f));
 }
 
 void Player::renderCharacter(Shader& pShader)
@@ -174,6 +175,11 @@ Mesh& Player::getHitbox() noexcept
 Camera& Player::getCamera() noexcept
 {
 	return mCamera;
+}
+
+thirdPersonCam& Player::getThirdPersonCamera() noexcept
+{
+	return mThirdPersonCam;
 }
 
 glm::vec3 Player::getPos() const noexcept
