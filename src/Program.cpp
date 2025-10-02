@@ -64,18 +64,9 @@ void Program::run()
 		static uint32_t lastTime = SDL_GetTicks();
 		uint32_t currentTime = SDL_GetTicks();
 
-		float physicsDeltaTime = (currentTime - lastTime);
+		float physicsDeltaTime = (currentTime - lastTime) / 1000.0f;
 		lastTime = currentTime;
 
-		mRenderer.showFPS();
-		mSceneManager.setAll();
-		mRenderer.preDrawScene();
-		mRenderer.drawScene();
-		
-		float deltaTime = SDL_GetTicks() - beginFrame;
-		if (deltaTime < 8)
-			SDL_Delay(8 - deltaTime);
-		
 		meshes.clear();
 		for (auto& [key, value] : mSceneManager.getModelProperties().mFactoryMeshes.getStorageMeshes())
 		{
@@ -89,9 +80,18 @@ void Program::run()
 			}
 		}
 
-		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes);
-		mControler->getPlayer().renderCharacter(mSceneManager.getProgramProperties().mShaders["mainShader"]);
 		mControler->controlAll(physicsDeltaTime);
+		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes);
+
+		mRenderer.showFPS();
+		mSceneManager.setAll();
+		mRenderer.preDrawScene();
+		mRenderer.drawScene();
+		mControler->getPlayer().renderCharacter(mSceneManager.getProgramProperties().mShaders["mainShader"]);
+		
+		float deltaTime = SDL_GetTicks() - beginFrame;
+		if (deltaTime < 8)
+			SDL_Delay(8 - deltaTime);
 		
 		SDL_GL_SwapWindow(mSceneManager.getProgramProperties().mWindow);
 	}

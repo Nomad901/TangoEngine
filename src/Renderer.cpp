@@ -21,8 +21,8 @@ void Renderer::drawScene()
 	ImGui::EndFrame();
 
 	// crosshair
-	mSceneManager->mProgramProperties.mCrosshair->render(mSceneManager->mProgramProperties.mWindowWidth, 
-														 mSceneManager->mProgramProperties.mWindowHeight);
+	//mSceneManager->mProgramProperties.mCrosshair->render(mSceneManager->mProgramProperties.mWindowWidth, 
+	//													 mSceneManager->mProgramProperties.mWindowHeight);
 
 	// main shader part
 	mSceneManager->mProgramProperties.mShaders["mainShader"].bind();

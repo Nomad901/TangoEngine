@@ -7,7 +7,7 @@ Camera::Camera()
     mUpVec = glm::vec3(0.0f, 1.0f, 0.0f);
 
     mYaw = -90.0f;
-    mPitch = 0.0f;
+    mPitch = 30.0f;
     mSensivity = 0.2f;
 }
 

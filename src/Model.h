@@ -61,7 +61,7 @@ public:
 	void renderInstanced(uint32_t pNumber);
 
 private:
-	void updateUniforms(Shader& pShader);
+	void updateUniforms(Shader& pShader, const glm::vec3& pColor);
 
 private:
 	bool mIsTaken;

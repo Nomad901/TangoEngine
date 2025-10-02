@@ -17,7 +17,7 @@
 #include "FactoryMesh.h"
 #include "Shader.h"
 #include "Model.h"
-#include "Camera.h"
+#include "thirdPersonCam.h"
 #include "Primitive.h"
 #include "OBJLoader.h"
 #include "UI.h"
@@ -61,6 +61,7 @@ public:
 		SDL_Window* mWindow;
 		SDL_GLContext mContext;
 
+		thirdPersonCam mThirdPersonCam;
 		Camera mCamera;
 		glm::mat4 mViewMatrix;
 		bool mNoclip{ false };

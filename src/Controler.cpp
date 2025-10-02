@@ -4,13 +4,23 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	mPlayer.init(glm::vec3(1.0f, 16.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.1f, 0.5f, 10.0f, true);
+	mPlayer.init(glm::vec3(1.0f, 16.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 50.0f, 100.0f, 10.0f, true, 
+				 pSceneManager->getProgramProperties().mResourcePath + "Models/player.obj");
 }
 
 void Controler::controlAll(float pDeltaTime)
 {
-	mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getThirdPersonCamera().getViewMatrix();
-	mSceneManager->getProgramProperties().mCamera = mPlayer.getThirdPersonCamera();
+	if (mPlayer.isInThirdPersonCamera())
+	{
+		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getThirdPersonCamera().getViewMatrix();
+		mSceneManager->getProgramProperties().mThirdPersonCam = mPlayer.getThirdPersonCamera();
+	}
+	else
+	{
+		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getCamera().getViewMatrix();
+		mSceneManager->getProgramProperties().mCamera = mPlayer.getCamera();
+	}
+	
 	mPlayer.turnOnNoclip(mSceneManager->getProgramProperties().mNoclip);
 
 	while (SDL_PollEvent(&mEvent))

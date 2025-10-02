@@ -141,7 +141,7 @@ bool Model::modelIsTaken() const noexcept
 
 void Model::render(Shader& pShader, const glm::vec3& pColor)
 {
-	updateUniforms(pShader);
+	updateUniforms(pShader, pColor);
 	for (auto& i : mMeshes)
 	{
 		i->drawModel();
@@ -156,8 +156,9 @@ void Model::renderInstanced(uint32_t pNumber)
 	}
 }
 
-void Model::updateUniforms(Shader& pShader)
+void Model::updateUniforms(Shader& pShader, const glm::vec3& pColor)
 {
+	pShader.setUniform3fv("uObjectColor", pColor);
 	pShader.setMatrixUniform4fv("uModel", getModelMatrix());
 	pShader.setMatrixUniform4fv("uMVP", getMVP());
 }

@@ -6,11 +6,24 @@ void thirdPersonCam::update(const SDL_Event& pEvents, const glm::vec3& pCharacte
 	calculateMouseActions(pEvents);
 	
 	float verticalDistance = mDistance * glm::sin(glm::radians(Camera::getPitch()));
+	if (verticalDistance < 0.0f)
+		verticalDistance = 0.0f;
 	float horizontalDistance = mDistance * glm::cos(glm::radians(Camera::getPitch()));
-
+	if (horizontalDistance < 0.0f)
+		horizontalDistance = 0.0f;
 	calculateCameraPosition(verticalDistance, horizontalDistance, pCharacterPos, pRotationCharY);
 
-	Camera::setYaw(180.0f - (pRotationCharY - mAngleAroundPlayer));
+	//Camera::setYaw(180.0f - (pRotationCharY - mAngleAroundPlayer));
+}
+
+void thirdPersonCam::resetAngleAroundPlayer()
+{
+	mAngleAroundPlayer = 0.0f;
+}
+
+float thirdPersonCam::getAngleAroundPlayer() const noexcept
+{
+	return mAngleAroundPlayer;
 }
 
 void thirdPersonCam::calculateDistance(const SDL_Event& pEvents)
@@ -26,14 +39,16 @@ void thirdPersonCam::calculateMouseActions(const SDL_Event& pEvents)
 {
 	if (pEvents.type == SDL_EVENT_MOUSE_MOTION)
 	{
-		if (pEvents.motion.state & SDL_BUTTON_RMASK)
+		if (pEvents.motion.state & SDL_BUTTON_RMASK ||
+			pEvents.motion.state & SDL_BUTTON_MMASK)
 		{
 			float pitchChange = -pEvents.motion.yrel * 0.1f;
 			float newPitch = Camera::getPitch() + pitchChange;
 			newPitch = glm::clamp(newPitch, -89.0f, 89.0f);
 			Camera::setPitch(newPitch);
 		}
-		if (pEvents.motion.state & SDL_BUTTON_LMASK)
+		if (pEvents.motion.state & SDL_BUTTON_LMASK ||
+			pEvents.motion.state & SDL_BUTTON_MMASK)
 		{
 			float angleChange = pEvents.motion.xrel * 0.3f;
 			mAngleAroundPlayer += angleChange;
@@ -47,10 +62,10 @@ void thirdPersonCam::calculateCameraPosition(float pVerticalDistance, float pHor
 	float theta = pRotationCharY + mAngleAroundPlayer;
 	float offsetX = pHorizontalDistance * glm::sin(glm::radians(theta));
 	float offsetZ = pHorizontalDistance * glm::cos(glm::radians(theta));
-
+	
 	glm::vec3 cameraPos; 
 	cameraPos.x = pCharacterPos.x - offsetX;
-	cameraPos.y = pCharacterPos.y + pVerticalDistance + 5.0f;
+	cameraPos.y = pCharacterPos.y + pVerticalDistance + 2.0f;
 	cameraPos.z = pCharacterPos.z - offsetZ;
 	Camera::setPos(cameraPos);
 	

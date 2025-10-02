@@ -9,6 +9,9 @@ public:
 	thirdPersonCam() = default;
 
 	void update(const SDL_Event& pEvents, const glm::vec3& pCharacterPos, float pRotationCharY);
+	void resetAngleAroundPlayer();
+
+	float getAngleAroundPlayer() const noexcept;
 
 private:
 	void calculateDistance(const SDL_Event& pEvents);

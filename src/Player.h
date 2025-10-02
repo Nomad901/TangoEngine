@@ -35,10 +35,12 @@ class Player
 public:
 	Player() = default;
 	Player(const glm::vec3& pPos, const glm::vec3& pVelocity, float pSpeed, 
-		   float pSprintSpeed, float pJumpForce, bool pThirdPersonCam);
+		   float pSprintSpeed, float pJumpForce, bool pThirdPersonCam, 
+		   const std::filesystem::path& pPath);
 
 	void init(const glm::vec3& pPos, const glm::vec3& pVelocity, float pSpeed, 
-			  float pSprintVelocity, float pJumpForce, bool pThirdPersonCam);
+			  float pSprintVelocity, float pJumpForce, bool pThirdPersonCam, 
+			  const std::filesystem::path& pPath);
 
 	void move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime);
 	void jump();
@@ -47,6 +49,13 @@ public:
 	void turnOnNoclip(bool pNoclip);
 	void freezePlayer(bool pFreeze);
 	void turnOn3rdPersonCamera(bool p3rdPersonCamera);
+
+	//
+	// that means, that when character will be moving in different directions (rotating)
+	// the camera will be always behind the character. This will happen if pRotatingWithChar is true.
+	// else - only character will be rotated
+	//
+	void turnOnRotatingWithCharacter(bool pRotatingWithChar);
 
 	void update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes);
 	void renderCharacter(Shader& pShader);
@@ -62,6 +71,8 @@ public:
 	float getSpeed() const noexcept;
 	float getSprintSpeed() const noexcept;
 	float getRotationY() const noexcept;
+	bool ifRotatesWithCamera() const noexcept;
+	bool isInThirdPersonCamera() const noexcept;
 
 private:
 	bool isOnGround() const noexcept;
@@ -69,6 +80,7 @@ private:
 
 private:
 	bool m3rdPersonCamera{ false };
+	bool mRotateCameraWithChar{ false };
 	bool mNoclip{ false };
 	bool mIsFreezed{ false };
 
@@ -77,9 +89,12 @@ private:
 	bool mIsSprinting{ false };
 	states mCurrentState{ states::STANDING };
 
-	float mRotationY{ 1.0f };
+	float mCurrentSpeed{ 0.0f };
+	float mCurrentTurnSpeed{ 0.0f };
+	float mTurnSpeed{ 90.0f };
+	float mRotationY{ 0.0f };
 	float mJumpForce{ 1.0f };
-	float mMoveSpeed{ 1.0f };
+	float mMoveSpeed{ 0.5f };
 	float mSprintSpeed{ 1.0f };
 	float mGravity{ -9.81f };
 	float mFrictionGround{ 0.1f };
@@ -95,6 +110,7 @@ private:
 
 	Collider mCollider;
 	Mesh mPlayerHitbox;
+	Model mCharModel;
 	Camera mCamera;
 	thirdPersonCam mThirdPersonCam;
 	SDL_Event mEvents;

@@ -37,47 +37,39 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 	{
 		glm::vec3 moveDirection{ 0.0f };
 
-		float playerYRotationRadians = glm::radians(mRotationY);
-		glm::vec3 cameraRight = glm::normalize(glm::vec3(glm::sin(playerYRotationRadians), 0.0f, glm::cos(playerYRotationRadians)));
-		glm::vec3 cameraFront = glm::normalize(glm::vec3(glm::cos(playerYRotationRadians), 0.0f, -glm::sin(playerYRotationRadians)));
+		glm::vec3 cameraForward = glm::normalize(glm::vec3(mThirdPersonCam.getDirection().x, 0.0f, mThirdPersonCam.getDirection().z));
+		glm::vec3 cameraRight = glm::normalize(glm::cross(cameraForward, glm::vec3(0.0f, 1.0f, 0.0f)));
 
 		switch (pMoveSidesPlayer)
 		{
-		case moveSidesPlayer::RIGHT:
-			mCurrentTurnSpeed = -mTurnSpeed;
-			moveDirection = cameraFront;
-			break;
-		case moveSidesPlayer::LEFT:
-			mCurrentTurnSpeed = mTurnSpeed;
-			moveDirection = -cameraFront;
-			break;
 		case moveSidesPlayer::FORWARD:
-			mCurrentSpeed = speed;
-			moveDirection = -cameraRight;
+			moveDirection = cameraForward;
 			break;
 		case moveSidesPlayer::BACKWARD:
-			mCurrentSpeed = -speed;
+			moveDirection = -cameraForward;
+			break;
+		case moveSidesPlayer::RIGHT:
 			moveDirection = cameraRight;
+			break;
+		case moveSidesPlayer::LEFT:
+			moveDirection = -cameraRight;
 			break;
 		}
 
-		mRotationY += mCurrentTurnSpeed * pDeltaTime;
+		moveDirection.y = 0.0f;
 
-		if (!mCurrentSpeed != 0.0f)
+		if (glm::length(moveDirection) > 0.0f)
 		{
-			float playerYawRad = glm::radians(mRotationY);
-			glm::vec3 moveDirection = glm::vec3(-sin(playerYawRad) * mCurrentSpeed * pDeltaTime,
-												 0.0f,
-												-cos(playerYawRad) * mCurrentSpeed * pDeltaTime);
-			mPos += moveDirection;
+			moveDirection = glm::normalize(moveDirection);
+			mPos += moveDirection * speed * pDeltaTime;
+
+			if (pMoveSidesPlayer == moveSidesPlayer::FORWARD || pMoveSidesPlayer == moveSidesPlayer::BACKWARD) {
+				float targetYaw = glm::degrees(atan2f(-moveDirection.x, -moveDirection.z));
+				mRotationY = targetYaw;
+			}
 		}
-		//moveDirection.y = 0.0f;
-		//if (glm::length(moveDirection) > 0.0f)
-		//{
-		//	moveDirection = glm::normalize(moveDirection);
-		//	mPos += moveDirection * speed * pDeltaTime;
-		//	mThirdPersonCam.setPos(mPos);
-		//}
+
+		mThirdPersonCam.setPos(mPos);
 	}
 	else
 	{
@@ -140,7 +132,7 @@ void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::v
 	mPlayerHitbox.initMVP(pProjMatrix, viewMatrix,
 		mPos,
 		std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
-		glm::vec3(30.0f, 30.0f, 30.0f));
+		glm::vec3(10.0f, 20.0f, 10.0f));
 	//mCharModel.initMVP(pProjMatrix, viewMatrix,
 	//				   mPos,
 	//				   std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -232,6 +224,11 @@ bool Player::ifRotatesWithCamera() const noexcept
 	return mRotateCameraWithChar;
 }
 
+bool Player::isInThirdPersonCamera() const noexcept
+{
+	return m3rdPersonCamera;
+}
+
 bool Player::isOnGround() const noexcept
 {
 	return mPos.y <= 0.0f || mIsGrounded;
@@ -239,40 +236,40 @@ bool Player::isOnGround() const noexcept
 
 void Player::responseCollision(Mesh& pObstacle)
 {
-	const glm::vec3 obstacleMinPoint = mCollider.getMinPoint(pObstacle.getPos(), pObstacle.getSize());
-	const glm::vec3 obstacleMaxPoint = mCollider.getMaxPoint(pObstacle.getPos(), pObstacle.getSize());
-	const glm::vec3 playerMinPoint = mCollider.getMinPoint(mPlayerHitbox.getPos(), mPlayerHitbox.getSize());
-	const glm::vec3 playerMaxPoint = mCollider.getMaxPoint(mPlayerHitbox.getPos(), mPlayerHitbox.getSize());
-	
-	const glm::vec3 overlap(
-		std::min(obstacleMaxPoint.x, playerMaxPoint.x) - std::max(obstacleMinPoint.x, playerMinPoint.x),
-		std::min(obstacleMaxPoint.y, playerMaxPoint.y) - std::max(obstacleMinPoint.y, playerMinPoint.y),
-		std::min(obstacleMaxPoint.z, playerMaxPoint.z) - std::max(obstacleMinPoint.z, playerMinPoint.z)
-	);
-
-	if (overlap.x < overlap.y && overlap.x < overlap.z)
-	{
-		if (mPlayerHitbox.getPos().x < pObstacle.getPos().x)
-			mPos.x -= overlap.x;
-		else
-			mPos.x += overlap.x;
-	}
-	else if (overlap.y < overlap.z)
-	{
-		if (mPlayerHitbox.getPos().y < pObstacle.getPos().y)
-			mPos.y -= overlap.y;
-		else
-		{
-			mPos.y += overlap.y;
-			mVelocity.y = 0.0f;
-			mIsGrounded = true;
-		}
-	}
-	else
-	{
-		if (mPlayerHitbox.getPos().z < pObstacle.getPos().z)
-			mPos.z -= overlap.z;
-		else
-			mPos.z += overlap.z;
-	}
+	//const glm::vec3 obstacleMinPoint = mCollider.getMinPoint(pObstacle.getPos(), pObstacle.getSize());
+	//const glm::vec3 obstacleMaxPoint = mCollider.getMaxPoint(pObstacle.getPos(), pObstacle.getSize());
+	//const glm::vec3 playerMinPoint = mCollider.getMinPoint(mPlayerHitbox.getPos(), mPlayerHitbox.getSize());
+	//const glm::vec3 playerMaxPoint = mCollider.getMaxPoint(mPlayerHitbox.getPos(), mPlayerHitbox.getSize());
+	//
+	//const glm::vec3 overlap(
+	//	std::min(obstacleMaxPoint.x, playerMaxPoint.x) - std::max(obstacleMinPoint.x, playerMinPoint.x),
+	//	std::min(obstacleMaxPoint.y, playerMaxPoint.y) - std::max(obstacleMinPoint.y, playerMinPoint.y),
+	//	std::min(obstacleMaxPoint.z, playerMaxPoint.z) - std::max(obstacleMinPoint.z, playerMinPoint.z)
+	//);
+	//
+	//if (overlap.x < overlap.y && overlap.x < overlap.z)
+	//{
+	//	if (mPlayerHitbox.getPos().x < pObstacle.getPos().x)
+	//		mPos.x -= overlap.x;
+	//	else
+	//		mPos.x += overlap.x;
+	//}
+	//else if (overlap.y < overlap.z)
+	//{
+	//	if (mPlayerHitbox.getPos().y < pObstacle.getPos().y)
+	//		mPos.y -= overlap.y;
+	//	else
+	//	{
+	//		mPos.y += overlap.y;
+	//		mVelocity.y = 0.0f;
+	//		mIsGrounded = true;
+	//	}
+	//}
+	//else
+	//{
+	//	if (mPlayerHitbox.getPos().z < pObstacle.getPos().z)
+	//		mPos.z -= overlap.z;
+	//	else
+	//		mPos.z += overlap.z;
+	//}
 }
