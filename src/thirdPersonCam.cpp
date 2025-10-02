@@ -10,7 +10,7 @@ void thirdPersonCam::update(const SDL_Event& pEvents, const glm::vec3& pCharacte
 
 	calculateCameraPosition(verticalDistance, horizontalDistance, pCharacterPos, pRotationCharY);
 
-	Camera::setYaw(180.0f - mAngleAroundPlayer);
+	Camera::setYaw(180.0f - (pRotationCharY - mAngleAroundPlayer));
 }
 
 void thirdPersonCam::calculateDistance(const SDL_Event& pEvents)
