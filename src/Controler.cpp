@@ -9,8 +9,8 @@ Controler::Controler(SceneManager* pSceneManager)
 
 void Controler::controlAll(float pDeltaTime)
 {
-	mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getCamera().getViewMatrix();
-	mSceneManager->getProgramProperties().mCamera = mPlayer.getCamera();
+	mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getThirdPersonCamera().getViewMatrix();
+	mSceneManager->getProgramProperties().mCamera = mPlayer.getThirdPersonCamera();
 	mPlayer.turnOnNoclip(mSceneManager->getProgramProperties().mNoclip);
 
 	while (SDL_PollEvent(&mEvent))
@@ -32,8 +32,8 @@ void Controler::controlAll(float pDeltaTime)
 			mKeyCodes[mEvent.key.key] = false;
 
 		// CAMERA MOVING
-		if (mEvent.type == SDL_EVENT_MOUSE_MOTION && mSceneManager->getProgramProperties().mTakeCursor)
-			mPlayer.getCamera().mouseMovement(glm::vec2(mEvent.motion.xrel, mEvent.motion.yrel));
+		//if (mEvent.type == SDL_EVENT_MOUSE_MOTION && mSceneManager->getProgramProperties().mTakeCursor)
+		//	mPlayer.getThirdPersonCamera().mouseMovement(glm::vec2(mEvent.motion.xrel, mEvent.motion.yrel));
 
 		// LIGHT BLOCK DISTANCE FROM CAMERA	
 		if (mEvent.type == SDL_EVENT_MOUSE_WHEEL) {
@@ -83,7 +83,7 @@ void Controler::controlCamera(float pDeltaTime)
 	if (mKeyCodes[SDLK_D])
 		mPlayer.move(moveSidesPlayer::RIGHT, pDeltaTime);
 	if (mKeyCodes[SDLK_SPACE])
-		mPlayer.jump();
+		mPlayer.jump(); 
 }
 
 void Controler::controlModel()
