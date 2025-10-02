@@ -57,6 +57,7 @@ public:
 
 	Mesh& getHitbox() noexcept;
 	Camera& getCamera() noexcept;
+	thirdPersonCam& getThirdPersonCamera() noexcept;
 	glm::vec3 getPos() const noexcept;
 	float getSpeed() const noexcept;
 	float getSprintSpeed() const noexcept;
