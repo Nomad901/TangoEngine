@@ -1,14 +1,17 @@
 #include "Player.h"
 
 Player::Player(const glm::vec3& pPos, const glm::vec3& pVelocity, float pSpeed, 
-			   float pSprintVelocity, float pJumpForce, bool pThirdPersonCam)
+			   float pSprintVelocity, float pJumpForce, bool pThirdPersonCam, 
+			   const std::filesystem::path& pPath)
 {
-	init(pPos, pVelocity, pSpeed, pSprintVelocity, pJumpForce, pThirdPersonCam);
+	init(pPos, pVelocity, pSpeed, pSprintVelocity, pJumpForce, pThirdPersonCam, pPath);
 }
 
 void Player::init(const glm::vec3& pPos, const glm::vec3& pVelocity, float pSpeed, 
-				  float pSprintVelocity, float pJumpForce, bool pThirdPersonCam)
+				  float pSprintVelocity, float pJumpForce, bool pThirdPersonCam, 
+				  const std::filesystem::path& pPath)
 {
+	//mCharModel.initOBJmodel(pPos, pPath);
 	mJumpForce = pJumpForce;
 	mMoveSpeed = pSpeed;
 	mPos = pPos;
@@ -41,27 +44,40 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 		switch (pMoveSidesPlayer)
 		{
 		case moveSidesPlayer::RIGHT:
-			moveDirection = -cameraRight;
-			break;
-		case moveSidesPlayer::LEFT:
-			moveDirection = cameraRight;
-			break;
-		case moveSidesPlayer::FORWARD:
-			moveDirection = -cameraFront;
-			break;
-		case moveSidesPlayer::BACKWARD:
+			mCurrentTurnSpeed = -mTurnSpeed;
 			moveDirection = cameraFront;
 			break;
+		case moveSidesPlayer::LEFT:
+			mCurrentTurnSpeed = mTurnSpeed;
+			moveDirection = -cameraFront;
+			break;
+		case moveSidesPlayer::FORWARD:
+			mCurrentSpeed = speed;
+			moveDirection = -cameraRight;
+			break;
+		case moveSidesPlayer::BACKWARD:
+			mCurrentSpeed = -speed;
+			moveDirection = cameraRight;
+			break;
 		}
 
-		moveDirection.y = 0.0f;
-		if (glm::length(moveDirection) > 0.0f)
+		mRotationY += mCurrentTurnSpeed * pDeltaTime;
+
+		if (!mCurrentSpeed != 0.0f)
 		{
-			moveDirection = glm::normalize(moveDirection);
-			mPos += moveDirection * speed * pDeltaTime;
-			mThirdPersonCam.setPos(mPos);
+			float playerYawRad = glm::radians(mRotationY);
+			glm::vec3 moveDirection = glm::vec3(-sin(playerYawRad) * mCurrentSpeed * pDeltaTime,
+												 0.0f,
+												-cos(playerYawRad) * mCurrentSpeed * pDeltaTime);
+			mPos += moveDirection;
 		}
-
+		//moveDirection.y = 0.0f;
+		//if (glm::length(moveDirection) > 0.0f)
+		//{
+		//	moveDirection = glm::normalize(moveDirection);
+		//	mPos += moveDirection * speed * pDeltaTime;
+		//	mThirdPersonCam.setPos(mPos);
+		//}
 	}
 	else
 	{
@@ -100,6 +116,11 @@ void Player::sprint(bool pSprint)
 	mIsSprinting = pSprint;
 }
 
+void Player::turnOnRotatingWithCharacter(bool pRotatingWithChar)
+{
+	mRotateCameraWithChar = pRotatingWithChar;
+}
+
 void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes)
 {
 	checkCollisions(pCollisionMeshes);
@@ -113,20 +134,24 @@ void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::v
 	}
 	else
 	{
-		//mThirdPersonCam.setPos(mPos);
 		mThirdPersonCam.update(mEvents, mPos, mRotationY);
 		viewMatrix = mThirdPersonCam.getViewMatrix();
 	}
 	mPlayerHitbox.initMVP(pProjMatrix, viewMatrix,
-						  mPos,
-						  std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
-						  glm::vec3(10.0f, 30.0f, 10.0f));
+		mPos,
+		std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
+		glm::vec3(30.0f, 30.0f, 30.0f));
+	//mCharModel.initMVP(pProjMatrix, viewMatrix,
+	//				   mPos,
+	//				   std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
+	//				   glm::vec3(30.0f, 30.0f, 30.0f));
 }
 
 void Player::renderCharacter(Shader& pShader)
 {
 	glDisable(GL_CULL_FACE);
 	pShader.bind();
+	//mCharModel.render(pShader);
 	mPlayerHitbox.draw(pShader);
 	glEnable(GL_CULL_FACE);
 }
@@ -200,6 +225,11 @@ float Player::getSprintSpeed() const noexcept
 float Player::getRotationY() const noexcept
 {
 	return mRotationY;
+}
+
+bool Player::ifRotatesWithCamera() const noexcept
+{
+	return mRotateCameraWithChar;
 }
 
 bool Player::isOnGround() const noexcept
