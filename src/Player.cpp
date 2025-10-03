@@ -12,6 +12,7 @@ void Player::init(const glm::vec3& pPos, const glm::vec3& pVelocity, float pSpee
 				  const std::filesystem::path& pPath)
 {
 	//mCharModel.initOBJmodel(pPos, pPath);
+
 	mJumpForce = pJumpForce;
 	mMoveSpeed = pSpeed;
 	mPos = pPos;
@@ -63,13 +64,8 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 			moveDirection = glm::normalize(moveDirection);
 			mPos += moveDirection * speed * pDeltaTime;
 
-			if (pMoveSidesPlayer == moveSidesPlayer::FORWARD || pMoveSidesPlayer == moveSidesPlayer::BACKWARD) {
-				float targetYaw = glm::degrees(atan2f(-moveDirection.x, -moveDirection.z));
-				mRotationY = targetYaw;
-			}
+			mRotationY = glm::degrees(atan2f(-cameraForward.x, -cameraForward.z));
 		}
-
-		mThirdPersonCam.setPos(mPos);
 	}
 	else
 	{
@@ -99,7 +95,8 @@ void Player::jump()
 {
 	if (mIsGrounded)
 	{
-		mVelocity.y = mJumpForce;
+		mPos.y = mJumpForce;
+		mIsGrounded = false;
 	}
 }
 
@@ -116,6 +113,10 @@ void Player::turnOnRotatingWithCharacter(bool pRotatingWithChar)
 void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes)
 {
 	checkCollisions(pCollisionMeshes);
+	if (!mIsGrounded)
+	{
+		mPos.y += mGravity * pDeltaTime;
+	}
 	if(mNoclip)
 		mCamera.turnOnNoclip(mNoclip);
 	glm::mat4 viewMatrix = glm::mat4(0.0f);
@@ -130,14 +131,14 @@ void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::v
 		viewMatrix = mThirdPersonCam.getViewMatrix();
 	}
 	mPlayerHitbox.initMVP(pProjMatrix, viewMatrix,
-		mPos,
-		std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
-		glm::vec3(10.0f, 20.0f, 10.0f));
+						  mPos,
+						  std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
+						  glm::vec3(10.0f, 20.0f, 10.0f));
 	//mCharModel.initMVP(pProjMatrix, viewMatrix,
-	//				   mPos,
-	//				   std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
-	//				   glm::vec3(30.0f, 30.0f, 30.0f));
-}
+	//				     mPos,
+	//				     std::make_pair(mRotationY, glm::vec3(0.0f, 1.0f, 0.0f)),
+	//				     glm::vec3(30.0f, 30.0f, 30.0f));
+}	
 
 void Player::renderCharacter(Shader& pShader)
 {
@@ -236,40 +237,41 @@ bool Player::isOnGround() const noexcept
 
 void Player::responseCollision(Mesh& pObstacle)
 {
-	//const glm::vec3 obstacleMinPoint = mCollider.getMinPoint(pObstacle.getPos(), pObstacle.getSize());
-	//const glm::vec3 obstacleMaxPoint = mCollider.getMaxPoint(pObstacle.getPos(), pObstacle.getSize());
-	//const glm::vec3 playerMinPoint = mCollider.getMinPoint(mPlayerHitbox.getPos(), mPlayerHitbox.getSize());
-	//const glm::vec3 playerMaxPoint = mCollider.getMaxPoint(mPlayerHitbox.getPos(), mPlayerHitbox.getSize());
-	//
-	//const glm::vec3 overlap(
-	//	std::min(obstacleMaxPoint.x, playerMaxPoint.x) - std::max(obstacleMinPoint.x, playerMinPoint.x),
-	//	std::min(obstacleMaxPoint.y, playerMaxPoint.y) - std::max(obstacleMinPoint.y, playerMinPoint.y),
-	//	std::min(obstacleMaxPoint.z, playerMaxPoint.z) - std::max(obstacleMinPoint.z, playerMinPoint.z)
-	//);
-	//
-	//if (overlap.x < overlap.y && overlap.x < overlap.z)
-	//{
-	//	if (mPlayerHitbox.getPos().x < pObstacle.getPos().x)
-	//		mPos.x -= overlap.x;
-	//	else
-	//		mPos.x += overlap.x;
-	//}
-	//else if (overlap.y < overlap.z)
-	//{
-	//	if (mPlayerHitbox.getPos().y < pObstacle.getPos().y)
-	//		mPos.y -= overlap.y;
-	//	else
-	//	{
-	//		mPos.y += overlap.y;
-	//		mVelocity.y = 0.0f;
-	//		mIsGrounded = true;
-	//	}
-	//}
-	//else
-	//{
-	//	if (mPlayerHitbox.getPos().z < pObstacle.getPos().z)
-	//		mPos.z -= overlap.z;
-	//	else
-	//		mPos.z += overlap.z;
-	//}
+	const glm::vec3 obstacleMinPoint = mCollider.getMinPoint(pObstacle.getPos(), pObstacle.getSize());
+	const glm::vec3 obstacleMaxPoint = mCollider.getMaxPoint(pObstacle.getPos(), pObstacle.getSize());
+	const glm::vec3 playerMinPoint = mCollider.getMinPoint(mPlayerHitbox.getPos(), mPlayerHitbox.getSize());
+	const glm::vec3 playerMaxPoint = mCollider.getMaxPoint(mPlayerHitbox.getPos(), mPlayerHitbox.getSize());
+	
+	const glm::vec3 overlap(
+		std::min(obstacleMaxPoint.x, playerMaxPoint.x) - std::max(obstacleMinPoint.x, playerMinPoint.x),
+		std::min(obstacleMaxPoint.y, playerMaxPoint.y) - std::max(obstacleMinPoint.y, playerMinPoint.y),
+		std::min(obstacleMaxPoint.z, playerMaxPoint.z) - std::max(obstacleMinPoint.z, playerMinPoint.z));
+	
+	if (overlap.x < overlap.y && overlap.x < overlap.z)
+	{
+		if (mPlayerHitbox.getPos().x < pObstacle.getPos().x)
+			mPos.x -= overlap.x;
+		else
+			mPos.x += overlap.x;
+	}
+	else if (overlap.y < overlap.z)
+	{
+		if (mPlayerHitbox.getPos().y < pObstacle.getPos().y)
+			mPos.y -= overlap.y;
+		else
+		{
+			mPos.y += overlap.y;
+			mVelocity.y = 0.0f;
+			mTerrainHeight = mPos.y;
+			std::cout << std::format("Is grounded: {}\n", mIsGrounded);
+			mIsGrounded = true;
+		}
+	}
+	else
+	{
+		if (mPlayerHitbox.getPos().z < pObstacle.getPos().z)
+			mPos.z -= overlap.z;
+		else
+			mPos.z += overlap.z;
+	}
 }

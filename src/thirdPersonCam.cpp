@@ -1,19 +1,13 @@
 #include "thirdPersonCam.h"
 
-void thirdPersonCam::update(const SDL_Event& pEvents, const glm::vec3& pCharacterPos, float pRotationCharY)
+void thirdPersonCam::update(const SDL_Event& pEvents, const glm::vec3& pCharacterPos, float& pRotationCharY)
 {
 	calculateDistance(pEvents);
 	calculateMouseActions(pEvents);
 	
 	float verticalDistance = mDistance * glm::sin(glm::radians(Camera::getPitch()));
-	if (verticalDistance < 0.0f)
-		verticalDistance = 0.0f;
 	float horizontalDistance = mDistance * glm::cos(glm::radians(Camera::getPitch()));
-	if (horizontalDistance < 0.0f)
-		horizontalDistance = 0.0f;
-	calculateCameraPosition(verticalDistance, horizontalDistance, pCharacterPos, pRotationCharY);
-
-	//Camera::setYaw(180.0f - (pRotationCharY - mAngleAroundPlayer));
+	calculateCameraPosition(verticalDistance, horizontalDistance, pCharacterPos);
 }
 
 void thirdPersonCam::resetAngleAroundPlayer()
@@ -57,16 +51,15 @@ void thirdPersonCam::calculateMouseActions(const SDL_Event& pEvents)
 }
 
 void thirdPersonCam::calculateCameraPosition(float pVerticalDistance, float pHorizontalDistance,
-											 const glm::vec3& pCharacterPos, float pRotationCharY)
+											 const glm::vec3& pCharacterPos)
 {
-	float theta = pRotationCharY + mAngleAroundPlayer;
-	float offsetX = pHorizontalDistance * glm::sin(glm::radians(theta));
-	float offsetZ = pHorizontalDistance * glm::cos(glm::radians(theta));
+	float offsetX = pHorizontalDistance * glm::sin(glm::radians(mAngleAroundPlayer));
+	float offsetZ = pHorizontalDistance * glm::cos(glm::radians(mAngleAroundPlayer));
 	
 	glm::vec3 cameraPos; 
 	cameraPos.x = pCharacterPos.x - offsetX;
 	cameraPos.y = pCharacterPos.y + pVerticalDistance + 2.0f;
-	cameraPos.z = pCharacterPos.z - offsetZ;
+	cameraPos.z = pCharacterPos.z + offsetZ;
 	Camera::setPos(cameraPos);
 	
 	glm::vec3 lookAtTarget = pCharacterPos + glm::vec3(0.0f, 5.0f, 0.0f);

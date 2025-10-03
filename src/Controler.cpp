@@ -4,7 +4,7 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	mPlayer.init(glm::vec3(1.0f, 16.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 50.0f, 100.0f, 10.0f, true, 
+	mPlayer.init(glm::vec3(1.0f, 16.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 50.0f, 100.0f, 30.0f, true, 
 				 pSceneManager->getProgramProperties().mResourcePath + "Models/player.obj");
 }
 

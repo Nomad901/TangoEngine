@@ -118,8 +118,8 @@ void Mesh::initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix,
 	mProjMatrix = pProjMatrix;
 	mViewMatrix = pViewMatrix;
 
-	mModelMatrix = glm::rotate(mModelMatrix, glm::radians(pDegreeRotate.first), pDegreeRotate.second);
 	mModelMatrix = glm::translate(mModelMatrix, pTranslation);
+	mModelMatrix = glm::rotate(mModelMatrix, glm::radians(pDegreeRotate.first), pDegreeRotate.second);
 	mModelMatrix = glm::scale(mModelMatrix, pScale);
 
 	mMVP = mProjMatrix * mViewMatrix * mModelMatrix;

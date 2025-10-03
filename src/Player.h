@@ -91,6 +91,7 @@ private:
 
 	float mCurrentSpeed{ 0.0f };
 	float mCurrentTurnSpeed{ 0.0f };
+	float mUpWardsSpeed{ 0.0f };
 	float mTurnSpeed{ 90.0f };
 	float mRotationY{ 0.0f };
 	float mJumpForce{ 1.0f };
@@ -99,14 +100,13 @@ private:
 	float mGravity{ -9.81f };
 	float mFrictionGround{ 0.1f };
 	float mFrictionAir{ 0.2f };
+	float mTerrainHeight{ 0.0f };
 
 	glm::vec3 mPos{ 1.0f };
 	glm::vec3 mVelocity{ 1.0f };
 	
 	glm::vec3 mInputVelocity{ 0.0f };
 	glm::vec3 mPhysicsVelocity{ 0.0f };
-
-	float mUpSpeed{ 0.0f };
 
 	Collider mCollider;
 	Mesh mPlayerHitbox;
