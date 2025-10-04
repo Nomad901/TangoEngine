@@ -17,6 +17,10 @@ public:
 	Shader(const std::filesystem::path& pPathVertex,
 		   const std::filesystem::path& pPathFragment,
 		   const std::filesystem::path& pPathGeometry);
+	Shader(const std::filesystem::path& pPathVertex,
+		   const std::filesystem::path& pPathFragment,
+		   const std::filesystem::path& pPathTCS,
+		   const std::filesystem::path& pPathTES);
 	~Shader();
 	Shader(const Shader&) = delete;
 	Shader& operator=(const Shader&) noexcept = delete;
@@ -28,6 +32,10 @@ public:
 	void init(const std::filesystem::path& pPathVertex,
 			  const std::filesystem::path& pPathFragment, 
 			  const std::filesystem::path& pPathGeometry);
+	void init(const std::filesystem::path& pPathVertex,
+		 	  const std::filesystem::path& pPathFragment,
+			  const std::filesystem::path& pPathTCS,
+			  const std::filesystem::path& pPathTES);
 
 	void bind();
 	void unbind();
@@ -47,6 +55,8 @@ public:
 private:
 	uint32_t createShaders(std::string_view pVertexSource, std::string_view pFragmentSource);
 	uint32_t createShaders(std::string_view pVertexSource, std::string_view pFragmentSource, std::string_view pGeometrySource);
+	uint32_t createShaders(std::string_view pVertexSource, std::string_view pFragmentSource, 
+						   std::string_view pTCSSource, std::string_view pTESSource);
 	uint32_t compileShaders(GLuint pType, const std::string& pStr);
 	std::string parsePath(const std::filesystem::path& pPath);
 

@@ -10,6 +10,12 @@ Shader::Shader(const std::filesystem::path& pPathVertex, const std::filesystem::
 	init(pPathVertex, pPathFragment, pPathGeometry);
 }
 
+Shader::Shader(const std::filesystem::path& pPathVertex, const std::filesystem::path& pPathFragment,
+			   const std::filesystem::path& pPathTCS, const std::filesystem::path& pPathTES)
+{
+	init(pPathVertex, pPathFragment, pPathTCS, pPathTES);
+}
+
 Shader::~Shader()
 {
 	glDeleteProgram(mShaderID);
@@ -30,6 +36,17 @@ void Shader::init(const std::filesystem::path& pPathVertex, const std::filesyste
 	std::string geometrySource = parsePath(pPathGeometry);
 
 	mShaderID = createShaders(vertexSource, fragmentSource, geometrySource);
+}
+
+void Shader::init(const std::filesystem::path& pPathVertex, const std::filesystem::path& pPathFragment,
+				  const std::filesystem::path& pPathTCS, const std::filesystem::path& pPathTES)
+{
+	std::string vertexSource = parsePath(pPathVertex);
+	std::string fragmentSource = parsePath(pPathFragment);
+	std::string TCSsource = parsePath(pPathTCS);
+	std::string TESsource = parsePath(pPathTES);
+
+	mShaderID = createShaders(vertexSource, fragmentSource, TCSsource, TESsource);
 }
 
 void Shader::bind()
@@ -124,6 +141,36 @@ uint32_t Shader::createShaders(std::string_view pVertexSource, std::string_view 
 	glDeleteShader(vertexSource);
 	glDeleteShader(fragmentSource);
 	glDeleteShader(geometrySource);
+
+	return program;
+}
+
+uint32_t Shader::createShaders(std::string_view pVertexSource, std::string_view pFragmentSource,
+							   std::string_view pTCSSource, std::string_view pTESSource)
+{
+	uint32_t program = glCreateProgram();
+	uint32_t vertexSource = compileShaders(GL_VERTEX_SHADER, std::string(pVertexSource));
+	uint32_t fragmentSource = compileShaders(GL_FRAGMENT_SHADER, std::string(pFragmentSource));
+	uint32_t TCSSource = compileShaders(GL_TESS_CONTROL_SHADER, std::string(pTCSSource));
+	uint32_t TESSource = compileShaders(GL_TESS_EVALUATION_SHADER, std::string(pTESSource));
+	
+	glAttachShader(program, vertexSource);
+	glAttachShader(program, fragmentSource);
+	glAttachShader(program, TCSSource);
+	glAttachShader(program, TESSource);
+
+	glLinkProgram(program);
+	glValidateProgram(program);
+
+	glDetachShader(program, vertexSource);
+	glDetachShader(program, fragmentSource);
+	glDetachShader(program, TCSSource);
+	glDetachShader(program, TESSource);
+
+	glDeleteShader(vertexSource);
+	glDeleteShader(fragmentSource);
+	glDeleteShader(TCSSource);
+	glDeleteShader(TESSource);
 
 	return program;
 }

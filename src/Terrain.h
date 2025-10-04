@@ -36,9 +36,12 @@ private:
 private:
 	uint32_t mNumStrips, mNumVertsPerStrip;
 
+	std::vector<Vertex> mVertices;
+	uint32_t mRez;
+
 	glm::vec3 mSize{ 0.0f };
 	glm::vec3 mPos{ 0.0f };
-	terrainTexture mTexture;	
+	Texture2 mTexture;	
 	Shader mShader;
 	VAO mVAO;
 	EBO mEBO;
