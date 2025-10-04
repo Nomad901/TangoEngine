@@ -14,11 +14,13 @@ void Controler::controlAll(float pDeltaTime)
 	{
 		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getThirdPersonCamera().getViewMatrix();
 		mSceneManager->getProgramProperties().mThirdPersonCam = mPlayer.getThirdPersonCamera();
+		mSceneManager->getProgramProperties().mTakeCursor = false;
 	}
 	else
 	{
 		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getCamera().getViewMatrix();
 		mSceneManager->getProgramProperties().mCamera = mPlayer.getCamera();
+		mSceneManager->getProgramProperties().mTakeCursor = true;
 	}
 	
 	mPlayer.turnOnNoclip(mSceneManager->getProgramProperties().mNoclip);

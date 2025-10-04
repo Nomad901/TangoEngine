@@ -236,6 +236,26 @@ void Texture2::setPath(const std::filesystem::path& pPath)
 	mFilePath = pPath;
 }
 
+void Texture2::setLocalBuffer(uint8_t* pLocalBuffer)
+{
+	mLocalBuffer = pLocalBuffer;
+}
+
+void Texture2::setWidth(int32_t pWidth)
+{
+	mWidth = pWidth;
+}
+
+void Texture2::setHeight(int32_t pHeight)
+{
+	mHeight = pHeight;
+}
+
+void Texture2::setBPP(int32_t pBPP)
+{
+	mBPP = pBPP;
+}
+
 uint32_t Texture2::getID() const noexcept
 {
 	return mRendererID;
@@ -251,7 +271,85 @@ std::filesystem::path Texture2::getPath() const noexcept
 	return mFilePath;
 }
 
+int32_t Texture2::getWidth() const noexcept
+{
+	return mWidth;
+}
+
+int32_t Texture2::getHeight() const noexcept
+{
+	return mHeight;
+}
+
+int32_t Texture2::getBPP() const noexcept
+{
+	return mBPP;
+}
+
+uint8_t* Texture2::getLocalBuffer() noexcept
+{
+	return mLocalBuffer;
+}
+
 void Texture2::destroyTexture()
 {
 	glDeleteTextures(1, &mRendererID);
+}
+
+terrainTexture::terrainTexture(const std::filesystem::path& pPath)
+{
+	init(pPath);
+}
+
+void terrainTexture::init(const std::filesystem::path& pPath)
+{
+	Texture2::setPath(pPath);
+	stbi_set_flip_vertically_on_load(1);
+	int32_t width, height, bpp;
+	uint8_t* localBuffer = stbi_load(pPath.string().c_str(), &width, &height, &bpp, 0);
+	Texture2::setWidth(width);
+	Texture2::setHeight(height);
+	Texture2::setBPP(bpp);
+	Texture2::setLocalBuffer(localBuffer);
+
+	mVertices.reserve(height * width * sizeof(glm::vec3));
+	float yScale = 64.0f / 256.0f, yShift = 16.0f;
+	for (uint32_t i = 0; i < height; ++i)
+	{
+		for (uint32_t j = 0; j < width; ++j)
+		{
+			uint8_t* texel = localBuffer + (j + width * i) * bpp;
+			uint8_t y = texel[0];
+
+			mVertices.push_back(glm::vec3(
+				j - width / 2.0f,                  
+				(int32_t)y * yScale - yShift,      
+				i - height / 2.0f                  
+			));
+		}
+	}
+	if (Texture2::getLocalBuffer())
+		stbi_image_free(Texture2::getLocalBuffer());
+
+	mIndices.reserve((height - 1) * (width * 2 - 2));
+	for (uint32_t i = 0; i < height - 1; ++i)
+	{
+		for (uint32_t j = 0; j < width; ++j)
+		{
+			for (uint32_t k = 0; k < 2; ++k)
+			{
+				mIndices.push_back(j + width * (i + k));
+			}
+		}
+	}
+}
+
+std::vector<glm::vec3>& terrainTexture::getVertices() noexcept
+{
+	return mVertices;
+}
+
+std::vector<uint64_t>& terrainTexture::getIndices() noexcept
+{
+	return mIndices;
 }

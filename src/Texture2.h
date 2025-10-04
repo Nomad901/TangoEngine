@@ -35,10 +35,18 @@ public:
 	void setID(uint32_t pID);
 	void setType(std::string_view pType);
 	void setPath(const std::filesystem::path& pPath);
+	void setLocalBuffer(uint8_t* pLocalBuffer);
+	void setWidth(int32_t pWidth);
+	void setHeight(int32_t pHeight);
+	void setBPP(int32_t pBPP);
 
 	uint32_t getID() const noexcept;
 	std::string getType() const noexcept;
 	std::filesystem::path getPath() const noexcept;
+	int32_t getWidth() const noexcept;
+	int32_t getHeight() const noexcept;
+	int32_t getBPP() const noexcept;
+	uint8_t* getLocalBuffer() noexcept;
 
 	void destroyTexture();
 
@@ -53,3 +61,19 @@ private:
 	std::filesystem::path mFilePath;
 };
 
+class terrainTexture : public Texture2
+{
+public:
+	terrainTexture() = default;
+	terrainTexture(const std::filesystem::path& pPath);
+
+	void init(const std::filesystem::path& pPath);
+
+	std::vector<glm::vec3>& getVertices() noexcept;
+	std::vector<uint64_t>& getIndices() noexcept;
+
+private:
+	std::vector<glm::vec3> mVertices;
+	std::vector<uint64_t> mIndices;
+
+};

@@ -2,20 +2,16 @@
 
 Terrain::Terrain(const glm::vec3& pPos, const glm::vec3& pSize, 
 				 const std::filesystem::path& pTexturePath,
-				 const glm::mat4& pModel, const glm::mat4& pProj,
-				 const glm::mat4& pView)
+				 const glm::mat4& pProj)
 {
-	init(pPos, pSize, pTexturePath, pModel, pProj, pView);
+	init(pPos, pSize, pTexturePath, pProj);
 }
 
 void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
 				   const std::filesystem::path& pTexturePath, 
-				   const glm::mat4& pModel, const glm::mat4& pProj,
-				   const glm::mat4& pView)
+				   const glm::mat4& pProj)
 {
-	mModel = pModel;
 	mProj = pProj;
-	mView = pView;
 	mPos = pPos;
 	mSize = pSize;
 	std::string resourcePath = RESOURCES_PATH;
@@ -27,6 +23,7 @@ void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
 	mVAO.bind();
 	mVBO.init(mTexture.getVertices().data(), mTexture.getVertices().size() * sizeof(glm::vec3), GL_STATIC_DRAW);
 	mVBOLayout.pushLayout(GL_FLOAT, 3);
+	mVAO.addBuffer(mVBO, mVBOLayout);
 	mEBO.init(mTexture.getIndices().data(), mTexture.getIndices().size());
 }
 
@@ -40,19 +37,9 @@ void Terrain::setSize(const glm::vec3& pSize)
 	mSize = pSize;
 }
 
-void Terrain::setModel(const glm::mat4& pModel)
-{
-	mModel = pModel;
-}
-
 void Terrain::setProj(const glm::mat4& pProj)
 {
 	mProj = pProj;
-}
-
-void Terrain::setView(const glm::mat4& pView)
-{
-	mView = pView;
 }
 
 const glm::vec3& Terrain::getPos() const noexcept
@@ -70,8 +57,9 @@ Texture2& Terrain::getTexture() noexcept
 	return mTexture;
 }
 
-void Terrain::render()
+void Terrain::render(const glm::mat4& pViewMatrix)
 {
+	mView = pViewMatrix;
 	updateUniforms();
 	mVAO.bind();
 	for (uint32_t strip = 0; strip < mNumStrips; ++strip)
@@ -84,8 +72,12 @@ void Terrain::render()
 void Terrain::updateUniforms()
 {
 	mShader.bind();
-	glm::mat4 MVP = mProj * mView * mModel;
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, mPos);
+	model = glm::scale(model, mSize);
+
+	glm::mat4 MVP = mProj * mView * model;
 	mShader.setMatrixUniform4fv("uMVP", MVP);
 	mShader.setMatrixUniform4fv("uView", mView);
-	mShader.setMatrixUniform4fv("uModel", mModel);
+	mShader.setMatrixUniform4fv("uModel", model);
 }

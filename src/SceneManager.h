@@ -32,6 +32,7 @@
 #include "TextureManager.h"
 #include "PrimitivesManager.h"
 #include "ModelManager.h"
+#include "Terrain.h"
 
 class Renderer;
 
@@ -103,6 +104,7 @@ public:
 		glm::vec3 mRotateForFloor{ 0.0f, 1.0f, 0.0f };
 		glm::vec3 mLastPos{ 1.0f };
 
+		std::unique_ptr<Terrain> mTerrain;
 		PrimitivesManager mPrimitivesManager;
 		TextureManager mTextureManager;
 		ModelManager mModelManager;

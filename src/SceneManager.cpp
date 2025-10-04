@@ -54,14 +54,6 @@ void SceneManager::setModels()
 	mProgramProperties.mShaders["mainShader"].setUniform3fv("cameraPos", mProgramProperties.mThirdPersonCam.getPos());
 	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShaders["mainShader"]);
 
-	//// floor
-	mModelProperties.mFactoryMeshes.getMesh("floor").initMVP(mModelProperties.mProjMatrix,
-		mProgramProperties.mViewMatrix,
-		glm::vec3(1.0f, 0.0f, -23.0f),
-		std::make_pair(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f)),
-		glm::vec3(3000.0f, 3000.0f, 1.0f));
-	mModelProperties.mFactoryMeshes.getMesh("floor").setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
 	//// museum
 	//mModelProperties.mModelManager.getModel("museum").initMVP(mModelProperties.mProjMatrix,
 	//														  mProgramProperties.mViewMatrix,

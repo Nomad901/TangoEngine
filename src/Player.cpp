@@ -38,7 +38,11 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 	{
 		glm::vec3 moveDirection{ 0.0f };
 
-		glm::vec3 cameraForward = glm::normalize(glm::vec3(mThirdPersonCam.getDirection().x, 0.0f, mThirdPersonCam.getDirection().z));
+		glm::vec3 cameraForward;
+		if(!mNoclip)
+			cameraForward = glm::normalize(glm::vec3(mThirdPersonCam.getDirection().x, 0.0f, mThirdPersonCam.getDirection().z));
+		else 
+			cameraForward = glm::normalize(glm::vec3(mThirdPersonCam.getDirection().x, mThirdPersonCam.getDirection().y, mThirdPersonCam.getDirection().z));
 		glm::vec3 cameraRight = glm::normalize(glm::cross(cameraForward, glm::vec3(0.0f, 1.0f, 0.0f)));
 
 		switch (pMoveSidesPlayer)
@@ -57,7 +61,8 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 			break;
 		}
 
-		moveDirection.y = 0.0f;
+		if(!mNoclip)
+			moveDirection.y = 0.0f;
 
 		if (glm::length(moveDirection) > 0.0f)
 		{
@@ -112,11 +117,11 @@ void Player::turnOnRotatingWithCharacter(bool pRotatingWithChar)
 
 void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes)
 {
-	checkCollisions(pCollisionMeshes);
-	if (!mIsGrounded)
-	{
-		mPos.y += mGravity * pDeltaTime;
-	}
+	//checkCollisions(pCollisionMeshes);
+	//if (!mIsGrounded)
+	//{
+	//	mPos.y += mGravity * pDeltaTime;
+	//}
 	if(mNoclip)
 		mCamera.turnOnNoclip(mNoclip);
 	glm::mat4 viewMatrix = glm::mat4(0.0f);

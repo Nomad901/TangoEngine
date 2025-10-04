@@ -20,6 +20,8 @@ public:
 	void initMousePicker();
 	void initSkybox();
 	void initUBO();
+	void initTerrain();
+
 private:
 	SceneManager* mSceneManager;
 };

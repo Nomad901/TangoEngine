@@ -13,7 +13,7 @@ EBO::~EBO()
 void EBO::init(const void* pData, uint32_t pCount)
 {
 	mCount = pCount;
-
+	uint32_t counter = pCount * sizeof(uint32_t);
 	glGenBuffers(1, &mRendererID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, pCount * sizeof(uint32_t), pData, GL_STATIC_DRAW);

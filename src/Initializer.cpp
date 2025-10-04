@@ -37,6 +37,7 @@ void Initializer::initAll()
 	initMousePicker();
 	initSkybox();
 	initUBO();
+	initTerrain();
 }
 
 void Initializer::initShaders()
@@ -65,9 +66,6 @@ void Initializer::initTextures()
 
 void Initializer::initPrimitives()
 {
-	// floor 
-	mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("floor", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-
 	// light block
 	mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightBlock", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
@@ -80,10 +78,6 @@ void Initializer::initPrimitives()
 
 void Initializer::initMeshes()
 {
-	// floor
-	std::weak_ptr<Primitive> floor = mSceneManager->getModelProperties().mPrimitivesManager["floor"];
-	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("floor", std::make_unique<Mesh>(floor));
-
 	// light block
 	std::weak_ptr<Primitive> lightBlock = mSceneManager->getModelProperties().mPrimitivesManager["lightBlock"];
 	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightBlock", std::make_unique<Mesh>(lightBlock));
@@ -123,16 +117,16 @@ void Initializer::initModels()
 void Initializer::initLights()
 {
 	// lamps in the museum
-	mSceneManager->getLightProperties().mLightManager.pushLight("pointLight1", std::make_unique<PointLight>(glm::vec3(12.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
-	mSceneManager->getLightProperties().mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
-	mSceneManager->getLightProperties().mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3(5.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
-	mSceneManager->getLightProperties().mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
+	//mSceneManager->getLightProperties().mLightManager.pushLight("pointLight1", std::make_unique<PointLight>(glm::vec3(12.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
+	//mSceneManager->getLightProperties().mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
+	//mSceneManager->getLightProperties().mLightManager.pushLight("pointLight3", std::make_unique<PointLight>(glm::vec3(5.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
+	//mSceneManager->getLightProperties().mLightManager.pushLight("pointLight4", std::make_unique<PointLight>(glm::vec3(-117.0f, 94.0f, -724.0f), 0.5f, 0.045f, 0.075f));
 
 	// lampPosts outside
 	mSceneManager->getLightProperties().mLightManager.pushLight("lampPost1", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -71.39948), 0.5f, 0.045f, 0.075f));
-	mSceneManager->getLightProperties().mLightManager.pushLight("lampPost2", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -91.09918), 0.5f, 0.045f, 0.075f));
-	mSceneManager->getLightProperties().mLightManager.pushLight("lampPost3", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -68.599525), 0.5f, 0.045f, 0.075f));
-	mSceneManager->getLightProperties().mLightManager.pushLight("lampPost4", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -88.19923), 0.5f, 0.045f, 0.075f));
+	//mSceneManager->getLightProperties().mLightManager.pushLight("lampPost2", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -91.09918), 0.5f, 0.045f, 0.075f));
+	//mSceneManager->getLightProperties().mLightManager.pushLight("lampPost3", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -68.599525), 0.5f, 0.045f, 0.075f));
+	//mSceneManager->getLightProperties().mLightManager.pushLight("lampPost4", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -88.19923), 0.5f, 0.045f, 0.075f));
 }
 
 void Initializer::initCrosshair()
@@ -169,4 +163,11 @@ void Initializer::initUBO()
 {
 	mSceneManager->getProgramProperties().mUBO.init({ {mSceneManager->getProgramProperties().mShaders["mainShader"].getID(), "Matrices"}},
 										  0, 2 * sizeof(glm::mat4));
+}
+
+void Initializer::initTerrain()	
+{
+	mSceneManager->getModelProperties().mTerrain = std::make_unique<Terrain>(glm::vec3(0.0f, -15.0f, 0.0f), glm::vec3(20.0f, 20.0f, 20.0f),
+																		     mSceneManager->getProgramProperties().mResourcePath + "terrain.png",
+																		     mSceneManager->getModelProperties().mProjMatrix);
 }

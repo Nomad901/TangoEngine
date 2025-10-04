@@ -20,13 +20,15 @@ void Renderer::drawScene()
 {
 	ImGui::EndFrame();
 
+	// terrain
+	mSceneManager->mModelProperties.mTerrain->render(mSceneManager->getProgramProperties().mViewMatrix);
+
 	// crosshair
 	//mSceneManager->mProgramProperties.mCrosshair->render(mSceneManager->mProgramProperties.mWindowWidth, 
 	//													 mSceneManager->mProgramProperties.mWindowHeight);
 
 	// main shader part
 	mSceneManager->mProgramProperties.mShaders["mainShader"].bind();
-	mSceneManager->mModelProperties.mFactoryMeshes.getMesh("floor").draw(mSceneManager->mProgramProperties.mShaders["mainShader"]);
 	//mSceneManager->mModelProperties.mModelManager.getModel("museum").render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
 	mSceneManager->mModelProperties.mModelManager["lampPost1"].render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
 	mSceneManager->mModelProperties.mModelManager["lampPost2"].render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
