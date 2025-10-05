@@ -2,9 +2,13 @@
 
 layout (vertices = 4) out;
 
-in vec2 texCoord[];
-
+out vec3 WorldPos[];
 out vec2 TextureCoord[];
+out float Height[];
+
+in vec2 texCoord[];
+in vec3 worldPos[];
+in float height[];
 
 uniform mat4 uMVP;
 uniform mat4 uView;
@@ -14,6 +18,8 @@ void main()
 {
 	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 	TextureCoord[gl_InvocationID] = texCoord[gl_InvocationID];
+	WorldPos[gl_InvocationID] = worldPos[gl_InvocationID]; 
+	Height[gl_InvocationID] = height[gl_InvocationID];
 
 	if(gl_InvocationID == 0)
 	{
