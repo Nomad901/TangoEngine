@@ -167,7 +167,15 @@ void Initializer::initUBO()
 
 void Initializer::initTerrain()	
 {
+	std::string resourcePath = mSceneManager->getProgramProperties().mResourcePath;
+	std::vector<std::filesystem::path> paths = 
+	{
+		resourcePath + "pToYz.png",
+		resourcePath + "rock.png",
+		resourcePath + "grass.png"
+	};
+
 	mSceneManager->getModelProperties().mTerrain = std::make_unique<Terrain>(glm::vec3(0.0f, -15.0f, 0.0f), glm::vec3(5.0f, 5.0f, 5.0f),
-																		     mSceneManager->getProgramProperties().mResourcePath + "pToYz.png",
+																			 paths,
 																		     mSceneManager->getModelProperties().mProjMatrix);
 }
