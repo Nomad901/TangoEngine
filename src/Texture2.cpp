@@ -5,6 +5,11 @@ Texture2::Texture2(const std::filesystem::path& pPath, std::string_view pUniform
 	init(pPath, pUniformName, pRepeatTexture);
 }
 
+Texture2::Texture2(const std::filesystem::path& pPath, bool pRepeatTexture)
+{
+	init(pPath, pRepeatTexture);
+}
+
 Texture2::~Texture2()
 {
 	std::cout << std::format("Texture was deleted! ID: {}\n", mRendererID);
@@ -109,29 +114,6 @@ void Texture2::init(const std::filesystem::path& pPath, bool pRepeatTexture)
 	}
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, mLocalBuffer);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	if (mLocalBuffer)
-		stbi_image_free(mLocalBuffer);
-}
-
-void Texture2::initMipMap(const std::filesystem::path& pPath)
-{
-	mFilePath = pPath;
-	stbi_set_flip_vertically_on_load(1);
-	mLocalBuffer = stbi_load(pPath.string().c_str(), &mWidth, &mHeight, &mBPP, 4);
-
-	glGenTextures(1, &mRendererID);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mRendererID);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, mLocalBuffer);
-	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	if (mLocalBuffer)

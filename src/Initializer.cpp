@@ -175,7 +175,7 @@ void Initializer::initTerrain()
 		resourcePath + "grass.png"
 	};
 
-	mSceneManager->getModelProperties().mTerrain = std::make_unique<Terrain>(glm::vec3(0.0f, -15.0f, 0.0f), glm::vec3(5.0f, 5.0f, 5.0f),
+	mSceneManager->getModelProperties().mTerrain = std::make_unique<Terrain>(glm::vec3(0.0f, -15.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),
 																			 paths,
 																		     mSceneManager->getModelProperties().mProjMatrix);
 }

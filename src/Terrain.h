@@ -8,6 +8,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "TextureManager.h"
+#include "HeightsGenerator.h"
 
 class Terrain
 {
@@ -48,6 +49,7 @@ private:
 	EBO mEBO;
 	VBO mVBO;
 	VBOLayout mVBOLayout;
+	HeightsGenerator mHeightsGenerator;
 
 	glm::mat4 mProj;
 	glm::mat4 mView;

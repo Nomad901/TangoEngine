@@ -40,20 +40,24 @@ void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
 	mShader.setUniform1i("uRockTex", 2);
 	mShader.unbind();
 
+	float terrainWidth = 1000.0f;
+	float terrainHeight = 1000.0f;
+
     mRez = 20;
     mVertices.reserve(mRez * mRez * 4); 
     for (uint32_t j = 0; j < mRez; ++j)      
     {
         for (uint32_t i = 0; i < mRez; ++i)   
         {
-            float x0 = -mTextureManager.getTexture("MainTexture").getWidth() / 2.0f +  
-						mTextureManager.getTexture("MainTexture").getWidth() * i / (float)mRez;
-			float x1 = -mTextureManager.getTexture("MainTexture").getWidth() / 2.0f +  
-						mTextureManager.getTexture("MainTexture").getWidth() * (i + 1) / (float)mRez;
-			float z0 = -mTextureManager.getTexture("MainTexture").getHeight() / 2.0f + 
-						mTextureManager.getTexture("MainTexture").getHeight() * j / (float)mRez;
-			float z1 = -mTextureManager.getTexture("MainTexture").getHeight() / 2.0f + 
-						mTextureManager.getTexture("MainTexture").getHeight() * (j + 1) / (float)mRez;
+            float x0 = -terrainWidth / 2.0f + terrainWidth * i / (float)mRez;
+			float x1 = -terrainWidth / 2.0f + terrainWidth * (i + 1) / (float)mRez;
+			float z0 = -terrainHeight / 2.0f + terrainHeight * j / (float)mRez;
+			float z1 = -terrainHeight / 2.0f + terrainHeight * (j + 1) / (float)mRez;
+			
+			float height00 = mHeightsGenerator.generateHeight(x0, z0);
+			float height01 = mHeightsGenerator.generateHeight(x0, z1);
+			float height10 = mHeightsGenerator.generateHeight(x1, z0);
+			float height11 = mHeightsGenerator.generateHeight(x1, z1);
 
             float u0 = i / (float)mRez;
             float u1 = (i + 1) / (float)mRez;
@@ -61,7 +65,7 @@ void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
             float v1 = (j + 1) / (float)mRez;
 
             Vertex vertex0;
-            vertex0.mPos = glm::vec3(x0, 0.0f, z0);
+            vertex0.mPos = glm::vec3(x0, height00, z0);
             vertex0.mTexCoord = glm::vec2(u0, v0);
             vertex0.mNormals = glm::vec3(0.0f, 1.0f, 0.0f);
             vertex0.mColor = glm::vec4(1.0f);
@@ -69,7 +73,7 @@ void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
 
             // Vertex 1: bottom-right  
             Vertex vertex1;
-            vertex1.mPos = glm::vec3(x1, 0.0f, z0);
+            vertex1.mPos = glm::vec3(x1, height10, z0);
             vertex1.mTexCoord = glm::vec2(u1, v0);
             vertex1.mNormals = glm::vec3(0.0f, 1.0f, 0.0f);
             vertex1.mColor = glm::vec4(1.0f);
@@ -77,7 +81,7 @@ void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
 
             // Vertex 2: top-left
             Vertex vertex2;
-			vertex2.mPos = glm::vec3(x0, 0.0f, z1);
+			vertex2.mPos = glm::vec3(x0, height01, z1);
 			vertex2.mTexCoord = glm::vec2(u0, v1);
 			vertex2.mNormals = glm::vec3(0.0f, 1.0f, 0.0f);
 			vertex2.mColor = glm::vec4(1.0f);
@@ -85,7 +89,7 @@ void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
 
             // Vertex 3: top-right
             Vertex vertex3;
-            vertex3.mPos = glm::vec3(x1, 0.0f, z1);
+            vertex3.mPos = glm::vec3(x1, height11, z1);
             vertex3.mTexCoord = glm::vec2(u1, v1);
             vertex3.mNormals = glm::vec3(0.0f, 1.0f, 0.0f);
             vertex3.mColor = glm::vec4(1.0f);
