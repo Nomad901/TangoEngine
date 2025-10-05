@@ -1,14 +1,14 @@
 #include "Terrain.h"
 
 Terrain::Terrain(const glm::vec3& pPos, const glm::vec3& pSize, 
-				 const std::filesystem::path& pTexturePath,
+				 const std::vector<std::filesystem::path>& pTexturePaths,
 				 const glm::mat4& pProj)
 {
-	init(pPos, pSize, pTexturePath, pProj);
+	init(pPos, pSize, pTexturePaths, pProj);
 }
 
 void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
-				   const std::filesystem::path& pTexturePath, 
+				   const std::vector<std::filesystem::path>& pTexturePaths,
 				   const glm::mat4& pProj)
 {
 	mProj = pProj;
@@ -18,10 +18,26 @@ void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
 	std::string resourcePath = RESOURCES_PATH;
 	mShader.init(resourcePath + "Shaders/terrainVert.glsl", resourcePath + "Shaders/terrainFrag.glsl", 
 				 resourcePath + "Shaders/terrainTCS.glsl", resourcePath + "Shaders/terrainTES.glsl");
-	mTexture.initMipMap(pTexturePath);
+	
+	if (!pTexturePaths.empty())
+		mTextureManager.pushTexture("MainTexture", std::make_unique<Texture2>(pTexturePaths[0], true));
+
+	std::string name;
+	for (size_t i = 1; i < pTexturePaths.size(); ++i)
+	{
+		mTextureManager.pushTexture(name + std::to_string(i), std::make_unique<Texture2>(pTexturePaths[i]));
+	}
+
 	mShader.bind();
-	mTexture.bind(GL_TEXTURE_2D);
+	uint32_t counter = 0;
+	for (auto& [key, value] : mTextureManager.getStorageTextures())
+	{
+		value->bind(GL_TEXTURE_2D, counter);
+		counter++;
+	}
 	mShader.setUniform1i("uHeightMap", 0);
+	mShader.setUniform1i("uGrassTex", 1);
+	mShader.setUniform1i("uRockTex", 2);
 	mShader.unbind();
 
     mRez = 20;
@@ -30,10 +46,14 @@ void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
     {
         for (uint32_t i = 0; i < mRez; ++i)   
         {
-            float x0 = -mTexture.getWidth() / 2.0f + mTexture.getWidth() * i / (float)mRez;
-            float x1 = -mTexture.getWidth() / 2.0f + mTexture.getWidth() * (i + 1) / (float)mRez;
-            float z0 = -mTexture.getHeight() / 2.0f + mTexture.getHeight() * j / (float)mRez;
-            float z1 = -mTexture.getHeight() / 2.0f + mTexture.getHeight() * (j + 1) / (float)mRez;
+            float x0 = -mTextureManager.getTexture("MainTexture").getWidth() / 2.0f +  
+						mTextureManager.getTexture("MainTexture").getWidth() * i / (float)mRez;
+			float x1 = -mTextureManager.getTexture("MainTexture").getWidth() / 2.0f +  
+						mTextureManager.getTexture("MainTexture").getWidth() * (i + 1) / (float)mRez;
+			float z0 = -mTextureManager.getTexture("MainTexture").getHeight() / 2.0f + 
+						mTextureManager.getTexture("MainTexture").getHeight() * j / (float)mRez;
+			float z1 = -mTextureManager.getTexture("MainTexture").getHeight() / 2.0f + 
+						mTextureManager.getTexture("MainTexture").getHeight() * (j + 1) / (float)mRez;
 
             float u0 = i / (float)mRez;
             float u1 = (i + 1) / (float)mRez;
@@ -110,9 +130,9 @@ const glm::vec3& Terrain::getSize() const noexcept
 	return mSize;
 }
 
-Texture2& Terrain::getTexture() noexcept
+TextureManager& Terrain::getTextureManager() noexcept
 {
-	return mTexture;
+	return mTextureManager;
 }
 
 void Terrain::render(const glm::mat4& pViewMatrix)
@@ -121,6 +141,12 @@ void Terrain::render(const glm::mat4& pViewMatrix)
 	mView = pViewMatrix;
 	updateUniforms();
 	mVAO.bind();
+	uint32_t counter = 0;
+	for (auto& [key, value] : mTextureManager.getStorageTextures())
+	{
+		value->bind(GL_TEXTURE_2D, counter);
+		counter++;
+	}
 	glDrawArrays(GL_PATCHES, 0, 4 * mRez * mRez);
 	glEnable(GL_CULL_FACE);
 }
