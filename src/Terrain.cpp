@@ -56,20 +56,20 @@ void Terrain::init(const glm::vec3& pPos, const glm::vec3& pSize,
             mVertices.push_back(vertex1);
 
             // Vertex 2: top-left
-            Vertex v2;
-            v2.mPos = glm::vec3(x0, 0.0f, z1);
-            v2.mTexCoord = glm::vec2(u0, v1);
-            v2.mNormals = glm::vec3(0.0f, 1.0f, 0.0f);
-            v2.mColor = glm::vec4(1.0f);
-            mVertices.push_back(v2);
+            Vertex vertex2;
+			vertex2.mPos = glm::vec3(x0, 0.0f, z1);
+			vertex2.mTexCoord = glm::vec2(u0, v1);
+			vertex2.mNormals = glm::vec3(0.0f, 1.0f, 0.0f);
+			vertex2.mColor = glm::vec4(1.0f);
+            mVertices.push_back(vertex2);
 
             // Vertex 3: top-right
-            Vertex v3;
-            v3.mPos = glm::vec3(x1, 0.0f, z1);
-            v3.mTexCoord = glm::vec2(u1, v1);
-            v3.mNormals = glm::vec3(0.0f, 1.0f, 0.0f);
-            v3.mColor = glm::vec4(1.0f);
-            mVertices.push_back(v3);
+            Vertex vertex3;
+            vertex3.mPos = glm::vec3(x1, 0.0f, z1);
+            vertex3.mTexCoord = glm::vec2(u1, v1);
+            vertex3.mNormals = glm::vec3(0.0f, 1.0f, 0.0f);
+            vertex3.mColor = glm::vec4(1.0f);
+            mVertices.push_back(vertex3);
         }
     }
 
@@ -117,10 +117,12 @@ Texture2& Terrain::getTexture() noexcept
 
 void Terrain::render(const glm::mat4& pViewMatrix)
 {
+	glDisable(GL_CULL_FACE);
 	mView = pViewMatrix;
 	updateUniforms();
 	mVAO.bind();
 	glDrawArrays(GL_PATCHES, 0, 4 * mRez * mRez);
+	glEnable(GL_CULL_FACE);
 }
 
 void Terrain::updateUniforms()
