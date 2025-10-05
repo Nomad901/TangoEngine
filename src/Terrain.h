@@ -7,17 +7,18 @@
 
 #include "Mesh.h"
 #include "Shader.h"
+#include "TextureManager.h"
 
 class Terrain
 {
 public:
 	Terrain() = default;
 	Terrain(const glm::vec3& pPos, const glm::vec3& pSize, 
-			const std::filesystem::path& pTexturePath,
+			const std::vector<std::filesystem::path>& pTexturePaths,
 			const glm::mat4& pProj);
 
 	void init(const glm::vec3& pPos, const glm::vec3& pSize, 
-			  const std::filesystem::path& pTexturePath,
+			  const std::vector<std::filesystem::path>& pTexturePaths,
 			  const glm::mat4& pProj);
 	
 	void setPos(const glm::vec3& pPos);
@@ -26,7 +27,7 @@ public:
 
 	const glm::vec3& getPos() const noexcept;
 	const glm::vec3& getSize() const noexcept;
-	Texture2& getTexture() noexcept;
+	TextureManager& getTextureManager() noexcept;
 
 	void render(const glm::mat4& pViewMatrix);
 
@@ -41,7 +42,7 @@ private:
 
 	glm::vec3 mSize{ 0.0f };
 	glm::vec3 mPos{ 0.0f };
-	Texture2 mTexture;	
+	TextureManager mTextureManager;
 	Shader mShader;
 	VAO mVAO;
 	EBO mEBO;
