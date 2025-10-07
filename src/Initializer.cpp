@@ -70,10 +70,10 @@ void Initializer::initPrimitives()
 	mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightBlock", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 	// lights on light-posts
-	mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost1", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost2", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost3", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost4", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	//mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost1", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	//mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost2", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	//mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost3", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	//mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost4", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 }
 
 void Initializer::initMeshes()
@@ -83,14 +83,14 @@ void Initializer::initMeshes()
 	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightBlock", std::make_unique<Mesh>(lightBlock));
 	
 	// light-posts
-	std::weak_ptr<Primitive> light1 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost1"];
-	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost1", std::make_unique<Mesh>(light1));
-	std::weak_ptr<Primitive> light2 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost2"];
-	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost2", std::make_unique<Mesh>(light2));
-	std::weak_ptr<Primitive> light3 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost3"];
-	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost3", std::make_unique<Mesh>(light3));
-	std::weak_ptr<Primitive> light4 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost4"];
-	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost4", std::make_unique<Mesh>(light4));
+	//std::weak_ptr<Primitive> light1 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost1"];
+	//mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost1", std::make_unique<Mesh>(light1));
+	//std::weak_ptr<Primitive> light2 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost2"];
+	//mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost2", std::make_unique<Mesh>(light2));
+	//std::weak_ptr<Primitive> light3 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost3"];
+	//mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost3", std::make_unique<Mesh>(light3));
+	//std::weak_ptr<Primitive> light4 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost4"];
+	//mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost4", std::make_unique<Mesh>(light4));
 }
 
 void Initializer::initMaterial()
@@ -108,10 +108,10 @@ void Initializer::initModels()
 	//												  mSceneManager->getProgramProperties().mResourcePath + "Models/museum.obj"));
 	//
 	// lamp posts
-	mSceneManager->getModelProperties().mModelManager.pushModel("lampPost1", std::make_unique<Model>(glm::vec3(2.0f),
-													  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));
-	mSceneManager->getModelProperties().mModelManager.pushModel("lampPost2", std::make_unique<Model>(glm::vec3(2.0f),
-													  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));
+	//mSceneManager->getModelProperties().mModelManager.pushModel("lampPost1", std::make_unique<Model>(glm::vec3(2.0f),
+	//												  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));
+	//mSceneManager->getModelProperties().mModelManager.pushModel("lampPost2", std::make_unique<Model>(glm::vec3(2.0f),
+	//												  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));
 }
 
 void Initializer::initLights()
@@ -168,14 +168,12 @@ void Initializer::initUBO()
 void Initializer::initTerrain()	
 {
 	std::string resourcePath = mSceneManager->getProgramProperties().mResourcePath;
-	std::vector<std::filesystem::path> paths = 
-	{
-		resourcePath + "pToYz.png",
-		resourcePath + "rock.png",
-		resourcePath + "grass.png"
-	};
-
-	mSceneManager->getModelProperties().mTerrain = std::make_unique<Terrain>(glm::vec3(0.0f, -15.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-																			 paths,
-																		     mSceneManager->getModelProperties().mProjMatrix);
+	//std::vector<std::filesystem::path> paths = 
+	//{
+	//	resourcePath + "blendMap.png",
+	//	resourcePath + "grass.png"
+	//};
+	//
+	mSceneManager->getModelProperties().mTerrain = std::make_unique<Terrain>();
+	mSceneManager->getModelProperties().mTerrain->loadFromFile(resourcePath + "heightmap.save");
 }

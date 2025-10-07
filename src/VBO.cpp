@@ -1,4 +1,5 @@
 #include "VBO.h"
+#include "Terrain.h"
 
 VBO::VBO(const std::vector<Vertex>& pVertices, GLenum pUsage)
 {
@@ -40,4 +41,10 @@ void VBO::bind() const
 void VBO::unbind() const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Vertex::initVertex(const Terrain* pTerrain, int32_t pX, int32_t pZ)
+{
+	float y = pTerrain->getHeight(pX, pZ);
+	mPos = glm::vec3(pX, y, pZ);
 }

@@ -11,7 +11,10 @@ class Utils
 public:
 	static Utils& getInstance();
 	
-	std::vector<char> readFromBinaryFile(const std::filesystem::path& pPath);
+	std::vector<char> readFromBinaryFile(const std::filesystem::path& pPath,
+										 int64_t& pSize);
+	std::vector<float> readFromBinaryFile2Float(const std::filesystem::path& pPath,
+												int64_t& pSize);
 
 	Utils(const Utils&) = delete;
 	Utils& operator=(const Utils&) noexcept = delete;

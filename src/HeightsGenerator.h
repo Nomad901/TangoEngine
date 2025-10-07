@@ -17,8 +17,8 @@ private:
 
 private:
 	float mAmplitude{ 70.0f };
-	float mRoughness{ 0.3f };
-	int32_t mOctaves{ 3 };
+	float mRoughness{ 0.1f };
+	int32_t mOctaves{ 1 };
 	int32_t mSeed{ 0 };
 
 	std::random_device mRandDevice;

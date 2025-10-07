@@ -49,6 +49,11 @@ Mesh::Mesh(const std::vector<Vertex>& pVertices, const std::vector<uint32_t>& pI
 	init(pVertices, pIndices);
 }
 
+Mesh::Mesh(const std::vector<Vertex>& pVertices)
+{
+	init(pVertices);
+}
+
 Mesh::Mesh(const std::weak_ptr<Primitive>& pPrimitive)
 {
 	init(pPrimitive);
@@ -69,6 +74,21 @@ void Mesh::init(const std::vector<Vertex>& pVertices, const std::vector<uint32_t
 	mEBO.init(pIndices.data(), pIndices.size());
 	mPrimitive->setVertexStrg(pVertices);
 	mPrimitive->setIndexStrg(pIndices);
+}
+
+void Mesh::init(const std::vector<Vertex>& pVertices)
+{
+	mPrimitive = std::make_unique<Primitive>();
+
+	mVAO.generate();
+	mVAO.bind();
+	mVBO.init(pVertices, GL_STATIC_DRAW);
+	mVBOLayout.pushLayout(GL_FLOAT, 3);
+	mVBOLayout.pushLayout(GL_FLOAT, 3);
+	mVBOLayout.pushLayout(GL_FLOAT, 4);
+	mVBOLayout.pushLayout(GL_FLOAT, 2);
+	mVAO.addBuffer(mVBO, mVBOLayout);
+	mPrimitive->setVertexStrg(pVertices);
 }
 
 void Mesh::init(const std::weak_ptr<Primitive>& pPrimitive)

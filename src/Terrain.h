@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "string"
+#include <algorithm>
 
 #include "glm/glm.hpp"
 
@@ -9,49 +10,26 @@
 #include "Shader.h"
 #include "TextureManager.h"
 #include "HeightsGenerator.h"
+#include "Utils.h"
+#include "TriangleList.h"
 
 class Terrain
 {
 public:
-	Terrain() = default;
-	Terrain(const glm::vec3& pPos, const glm::vec3& pSize, 
-			const std::vector<std::filesystem::path>& pTexturePaths,
-			const glm::mat4& pProj);
+	Terrain();
 
-	void init(const glm::vec3& pPos, const glm::vec3& pSize, 
-			  const std::vector<std::filesystem::path>& pTexturePaths,
-			  const glm::mat4& pProj);
-	
-	void setPos(const glm::vec3& pPos);
-	void setSize(const glm::vec3& pSize);
-	void setProj(const glm::mat4& pProj);
+	void loadFromFile(const std::filesystem::path& pPath);
+	float getHeight(int32_t pX, int32_t pZ) const;
 
-	const glm::vec3& getPos() const noexcept;
-	const glm::vec3& getSize() const noexcept;
-	TextureManager& getTextureManager() noexcept;
-
-	void render(const glm::mat4& pViewMatrix);
+	void render(const glm::mat4& pViewMat);
 
 private:
-	void updateUniforms();
+	void loadHeightMapFile(const std::filesystem::path& pPath);
 
 private:
-	uint32_t mNumStrips, mNumVertsPerStrip;
+	int32_t mTerrainSize{ 0 };
+	std::vector<std::vector<float>> mHeightMap;
 
-	std::vector<Vertex> mVertices;
-	uint32_t mRez;
-
-	glm::vec3 mSize{ 0.0f };
-	glm::vec3 mPos{ 0.0f };
-	TextureManager mTextureManager;
 	Shader mShader;
-	VAO mVAO;
-	EBO mEBO;
-	VBO mVBO;
-	VBOLayout mVBOLayout;
-	HeightsGenerator mHeightsGenerator;
-
-	glm::mat4 mProj;
-	glm::mat4 mView;
+	TriangleList mTriangleList;
 };
-

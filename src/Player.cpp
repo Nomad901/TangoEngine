@@ -98,9 +98,9 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 
 void Player::jump()
 {
-	if (mIsGrounded)
+	if (mPos.y <= mTerrainHeight)
 	{
-		mPos.y = mJumpForce;
+		mPos.y += mJumpForce;
 		mIsGrounded = false;
 	}
 }
@@ -118,10 +118,11 @@ void Player::turnOnRotatingWithCharacter(bool pRotatingWithChar)
 void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes)
 {
 	//checkCollisions(pCollisionMeshes);
-	//if (!mIsGrounded)
-	//{
-	//	mPos.y += mGravity * pDeltaTime;
-	//}
+	if (mPos.y > mTerrainHeight)
+	{
+		mPos.y += mGravity * pDeltaTime * 10.0f;
+	}
+
 	if(mNoclip)
 		mCamera.turnOnNoclip(mNoclip);
 	glm::mat4 viewMatrix = glm::mat4(0.0f);
@@ -268,7 +269,6 @@ void Player::responseCollision(Mesh& pObstacle)
 			mPos.y += overlap.y;
 			mVelocity.y = 0.0f;
 			mTerrainHeight = mPos.y;
-			std::cout << std::format("Is grounded: {}\n", mIsGrounded);
 			mIsGrounded = true;
 		}
 	}

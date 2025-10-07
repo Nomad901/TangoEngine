@@ -19,17 +19,19 @@ public:
 	Mesh() = default;
 	Mesh(const std::vector<Vertex>& pVertices,
 		 const std::vector<uint32_t>& pIndices);
+	Mesh(const std::vector<Vertex>& pVertices);
+	Mesh(const std::weak_ptr<Primitive>& pPrimitive);
 	~Mesh() = default;
 	Mesh(const Mesh&) = delete;
 	Mesh& operator=(const Mesh&) = delete;
 	Mesh(Mesh&& pAnotherMesh) noexcept;
 	Mesh& operator=(Mesh&& pAnotherMesh) noexcept;
 
-	Mesh(const std::weak_ptr<Primitive>& pPrimitive);
 	void init(const std::vector<Vertex>& pVertices,
 			  const std::vector<uint32_t>& pIndices);
+	void init(const std::vector<Vertex>& pVertices);
 	void init(const std::weak_ptr<Primitive>& pPrimitive);
-
+	
 	void initInstancedData(const std::vector<glm::mat4>& pInstancedData, GLenum pUsage);
 
 	void initMVP(const glm::mat4 pProjMatrix, const glm::mat4& pViewMatrix,

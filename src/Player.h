@@ -11,6 +11,7 @@
 #include "Collider.h"
 #include "Model.h"
 #include "PhysicsEquations.h"
+#include "Terrain.h"
 
 enum class states
 {

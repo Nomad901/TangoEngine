@@ -28,10 +28,10 @@ void Renderer::drawScene()
 	//													 mSceneManager->mProgramProperties.mWindowHeight);
 
 	// main shader part
-	mSceneManager->mProgramProperties.mShaders["mainShader"].bind();
+	//mSceneManager->mProgramProperties.mShaders["mainShader"].bind();
 	//mSceneManager->mModelProperties.mModelManager.getModel("museum").render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
-	mSceneManager->mModelProperties.mModelManager["lampPost1"].render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
-	mSceneManager->mModelProperties.mModelManager["lampPost2"].render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
+	//mSceneManager->mModelProperties.mModelManager["lampPost1"].render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
+	//mSceneManager->mModelProperties.mModelManager["lampPost2"].render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
 
 	// skybox 
 	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);

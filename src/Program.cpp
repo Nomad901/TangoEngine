@@ -79,6 +79,7 @@ void Program::run()
 				meshes.push_back(mesh.get());
 			}
 		}
+		//meshes.push_back(&mSceneManager.getModelProperties().mTerrain.get()->getMesh());
 
 		mControler->controlAll(physicsDeltaTime);
 		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes);

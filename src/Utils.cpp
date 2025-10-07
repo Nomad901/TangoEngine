@@ -7,18 +7,41 @@ Utils& Utils::getInstance()
 	return utils;
 }
 
-std::vector<char> Utils::readFromBinaryFile(const std::filesystem::path& pPath)
+std::vector<char> Utils::readFromBinaryFile(const std::filesystem::path& pPath,
+										    int64_t& pSize)
 {
 	std::ifstream file(pPath, std::ios::binary | std::ios::ate);
 	if (!file.is_open())
 		throw std::runtime_error("File was not opened!\n");
 	
 	std::streamsize fileSize = file.tellg();
+	pSize = fileSize;
 	file.seekg(0, std::ios::beg);
 
 	std::vector<char> buffer(fileSize);
 	if(!file.read(buffer.data(), fileSize))
 		throw std::runtime_error("File was not read!\n");
+
+	return buffer;
+}
+
+std::vector<float> Utils::readFromBinaryFile2Float(const std::filesystem::path& pPath, int64_t& pSize)
+{
+	std::ifstream file(pPath, std::ios::binary | std::ios::ate);
+	if (!file.is_open())
+		throw std::runtime_error("File was not opened!\n");
+
+	std::streamsize fileSize = file.tellg();
+	if (fileSize % sizeof(float) != 0)
+		throw std::runtime_error("File size is not multiple to float size!\n");
+
+	pSize = fileSize;
+	file.seekg(0, std::ios::beg);
+
+	size_t numFloats = fileSize / sizeof(float);
+	std::vector<float> buffer(numFloats);
+	if (!file.read(reinterpret_cast<char*>(buffer.data()), fileSize))
+		throw std::runtime_error("Couldnt read data from the file!\n");
 
 	return buffer;
 }

@@ -63,17 +63,17 @@ void SceneManager::setModels()
 	//mModelProperties.mModelManager.getModel("museum").setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	//// light posts
-	auto setLightModels = [&](const glm::vec3& pPos, std::string_view pName)
-		{
-			std::string name{ pName };
-			mModelProperties.mModelManager[name].initMVP(mModelProperties.mProjMatrix,
-														 mProgramProperties.mViewMatrix,
-														 pPos, std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
-														 glm::vec3(20.0f, 20.0f, 20.0f));
-			mModelProperties.mModelManager[name].setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		};
-	setLightModels(glm::vec3(-140.900051, 25.700062, -78.89937), "lampPost1");
-	setLightModels(glm::vec3(22.900051, 25.700062, -78.89937), "lampPost2");
+	//auto setLightModels = [&](const glm::vec3& pPos, std::string_view pName)
+	//	{
+	//		std::string name{ pName };
+	//		mModelProperties.mModelManager[name].initMVP(mModelProperties.mProjMatrix,
+	//													 mProgramProperties.mViewMatrix,
+	//													 pPos, std::make_pair(1.0f, glm::vec3(0.0f, 1.0f, 0.0f)),
+	//													 glm::vec3(20.0f, 20.0f, 20.0f));
+	//		mModelProperties.mModelManager[name].setUniforms(mProgramProperties.mShaders["mainShader"], glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	//	};
+	//setLightModels(glm::vec3(-140.900051, 25.700062, -78.89937), "lampPost1");
+	//setLightModels(glm::vec3(22.900051, 25.700062, -78.89937), "lampPost2");
 }
 
 void SceneManager::setSkybox()

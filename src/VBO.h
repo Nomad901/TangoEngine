@@ -6,12 +6,16 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glad/glad.h"
 
+class Terrain;
+
 struct Vertex
 {
 	glm::vec3 mPos;
 	glm::vec3 mNormals;
 	glm::vec4 mColor;
 	glm::vec2 mTexCoord;
+
+	void initVertex(const Terrain* pTerrain, int32_t pX, int32_t pZ);
 
 	void set(const glm::vec3& pPos, float pPitch, float pHeading)
 	{
