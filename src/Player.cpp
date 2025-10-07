@@ -118,7 +118,7 @@ void Player::turnOnRotatingWithCharacter(bool pRotatingWithChar)
 void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes)
 {
 	//checkCollisions(pCollisionMeshes);
-	if (mPos.y > mTerrainHeight)
+	if (mPos.y > mTerrainHeight && !mNoclip)
 	{
 		mPos.y += mGravity * pDeltaTime * 10.0f;
 	}

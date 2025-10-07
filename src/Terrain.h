@@ -16,18 +16,27 @@
 class Terrain
 {
 public:
-	Terrain();
+	Terrain() = default;
+	Terrain(float pWorldScale);
 
+	void init(float pWorldScale);
 	void loadFromFile(const std::filesystem::path& pPath);
+
+	void render(const glm::mat4& pViewMat, const glm::mat4& pProj);
+
 	float getHeight(int32_t pX, int32_t pZ) const;
-
-	void render(const glm::mat4& pViewMat);
-
+	float getWorldScale() const noexcept;
 private:
 	void loadHeightMapFile(const std::filesystem::path& pPath);
+	
+protected:
+	void getMinMax(float& pMin, float& pMax);
+	void normalize(float pMinRange, float pMaxRange);
 
-private:
+protected:
 	int32_t mTerrainSize{ 0 };
+	float mWorldScale{ 1.0f };
+	float mMinHeight{ 0.0f }, mMaxHeight{ 0.0f };
 	std::vector<std::vector<float>> mHeightMap;
 
 	Shader mShader;

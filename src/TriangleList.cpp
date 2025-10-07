@@ -17,7 +17,7 @@ void TriangleList::createTriangleList(int32_t pWidth, int32_t pDepth, const Terr
 void TriangleList::render()
 {
 	mVAO.bind();
-	glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, nullptr);
 }
 
 void TriangleList::createGLState()

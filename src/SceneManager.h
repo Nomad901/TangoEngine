@@ -32,7 +32,7 @@
 #include "TextureManager.h"
 #include "PrimitivesManager.h"
 #include "ModelManager.h"
-#include "Terrain.h"
+#include "FaultFormationTerrain.h"
 
 class Renderer;
 
