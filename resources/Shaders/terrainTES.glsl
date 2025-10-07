@@ -71,8 +71,8 @@ void main()
     normals = calculateNormals(texCoord, texelSize);
 
     p.y += height;
-    vec4 worldPos = uModel * p;
-    gl_Position = uMVP * worldPos;
+    vec4 worldPosLocal = uModel * p;
+    gl_Position = uMVP * worldPosLocal;
     
     normals = mat3(uModel) * normals;
 }
