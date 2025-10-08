@@ -113,8 +113,6 @@ public:
 		Collider mCollider;
 		OBJLoader mOBJLoader;
 		AssimpLoader mAssimpLoader;
-		
-		float mRoughness{ 1.0f };
 	};
 
 public:

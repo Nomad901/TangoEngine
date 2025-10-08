@@ -10,7 +10,6 @@ void MidpointDispTerrain::createMidpointDispTerrain(int32_t pSize, float pRoughn
 	mTerrainSize = pSize;
 	mMinHeight = pMinHeight;
 	mMaxHeight = pMaxHeight;
-	Terrain::init(1.0f);
 
 	mHeightMap.resize(mTerrainSize);
 	for (size_t i = 0; i < mTerrainSize; ++i)
@@ -53,11 +52,6 @@ void MidpointDispTerrain::diamondStep(int32_t pRectSize, float pCurrHeight)
 			int32_t nextX = (x + pRectSize) % mTerrainSize;
 			int32_t nextY = (y + pRectSize) % mTerrainSize;
 
-			if (nextX < x)
-				nextX = mTerrainSize - 1;
-			if (nextY < y)
-				nextY = mTerrainSize - 1;
-
 			float topLeft = mHeightMap[x][y];
 			float topRight = mHeightMap[nextX][y];
 			float bottomLeft = mHeightMap[x][nextY];
@@ -85,11 +79,6 @@ void MidpointDispTerrain::squareStep(int32_t pRectSize, float pCurrHeight)
 		{
 			int32_t nextX = (x + pRectSize) % mTerrainSize;
 			int32_t nextY = (y + pRectSize) % mTerrainSize;
-
-			if (nextX < x)
-				nextX = mTerrainSize - 1;
-			if (nextY < y)
-				nextY = mTerrainSize - 1;
 
 			int32_t midX = (x + halfRectSize) % mTerrainSize;
 			int32_t midY = (y + halfRectSize) % mTerrainSize;

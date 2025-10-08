@@ -48,4 +48,6 @@ void Vertex::initVertex(const Terrain* pTerrain, int32_t pX, int32_t pZ)
 	float y = pTerrain->getHeight(pX, pZ);
 	float worldScale = pTerrain->getWorldScale();
 	mPos = glm::vec3(pX * worldScale, y, pZ * worldScale);
+	float size = (float)pTerrain->getTerrainSize();
+	mTexCoord = glm::vec2((float)pX / size, (float)pZ / size);
 }

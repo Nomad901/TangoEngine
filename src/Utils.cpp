@@ -46,6 +46,25 @@ std::vector<float> Utils::readFromBinaryFile2Float(const std::filesystem::path& 
 	return buffer;
 }
 
+std::vector<float> Utils::readFromPNGFile2Float(const std::filesystem::path& pPath, int64_t& pSize)
+{
+	int32_t width, height, channels;
+	uint8_t* imageData = stbi_load(pPath.string().c_str(), &width, &height, &channels, 1);
+	if (!imageData)
+		throw std::runtime_error("Couldnt load the imageData!\n");
+	
+	std::vector<float> buffer;
+	buffer.reserve(width * height);
+
+	for (int32_t i = 0; i < width * height; ++i)
+	{
+		float height = imageData[i] / 255.0f;
+		buffer.push_back(height);
+	}
+
+	return buffer;
+}
+
 float Utils::randomFloatRange(float pStart, float pEnd)
 {
 	if (pStart == pEnd)

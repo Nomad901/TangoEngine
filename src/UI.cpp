@@ -50,18 +50,5 @@ void UI::control(SceneManager& pSceneManager)
 	ImGui::Spacing();
 	ImGui::Spacing();
 
-	ImGui::SliderFloat("Roughness", &pSceneManager.mModelProperties.mRoughness, 0.0f, 100.0f);
-
-	if (ImGui::Button("Generate"))
-	{
-		uint32_t size = 512;
-		float minHeight = 0.0f;
-		float maxHeight = 300.0f;
-		reinterpret_cast<MidpointDispTerrain*>(pSceneManager.getModelProperties().mTerrain.get())->createMidpointDispTerrain(size,
-			pSceneManager.getModelProperties().mRoughness,
-			minHeight,
-			maxHeight);
-	}
-
 	ImGui::End();
 }

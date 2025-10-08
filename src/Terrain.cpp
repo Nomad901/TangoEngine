@@ -46,7 +46,11 @@ int32_t Terrain::getTerrainSize() const noexcept
 void Terrain::loadHeightMapFile(const std::filesystem::path& pPath)
 {
 	int64_t fileSize = 0;
-	std::vector<float> heightData = Utils::getInstance().readFromBinaryFile2Float(pPath, fileSize);
+	std::vector<float> heightData;
+	if (pPath.extension() == ".save")
+		heightData = Utils::getInstance().readFromBinaryFile2Float(pPath, fileSize);
+	else
+		heightData = Utils::getInstance().readFromPNGFile2Float(pPath, fileSize);
 
 	size_t numFloats = heightData.size();
 	mTerrainSize = static_cast<int32_t>(glm::sqrt(numFloats));

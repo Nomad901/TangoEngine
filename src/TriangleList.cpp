@@ -61,8 +61,8 @@ void TriangleList::initVertices(const Terrain* pTerrain)
 		{
 			uint32_t indexBottomLeft  = z * mWidth + x;
 			uint32_t indexTopLeft     = (z + 1) * mWidth + x;
-			uint32_t indexTopRight    = (z + 1) * mWidth + (x + 1);
-			uint32_t indexBottomRight = z * mWidth + (x + 1);
+			uint32_t indexTopRight    = (z + 1) * mWidth + x + 1;
+			uint32_t indexBottomRight = z * mWidth + x + 1;
 
 			mIndices[index++] = indexBottomLeft;
 			mIndices[index++] = indexTopLeft;

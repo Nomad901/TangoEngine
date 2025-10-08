@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+#include "dependencies/stb_image.h"
+
 class Utils
 {
 public:
@@ -15,6 +17,8 @@ public:
 										 int64_t& pSize);
 	std::vector<float> readFromBinaryFile2Float(const std::filesystem::path& pPath,
 												int64_t& pSize);
+	std::vector<float> readFromPNGFile2Float(const std::filesystem::path& pPath,
+											 int64_t& pSize);
 
 	float randomFloatRange(float pStart, float pEnd);
 	float randomFloat();
