@@ -183,6 +183,9 @@ void Initializer::initTerrain()
 	float minHeight = 0.0f;
 	float maxHeight = 300.0f;
 	float filter = 0.8f;
-	reinterpret_cast<FaultFormationTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->createFaultFormation(size, iterations, minHeight, 
-																													   maxHeight, filter);
+	reinterpret_cast<FaultFormationTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->createFaultFormation(size, 
+																													   iterations, 
+																													   minHeight,
+																													   maxHeight,
+																													   filter);
 }
