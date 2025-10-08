@@ -45,3 +45,40 @@ std::vector<float> Utils::readFromBinaryFile2Float(const std::filesystem::path& 
 
 	return buffer;
 }
+
+float Utils::randomFloatRange(float pStart, float pEnd)
+{
+	if (pStart == pEnd)
+		return pStart;
+
+	if (pEnd < pStart)
+	{
+		std::cout << "Start is bigger than the end!\n";
+		return 0.0f;
+	}
+	
+	float delta = pEnd - pStart;
+	float randomValue = randomFloat() * delta + pStart;
+
+	return randomValue;
+}
+
+float Utils::randomFloat()
+{
+	float max = RAND_MAX;
+	return ((float)rand() / max);
+}
+
+int32_t Utils::calcNextPowerOfTwo(int32_t pX)
+{
+	int32_t ret = 1;
+	if (pX == 1)
+		return 2;
+
+	while (ret < pX)
+	{
+		ret = ret * 2;
+	}
+
+	return ret;
+}
