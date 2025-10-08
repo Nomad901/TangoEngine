@@ -55,7 +55,7 @@ void Controler::controlAll(float pDeltaTime)
 				mSceneManager->getProgramProperties().mRadius -= 0.5f;
 		}
 	}
-
+	
 	if (mKeyCodes[SDLK_E])
 	{
 		glm::vec3 mPos = mPlayer.getPos();

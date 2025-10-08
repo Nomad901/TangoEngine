@@ -33,6 +33,7 @@
 #include "PrimitivesManager.h"
 #include "ModelManager.h"
 #include "FaultFormationTerrain.h"
+#include "MidpointDispTerrain.h"
 
 class Renderer;
 
@@ -112,6 +113,8 @@ public:
 		Collider mCollider;
 		OBJLoader mOBJLoader;
 		AssimpLoader mAssimpLoader;
+		
+		float mRoughness{ 1.0f };
 	};
 
 public:
@@ -125,7 +128,7 @@ private:
 	lightProperties mLightProperties;
 	materialProperties mMaterialProperties;
 	modelProperties mModelProperties;
-	
+
 	friend class UI;
 	friend class Renderer;
 };

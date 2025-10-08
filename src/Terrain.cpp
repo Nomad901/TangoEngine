@@ -38,6 +38,11 @@ float Terrain::getWorldScale() const noexcept
 	return mWorldScale;
 }
 
+int32_t Terrain::getTerrainSize() const noexcept
+{
+	return mTerrainSize;
+}
+
 void Terrain::loadHeightMapFile(const std::filesystem::path& pPath)
 {
 	int64_t fileSize = 0;

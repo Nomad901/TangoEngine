@@ -38,9 +38,9 @@ void FaultFormationTerrain::createFaultFormationInner(int32_t pIterations, float
 		int32_t dirX = terrainPoint2.mX - terrainPoint1.mX;
 		int32_t dirZ = terrainPoint2.mZ - terrainPoint1.mZ;
 
-		for (int32_t x = 0; x < mTerrainSize; ++x)
+		for (int32_t z = 0; z < mTerrainSize; ++z)
 		{
-			for (int32_t z = 0; z < mTerrainSize; ++z)
+			for (int32_t x = 0; x < mTerrainSize; ++x)
 			{
 				int32_t dirX_in = x - terrainPoint1.mX;
 				int32_t dirZ_in = z - terrainPoint1.mZ;
@@ -81,7 +81,7 @@ void FaultFormationTerrain::applyFIRFilter(float pFilter)
 	for (int32_t z = 0; z < mTerrainSize; ++z)
 	{
 		float prevVal = mHeightMap[0][z];
-		for (int32_t x = 0; x < mTerrainSize; ++x)
+		for (int32_t x = 1; x < mTerrainSize; ++x)
 		{
 			prevVal = FIRFilterSinglePoint(x, z, prevVal, pFilter);
 		}
@@ -96,7 +96,7 @@ void FaultFormationTerrain::applyFIRFilter(float pFilter)
 			prevVal = FIRFilterSinglePoint(x, z, prevVal, pFilter);
 		}
 	}
-
+	
 	//bottom to top
 	for (int32_t x = 0; x < mTerrainSize; ++x)
 	{

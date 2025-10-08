@@ -174,18 +174,14 @@ void Initializer::initTerrain()
 	//	resourcePath + "grass.png"
 	//};
 	
-	mSceneManager->getModelProperties().mTerrain = std::make_unique<FaultFormationTerrain>();
-	mSceneManager->getModelProperties().mTerrain->init(4.0f);
+	mSceneManager->getModelProperties().mTerrain = std::make_unique<MidpointDispTerrain>();
 	mSceneManager->getModelProperties().mTerrain->loadFromFile(resourcePath + "heightmap.save");
 
-	int32_t size = 256;
-	int32_t iterations = 500;
+	uint32_t size = 512;
 	float minHeight = 0.0f;
 	float maxHeight = 300.0f;
-	float filter = 0.8f;
-	reinterpret_cast<FaultFormationTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->createFaultFormation(size, 
-																													   iterations, 
-																													   minHeight,
-																													   maxHeight,
-																													   filter);
+	reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->createMidpointDispTerrain(size, 
+		mSceneManager->getModelProperties().mRoughness,
+		minHeight, 
+		maxHeight);
 }

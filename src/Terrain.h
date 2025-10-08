@@ -26,6 +26,7 @@ public:
 
 	float getHeight(int32_t pX, int32_t pZ) const;
 	float getWorldScale() const noexcept;
+	int32_t getTerrainSize() const noexcept;
 private:
 	void loadHeightMapFile(const std::filesystem::path& pPath);
 	
