@@ -23,6 +23,28 @@ float Terrain::getHeight(int32_t pX, int32_t pZ) const
 	return mHeightMap[pX][pZ];
 }
 
+float Terrain::getHeightInterpolated(float pX, float pZ) const
+{
+	float leftBottom = getHeight(static_cast<int32_t>(pX), static_cast<int32_t>(pZ));
+	if (static_cast<int32_t>(pX) >= mTerrainSize ||
+		static_cast<int32_t>(pZ) >= mTerrainSize)
+	{
+		return leftBottom;
+	}
+	float rightBottom = getHeight(static_cast<int32_t>(pX) + 1, static_cast<int32_t>(pZ));
+	float leftTop = getHeight(static_cast<int32_t>(pX), static_cast<int32_t>(pZ) + 1);
+	float rightTop = getHeight(static_cast<int32_t>(pX) + 1, static_cast<int32_t>(pZ) + 1);
+	
+	float factorX = pX - roundf(pX);
+	float interpolatedBottom = (rightBottom - leftBottom) * factorX - leftBottom;
+	float interpolatedTop = (rightTop - leftTop) * factorX - leftTop;
+
+	float factorZ = pZ - roundf(pZ);
+	float finalHeight = (interpolatedTop - interpolatedBottom) * factorZ - interpolatedBottom;
+	
+	return finalHeight;
+}
+
 void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj)
 {
 	mShader.bind();
