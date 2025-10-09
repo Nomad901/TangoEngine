@@ -8,6 +8,7 @@
 #include "dependencies/stb_image.h"
 
 #include "Material.h"
+#include "Utils.h"
 
 class Texture2
 {
@@ -52,6 +53,7 @@ public:
 	int32_t getHeight() const noexcept;
 	int32_t getBPP() const noexcept;
 	uint8_t* getLocalBuffer() noexcept;
+	uint64_t getBindlessHandle() const noexcept;
 
 	void destroyTexture();
 
@@ -61,8 +63,9 @@ private:
 	void loadNonInternalDSA(const void* pImageData, bool pIsRGB);
 
 private:
-	int32_t mWidth{}, mHeight{}, mBPP{};
+	int32_t mWidth{ 0 }, mHeight{ 0 }, mBPP{ 0 };
 	uint32_t mRendererID{};
+	uint64_t mBindlessHandle{ -1 };
 	uint8_t* mLocalBuffer{};
 
 	GLenum mTarget;
