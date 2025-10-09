@@ -53,7 +53,7 @@ glm::vec3 STBImage::getColor(int32_t pX, int32_t pY) const noexcept
 
 	glm::vec3 color;
 
-	uint8_t* colorData = mBufferData + (wrappedY * mWidth * wrappedX) * mBPP;
+	uint8_t* colorData = mBufferData + (wrappedY * mWidth + wrappedX) * mBPP;
 	color.r = (float)colorData[0];
 	color.g = (float)colorData[1];
 	color.b = (float)colorData[2];

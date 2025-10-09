@@ -24,6 +24,7 @@ public:
 	void render(const glm::mat4& pViewMat, const glm::mat4& pProj);
 
 	float getHeight(int32_t pX, int32_t pZ) const;
+	float getHeightInterpolated(float pX, float pZ) const;
 	float getWorldScale() const noexcept;
 	int32_t getTerrainSize() const noexcept;
 

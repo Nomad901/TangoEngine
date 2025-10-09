@@ -10,6 +10,11 @@ Texture2::Texture2(const std::filesystem::path& pPath, bool pRepeatTexture)
 	init(pPath, pRepeatTexture);
 }
 
+Texture2::Texture2(GLenum pTarget)
+{
+	init(pTarget);
+}
+
 Texture2::~Texture2()
 {
 	std::cout << std::format("Texture was deleted! ID: {}\n", mRendererID);
@@ -120,6 +125,11 @@ void Texture2::init(const std::filesystem::path& pPath, bool pRepeatTexture)
 		stbi_image_free(mLocalBuffer);
 }
 
+void Texture2::init(GLenum pTarget)
+{
+	mTarget = pTarget;
+}
+
 void Texture2::initWithMSAA(const std::filesystem::path& pPath, std::string_view pUniformName, uint32_t pSamples)
 {
 	mUniformName = pUniformName;
@@ -210,10 +220,15 @@ void Texture2::initCubeMaps(const std::array<std::filesystem::path, 6>& pPaths)
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-void Texture2::bind(GLenum pTarget, uint32_t pSlot)
+void Texture2::loadRaw(int32_t pWidth, int32_t pHeight, int32_t pBPP, uint8_t* pImageData, bool pIsRGB)
+{
+
+}
+
+void Texture2::bind(uint32_t pSlot)
 {
 	glActiveTexture(GL_TEXTURE0 + pSlot);
-	glBindTexture(pTarget, mRendererID);
+	glBindTexture(mTarget, mRendererID);
 }
 
 void Texture2::unbind()
@@ -299,6 +314,18 @@ uint8_t* Texture2::getLocalBuffer() noexcept
 void Texture2::destroyTexture()
 {
 	glDeleteTextures(1, &mRendererID);
+}
+
+void Texture2::loadInternal(const void* pImageData, bool pIsRGB)
+{
+}
+
+void Texture2::loadInternalDSA(const void* pImageData, bool pIsRGB)
+{
+}
+
+void Texture2::loadNonInternalDSA(const void* pImageData, bool pIsRGB)
+{
 }
 
 terrainTexture::terrainTexture(const std::filesystem::path& pPath)

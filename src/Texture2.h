@@ -15,6 +15,7 @@ public:
 	Texture2() = default;
 	Texture2(const std::filesystem::path& pPath, std::string_view pUniformName, bool pRepeatTexture = false);
 	Texture2(const std::filesystem::path& pPath, bool pRepeatTexture = false);
+	Texture2(GLenum pTarget);
 	~Texture2();
 	Texture2(const Texture2&) = delete;
 	Texture2& operator=(const Texture2&) = delete;
@@ -23,12 +24,15 @@ public:
 
 	void init(const std::filesystem::path& pPath, std::string_view pUniformName, bool pRepeatTexture = false);
 	void init(const std::filesystem::path& pPath, bool pRepeatTexture = false);
+	void init(GLenum pTarget);
 	void initWithMSAA(const std::filesystem::path& pPath, std::string_view pUniformName, uint32_t pSamples);
 	void initWithMSAA(const std::filesystem::path& pPath, uint32_t pSamples);
 	void initEmpty(int32_t pWidth, int32_t pHeight);
 	void initCubeMaps(const std::array<std::filesystem::path, 6>& pPaths);
 
-	void bind(GLenum pTarget, uint32_t pSlot = 0);
+	void loadRaw(int32_t pWidth, int32_t pHeight, int32_t pBPP, uint8_t* pImageData, bool pIsRGB);
+
+	void bind(uint32_t pSlot = 0);
 	void unbind();
 
 	std::string getUniformName() const noexcept;
@@ -52,12 +56,17 @@ public:
 	void destroyTexture();
 
 private:
+	void loadInternal(const void* pImageData, bool pIsRGB);
+	void loadInternalDSA(const void* pImageData, bool pIsRGB);
+	void loadNonInternalDSA(const void* pImageData, bool pIsRGB);
+
+private:
 	int32_t mWidth{}, mHeight{}, mBPP{};
 	uint32_t mRendererID{};
 	uint8_t* mLocalBuffer{};
 
+	GLenum mTarget;
 	std::string mType;
-
 	std::string mUniformName;
 	std::filesystem::path mFilePath;
 };

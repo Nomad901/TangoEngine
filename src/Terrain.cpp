@@ -36,11 +36,11 @@ float Terrain::getHeightInterpolated(float pX, float pZ) const
 	float rightTop = getHeight(static_cast<int32_t>(pX) + 1, static_cast<int32_t>(pZ) + 1);
 	
 	float factorX = pX - roundf(pX);
-	float interpolatedBottom = (rightBottom - leftBottom) * factorX - leftBottom;
-	float interpolatedTop = (rightTop - leftTop) * factorX - leftTop;
+	float interpolatedBottom = leftBottom + (rightBottom - leftBottom) * factorX;
+	float interpolatedTop = leftTop + (rightTop - leftTop) * factorX;
 
 	float factorZ = pZ - roundf(pZ);
-	float finalHeight = (interpolatedTop - interpolatedBottom) * factorZ - interpolatedBottom;
+	float finalHeight = interpolatedBottom + (interpolatedTop - interpolatedBottom) * factorZ;
 	
 	return finalHeight;
 }

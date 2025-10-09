@@ -32,7 +32,7 @@ public:
 
 	void loadTile(const std::filesystem::path& pPath);
 
-	Texture2* generateTexture(int32_t pTextureSize, Terrain* pTexture, float pMinHeight, float pMaxHeight);
+	Texture2* generateTexture(int32_t pTextureSize, Terrain* pTerrain, float pMinHeight, float pMaxHeight);
 	
 private:
 	void calculateTextureRegions(float pMinHeight, float pMaxHeight);
