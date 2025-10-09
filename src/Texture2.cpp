@@ -222,7 +222,11 @@ void Texture2::initCubeMaps(const std::array<std::filesystem::path, 6>& pPaths)
 
 void Texture2::loadRaw(int32_t pWidth, int32_t pHeight, int32_t pBPP, uint8_t* pImageData, bool pIsRGB)
 {
-
+	mWidth = pWidth;
+	mHeight = pHeight;
+	mBPP = pBPP;
+	
+	loadInternal(pImageData, pIsRGB);
 }
 
 void Texture2::bind(uint32_t pSlot)
@@ -311,6 +315,11 @@ uint8_t* Texture2::getLocalBuffer() noexcept
 	return mLocalBuffer;
 }
 
+uint64_t Texture2::getBindlessHandle() const noexcept
+{
+	return mBindlessHandle;
+}
+
 void Texture2::destroyTexture()
 {
 	glDeleteTextures(1, &mRendererID);
@@ -318,14 +327,120 @@ void Texture2::destroyTexture()
 
 void Texture2::loadInternal(const void* pImageData, bool pIsRGB)
 {
+	int32_t majorVersion, minorVersion;
+	Utils::getInstance().getGLVersion(majorVersion, minorVersion);
+	if (majorVersion == 4 && minorVersion > 5)
+		loadInternalDSA(pImageData, pIsRGB);
+	else
+		loadNonInternalDSA(pImageData, pIsRGB);
 }
 
 void Texture2::loadInternalDSA(const void* pImageData, bool pIsRGB)
 {
+	glCreateTextures(mTarget, 1, &mRendererID);
+	int32_t levels = std::min(5, static_cast<int32_t>(log2f(static_cast<float>(std::max(mWidth, mHeight)))));
+	GLenum internalFormat = GL_NONE;
+
+	if (mTarget == GL_TEXTURE_2D)
+	{
+		// TODO: if for ktx textures;
+		switch (mBPP)
+		{
+		case 1: 
+		{
+			glTextureStorage2D(mRendererID, levels, GL_R8, mWidth, mHeight);
+			glTextureSubImage2D(mRendererID, 0, 0, 0, mWidth, mHeight, GL_RED, GL_UNSIGNED_BYTE, pImageData);
+			GLint swizzleMask[] = { GL_RED, GL_RED ,GL_RED ,GL_RED };
+			glTextureParameteriv(mRendererID, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+		} 
+		break;
+		case 2:
+			glTextureStorage2D(mRendererID, levels, GL_RG8, mWidth, mHeight);
+			glTextureSubImage2D(mRendererID, 0, 0, 0, mWidth, mHeight, GL_RG, GL_UNSIGNED_BYTE, pImageData);
+			break;
+		case 3:
+			internalFormat = pIsRGB ? GL_SRGB8 : GL_RGB8;
+			glTextureStorage2D(mRendererID, levels, internalFormat, mWidth, mHeight);
+			glTextureSubImage2D(mRendererID, 0, 0, 0, mWidth, mHeight, GL_RGB, GL_UNSIGNED_BYTE, pImageData);
+			break;
+		case 4:
+			internalFormat = pIsRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+			glTextureStorage2D(mRendererID, levels, internalFormat, mWidth, mHeight);
+			glTextureSubImage2D(mRendererID, 0, 0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, pImageData);
+			break;
+		default:
+			std::cout << "other levels of BPP are not implemented yet :(\n";
+			break;
+		}
+	}
+	else
+	{
+		std::cout << "The texture doesnt support other targets than GL_TEXTURE_2D!\n";
+		return;
+	}
+
+	glTextureParameteri(mRendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTextureParameteri(mRendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTextureParameteri(mRendererID, GL_TEXTURE_BASE_LEVEL, 0);
+	glTextureParameteri(mRendererID, GL_TEXTURE_MAX_LEVEL, levels - 1);
+	glTextureParameteri(mRendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTextureParameteri(mRendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTextureParameteri(mRendererID, GL_TEXTURE_MAX_ANISOTROPY, 16);
+	
+	glGenerateTextureMipmap(mRendererID);
+	
+	mBindlessHandle = glGetTextureHandleARB(mRendererID);
+	glMakeTextureHandleNonResidentARB(mBindlessHandle);
 }
 
 void Texture2::loadNonInternalDSA(const void* pImageData, bool pIsRGB)
 {
+	glGenTextures(1, &mRendererID);
+	glBindTexture(mTarget, mRendererID);
+	
+	GLenum internalFormat = GL_NONE;
+
+	if (mTarget == GL_TEXTURE_2D)
+	{
+		switch (mBPP)
+		{
+		case 1:
+		{
+			glTexImage2D(mRendererID, 0, GL_RED, mWidth, mHeight, 0, GL_RED, GL_UNSIGNED_BYTE, pImageData);
+			GLint swizzleMask[] = { GL_RED,GL_RED ,GL_RED ,GL_RED };
+			glTexParameteriv(mTarget, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+		}
+		break;
+		case 2:
+			glTexImage2D(mRendererID, 0, GL_RG, mWidth, mHeight, 0, GL_RG, GL_UNSIGNED_BYTE, pImageData);
+			break;
+		case 3:
+			internalFormat = pIsRGB ? GL_SRGB8 : GL_RGB8;
+			glTexImage2D(mRendererID, 0, GL_RGB, mWidth, mHeight, 0, internalFormat, GL_UNSIGNED_BYTE, pImageData);
+			break;
+		case 4:
+			internalFormat = pIsRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+			glTexImage2D(mRendererID, 0, GL_RGBA, mWidth, mHeight, 0, internalFormat, GL_UNSIGNED_BYTE, pImageData);
+			break;
+		default:
+			std::cout << "Other chanels of bpp are not implented!\n";
+			break;
+		}
+	}
+	else
+	{
+		std::cout << "The texture doesnt support other targets than GL_TEXTURE_2D!\n";
+		return;
+	}
+	glTextureParameteri(mRendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTextureParameteri(mRendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTextureParameteri(mRendererID, GL_TEXTURE_BASE_LEVEL, 0);
+	glTextureParameteri(mRendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTextureParameteri(mRendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glGenerateMipmap(mTarget);
+
+	glBindTexture(mTarget, 0);
 }
 
 terrainTexture::terrainTexture(const std::filesystem::path& pPath)
