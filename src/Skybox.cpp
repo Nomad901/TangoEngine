@@ -21,6 +21,7 @@ void Skybox::init(typeSkybox pTypeSkybox, const std::array<std::filesystem::path
 		std::weak_ptr<Primitive> weakSphere = sphere;
 		mSkybox.init(weakSphere);
 	}
+	getTexture().setTarget(GL_TEXTURE_CUBE_MAP);
 }
 
 Mesh& Skybox::getMesh() noexcept
@@ -51,7 +52,7 @@ void Skybox::render(Shader& pShader)
 	pShader.bind();
 	pShader.setMatrixUniform4fv("uMVP", mMVP);
 	
-	getTexture().bind(GL_TEXTURE_CUBE_MAP);
+	getTexture().bind();
 	mSkybox.draw();
 	
 	glDepthFunc(GL_LESS);

@@ -38,6 +38,7 @@ public:
 
 	std::string getUniformName() const noexcept;
 
+	void setTarget(GLenum pTarget);
 	void setID(uint32_t pID);
 	void setType(std::string_view pType);
 	void setPath(const std::filesystem::path& pPath);
@@ -65,7 +66,7 @@ private:
 private:
 	int32_t mWidth{ 0 }, mHeight{ 0 }, mBPP{ 0 };
 	uint32_t mRendererID{};
-	uint64_t mBindlessHandle{ -1 };
+	int64_t mBindlessHandle{ -1 };
 	uint8_t* mLocalBuffer{};
 
 	GLenum mTarget;

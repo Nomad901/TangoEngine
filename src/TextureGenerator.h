@@ -31,6 +31,7 @@ public:
 	TextureGenerator() = default;
 
 	void loadTile(const std::filesystem::path& pPath);
+	void loadTiles(const std::vector<std::filesystem::path>& pPaths);
 
 	Texture2* generateTexture(int32_t pTextureSize, Terrain* pTerrain, float pMinHeight, float pMaxHeight);
 	

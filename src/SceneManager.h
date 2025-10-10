@@ -16,7 +16,6 @@
 
 #include "FactoryMesh.h"
 #include "Shader.h"
-#include "Model.h"
 #include "thirdPersonCam.h"
 #include "Primitive.h"
 #include "OBJLoader.h"
@@ -34,6 +33,7 @@
 #include "ModelManager.h"
 #include "FaultFormationTerrain.h"
 #include "MidpointDispTerrain.h"
+#include "TextureGenerator.h"
 
 class Renderer;
 
@@ -113,6 +113,9 @@ public:
 		Collider mCollider;
 		OBJLoader mOBJLoader;
 		AssimpLoader mAssimpLoader;
+
+		TextureGenerator mTextureGenerator;
+		std::unique_ptr<Texture2> mTexture;
 	};
 
 public:

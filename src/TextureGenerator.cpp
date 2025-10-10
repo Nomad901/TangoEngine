@@ -4,11 +4,25 @@ void TextureGenerator::loadTile(const std::filesystem::path& pPath)
 {
 	if (mNumTextureTiles >= mMAX_TEXTURE_TILES)
 	{
-		std::cout << std::format("Current number of texture tiles is more, than could be! Last file: {}\n", pPath);
+		std::cout << std::format("Current number of texture tiles is more, than could be! Last file: {}\n", pPath.string());
 		return;
 	}
 	mTextureTiles[mNumTextureTiles].mSTBImage.load(pPath);
 	mNumTextureTiles++;
+}
+
+void TextureGenerator::loadTiles(const std::vector<std::filesystem::path>& pPaths)
+{
+	for (auto& path : pPaths)
+	{
+		if (mNumTextureTiles >= mMAX_TEXTURE_TILES)
+		{
+			std::cout << std::format("Current number of texture tiles is more, than could be! Last file: {}\n", path.string());
+			break;
+		}
+		mTextureTiles[mNumTextureTiles].mSTBImage.load(path);
+		mNumTextureTiles++;
+	}
 }
 
 Texture2* TextureGenerator::generateTexture(int32_t pTextureSize, Terrain* pTerrain, float pMinHeight, float pMaxHeight)
@@ -51,8 +65,18 @@ Texture2* TextureGenerator::generateTexture(int32_t pTextureSize, Terrain* pTerr
 			tmpObject += 3;
 		}
 	}
+	
+	std::unique_ptr<Texture2> texture = std::make_unique<Texture2>(GL_TEXTURE_2D);
+	
+	std::string resourcesPath = RESOURCES_PATH;
+	stbi_write_png(std::string(resourcesPath + "texture.png").c_str(), pTextureSize, pTextureSize, BPP, textureData, pTextureSize * BPP);
 
-	std::unique_ptr<Texture2> texture = std::make_unique<Texture2>();
+	bool isRGB = false;
+	texture->loadRaw(pTextureSize, pTextureSize, BPP, textureData, isRGB);
+
+	free(textureData);
+
+	return texture.release();
 }
 
 void TextureGenerator::calculateTextureRegions(float pMinHeight, float pMaxHeight)

@@ -1,21 +1,58 @@
 #include "Terrain.h"
 
-Terrain::Terrain(float pWorldScale)
+Terrain::Terrain(float pWorldScale, float pTexScale, std::span<std::filesystem::path> pPaths)
 {
-	init(pWorldScale);
+	init(pWorldScale, pTexScale, pPaths);
 }
 
-void Terrain::init(float pWorldScale)
+Terrain::Terrain(float pWorldScale, float pTexScale)
 {
+	init(pWorldScale, pTexScale);
+}
+
+void Terrain::init(float pWorldScale, float pTexScale, std::span<std::filesystem::path> pPaths)
+{
+	assert(pPaths.size() <= mTextures.size());
 	std::string resourcePath = RESOURCES_PATH;
 	mShader.init(resourcePath + "Shaders/terrainVert.glsl", resourcePath + "Shaders/terrainFrag.glsl");
+	mHeights =
+	{
+		130.0f, 
+		180.0f, 
+	    240.0f, 
+		300.0f
+	};
 	mWorldScale = pWorldScale;
+	mTexScale = pTexScale;
+	mIsOneTex = false;
+	for (size_t i = 0; i < pPaths.size(); ++i)
+	{
+		mTextures[i] = std::make_unique<Texture2>(pPaths[i], true);
+		mTextures[i]->setTarget(GL_TEXTURE_2D);
+	}
+}
+
+void Terrain::init(float pWorldScale, float pTexScale)
+{
+    std::string resourcePath = RESOURCES_PATH;
+	mShader.init(resourcePath + "Shaders/terrainVert.glsl", resourcePath + "Shaders/terrainFrag.glsl");
+	mWorldScale = pWorldScale;
+	mTexScale = pTexScale;
+	mIsOneTex = true;
 }
 
 void Terrain::loadFromFile(const std::filesystem::path& pPath)
 {
 	loadHeightMapFile(pPath);
 	mTriangleList.createTriangleList(mTerrainSize, mTerrainSize, this);
+}
+
+void Terrain::setHeights(float pHeight0, float pHeight1, float pHeight2, float pHeight3)
+{
+	mHeights[0] = pHeight0;
+	mHeights[1] = pHeight1;
+	mHeights[2] = pHeight2;
+	mHeights[3] = pHeight3;
 }
 
 float Terrain::getHeight(int32_t pX, int32_t pZ) const
@@ -52,12 +89,27 @@ void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj)
 	mShader.setMatrixUniform4fv("uProj", pProj);
 	mShader.setUniform1f("uMinHeight", mMinHeight);
 	mShader.setUniform1f("uMaxHeight", mMaxHeight);
+	mShader.setUniform1i("isSingleTex", mIsOneTex);
+	if (!mIsOneTex)
+	{
+		for (size_t i = 0; i < mTextures.size(); ++i)
+		{
+			mTextures[i]->bind(i);
+			mShader.setUniform1i("uTextureHeight" + std::to_string(i), i);
+			mShader.setUniform1f("uHeight" + std::to_string(i), mHeights[i]);
+		}
+	}
 	mTriangleList.render();
 }
 
 float Terrain::getWorldScale() const noexcept
 {
 	return mWorldScale;
+}
+
+float Terrain::getTextureScale() const noexcept
+{
+	return mTexScale;
 }
 
 int32_t Terrain::getTerrainSize() const noexcept

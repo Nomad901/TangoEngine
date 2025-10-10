@@ -5,6 +5,7 @@
 
 #include "glm/glm.hpp"
 #include "dependencies/stb_image.h"
+#include "dependencies/stb_image_write.h"
 
 class STBImage
 {

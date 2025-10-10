@@ -101,3 +101,9 @@ int32_t Utils::calcNextPowerOfTwo(int32_t pX)
 
 	return ret;
 }
+
+void Utils::getGLVersion(int32_t& pMajor, int32_t& pMinor)
+{
+	glGetIntegerv(GL_MAJOR_VERSION, &pMajor);
+	glGetIntegerv(GL_MINOR_VERSION, &pMinor);
+}

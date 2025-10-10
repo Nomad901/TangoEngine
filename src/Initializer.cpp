@@ -168,19 +168,25 @@ void Initializer::initUBO()
 void Initializer::initTerrain()	
 {
 	std::string resourcePath = mSceneManager->getProgramProperties().mResourcePath;
-	std::vector<std::filesystem::path> paths = 
+	std::vector<std::filesystem::path> paths =
 	{
-		resourcePath + "grass.png"
+		resourcePath + "sand.png",
+		resourcePath + "grass.png",
+		resourcePath + "stone.png",
+		resourcePath + "snow.png"
 	};
 	
+	float worldScale = 4.0f;
+	float textureScale = worldScale * worldScale * worldScale;
 	mSceneManager->getModelProperties().mTerrain = std::make_unique<MidpointDispTerrain>();
-	mSceneManager->getModelProperties().mTerrain->init(1.0f);
+	mSceneManager->getModelProperties().mTerrain->init(worldScale, textureScale, paths);
 	//mSceneManager->getModelProperties().mTerrain->loadFromFile(resourcePath + "terrain.png");
 
-	uint32_t size = 2046;
+	uint32_t size = 2047;
+	//uint32_t size = 257;
 	float minHeight = 0.0f;
 	float maxHeight = 300.0f;
-	float roughness = 1.7f;
+	float roughness = 1.5f;
 	reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->createMidpointDispTerrain(size, 
 		roughness,
 		minHeight, 

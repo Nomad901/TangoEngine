@@ -19,7 +19,7 @@ void STBImage::load(const std::filesystem::path& pPath)
 	mBufferData = stbi_load(pPath.string().c_str(), &mWidth, &mHeight, &mBPP, 4);
 	if (!mBufferData)
 	{
-		std::cout << std::format("Buffer data couldnt initialize with this path: {}\n", pPath);
+		std::cout << std::format("Buffer data couldnt initialize with this path: {}\n", pPath.string());
 		return;
 	}
 }

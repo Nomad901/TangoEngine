@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "dependencies/stb_image.h"
+#include "glad/glad.h"
 
 class Utils
 {
@@ -24,6 +25,8 @@ public:
 	float randomFloat();
 	
 	int32_t calcNextPowerOfTwo(int32_t pX);
+
+	void getGLVersion(int32_t& pMajor, int32_t& pMinor);
 
 	Utils(const Utils&) = delete;
 	Utils& operator=(const Utils&) noexcept = delete;

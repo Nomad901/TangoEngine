@@ -245,6 +245,11 @@ std::string Texture2::getUniformName() const noexcept
 	return mUniformName;
 }
 
+void Texture2::setTarget(GLenum pTarget)
+{
+	mTarget = pTarget;
+}
+
 void Texture2::setID(uint32_t pID)
 {
 	mRendererID = pID;
