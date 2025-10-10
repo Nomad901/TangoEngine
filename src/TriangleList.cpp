@@ -10,6 +10,11 @@ void TriangleList::createTriangleList(int32_t pWidth, int32_t pDepth, const Terr
 {
 	mWidth = pWidth;
 	mDepth = pDepth;
+	if (!mVertices.empty() || !mIndices.empty())
+	{
+		mVertices.clear();
+		mIndices.clear();
+	}
 	initVertices(pTerrain);
 	createGLState();
 }

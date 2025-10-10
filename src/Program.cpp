@@ -82,7 +82,8 @@ void Program::run()
 		//meshes.push_back(&mSceneManager.getModelProperties().mTerrain.get()->getMesh());
 
 		mControler->controlAll(physicsDeltaTime);
-		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes);
+		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes, 
+									   mSceneManager.getModelProperties().mTerrain.get());
 
 		mRenderer.showFPS();
 		mSceneManager.setAll();

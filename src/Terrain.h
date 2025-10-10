@@ -24,6 +24,7 @@ public:
 	void init(float pWorldScale, float pTexScale);
 	void loadFromFile(const std::filesystem::path& pPath);
 	void setHeights(float pHeight0, float pHeight1, float pHeight2, float pHeight3);
+	void setPos(const glm::vec3& pPos);
 
 	void render(const glm::mat4& pViewMat, const glm::mat4& pProj);
 
@@ -46,6 +47,8 @@ protected:
 	float mWorldScale{ 1.0f };
 	float mTexScale{ 1.0f };
 	float mMinHeight{ 0.0f }, mMaxHeight{ 0.0f };
+
+	glm::vec3 mPos{ 1.0f };
 	std::vector<std::vector<float>> mHeightMap;
 	std::array<std::unique_ptr<Texture2>, 4> mTextures;
 	std::array<float, 4> mHeights;

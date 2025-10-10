@@ -58,7 +58,8 @@ public:
 	//
 	void turnOnRotatingWithCharacter(bool pRotatingWithChar);
 
-	void update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes);
+	void update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes, 
+				Terrain* pTerrain);
 	void renderCharacter(Shader& pShader);
 	void checkCollisions(const std::vector<Mesh*>& pCollisionMeshes);
 

@@ -115,13 +115,16 @@ void Player::turnOnRotatingWithCharacter(bool pRotatingWithChar)
 	mRotateCameraWithChar = pRotatingWithChar;
 }
 
-void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes)
+void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes,
+					Terrain* pTerrain)
 {
 	//checkCollisions(pCollisionMeshes);
+	//mTerrainHeight = pTerrain->getHeightInterpolated(mPos.x, mPos.z);
 	if (mPos.y > mTerrainHeight && !mNoclip)
 	{
 		mPos.y += mGravity * pDeltaTime * 10.0f;
 	}
+	
 
 	if(mNoclip)
 		mCamera.turnOnNoclip(mNoclip);

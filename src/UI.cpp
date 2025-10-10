@@ -50,5 +50,36 @@ void UI::control(SceneManager& pSceneManager)
 	ImGui::Spacing();
 	ImGui::Spacing();
 
+	static float mHeight0{ 130.0f }, mHeight1{ 180.0f }, mHeight2{ 240.0f }, mHeight3{ 300.0f };
+	static float mRoughness{ 1.5f };
+	static float mMaxHeight{ 300.0f };
+
+	ImGui::SliderFloat("Height0", &mHeight0, 0.0f, 200.0f);
+	ImGui::SliderFloat("Height1", &mHeight1, 50.0f, 300.0f);
+	ImGui::SliderFloat("Height2", &mHeight2, 100.0f, 400.0f);
+	ImGui::SliderFloat("Height3", &mHeight3, 150.0f, 500.0f);
+	
+	ImGui::Spacing();
+
+	ImGui::SliderFloat("Roughness", &mRoughness, 0.0f, 5.0f);
+
+	ImGui::Spacing();
+
+	ImGui::SliderFloat("MaxHeight", &mMaxHeight, 0.0f, 500.0f);
+	
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	if (ImGui::Button("Generate"))
+	{
+		uint32_t size = 2047;
+		//uint32_t size = 257;
+		float minHeight = 0.0f;
+		reinterpret_cast<MidpointDispTerrain*>(pSceneManager.getModelProperties().mTerrain.get())->createMidpointDispTerrain(size,
+																															 mRoughness,
+																															 minHeight,
+																															 mMaxHeight);
+		pSceneManager.getModelProperties().mTerrain->setHeights(mHeight0, mHeight1, mHeight2, mHeight3);
+	}
 	ImGui::End();
 }

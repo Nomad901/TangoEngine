@@ -55,6 +55,11 @@ void Terrain::setHeights(float pHeight0, float pHeight1, float pHeight2, float p
 	mHeights[3] = pHeight3;
 }
 
+void Terrain::setPos(const glm::vec3& pPos)
+{
+	mPos = pPos;
+}
+
 float Terrain::getHeight(int32_t pX, int32_t pZ) const
 {
 	return mHeightMap[pX][pZ];
@@ -85,6 +90,9 @@ float Terrain::getHeightInterpolated(float pX, float pZ) const
 void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj)
 {
 	mShader.bind();
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, mPos);
+	mShader.setMatrixUniform4fv("uModel", model);
 	mShader.setMatrixUniform4fv("uView", pViewMat);
 	mShader.setMatrixUniform4fv("uProj", pProj);
 	mShader.setUniform1f("uMinHeight", mMinHeight);
