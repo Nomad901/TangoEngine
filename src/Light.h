@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <format>
+#include <vector>
 
 #include "glm.hpp"
 #include "SDL3/SDL.h"
@@ -313,4 +314,26 @@ public:
 
 private:
 	glm::vec3 mPos{ 1.0f };
+};
+
+class SlopeLight : public Light
+{
+public:
+	SlopeLight(const std::vector<std::vector<float>>& pHeightMap);
+	
+	void init(const glm::vec3& pLightDir, uint32_t pTerrainSize, float pSoftness);
+
+	float getLighting(int32_t pX, int32_t pZ) const;
+
+private:
+	std::vector<std::vector<float>> mHeightMap;
+
+	uint32_t mTerrainSize{ 0 };
+	float mSoftness{ 0.0f };
+	float mFactor{ 0.0f };
+
+	int32_t mDZ0{ 0 };
+	int32_t mDX0{ 0 };
+	int32_t mDZ1{ 0 };
+	int32_t mDX1{ 0 };
 };
