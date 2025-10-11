@@ -388,3 +388,118 @@ glm::vec3 AttenuationLight::getDirectionLight() const noexcept
 {
 	return glm::vec3();
 }
+
+SlopeLight::SlopeLight(const std::vector<std::vector<float>>& pHeightMap)
+{
+	mHeightMap = pHeightMap;
+}
+
+void SlopeLight::init(const glm::vec3& pLightDir, uint32_t pTerrainSize, float pSoftness)
+{
+	mTerrainSize = pTerrainSize;
+	mSoftness = pSoftness;
+
+	glm::vec3 reversedLightDir = pLightDir * -1.0f;
+	reversedLightDir.y = 0.0f;
+	reversedLightDir = glm::normalize(reversedLightDir);
+
+	glm::vec3 dirX(1.0f, 0.0f, 0.0f);
+	float dpx = glm::dot(dirX, reversedLightDir);
+
+	glm::vec3 dirZ(0.0f, 0.0f, 1.0f);
+	float dpz = glm::dot(dirZ, reversedLightDir);
+
+	float radiansTo45Degrees = cosf(glm::radians(45.0f));
+
+	bool interpolatedOnX = false;
+
+	if (dpz >= radiansTo45Degrees)
+	{
+		mDZ0 = mDZ1 = 1;
+		interpolatedOnX = true;
+	}
+	else if (dpz <= -radiansTo45Degrees)
+	{
+		mDZ0 = mDZ1 = -1;
+		interpolatedOnX = true;
+	}
+	else
+	{
+		if (dpz >= 0.0f)
+		{
+			mDZ0 = 0;
+			mDZ1 = 1;
+		}
+		else
+		{
+			mDZ0 = 0;
+			mDZ1 = -1;
+		}
+		mFactor = 1.0f - abs(dpz) / radiansTo45Degrees;
+
+		if (dpz >= 0.0f)
+			mDX0 = mDX1 = 1;
+		else
+			mDX0 = mDX1 = -1;
+	}
+
+	if (interpolatedOnX)
+	{
+		if (dpx >= 0.0f)
+		{
+			mDX0 = 0;
+			mDX1 = 1;
+		}
+		else
+		{
+			mDX0 = 0;
+			mDX1 = -1;
+		}
+
+		mFactor = 1.0f - abs(dpx) / radiansTo45Degrees;
+	}
+}
+
+float SlopeLight::getLighting(int32_t pX, int32_t pZ) const
+{
+	float height = mHeightMap[pX][pZ];
+	float f = 0.0f;
+
+	float XBefore0 = pX + mDX0 * 5.0f;
+	float ZBefore0 = pZ + mDZ0 * 5.0f;
+
+	float XBefore1 = pX + mDX1 * 5.0f;
+	float ZBefore1 = pZ + mDZ1 * 5.0f;
+
+	bool V0InsideHeightMap = ((XBefore0 > 0.0f) && (XBefore0 < mTerrainSize)) && ((ZBefore0 > 0.0f) && (ZBefore0 < mTerrainSize));
+	bool V1InsideHeightMap = ((XBefore1 > 0.0f) && (XBefore1 < mTerrainSize)) && ((ZBefore1 > 0.0f) && (ZBefore1 < mTerrainSize));
+
+	float minBrightness = 0.4f;
+	
+	if (V0InsideHeightMap && V1InsideHeightMap)
+	{
+		float heightBefore0 = mHeightMap[XBefore0][ZBefore0];
+		float heightBefore1 = mHeightMap[XBefore1][ZBefore1];
+
+		float heightBefore = heightBefore0 * mFactor + (1.0f - mFactor) * heightBefore1;
+		f = (height - heightBefore) / mSoftness;
+	}
+	else if (V0InsideHeightMap)
+	{
+		float heightBefore = mHeightMap[XBefore0][ZBefore0];
+		f = (height - heightBefore) / mSoftness;
+	}
+	else if (V1InsideHeightMap)
+	{
+		float heightBefore = mHeightMap[XBefore1][ZBefore1];
+		f = (height - heightBefore) / mSoftness;
+	}
+	else
+	{
+		f = 1.0f;
+	}
+	
+	f = std::min(1.0f, std::max(f, minBrightness));
+
+	return f;
+}
