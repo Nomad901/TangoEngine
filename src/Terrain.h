@@ -28,7 +28,9 @@ public:
 	void setHeights(float pHeight0, float pHeight1, float pHeight2, float pHeight3);
 	void setPos(const glm::vec3& pPos);
 	void setLight(const glm::vec3& pDirection, float pSoftness);
-
+	void setMinMaxHeight(float pMinHeight, float pMaxHeight);
+	void finalizeTerrain();
+	
 	void render(const glm::mat4& pViewMat, const glm::mat4& pProj, 
 				const glm::vec3& pLightPos);
 
@@ -36,8 +38,9 @@ public:
 	float getHeightInterpolated(float pX, float pZ) const;
 	float getWorldScale() const noexcept;
 	float getTextureScale() const noexcept;
+	float getSlopeLight(int32_t pX, int32_t pZ) const noexcept;
 	int32_t getTerrainSize() const noexcept;
-	SlopeLight* getSlopeLight() noexcept;
+	
 
 private:
 	void loadHeightMapFile(const std::filesystem::path& pPath);
@@ -60,5 +63,5 @@ protected:
 
 	Shader mShader;
 	TriangleList mTriangleList;
-	std::unique_ptr<SlopeLight> mSlopeLight;
+	SlopeLight mSlopeLight;
 };

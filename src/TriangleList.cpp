@@ -20,20 +20,6 @@ void TriangleList::createTriangleList(int32_t pWidth, int32_t pDepth, Terrain* p
 	createGLState();
 }
 
-void TriangleList::initLightFactor(SlopeLight* pSlopeLight)
-{
-	int32_t index = 0;
-	for (int32_t z = 0; z < mDepth; ++z)
-	{
-		for (int32_t x = 0; x < mWidth; ++x)
-		{
-			assert(index < mVertices.size());
-			mVertices[index].mLightFactor = pSlopeLight->getBrightness(x, z);
-			index++;
-		}
-	}
-}
-
 void TriangleList::render()
 {
 	mVAO.bind();
@@ -42,13 +28,6 @@ void TriangleList::render()
 
 void TriangleList::createGLState()
 {
-	if (mVAO.getID() != 0)
-		mVAO.destroy();
-	if (mVBO.getID() != 0)
-		mVBO.destroy();
-	if (mEBO.getID() != 0)
-		mEBO.destroy();
-
 	mVAO.generate();
 	mVAO.bind();
 	mVBO.init(mVertices, GL_STATIC_DRAW);

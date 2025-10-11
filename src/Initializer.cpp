@@ -183,15 +183,13 @@ void Initializer::initTerrain()
 	//mSceneManager->getModelProperties().mTerrain->loadFromFile(resourcePath + "terrain.png");
 
 	uint32_t size = 512;
-	//uint32_t size = 257;
 	float minHeight = 0.0f;
-	float maxHeight = 400.0f;
-	float roughness = 1.5f;
-	//reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setLight(glm::vec3(1.0f), )
+	float maxHeight = 300.0f;
+	float roughness = 2.0f;
 	reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->createMidpointDispTerrain(size, 
 		roughness,
 		minHeight, 
 		maxHeight);
+	reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setLight(glm::vec3(1.0f, 1.0f, 1.0f), 0.5f);
 	reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setPos(glm::vec3(-200.0f, -400.0f, -200.0f));
-	//reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setLight(glm::vec3(100.0f, 100.0f, 100.0f), 1.0f);
 }

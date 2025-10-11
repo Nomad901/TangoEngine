@@ -62,4 +62,6 @@ void Vertex::initVertex(const Terrain* pTerrain, int32_t pX, int32_t pZ)
 	float size = (float)pTerrain->getTerrainSize();
 	float textureScale = pTerrain->getTextureScale();
 	mTexCoord = glm::vec2(textureScale * (float)pX / size, textureScale * (float)pZ / size);
+
+	mLightFactor = pTerrain->getSlopeLight(pX, pZ);
 }

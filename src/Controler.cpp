@@ -55,18 +55,6 @@ void Controler::controlAll(float pDeltaTime)
 				mSceneManager->getProgramProperties().mRadius -= 0.5f;
 		}
 	}
-	
-	if (mKeyCodes[SDLK_M])
-	{
-		static uint32_t counter = 0;
-		counter += 0.1f;
-		mSceneManager->getLightProperties().mLightDir.x += sinf(counter);
-		mSceneManager->getLightProperties().mLightDir.z += cosf(counter);
-		mSceneManager->getModelProperties().mTerrain->setLight(mSceneManager->getLightProperties().mLightDir, mSceneManager->getLightProperties().mSoftness);
-
-		if (counter >= std::numeric_limits<uint32_t>::max())
-			counter = 0;
-	}
 
 	controlScreen();
 	controlCamera(pDeltaTime);

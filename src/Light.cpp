@@ -389,13 +389,10 @@ glm::vec3 AttenuationLight::getDirectionLight() const noexcept
 	return glm::vec3();
 }
 
-SlopeLight::SlopeLight(const std::vector<std::vector<float>>& pHeightMap)
+void SlopeLight::init(const std::vector<std::vector<float>>& pHeightMap, const glm::vec3& pLightDir, 
+					  uint32_t pTerrainSize, float pSoftness)
 {
 	mHeightMap = pHeightMap;
-}
-
-void SlopeLight::init(const glm::vec3& pLightDir, uint32_t pTerrainSize, float pSoftness)
-{
 	mTerrainSize = pTerrainSize;
 	mSoftness = pSoftness;
 
@@ -525,4 +522,14 @@ void SlopeLight::setDirectionLight(const glm::vec3& pDirectionLight)
 glm::vec3 SlopeLight::getDirectionLight() const noexcept
 {
 	return glm::vec3();
+}
+
+void SlopeLight::setSoftness(float pSoftness)
+{
+	mSoftness = pSoftness;
+}
+
+float SlopeLight::getSoftness() const noexcept
+{
+	return mSoftness;
 }

@@ -20,7 +20,6 @@ public:
 	TriangleList(int32_t pWidth, int32_t pDepth, Terrain* pTerrain);
 
 	void createTriangleList(int32_t pWidth, int32_t pDepth, Terrain* pTerrain);
-	void initLightFactor(SlopeLight* pSlopeLight);
 	void createGLState();
 
 	void render();

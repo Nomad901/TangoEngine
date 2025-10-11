@@ -319,9 +319,10 @@ private:
 class SlopeLight : public Light
 {
 public:
-	SlopeLight(const std::vector<std::vector<float>>& pHeightMap);
+	SlopeLight() = default;
 	
-	void init(const glm::vec3& pLightDir, uint32_t pTerrainSize, float pSoftness);
+	void init(const std::vector<std::vector<float>>& pHeightMap, const glm::vec3& pLightDir, 
+			  uint32_t pTerrainSize, float pSoftness);
 
 	float getBrightness(int32_t pX, int32_t pZ) const;
 
@@ -329,9 +330,13 @@ public:
 	glm::vec3 getPosLight() const noexcept override;
 	void setDirectionLight(const glm::vec3& pDirectionLight) override;
 	glm::vec3 getDirectionLight() const noexcept override;
+	void setSoftness(float pSoftness);
+	float getSoftness() const noexcept;
 
 private:
 	std::vector<std::vector<float>> mHeightMap;
+
+	glm::vec3 mPos{ 0.0 }, mDirection{ 0.0 };
 
 	uint32_t mTerrainSize{ 0 };
 	float mSoftness{ 0.0f };

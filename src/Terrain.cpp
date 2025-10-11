@@ -1,4 +1,4 @@
-#include "Terrain.h"
+﻿#include "Terrain.h"
 
 Terrain::Terrain(float pWorldScale, float pTexScale, std::span<std::filesystem::path> pPaths)
 {
@@ -62,16 +62,20 @@ void Terrain::setPos(const glm::vec3& pPos)
 
 void Terrain::setLight(const glm::vec3& pDirection, float pSoftness)
 {
-	if (!mSlopeLight)
-		mSlopeLight = std::make_unique<SlopeLight>(mHeightMap);
-	else
-	{
-		mSlopeLight.release();
-		mSlopeLight = std::make_unique<SlopeLight>(mHeightMap);
-	}
-	mSlopeLight->init(pDirection, mTerrainSize, pSoftness);
-	mTriangleList.initLightFactor(mSlopeLight.get());
-	mTriangleList.createGLState();
+	mSlopeLight.setDirectionLight(pDirection);
+	mSlopeLight.setSoftness(pSoftness);
+}
+
+void Terrain::setMinMaxHeight(float pMinHeight, float pMaxHeight)
+{
+	mMinHeight = pMinHeight;
+	mMaxHeight = pMaxHeight;
+}
+
+void Terrain::finalizeTerrain()
+{
+	mSlopeLight.init(mHeightMap, mSlopeLight.getDirectionLight(), mTerrainSize, mSlopeLight.getSoftness());
+	mTriangleList.createTriangleList(mTerrainSize, mTerrainSize, this);
 }
 
 float Terrain::getHeight(int32_t pX, int32_t pZ) const
@@ -136,14 +140,14 @@ float Terrain::getTextureScale() const noexcept
 	return mTexScale;
 }
 
+float Terrain::getSlopeLight(int32_t pX, int32_t pZ) const noexcept
+{
+	return mSlopeLight.getBrightness(pX, pZ);
+}
+
 int32_t Terrain::getTerrainSize() const noexcept
 {
 	return mTerrainSize;
-}
-
-SlopeLight* Terrain::getSlopeLight() noexcept
-{
-	return mSlopeLight.get();
 }
 
 void Terrain::loadHeightMapFile(const std::filesystem::path& pPath)
