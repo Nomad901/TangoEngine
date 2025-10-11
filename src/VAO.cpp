@@ -25,7 +25,12 @@ void VAO::addBuffer(const VBO& pVBO, VBOLayout pVBOLayout)
 	}
 }
 
-void VAO::generate() 
+void VAO::destroy()
+{
+	glDeleteVertexArrays(1, &mRendererID);
+}
+
+void VAO::generate()
 {
 	glGenVertexArrays(1, &mRendererID);
 }

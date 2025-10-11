@@ -60,6 +60,20 @@ void Terrain::setPos(const glm::vec3& pPos)
 	mPos = pPos;
 }
 
+void Terrain::setLight(const glm::vec3& pDirection, float pSoftness)
+{
+	if (!mSlopeLight)
+		mSlopeLight = std::make_unique<SlopeLight>(mHeightMap);
+	else
+	{
+		mSlopeLight.release();
+		mSlopeLight = std::make_unique<SlopeLight>(mHeightMap);
+	}
+	mSlopeLight->init(pDirection, mTerrainSize, pSoftness);
+	mTriangleList.initLightFactor(mSlopeLight.get());
+	mTriangleList.createGLState();
+}
+
 float Terrain::getHeight(int32_t pX, int32_t pZ) const
 {
 	return mHeightMap[pX][pZ];
@@ -87,7 +101,8 @@ float Terrain::getHeightInterpolated(float pX, float pZ) const
 	return finalHeight;
 }
 
-void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj)
+void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj, 
+					 const glm::vec3& pLightPos)
 {
 	mShader.bind();
 	glm::mat4 model = glm::mat4(1.0f);
@@ -98,6 +113,7 @@ void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj)
 	mShader.setUniform1f("uMinHeight", mMinHeight);
 	mShader.setUniform1f("uMaxHeight", mMaxHeight);
 	mShader.setUniform1i("isSingleTex", mIsOneTex);
+	mShader.setUniform3fv("uReversedLightDir", pLightPos);
 	if (!mIsOneTex)
 	{
 		for (size_t i = 0; i < mTextures.size(); ++i)
@@ -123,6 +139,11 @@ float Terrain::getTextureScale() const noexcept
 int32_t Terrain::getTerrainSize() const noexcept
 {
 	return mTerrainSize;
+}
+
+SlopeLight* Terrain::getSlopeLight() noexcept
+{
+	return mSlopeLight.get();
 }
 
 void Terrain::loadHeightMapFile(const std::filesystem::path& pPath)

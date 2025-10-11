@@ -1,12 +1,12 @@
 #include "TriangleList.h"
 #include "Terrain.h"
 
-TriangleList::TriangleList(int32_t pWidth, int32_t pDepth, const Terrain* pTerrain)
+TriangleList::TriangleList(int32_t pWidth, int32_t pDepth, Terrain* pTerrain)
 {
 	createTriangleList(pWidth, pDepth, pTerrain);
 }
 
-void TriangleList::createTriangleList(int32_t pWidth, int32_t pDepth, const Terrain* pTerrain)
+void TriangleList::createTriangleList(int32_t pWidth, int32_t pDepth, Terrain* pTerrain)
 {
 	mWidth = pWidth;
 	mDepth = pDepth;
@@ -16,7 +16,22 @@ void TriangleList::createTriangleList(int32_t pWidth, int32_t pDepth, const Terr
 		mIndices.clear();
 	}
 	initVertices(pTerrain);
+	calcNormals(mVertices, mIndices);
 	createGLState();
+}
+
+void TriangleList::initLightFactor(SlopeLight* pSlopeLight)
+{
+	int32_t index = 0;
+	for (int32_t z = 0; z < mDepth; ++z)
+	{
+		for (int32_t x = 0; x < mWidth; ++x)
+		{
+			assert(index < mVertices.size());
+			mVertices[index].mLightFactor = pSlopeLight->getBrightness(x, z);
+			index++;
+		}
+	}
 }
 
 void TriangleList::render()
@@ -27,12 +42,21 @@ void TriangleList::render()
 
 void TriangleList::createGLState()
 {
+	if (mVAO.getID() != 0)
+		mVAO.destroy();
+	if (mVBO.getID() != 0)
+		mVBO.destroy();
+	if (mEBO.getID() != 0)
+		mEBO.destroy();
+
+	mVAO.generate();
 	mVAO.bind();
 	mVBO.init(mVertices, GL_STATIC_DRAW);
 	mVBOLayout.pushLayout(GL_FLOAT, 3);
 	mVBOLayout.pushLayout(GL_FLOAT, 3);
 	mVBOLayout.pushLayout(GL_FLOAT, 4);
 	mVBOLayout.pushLayout(GL_FLOAT, 2);
+	mVBOLayout.pushLayout(GL_FLOAT, 1);
 	mVAO.addBuffer(mVBO, mVBOLayout);
 	mEBO.init(mIndices.data(), mIndices.size());
 }
@@ -77,5 +101,28 @@ void TriangleList::initVertices(const Terrain* pTerrain)
 			mIndices[index++] = indexTopRight;
 			mIndices[index++] = indexBottomRight;
 		}
+	}
+}
+
+void TriangleList::calcNormals(std::vector<Vertex>& pVertices, std::vector<uint32_t>& pIndices)
+{
+	for (uint32_t i = 0; i < pIndices.size(); i += 3)
+	{
+		uint32_t index0 = pIndices[i];
+		uint32_t index1 = pIndices[i + 1];
+		uint32_t index2 = pIndices[i + 2];
+		glm::vec3 firstVector = pVertices[index1].mPos - pVertices[index0].mPos;
+		glm::vec3 secondVector = pVertices[index2].mPos - pVertices[index0].mPos;
+		glm::vec3 normal = glm::cross(firstVector, secondVector);
+		normal = glm::normalize(normal);
+
+		pVertices[index0].mNormals += normal;
+		pVertices[index1].mNormals += normal;
+		pVertices[index2].mNormals += normal;
+	}
+
+	for (auto& i : pVertices)
+	{
+		i.mNormals = glm::normalize(i.mNormals);
 	}
 }

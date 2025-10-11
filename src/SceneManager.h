@@ -81,6 +81,8 @@ public:
 	struct lightProperties
 	{
 		glm::vec3 mPosLight{ 1.0f };
+		glm::vec3 mLightDir{ 0.0f };
+		float mSoftness{ 1.0f };
 		LightManager mLightManager;
 	};
 

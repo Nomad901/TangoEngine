@@ -9,6 +9,7 @@
 #include "VAO.h"
 #include "VBOLayout.h"
 #include "EBO.h"
+#include "Light.h"
 
 class Terrain;
 
@@ -16,15 +17,17 @@ class TriangleList
 {
 public:
 	TriangleList() = default;
-	TriangleList(int32_t pWidth, int32_t pDepth, const Terrain* pTerrain);
+	TriangleList(int32_t pWidth, int32_t pDepth, Terrain* pTerrain);
 
-	void createTriangleList(int32_t pWidth, int32_t pDepth, const Terrain* pTerrain);
-	
+	void createTriangleList(int32_t pWidth, int32_t pDepth, Terrain* pTerrain);
+	void initLightFactor(SlopeLight* pSlopeLight);
+	void createGLState();
+
 	void render();
 
 private:
-	void createGLState();
 	void initVertices(const Terrain* pTerrain);
+	void calcNormals(std::vector<Vertex>& pVertices, std::vector<uint32_t>& pIndices);
 
 private:
 	int32_t mWidth{ 0 }, mDepth{ 0 };

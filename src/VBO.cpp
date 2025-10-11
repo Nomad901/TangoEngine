@@ -33,6 +33,11 @@ void VBO::init(const void* pData, GLuint pSize, GLenum pUsage)
 	//glNamedBufferData(GL_ARRAY_BUFFER, pSize, pData, pUsage);
 }
 
+void VBO::destroy()
+{
+	glDeleteBuffers(1, &mRendererID);
+}
+
 void VBO::bind() const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
@@ -41,6 +46,11 @@ void VBO::bind() const
 void VBO::unbind() const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+uint32_t VBO::getID() const noexcept
+{
+	return mRendererID;
 }
 
 void Vertex::initVertex(const Terrain* pTerrain, int32_t pX, int32_t pZ)

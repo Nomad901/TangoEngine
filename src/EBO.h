@@ -16,10 +16,12 @@ public:
 
 	void init(const void* pData, uint32_t pCount);
 
+	void destroy();
 	void bind();
 	void unbind();
 
 	uint32_t getCount() const noexcept;
+	uint32_t getID() const noexcept;
 
 private:
 	uint32_t mRendererID;

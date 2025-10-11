@@ -19,6 +19,7 @@ public:
 
 	void addBuffer(const VBO& pVBO, VBOLayout pVBOLayout);
 
+	void destroy();
 	void generate();
 	void bind() const;
 	void unbind() const;

@@ -70,6 +70,7 @@ void Mesh::init(const std::vector<Vertex>& pVertices, const std::vector<uint32_t
 	mVBOLayout.pushLayout(GL_FLOAT, 3);
 	mVBOLayout.pushLayout(GL_FLOAT, 4);
 	mVBOLayout.pushLayout(GL_FLOAT, 2);
+	mVBOLayout.pushLayout(GL_FLOAT, 1);
 	mVAO.addBuffer(mVBO, mVBOLayout);
 	mEBO.init(pIndices.data(), pIndices.size());
 	mPrimitive->setVertexStrg(pVertices);
@@ -87,6 +88,7 @@ void Mesh::init(const std::vector<Vertex>& pVertices)
 	mVBOLayout.pushLayout(GL_FLOAT, 3);
 	mVBOLayout.pushLayout(GL_FLOAT, 4);
 	mVBOLayout.pushLayout(GL_FLOAT, 2);
+	mVBOLayout.pushLayout(GL_FLOAT, 1);
 	mVAO.addBuffer(mVBO, mVBOLayout);
 	mPrimitive->setVertexStrg(pVertices);
 }
@@ -104,6 +106,7 @@ void Mesh::init(const std::weak_ptr<Primitive>& pPrimitive)
 		mVBOLayout.pushLayout(GL_FLOAT, 3);
 		mVBOLayout.pushLayout(GL_FLOAT, 4);
 		mVBOLayout.pushLayout(GL_FLOAT, 2);
+		mVBOLayout.pushLayout(GL_FLOAT, 1);
 		mVAO.addBuffer(mVBO, mVBOLayout);
 		mEBO.init(mPrimitive->getIndexStrg().data(), mPrimitive->getIndexStrg().size());
 	} 

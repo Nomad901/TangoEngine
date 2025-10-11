@@ -73,7 +73,6 @@ void MidpointDispTerrain::squareStep(int32_t pRectSize, float pCurrHeight)
 	int32_t halfRectSize = pRectSize / 2;
 	if (halfRectSize == 0)
 		return;
-		//halfRectSize = 1;
 	for (int32_t y = 0; y < mTerrainSize; y += halfRectSize)
 	{
 		for (int32_t x = 0; x < mTerrainSize; x += halfRectSize)

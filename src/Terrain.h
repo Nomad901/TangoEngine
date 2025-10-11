@@ -4,6 +4,7 @@
 #include <string>
 #include <span>
 #include <algorithm>
+#include <memory>
 
 #include "glm/glm.hpp"
 
@@ -12,6 +13,7 @@
 #include "TextureManager.h"
 #include "Utils.h"
 #include "TriangleList.h"
+#include "Light.h"
 
 class Terrain
 {
@@ -25,14 +27,17 @@ public:
 	void loadFromFile(const std::filesystem::path& pPath);
 	void setHeights(float pHeight0, float pHeight1, float pHeight2, float pHeight3);
 	void setPos(const glm::vec3& pPos);
+	void setLight(const glm::vec3& pDirection, float pSoftness);
 
-	void render(const glm::mat4& pViewMat, const glm::mat4& pProj);
+	void render(const glm::mat4& pViewMat, const glm::mat4& pProj, 
+				const glm::vec3& pLightPos);
 
 	float getHeight(int32_t pX, int32_t pZ) const;
 	float getHeightInterpolated(float pX, float pZ) const;
 	float getWorldScale() const noexcept;
 	float getTextureScale() const noexcept;
 	int32_t getTerrainSize() const noexcept;
+	SlopeLight* getSlopeLight() noexcept;
 
 private:
 	void loadHeightMapFile(const std::filesystem::path& pPath);
@@ -55,4 +60,5 @@ protected:
 
 	Shader mShader;
 	TriangleList mTriangleList;
+	std::unique_ptr<SlopeLight> mSlopeLight;
 };

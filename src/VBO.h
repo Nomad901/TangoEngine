@@ -11,9 +11,10 @@ class Terrain;
 struct Vertex
 {
 	glm::vec3 mPos;
-	glm::vec3 mNormals;
+	glm::vec3 mNormals{ 0.0f,0.0f,0.0f };
 	glm::vec4 mColor;
 	glm::vec2 mTexCoord;
+	float mLightFactor;
 
 	void initVertex(const Terrain* pTerrain, int32_t pX, int32_t pZ);
 
@@ -47,8 +48,11 @@ public:
 	void init(const std::vector<Vertex>& pVertices, GLenum pUsage);
 	void init(const void* pData, GLuint pSize, GLenum pUsage);
 
+	void destroy();
 	void bind() const;
 	void unbind() const;
+
+	uint32_t getID() const noexcept;
 
 private:
 	uint32_t mRendererID;

@@ -437,10 +437,14 @@ void SlopeLight::init(const glm::vec3& pLightDir, uint32_t pTerrainSize, float p
 		}
 		mFactor = 1.0f - abs(dpz) / radiansTo45Degrees;
 
-		if (dpz >= 0.0f)
+		if (dpx >= 0.0f)
+		{
 			mDX0 = mDX1 = 1;
-		else
+		}
+		else 
+		{
 			mDX0 = mDX1 = -1;
+		}
 	}
 
 	if (interpolatedOnX)
@@ -460,10 +464,10 @@ void SlopeLight::init(const glm::vec3& pLightDir, uint32_t pTerrainSize, float p
 	}
 }
 
-float SlopeLight::getLighting(int32_t pX, int32_t pZ) const
+float SlopeLight::getBrightness(int32_t pX, int32_t pZ) const
 {
 	float height = mHeightMap[pX][pZ];
-	float f = 0.0f;
+	float brightness = 0.0f;
 
 	float XBefore0 = pX + mDX0 * 5.0f;
 	float ZBefore0 = pZ + mDZ0 * 5.0f;
@@ -482,24 +486,43 @@ float SlopeLight::getLighting(int32_t pX, int32_t pZ) const
 		float heightBefore1 = mHeightMap[XBefore1][ZBefore1];
 
 		float heightBefore = heightBefore0 * mFactor + (1.0f - mFactor) * heightBefore1;
-		f = (height - heightBefore) / mSoftness;
+		brightness = (height - heightBefore) / mSoftness;
 	}
 	else if (V0InsideHeightMap)
 	{
 		float heightBefore = mHeightMap[XBefore0][ZBefore0];
-		f = (height - heightBefore) / mSoftness;
+		brightness = (height - heightBefore) / mSoftness;
 	}
 	else if (V1InsideHeightMap)
 	{
 		float heightBefore = mHeightMap[XBefore1][ZBefore1];
-		f = (height - heightBefore) / mSoftness;
+		brightness = (height - heightBefore) / mSoftness;
 	}
 	else
 	{
-		f = 1.0f;
+		brightness = 1.0f;
 	}
 	
-	f = std::min(1.0f, std::max(f, minBrightness));
+	brightness = std::min(1.0f, std::max(brightness, minBrightness));
 
-	return f;
+	return brightness;
+}
+
+void SlopeLight::setPosLight(const glm::vec3& pPosLight)
+{
+	
+}
+
+glm::vec3 SlopeLight::getPosLight() const noexcept
+{
+	return glm::vec3();
+}
+
+void SlopeLight::setDirectionLight(const glm::vec3& pDirectionLight)
+{
+}
+
+glm::vec3 SlopeLight::getDirectionLight() const noexcept
+{
+	return glm::vec3();
 }

@@ -22,22 +22,19 @@ void SceneManager::setLights()
 
 void SceneManager::setLightCube()
 {
-	//mProgramProperties.mShaders["singleColorShader"].bind();
-	//
-	//mModelProperties.mFactoryMeshes.getMesh("lightBlock").initMVP(mModelProperties.mProjMatrix, mProgramProperties.mViewMatrix,
-	//							    mProgramProperties.mCamera.getPos() + mProgramProperties.mCamera.getDirection() * mProgramProperties.mRadius,
-	//							    std::make_pair(glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-	//							    glm::vec3(1.0f, 1.0f, 1.0f));
-	//mProgramProperties.mShaders["singleColorShader"].setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("lightBlock").getMVP());
-	//
-	//mLightProperties.mLightManager.getLight("pointLight1")->get()->setPosLight(mProgramProperties.mCamera.getPos() +
-	//																		   mProgramProperties.mCamera.getDirection() * mProgramProperties.mRadius);
-	//
+	mProgramProperties.mShaders["singleColorShader"].bind();
+	
+	mModelProperties.mFactoryMeshes.getMesh("lightBlock").initMVP(mModelProperties.mProjMatrix, mProgramProperties.mViewMatrix,
+								    mLightProperties.mPosLight,
+								    std::make_pair(glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+								    glm::vec3(100.0f, 100.0f, 100.0f));
+	mProgramProperties.mShaders["singleColorShader"].setMatrixUniform4fv("uMVP", mModelProperties.mFactoryMeshes.getMesh("lightBlock").getMVP());
+	
 	// single color shader part
-	//mSceneManager->mProgramProperties.mShaders["singleColorShader"].bind();
-	//glDisable(GL_CULL_FACE);
-	//mSceneManager->mModelProperties.mFactoryMeshes.getMesh("lightBlock").draw();
-	//glEnable(GL_CULL_FACE);
+	mProgramProperties.mShaders["singleColorShader"].bind();
+	glDisable(GL_CULL_FACE);
+	mModelProperties.mFactoryMeshes.getMesh("lightBlock").draw();
+	glEnable(GL_CULL_FACE);
 }
 
 void SceneManager::setMaterials()

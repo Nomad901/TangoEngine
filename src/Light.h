@@ -323,7 +323,12 @@ public:
 	
 	void init(const glm::vec3& pLightDir, uint32_t pTerrainSize, float pSoftness);
 
-	float getLighting(int32_t pX, int32_t pZ) const;
+	float getBrightness(int32_t pX, int32_t pZ) const;
+
+	void setPosLight(const glm::vec3& pPosLight) override;
+	glm::vec3 getPosLight() const noexcept override;
+	void setDirectionLight(const glm::vec3& pDirectionLight) override;
+	glm::vec3 getDirectionLight() const noexcept override;
 
 private:
 	std::vector<std::vector<float>> mHeightMap;
