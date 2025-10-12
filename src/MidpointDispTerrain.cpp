@@ -12,6 +12,7 @@ void MidpointDispTerrain::createMidpointDispTerrain(int32_t pSize, float pRoughn
 	mMaxHeight = pMaxHeight;
 	Terrain::setHeights(pMinHeight + pMaxHeight / 2, pMaxHeight / 2, pMaxHeight / 2 + pMaxHeight / 3, pMaxHeight);
 	
+	mHeightMap.clear();
 	mHeightMap.resize(mTerrainSize);
 	for (size_t i = 0; i < mTerrainSize; ++i)
 	{

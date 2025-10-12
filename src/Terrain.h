@@ -31,8 +31,7 @@ public:
 	void setMinMaxHeight(float pMinHeight, float pMaxHeight);
 	void finalizeTerrain();
 	
-	void render(const glm::mat4& pViewMat, const glm::mat4& pProj, 
-				const glm::vec3& pLightPos);
+	void render(const glm::mat4& pViewMat, const glm::mat4& pProj);
 
 	float getHeight(int32_t pX, int32_t pZ) const;
 	float getHeightInterpolated(float pX, float pZ) const;

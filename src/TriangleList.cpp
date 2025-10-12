@@ -30,13 +30,19 @@ void TriangleList::createGLState()
 {
 	mVAO.generate();
 	mVAO.bind();
+	if (mVBO.getID())
+		mVBO.destroy();
 	mVBO.init(mVertices, GL_STATIC_DRAW);
+	if (mVBOLayout.getCount() != 0)
+		mVBOLayout.destroy();
 	mVBOLayout.pushLayout(GL_FLOAT, 3);
 	mVBOLayout.pushLayout(GL_FLOAT, 3);
 	mVBOLayout.pushLayout(GL_FLOAT, 4);
 	mVBOLayout.pushLayout(GL_FLOAT, 2);
 	mVBOLayout.pushLayout(GL_FLOAT, 1);
 	mVAO.addBuffer(mVBO, mVBOLayout);
+	if (mEBO.getID())
+		mEBO.destroy();
 	mEBO.init(mIndices.data(), mIndices.size());
 }
 

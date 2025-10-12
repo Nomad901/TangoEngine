@@ -6,6 +6,12 @@ void VBOLayout::pushLayout(uint32_t pType, uint32_t pCount)
     mCount += pCount * VBOLayoutComponents::sizeOf(pType);
 }
 
+void VBOLayout::destroy()
+{
+    mCount = 0;
+    mVBOLayoutComponents.clear();
+}
+
 auto VBOLayout::getComponentsOfLayout() -> std::vector<VBOLayoutComponents>&
 {
     return mVBOLayoutComponents;

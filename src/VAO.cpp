@@ -32,6 +32,8 @@ void VAO::destroy()
 
 void VAO::generate()
 {
+	if (mRendererID)
+		destroy();
 	glGenVertexArrays(1, &mRendererID);
 }
 

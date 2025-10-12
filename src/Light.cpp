@@ -507,21 +507,22 @@ float SlopeLight::getBrightness(int32_t pX, int32_t pZ) const
 
 void SlopeLight::setPosLight(const glm::vec3& pPosLight)
 {
-	
+	mPos = pPosLight;
 }
 
 glm::vec3 SlopeLight::getPosLight() const noexcept
 {
-	return glm::vec3();
+	return mPos;
 }
 
 void SlopeLight::setDirectionLight(const glm::vec3& pDirectionLight)
 {
+	mDirection = pDirectionLight;
 }
 
 glm::vec3 SlopeLight::getDirectionLight() const noexcept
 {
-	return glm::vec3();
+	return mDirection;
 }
 
 void SlopeLight::setSoftness(float pSoftness)

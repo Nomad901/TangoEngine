@@ -22,8 +22,7 @@ void Renderer::drawScene()
 
 	// terrain
 	mSceneManager->mModelProperties.mTerrain->render(mSceneManager->getProgramProperties().mViewMatrix, 
-													 mSceneManager->mModelProperties.mProjMatrix, 
-													 mSceneManager->getLightProperties().mPosLight);
+													 mSceneManager->mModelProperties.mProjMatrix);
 
 	// crosshair
 	//mSceneManager->mProgramProperties.mCrosshair->render(mSceneManager->mProgramProperties.mWindowWidth, 

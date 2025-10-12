@@ -33,6 +33,7 @@ public:
 	VBOLayout() = default;
 
 	void pushLayout(uint32_t pType, uint32_t pCount);
+	void destroy();
 
 	auto getComponentsOfLayout() -> std::vector<VBOLayoutComponents>&;
 	uint32_t getCount() const noexcept;

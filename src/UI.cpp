@@ -65,10 +65,26 @@ void UI::control(SceneManager& pSceneManager)
 
 	ImGui::Spacing();
 	ImGui::Spacing();
+	
+	ImGui::SliderFloat("Direction light X", &pSceneManager.getLightProperties().mLightDir.x, -500.0f, 500.0f);
+	ImGui::SliderFloat("Direction light Y", &pSceneManager.getLightProperties().mLightDir.y, -500.0f, 500.0f);
+	ImGui::SliderFloat("Direction light Z", &pSceneManager.getLightProperties().mLightDir.z, -500.0f, 500.0f);
+	ImGui::SliderFloat("Light softness", &pSceneManager.getLightProperties().mSoftness, -5.0f, 5.0f);
 
 	if (ImGui::Button("Generate"))
 	{
-		pSceneManager.getModelProperties().mTerrain->setHeights(mHeight0, mHeight1, mHeight2, mHeight3);
+		uint32_t size = 512;
+		float minHeight = 0.0f;
+		float maxHeight = 300.0f;
+		float roughness = 1.5f;
+		reinterpret_cast<MidpointDispTerrain*>(pSceneManager.getModelProperties().mTerrain.get())->setLight(pSceneManager.getLightProperties().mLightDir, 
+																											pSceneManager.getLightProperties().mSoftness);
+		reinterpret_cast<MidpointDispTerrain*>(pSceneManager.getModelProperties().mTerrain.get())->createMidpointDispTerrain(size,
+			roughness,
+			minHeight,
+			maxHeight);
+		reinterpret_cast<MidpointDispTerrain*>(pSceneManager.getModelProperties().mTerrain.get())->setPos(glm::vec3(-200.0f, -400.0f, -200.0f));
+		pSceneManager.getModelProperties().mTerrain->setHeights(maxHeight - 200.0f, maxHeight - 150.0f, maxHeight - 100.0f, maxHeight - 50.0f);
 	}
 	ImGui::End();
 }

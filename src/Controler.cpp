@@ -103,14 +103,15 @@ void Controler::controlModel()
 
 void Controler::controlLight()
 {	
+	float speed = 0.2f;
 	if (mKeyCodes[SDLK_UP])
-		mSceneManager->getLightProperties().mPosLight.y += mPlayer.getSpeed();
+		mSceneManager->getLightProperties().mPosLight.y += speed;
 	if (mKeyCodes[SDLK_DOWN])
-		mSceneManager->getLightProperties().mPosLight.y -= mPlayer.getSpeed();
+		mSceneManager->getLightProperties().mPosLight.y -= speed;
 	if (mKeyCodes[SDLK_RIGHT])
-		mSceneManager->getLightProperties().mPosLight.x -= mPlayer.getSpeed();
+		mSceneManager->getLightProperties().mPosLight.x -= speed;
 	if (mKeyCodes[SDLK_LEFT])
-		mSceneManager->getLightProperties().mPosLight.x += mPlayer.getSpeed();
+		mSceneManager->getLightProperties().mPosLight.x += speed;
 }
 
 Player& Controler::getPlayer() noexcept

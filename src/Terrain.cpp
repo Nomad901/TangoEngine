@@ -105,8 +105,7 @@ float Terrain::getHeightInterpolated(float pX, float pZ) const
 	return finalHeight;
 }
 
-void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj, 
-					 const glm::vec3& pLightPos)
+void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj)
 {
 	mShader.bind();
 	glm::mat4 model = glm::mat4(1.0f);
@@ -117,7 +116,6 @@ void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj,
 	mShader.setUniform1f("uMinHeight", mMinHeight);
 	mShader.setUniform1f("uMaxHeight", mMaxHeight);
 	mShader.setUniform1i("isSingleTex", mIsOneTex);
-	mShader.setUniform3fv("uReversedLightDir", pLightPos);
 	if (!mIsOneTex)
 	{
 		for (size_t i = 0; i < mTextures.size(); ++i)
