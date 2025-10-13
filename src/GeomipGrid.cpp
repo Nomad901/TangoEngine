@@ -1,4 +1,5 @@
 #include "GeomipGrid.h"
+#include "Terrain.h"
 
 GeomipGrid::GeomipGrid(int32_t pWidth, int32_t pDepth, uint32_t pPatchSize, Terrain* pTerrain)
 {
@@ -39,6 +40,13 @@ void GeomipGrid::createGeomipGrid(int32_t pWidth, int32_t pDepth, uint32_t pPatc
 	mDepth = pDepth;
 	mPatchSize = pPatchSize;
 
+	mNumPatchesX = (pWidth - 1) / (pPatchSize - 1);
+	mNumPatchesZ = (pDepth - 1) / (pPatchSize - 1);
+
+	float worldScale = pTerrain->getWorldScale();
+	mMaxLod = mLodManager.initLodManger(pPatchSize, mNumPatchesX, mNumPatchesZ, worldScale);
+	mLodInfoStorage.resize(mMaxLod - 1);
+	
 	if (!mVertices.empty() || !mIndices.empty())
 	{
 		mVertices.clear();
@@ -65,17 +73,11 @@ void GeomipGrid::createGLState()
 	mEBO.init(mIndices.data(), mIndices.size());
 }
 
-void GeomipGrid::render()
+void GeomipGrid::render(const glm::vec3& pCameraPos)
 {
+	mLodManager.update(pCameraPos);
 	mVAO.bind();
-	for (uint32_t z = 0; z < mDepth - 1; z += (mPatchSize - 1))
-	{
-		for (uint32_t x = 0; x < mWidth - 1; x += (mPatchSize - 1))
-		{
-			int32_t baseVertex = z * mWidth + x;
-			glDrawElementsBaseVertex(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, NULL, baseVertex);
-		}
-	}
+	
 }
 
 void GeomipGrid::destroy()
@@ -105,57 +107,67 @@ void GeomipGrid::initVertices(const Terrain* pTerrain)
 	}
 }
 
-void GeomipGrid::initIndices()
+int32_t GeomipGrid::initIndices()
 {
-	int32_t numQuads = (mPatchSize - 1) * (mPatchSize - 1);
-	mIndices.resize(numQuads * 6);
+	int32_t numIndices = calcNumIndices();
+	mIndices.resize(numIndices);
 	uint32_t index = 0;
-	for (size_t z = 0; z < mPatchSize - 1; z += 2)
+	for (int32_t lod = 0; lod <= mMaxLod; ++lod)
 	{
-		for (size_t x = 0; x < mPatchSize - 1; x += 2)
+		index = initIndicesLOD(index, lod);
+	}
+	return index;
+}
+
+int32_t GeomipGrid::initIndicesLOD(uint32_t pIndex, int32_t pLod)
+{
+	int32_t totalIndicesLod = 0;
+	
+	for (int32_t left = 0; left < LEFT; ++left)
+	{
+		for (int32_t right = 0; right < RIGHT; ++right)
 		{
-			uint32_t indexCenter = (z + 1) * mWidth + x + 1;
+			for (int32_t top = 0; top < TOP; ++top)
+			{
+				for (int32_t bottom = 0; bottom < BOTTOM; ++bottom)
+				{
+					mLodInfoStorage[pLod].mSingleLodInfo[left][right][top][bottom].mStart = pIndex;
+					pIndex = initIndicesLODSingle(pIndex, pLod, pLod + left, pLod + right, pLod + top, pLod + bottom);
 
-			//
-			// left-bottom vertex;
-			//
-			uint32_t indexTemp1 = z * mWidth + x;
-			//
-			// left vertex (from the center vertex);
-			//
-			uint32_t indexTemp2 = (z + 1) * mWidth + x;
-			
-			index = addTriangle(index, mIndices, indexCenter, indexTemp1, indexTemp2);
-			indexTemp1 = indexTemp2;
-			indexTemp2 += mWidth;
-
-			index = addTriangle(index, mIndices, indexCenter, indexTemp1, indexTemp2);
-			indexTemp1 = indexTemp2;
-			indexTemp2++;
-
-			index = addTriangle(index, mIndices, indexCenter, indexTemp1, indexTemp2);
-			indexTemp1 = indexTemp2;
-			indexTemp2++;
-
-			index = addTriangle(index, mIndices, indexCenter, indexTemp1, indexTemp2);
-			indexTemp1 = indexTemp2;
-			indexTemp2 -= mWidth;
-
-			index = addTriangle(index, mIndices, indexCenter, indexTemp1, indexTemp2);
-			indexTemp1 = indexTemp2;
-			indexTemp2 -= mWidth;
-
-			index = addTriangle(index, mIndices, indexCenter, indexTemp1, indexTemp2);
-			indexTemp1 = indexTemp2;
-			indexTemp2--;
-
-			index = addTriangle(index, mIndices, indexCenter, indexTemp1, indexTemp2);
-			indexTemp1 = indexTemp2;
-			indexTemp2--;
-
-			index = addTriangle(index, mIndices, indexCenter, indexTemp1, indexTemp2);
+					mLodInfoStorage[pLod].mSingleLodInfo[left][right][top][bottom].mCount = pIndex - 
+														 mLodInfoStorage[pLod].mSingleLodInfo[left][right][top][bottom].mStart;
+					totalIndicesLod += mLodInfoStorage[pLod].mSingleLodInfo[left][right][top][bottom].mCount;
+				}
+			}
 		}
 	}
+
+#ifdef DEBUG
+	std::cout << std::format("Total amount of indices per lod: {}\n", totalIndicesLod);
+#endif // DEBUG
+
+	return pIndex;
+}
+
+int32_t GeomipGrid::initIndicesLODSingle(uint32_t pIndex, int32_t pLodCore, int32_t pLodLeft, int32_t pLodRight, int32_t pLodTop, int32_t pLodBottom)
+{
+	int32_t	fanStep = static_cast<int32_t>(pow(2, pLodCore + 1));
+	int32_t endPos  = mPatchSize - 1 - fanStep;
+	
+	for (int32_t z = 0; z <= endPos; z += fanStep) 
+	{
+		for (int32_t x = 0; x <= endPos; x += fanStep)
+		{
+			int32_t lLeft = x == 0 ? pLodLeft : pLodCore;
+			int32_t lRight = x == endPos ? pLodRight : pLodCore;
+			int32_t lBottom = z == 0 ? pLodBottom : pLodCore;
+			int32_t lTop = z == endPos ? pLodTop : pLodCore;
+
+			pIndex = createTriangleFan(pIndex, pLodCore, pLodLeft, pLodRight, pLodTop, pLodBottom, x, z);
+		}
+	}
+
+	return pIndex;
 }
 
 void GeomipGrid::calcNormals(std::vector<Vertex>& pVertices, std::vector<uint32_t>& pIndices)
@@ -199,4 +211,84 @@ uint32_t GeomipGrid::addTriangle(uint32_t pIndex, const std::vector<uint32_t>& p
 	mIndices[pIndex++] = pV3;
 
 	return pIndex;
+}
+
+uint32_t GeomipGrid::createTriangleFan(uint32_t pIndex, int32_t pLodCore, int32_t pLodLeft, int32_t pLodRight,
+									   int32_t pLodTop, int32_t pLodBottom, int32_t pX, int32_t pZ)
+{
+	int32_t stepLeft = static_cast<int32_t>(pow(2, pLodLeft));
+	int32_t stepRight = static_cast<int32_t>(pow(2, pLodRight));
+	int32_t stepTop = static_cast<int32_t>(pow(2, pLodTop));
+	int32_t stepBottom = static_cast<int32_t>(pow(2, pLodBottom));
+	int32_t stepCenter = static_cast<int32_t>(pow(2, pLodCore));
+	
+	uint32_t indexCenter = (pZ + stepCenter) * mWidth + pX + stepCenter;
+
+	uint32_t indexTemp1 = pZ * mWidth + pX;
+	uint32_t indexTemp2 = (pZ + stepLeft) * mWidth + pX;
+
+	pIndex = addTriangle(pIndex, mIndices, indexCenter, indexTemp1, indexTemp2);
+
+	if (pLodLeft == pLodCore)
+	{
+		indexTemp1 = indexTemp2;
+		indexTemp2 += stepLeft * mWidth;
+		
+		pIndex = addTriangle(pIndex, mIndices, indexCenter, indexTemp1, indexTemp2);
+	}
+	
+	indexTemp1 = indexTemp2;
+	indexTemp2 += stepTop;
+
+	pIndex = addTriangle(pIndex, mIndices, indexCenter, indexTemp1, indexTemp2);
+
+	if (pLodTop == pLodCore)
+	{
+		indexTemp1 = indexTemp2;
+		indexTemp2 += stepTop;
+
+		pIndex = addTriangle(pIndex, mIndices, indexCenter, indexTemp1, indexTemp2);
+	}
+
+	indexTemp1 = indexTemp2;
+	indexTemp2 -= stepRight * mWidth;
+
+	pIndex = addTriangle(pIndex, mIndices, indexCenter, indexTemp1, indexTemp2);
+
+	if (pLodRight == pLodCore)
+	{
+		indexTemp1 = indexTemp2;
+		indexTemp2 -= stepRight * mWidth;
+
+		pIndex = addTriangle(pIndex, mIndices, indexCenter, indexTemp1, indexTemp2);
+	}
+
+	indexTemp1 = indexTemp2;
+	indexTemp2 -= stepBottom;
+
+	pIndex = addTriangle(pIndex, mIndices, indexCenter, indexTemp1, indexTemp2);
+
+	if (pLodBottom == pLodCore)
+	{
+		indexTemp1 = indexTemp2;
+		indexTemp2 -= stepBottom;
+
+		pIndex = addTriangle(pIndex, mIndices, indexCenter, indexTemp1, indexTemp2);
+	}
+
+	return pIndex;
+}
+
+int32_t GeomipGrid::calcNumIndices()
+{
+	int32_t numQuads = (mPatchSize - 1) * (mPatchSize - 1);
+	int32_t numIndices = 0;
+	int32_t maxPermutationPerLevel = 16;
+	const int32_t indicesPerQuad = 6;
+	for (int32_t lod = 0; lod <= mMaxLod; ++lod)
+	{
+		numIndices += numQuads * indicesPerQuad * maxPermutationPerLevel;
+		numQuads /= 4;
+	}
+	return numIndices;
 }
