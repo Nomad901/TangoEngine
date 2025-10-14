@@ -24,7 +24,7 @@ public:
 	void createGeomipGrid(int32_t pWidth, int32_t pDepth, uint32_t pPatchSize, Terrain* pTerrain);
 	void createGLState();
 
-	void render(const glm::vec3& pCameraPos);
+	void render(const glm::vec3& pCameraPos, bool pShowPoints);
 	void destroy();
 
 private:
