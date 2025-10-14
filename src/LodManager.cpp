@@ -38,10 +38,10 @@ const LodManager::PatchLod& LodManager::getPatchLod(int32_t pPatchX, int32_t pPa
 
 void LodManager::printLodMap()
 {
-	for (size_t lodMapZ = mNumPatchesZ - 1; lodMapZ >= 0; --lodMapZ)
+	for (int32_t lodMapZ = mNumPatchesZ - 1; lodMapZ >= 0; --lodMapZ)
 	{
 		std::cout << std::format("Lod map Z: {}. ", lodMapZ);
-		for (size_t lodMapX = 0; lodMapX < mNumPatchesX; ++lodMapX)
+		for (int32_t lodMapX = 0; lodMapX < mNumPatchesX; ++lodMapX)
 		{
 			std::cout << std::format("Core: {} ", lodMapX, mPatchesLod[lodMapX][lodMapZ].mCore);
 		}
@@ -82,7 +82,7 @@ void LodManager::calcLodRegions()
 
 void LodManager::calcMaxLOD()
 {
-	int32_t numSegments = mPatchSize == 0 ? 0 : mPatchSize - 1;
+	int32_t numSegments = mPatchSize - 1;
 
 	auto result1 = ceilf(log2f(static_cast<float>(numSegments)));
 	auto result2 = floorf(log2f(static_cast<float>(numSegments)));
@@ -159,7 +159,7 @@ void LodManager::updateLodMapPass2(const glm::vec3& pCameraPos)
 			}
 			if (lodMapZ > 0)
 			{
-				indexBottom++;
+				indexBottom--;
 
 				if (mPatchesLod[lodMapX][indexBottom].mCore > coreLod)
 					mPatchesLod.at(lodMapX).at(lodMapZ).mBottom = 1;
