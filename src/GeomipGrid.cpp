@@ -45,7 +45,7 @@ void GeomipGrid::createGeomipGrid(int32_t pWidth, int32_t pDepth, uint32_t pPatc
 
 	float worldScale = pTerrain->getWorldScale();
 	mMaxLod = mLodManager.initLodManger(pPatchSize, mNumPatchesX, mNumPatchesZ, worldScale);
-	mLodInfoStorage.resize(mMaxLod - 1);
+	mLodInfoStorage.resize(mMaxLod + 1);
 	
 	if (!mVertices.empty() || !mIndices.empty())
 	{
@@ -73,11 +73,37 @@ void GeomipGrid::createGLState()
 	mEBO.init(mIndices.data(), mIndices.size());
 }
 
-void GeomipGrid::render(const glm::vec3& pCameraPos)
+void GeomipGrid::render(const glm::vec3& pCameraPos, bool pShowPoints)
 {
 	mLodManager.update(pCameraPos);
 	mVAO.bind();
 	
+	if (pShowPoints)
+		glDrawElementsBaseVertex(GL_POINTS, mLodInfoStorage[0].mSingleLodInfo[0][0][0][0].mCount, GL_UNSIGNED_INT, nullptr, 0);
+	if (pShowPoints)
+	{
+		for (uint32_t patchZ = 0; patchZ < mNumPatchesZ; ++patchZ)
+		{
+			for (uint32_t patchX = 0; patchX < mNumPatchesX; ++patchX)
+			{
+				const LodManager::PatchLod& patchLod = mLodManager.getPatchLod(patchX, patchZ);
+				int32_t core   = patchLod.mCore;
+				int32_t left   = patchLod.mLeft;
+				int32_t right  = patchLod.mRight;
+				int32_t top    = patchLod.mTop;
+				int32_t bottom = patchLod.mBottom;
+
+				size_t baseIndex = sizeof(uint32_t) * mLodInfoStorage[core].mSingleLodInfo[left][right][top][bottom].mStart;
+				
+				int32_t z = patchZ * (mPatchSize - 1);
+				int32_t x = patchX * (mPatchSize - 1);
+				int32_t baseVertex = z * mWidth + x;
+
+				glDrawElementsBaseVertex(GL_TRIANGLES, mLodInfoStorage[core].mSingleLodInfo[left][right][top][bottom].mCount,
+										 GL_UNSIGNED_INT, (void*)baseIndex, baseVertex);
+			}
+		}
+	}
 }
 
 void GeomipGrid::destroy()
