@@ -181,13 +181,14 @@ void Initializer::initTerrain()
 	mSceneManager->getModelProperties().mTerrain = std::make_unique<MidpointDispTerrain>();
 	mSceneManager->getModelProperties().mTerrain->init(worldScale, textureScale, paths);
 	//mSceneManager->getModelProperties().mTerrain->loadFromFile(resourcePath + "terrain.png");
-
+	
 	uint32_t size = 512;
 	float minHeight = 0.0f;
 	float maxHeight = 300.0f;
 	float roughness = 1.5f;
 	reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setLight(glm::vec3(100.0f, 100.0f, 100.0f), 0.5f);
 	reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->createMidpointDispTerrain(size, 
+		5,
 		roughness,
 		minHeight, 
 		maxHeight);
