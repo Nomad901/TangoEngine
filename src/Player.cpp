@@ -47,16 +47,16 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 
 		switch (pMoveSidesPlayer)
 		{
-		case moveSidesPlayer::FORWARD:
+		case moveSidesPlayer::FORWARD_:
 			moveDirection = cameraForward;
 			break;
-		case moveSidesPlayer::BACKWARD:
+		case moveSidesPlayer::BACKWARD_:
 			moveDirection = -cameraForward;
 			break;
-		case moveSidesPlayer::RIGHT:
+		case moveSidesPlayer::RIGHT_:
 			moveDirection = cameraRight;
 			break;
-		case moveSidesPlayer::LEFT:
+		case moveSidesPlayer::LEFT_:
 			moveDirection = -cameraRight;
 			break;
 		}
@@ -76,20 +76,20 @@ void Player::move(moveSidesPlayer pMoveSidesPlayer, float pDeltaTime)
 	{
 		switch (pMoveSidesPlayer)
 		{
-		case moveSidesPlayer::RIGHT:
-			mCamera.moveCamera(moveSides::RIGHT, speed, pDeltaTime);
+		case moveSidesPlayer::RIGHT_:
+			mCamera.moveCamera(moveSides::cam_RIGHT, speed, pDeltaTime);
 			mPos = mCamera.getPos();
 			break;
-		case moveSidesPlayer::LEFT:
-			mCamera.moveCamera(moveSides::LEFT, speed, pDeltaTime);
+		case moveSidesPlayer::LEFT_:
+			mCamera.moveCamera(moveSides::cam_LEFT, speed, pDeltaTime);
 			mPos = mCamera.getPos();
 			break;
-		case moveSidesPlayer::FORWARD:
-			mCamera.moveCamera(moveSides::FORWARD, speed, pDeltaTime);
+		case moveSidesPlayer::FORWARD_:
+			mCamera.moveCamera(moveSides::cam_FORWARD, speed, pDeltaTime);
 			mPos = mCamera.getPos();
 			break;
-		case moveSidesPlayer::BACKWARD:
-			mCamera.moveCamera(moveSides::BACKWARD, speed, pDeltaTime);
+		case moveSidesPlayer::BACKWARD_:
+			mCamera.moveCamera(moveSides::cam_BACKWARD, speed, pDeltaTime);
 			mPos = mCamera.getPos();
 			break;
 		}

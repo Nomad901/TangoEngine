@@ -20,6 +20,11 @@ float thirdPersonCam::getAngleAroundPlayer() const noexcept
 	return mAngleAroundPlayer;
 }
 
+float thirdPersonCam::getZoom() const noexcept
+{
+	return mDistance;
+}
+
 void thirdPersonCam::calculateDistance(const SDL_Event& pEvents)
 {
 	if (pEvents.type == SDL_EVENT_MOUSE_WHEEL)

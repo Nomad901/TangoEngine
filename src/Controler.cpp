@@ -14,12 +14,14 @@ void Controler::controlAll(float pDeltaTime)
 	{
 		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getThirdPersonCamera().getViewMatrix();
 		mSceneManager->getProgramProperties().mThirdPersonCam = mPlayer.getThirdPersonCamera();
+		mSceneManager->getProgramProperties().mCamera.setPos(mPlayer.getPos());
 		mSceneManager->getProgramProperties().mTakeCursor = false;
 	}
 	else
 	{
 		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getCamera().getViewMatrix();
 		mSceneManager->getProgramProperties().mCamera = mPlayer.getCamera();
+		mSceneManager->getProgramProperties().mCamera.setPos(mPlayer.getPos());
 		mSceneManager->getProgramProperties().mTakeCursor = true;
 	}
 	
@@ -81,13 +83,13 @@ void Controler::controlCamera(float pDeltaTime)
 {
 	mPlayer.sprint(mKeyCodes[SDLK_LSHIFT]);
 	if (mKeyCodes[SDLK_W])
-		mPlayer.move(moveSidesPlayer::FORWARD, pDeltaTime);
+		mPlayer.move(moveSidesPlayer::FORWARD_, pDeltaTime);
 	if (mKeyCodes[SDLK_S])
-		mPlayer.move(moveSidesPlayer::BACKWARD, pDeltaTime);
+		mPlayer.move(moveSidesPlayer::BACKWARD_, pDeltaTime);
 	if (mKeyCodes[SDLK_A])
-		mPlayer.move(moveSidesPlayer::LEFT, pDeltaTime);
+		mPlayer.move(moveSidesPlayer::LEFT_, pDeltaTime);
 	if (mKeyCodes[SDLK_D])
-		mPlayer.move(moveSidesPlayer::RIGHT, pDeltaTime);
+		mPlayer.move(moveSidesPlayer::RIGHT_, pDeltaTime);
 	if (mKeyCodes[SDLK_SPACE])
 		mPlayer.jump(); 
 }

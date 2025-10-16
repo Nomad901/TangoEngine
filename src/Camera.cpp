@@ -43,30 +43,30 @@ void Camera::moveCamera(moveSides pMoveSide, float pSpeed, float pDeltaTime)
 
     switch (pMoveSide)
     {
-    case moveSides::RIGHT:
+    case moveSides::cam_RIGHT:
         tmpVec = glm::normalize(glm::cross(mDirection, mUpVec));
         mEye += tmpVec * velocity;
         break;
-    case moveSides::LEFT:
+    case moveSides::cam_LEFT:
         tmpVec = glm::normalize(glm::cross(mUpVec, mDirection));
         mEye += tmpVec * velocity;
         break;
-    case moveSides::FORWARD:
+    case moveSides::cam_FORWARD:
         if(!mIsInNoclip)
             mEye += glm::vec3(mDirection.x, 0, mDirection.z) * velocity;
         else 
             mEye += mDirection * velocity;
         break;
-    case moveSides::BACKWARD:
+    case moveSides::cam_BACKWARD:
         if(!mIsInNoclip)
             mEye -= glm::vec3(mDirection.x, 0, mDirection.z) * velocity;
         else 
             mEye -= mDirection * velocity;
         break;
-    case moveSides::UP:
+    case moveSides::cam_UP:
         mEye += mUpVec * velocity;
         break;
-    case moveSides::DOWN:
+    case moveSides::cam_DOWN:
         mEye -= mUpVec * velocity;
         break;
     }

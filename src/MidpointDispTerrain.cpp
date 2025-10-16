@@ -1,6 +1,6 @@
 #include "MidpointDispTerrain.h"
 
-void MidpointDispTerrain::createMidpointDispTerrain(int32_t pSize, float pRoughness, float pMinHeight, float pMaxHeight)
+void MidpointDispTerrain::createMidpointDispTerrain(int32_t pSize, uint32_t pPatchSize, float pRoughness, float pMinHeight, float pMaxHeight)
 {
 	if (pRoughness < 0.0f)
 	{
@@ -10,6 +10,7 @@ void MidpointDispTerrain::createMidpointDispTerrain(int32_t pSize, float pRoughn
 	mTerrainSize = pSize;
 	mMinHeight = pMinHeight;
 	mMaxHeight = pMaxHeight;
+	mPatchSize = pPatchSize;
 	Terrain::setHeights(pMinHeight + pMaxHeight / 2, pMaxHeight / 2, pMaxHeight / 2 + pMaxHeight / 3, pMaxHeight);
 	
 	mHeightMap.clear();

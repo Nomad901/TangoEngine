@@ -75,7 +75,18 @@ void Terrain::setMinMaxHeight(float pMinHeight, float pMaxHeight)
 void Terrain::finalizeTerrain()
 {
 	mSlopeLight.init(mHeightMap, mSlopeLight.getDirectionLight(), mTerrainSize, mSlopeLight.getSoftness());
-	mTriangleList.createTriangleList(mTerrainSize, mTerrainSize, this);
+	//mTriangleList.createTriangleList(mTerrainSize, mTerrainSize, this);
+	mGeomipGrid.createGeomipGrid(mTerrainSize, mTerrainSize, mPatchSize, mPatchDistance, this);
+}
+
+void Terrain::setOneColor(bool pIsOneColor)
+{
+	mIsOneTex = pIsOneColor;
+}
+
+void Terrain::setDistanceBetweenPatches(float pDistanceBetweenPatches)
+{
+	mPatchDistance = pDistanceBetweenPatches;
 }
 
 float Terrain::getHeight(int32_t pX, int32_t pZ) const
@@ -105,7 +116,8 @@ float Terrain::getHeightInterpolated(float pX, float pZ) const
 	return finalHeight;
 }
 
-void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj)
+void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj,
+					 const glm::vec3& pCameraPos)
 {
 	mShader.bind();
 	glm::mat4 model = glm::mat4(1.0f);
@@ -125,7 +137,9 @@ void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj)
 			mShader.setUniform1f("uHeight" + std::to_string(i), mHeights[i]);
 		}
 	}
-	mTriangleList.render();
+	//mTriangleList.render();
+	glm::mat4 vpMat = pProj * pViewMat;
+	mGeomipGrid.render(pCameraPos, vpMat);
 }
 
 float Terrain::getWorldScale() const noexcept

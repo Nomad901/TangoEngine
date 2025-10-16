@@ -21,8 +21,10 @@ void Renderer::drawScene()
 	ImGui::EndFrame();
 
 	// terrain
+	glm::vec3 camPos = mSceneManager->getProgramProperties().mCamera.getPos();
 	mSceneManager->mModelProperties.mTerrain->render(mSceneManager->getProgramProperties().mViewMatrix, 
-													 mSceneManager->mModelProperties.mProjMatrix);
+													 mSceneManager->mModelProperties.mProjMatrix,
+													 camPos);
 
 	// crosshair
 	//mSceneManager->mProgramProperties.mCrosshair->render(mSceneManager->mProgramProperties.mWindowWidth, 

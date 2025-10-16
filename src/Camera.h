@@ -9,12 +9,12 @@
 
 enum class moveSides
 {
-	RIGHT = 0,
-	LEFT = 1,
-	FORWARD = 2,
-	BACKWARD = 3,
-	UP = 4,
-	DOWN = 5
+	cam_RIGHT = 0,
+	cam_LEFT = 1,
+	cam_FORWARD = 2,
+	cam_BACKWARD = 3,
+	cam_UP = 4,
+	cam_DOWN = 5
 };
 
 class Camera

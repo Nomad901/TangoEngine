@@ -25,10 +25,10 @@ enum class states
 
 enum class moveSidesPlayer
 {
-	RIGHT = 0,
-	LEFT = 1,
-	FORWARD = 2,
-	BACKWARD = 3
+	RIGHT_ = 0,
+	LEFT_ = 1,
+	FORWARD_ = 2,
+	BACKWARD_ = 3
 };
 
 class Player

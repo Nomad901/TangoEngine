@@ -108,7 +108,8 @@ void LodManager::calcMaxLOD()
 	auto result2 = floorf(log2f(static_cast<float>(numSegments)));
 	if (result1 != result2)
 	{
-		std::cout << std::format("The number of vertices in the patch needs to be a power of two. {} .... {}\n", result1, result2);
+		std::cout << std::format("The number of vertices in the patch needs to be a power of two. Result1: {}, Result2: {}\n",
+																								  result1,	   result2);
 		return;
 	}
 

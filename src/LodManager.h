@@ -18,9 +18,9 @@ public:
 	};
 public:
 	LodManager() = default;
-	LodManager(uint32_t pPatchSize, uint32_t pNumPatchesX, uint32_t pNumPatchesZ, float pWorldScale);
+	LodManager(uint32_t pPatchSize, uint32_t pNumPatchesX, uint32_t pNumPatchesZ, float pDistanceOfPatches, float pWorldScale);
 
-	int32_t initLodManger(uint32_t pPatchSize, uint32_t pNumPatchesX, uint32_t pNumPatchesZ, float pWorldScale);
+	int32_t initLodManger(uint32_t pPatchSize, uint32_t pNumPatchesX, uint32_t pNumPatchesZ, float pDistanceOfPatches, float pWorldScale);
 
 	const PatchLod& getPatchLod(int32_t pPatchX, int32_t pPatchZ) const noexcept;
 	void printLodMap();
@@ -28,7 +28,7 @@ public:
 	void update(const glm::vec3& pCameraPos);
 
 private:
-	void calcLodRegions();
+	void calcLodRegions(float pDistanceOfPatches);
 	void calcMaxLOD();
 	void updateLodMapPass1(const glm::vec3& pCameraPos);
 	void updateLodMapPass2(const glm::vec3& pCameraPos);

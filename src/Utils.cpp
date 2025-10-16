@@ -1,6 +1,5 @@
 #include "Utils.h"
 
-
 Utils& Utils::getInstance()
 {
 	static Utils utils;
@@ -63,6 +62,39 @@ std::vector<float> Utils::readFromPNGFile2Float(const std::filesystem::path& pPa
 	}
 
 	return buffer;
+}
+
+bool Utils::isPointInsideFrustum(const glm::vec3& pPointPos, const glm::mat4& pMatrix)
+{
+	glm::vec4 tmpVec4(pPointPos, 1.0f);
+	// translating from world to clip
+	glm::vec4 clipSpace = pMatrix * tmpVec4;
+
+	bool isInsideFrustum = ((clipSpace.x <=  clipSpace.w) &&
+							(clipSpace.x >= -clipSpace.w) &&
+							(clipSpace.y <=  clipSpace.w) &&
+							(clipSpace.y >= -clipSpace.w) &&
+							(clipSpace.z <=  clipSpace.w) &&
+							(clipSpace.z >= -clipSpace.w));
+
+	return isInsideFrustum;
+}
+
+void Utils::calculateClipPlanes(glm::vec4& pLeft, glm::vec4& pRight, glm::vec4& pTop, 
+								glm::vec4& pBottom, glm::vec4& pNear, glm::vec4& pFar,
+						  const glm::mat4& pViewProjMat) const
+{
+	const glm::vec4 row1(pViewProjMat[0]);
+	const glm::vec4 row2(pViewProjMat[1]);
+	const glm::vec4 row3(pViewProjMat[2]);
+	const glm::vec4 row4(pViewProjMat[3]);
+
+	pLeft   = row1 + row4;
+	pRight  = row1 - row4;
+	pBottom = row2 + row4;
+	pTop    = row2 - row4;
+	pNear   = row3 + row4;
+	pFar	= row3 - row4;
 }
 
 float Utils::randomFloatRange(float pStart, float pEnd)
