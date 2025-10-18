@@ -1,45 +1,56 @@
 #include "FrustumCulling.h"
 
-FrustumCulling::FrustumCulling(const glm::mat4& pViewProjMat)
+FrustumCulling::FrustumCulling()
 {
-	update(pViewProjMat);
+	for (size_t i = 0; i < mPlanes.size(); ++i)
+	{
+		mPlanes[i] = Plane();
+	}
 }
 
-void FrustumCulling::update(const glm::mat4& pViewProjMat)
+FrustumCulling::FrustumCulling(const Camera& pCamera, float pAspect, float pFovY, float pZNear, float pZFar)
 {
-	Utils::getInstance().calculateClipPlanes(mLeftClipPlane, mRightClipPlane, mTopClipPlane, 
-											 mBottomClipPlane, mNearClipPlane, mFarClipPlane, 
-											 pViewProjMat);
+	for (size_t i = 0; i < mPlanes.size(); ++i)
+	{
+		mPlanes[i] = Plane();
+	}
+	initFrustumFromCamera(pCamera, pAspect, pFovY, pZNear, pZFar);
 }
 
-bool FrustumCulling::isPointInsideViewFrustum(const glm::vec3& pPoint) const
+void FrustumCulling::initFrustumFromCamera(const Camera& pCamera, float pAspect, float pFovY, float pZNear, float pZFar)
 {
-	const glm::vec4 pPoint4D(pPoint, 1.0f);
+	float halfVSide = pZFar * tanf(pFovY * 0.5f);
+	float halfHSide = halfVSide * pAspect;
+	const glm::vec3 frontMultFar = pZFar * pCamera.getDirection();
 
-	const bool inside =
-		(glm::dot(mLeftClipPlane, pPoint4D)   >= 0) &&
-		(glm::dot(mRightClipPlane, pPoint4D)  <= 0) &&
-		(glm::dot(mTopClipPlane, pPoint4D)	  <= 0) &&
-		(glm::dot(mBottomClipPlane, pPoint4D) >= 0) &&
-		(glm::dot(mNearClipPlane, pPoint4D)	  >= 0) &&
-		(glm::dot(mFarClipPlane, pPoint4D)	  <= 0);
-
-	return inside;
+	mPlanes[static_cast<int32_t>(PlaneType::NEAR_FACE)] = { pCamera.getPos() + pZNear * pCamera.getDirection(), pCamera.getDirection() };
+	mPlanes[static_cast<int32_t>(PlaneType::FAR_FACE)] = { pCamera.getPos() + frontMultFar, -pCamera.getDirection() };
+	
+	mPlanes[static_cast<int32_t>(PlaneType::RIGHT_FACE)] = { pCamera.getPos(),
+															 glm::cross(frontMultFar - pCamera.getRightVec() * halfHSide, pCamera.getUpVec()) };
+	mPlanes[static_cast<int32_t>(PlaneType::LEFT_FACE)] = { pCamera.getPos(),
+														    glm::cross(pCamera.getUpVec(), frontMultFar + pCamera.getRightVec() * halfHSide) };
+	
+	mPlanes[static_cast<int32_t>(PlaneType::TOP_FACE)] = { pCamera.getPos(),
+														   glm::cross(pCamera.getRightVec(), frontMultFar - pCamera.getUpVec() * halfVSide) };
+	mPlanes[static_cast<int32_t>(PlaneType::BOTTOM_FACE)] = { pCamera.getPos(),
+															  glm::cross(frontMultFar + pCamera.getUpVec() * halfVSide, pCamera.getRightVec()) };
 }
 
-//bool FrustumCulling::isAABBInsideViewFrustum(const glm::vec3& pMinBounds, const glm::vec3& pMaxBounds) const
-//{
-//	//for (int i = 0; i < mPlanes.size(); ++i) 
-//	//{
-//	//	const glm::vec4& plane = mPlanes[i];
-//	//
-//	//	glm::vec3 positiveVertex = pMinBounds;
-//	//	if (plane.x >= 0) positiveVertex.x = pMaxBounds.x;
-//	//	if (plane.y >= 0) positiveVertex.y = pMaxBounds.y;
-//	//	if (plane.z >= 0) positiveVertex.z = pMaxBounds.z;
-//	//
-//	//	if (glm::dot(glm::vec3(plane), positiveVertex) + plane.w < 0) 
-//	//		return false; 
-//	//}
-//	//return true;
-//}
+FrustumCulling::Plane& FrustumCulling::getPlane(PlaneType pPlaneType) noexcept
+{
+	return mPlanes[static_cast<int32_t>(pPlaneType)];
+}
+
+/*-------- PLANE --------*/
+FrustumCulling::Plane::Plane(const glm::vec3& pPoint, const glm::vec3& pNormal)
+{
+	mNormal = pNormal;
+	mDistance = glm::dot(pNormal, pPoint);
+}
+
+float FrustumCulling::Plane::getSignedDistanceToPlane(const glm::vec3& pPoint) const
+{
+	return glm::dot(mNormal, pPoint) - mDistance;
+}
+/*-----------------------*/
