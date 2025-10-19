@@ -116,14 +116,13 @@ float Terrain::getHeightInterpolated(float pX, float pZ) const
 	return finalHeight;
 }
 
-void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj,
-					 const glm::vec3& pCameraPos)
+void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
 {
 	mShader.bind();
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, mPos);
 	mShader.setMatrixUniform4fv("uModel", model);
-	mShader.setMatrixUniform4fv("uView", pViewMat);
+	mShader.setMatrixUniform4fv("uView", pCamera->getViewMatrix());
 	mShader.setMatrixUniform4fv("uProj", pProj);
 	mShader.setUniform1f("uMinHeight", mMinHeight);
 	mShader.setUniform1f("uMaxHeight", mMaxHeight);
@@ -138,8 +137,8 @@ void Terrain::render(const glm::mat4& pViewMat, const glm::mat4& pProj,
 		}
 	}
 	//mTriangleList.render();
-	glm::mat4 vpMat = pProj * pViewMat;
-	mGeomipGrid.render(pCameraPos, vpMat);
+	glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
+	mGeomipGrid.render(pCamera);
 }
 
 float Terrain::getWorldScale() const noexcept

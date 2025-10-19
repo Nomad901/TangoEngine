@@ -15,10 +15,10 @@ struct Volume
 							 const glm::mat4& pModelMatrix) = 0;
 };
 
-class Sphere : public Volume
+class SphereVolume : public Volume
 {
 public:
-	Sphere(const glm::vec3& pCenter, float pRadius);
+	SphereVolume(const glm::vec3& pCenter, float pRadius);
 
 	bool isOnForwardPlane(const Plane& pPlane);
 	bool isOnFrustum(FrustumCulling& pFrustumCulling,

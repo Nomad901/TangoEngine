@@ -12,7 +12,7 @@ public:
 	void resetAngleAroundPlayer();
 
 	float getAngleAroundPlayer() const noexcept;
-	float getZoom() const noexcept;
+	float getZoom() const noexcept override;
 
 private:
 	void calculateDistance(const SDL_Event& pEvents);

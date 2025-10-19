@@ -2,6 +2,7 @@
 #include <iostream>
 #include <format>
 #include <vector>
+#include <memory>
 
 #include "glm/glm.hpp"
 
@@ -12,6 +13,8 @@
 #include "Light.h"
 #include "LodManager.h"
 #include "FrustumCulling.h"
+#include "Camera.h"
+#include "Volume.h"
 
 class Terrain;
 
@@ -27,7 +30,7 @@ public:
 						  float pDistanceOfChanks, Terrain* pTerrain);
 	void createGLState();
 
-	void render(const glm::vec3& pCameraPos, const glm::mat4& pViewProjMat);
+	void render(Camera* pCamera);
 	void destroy();
 
 private:
@@ -37,6 +40,7 @@ private:
 	int32_t initIndicesLODSingle(uint32_t pIndex, int32_t pLodCore, int32_t pLodLeft, 
 								 int32_t pLodRight, int32_t pLodTop, int32_t pLodBottom);
 	void calcNormals(std::vector<Vertex>& pVertices, std::vector<uint32_t>& pIndices);
+	void initAABB();
 
 	uint32_t addTriangle(uint32_t pIndex, const std::vector<uint32_t>& pIndices, uint32_t pV1, uint32_t pV2, uint32_t pV3);
 	uint32_t createTriangleFan(uint32_t pIndex,	int32_t pLodCore, int32_t pLodLeft, int32_t pLodRight,
@@ -57,6 +61,8 @@ private:
 
 	std::vector<Vertex> mVertices;
 	std::vector<uint32_t> mIndices;
+
+	std::unique_ptr<AABB> mAABB;
 
 	VBO mVBO;
 	VBOLayout mVBOLayout;

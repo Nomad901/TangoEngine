@@ -8,7 +8,7 @@ FrustumCulling::FrustumCulling()
 	}
 }
 
-FrustumCulling::FrustumCulling(const Camera& pCamera, float pAspect, float pFovY, float pZNear, float pZFar)
+FrustumCulling::FrustumCulling(Camera* pCamera, float pAspect, float pFovY, float pZNear, float pZFar)
 {
 	for (size_t i = 0; i < mPlanes.size(); ++i)
 	{
@@ -17,40 +17,50 @@ FrustumCulling::FrustumCulling(const Camera& pCamera, float pAspect, float pFovY
 	initFrustumFromCamera(pCamera, pAspect, pFovY, pZNear, pZFar);
 }
 
-void FrustumCulling::initFrustumFromCamera(const Camera& pCamera, float pAspect, float pFovY, float pZNear, float pZFar)
+void FrustumCulling::initFrustumFromCamera(Camera* pCamera, float pAspect, float pFovY, float pZNear, float pZFar)
 {
 	float halfVSide = pZFar * tanf(pFovY * 0.5f);
 	float halfHSide = halfVSide * pAspect;
-	const glm::vec3 frontMultFar = pZFar * pCamera.getDirection();
+	const glm::vec3 frontMultFar = pZFar * pCamera->getDirection();
 
-	mPlanes[static_cast<int32_t>(PlaneType::NEAR_FACE)] = { pCamera.getPos() + pZNear * pCamera.getDirection(), pCamera.getDirection() };
-	mPlanes[static_cast<int32_t>(PlaneType::FAR_FACE)] = { pCamera.getPos() + frontMultFar, -pCamera.getDirection() };
+	mPlanes[static_cast<int32_t>(PlaneType::NEAR_FACE)] = { pCamera->getPos() + pZNear * pCamera->getDirection(), pCamera->getDirection() };
+	mPlanes[static_cast<int32_t>(PlaneType::FAR_FACE)] = { pCamera->getPos() + frontMultFar, -pCamera->getDirection() };
 	
-	mPlanes[static_cast<int32_t>(PlaneType::RIGHT_FACE)] = { pCamera.getPos(),
-															 glm::cross(frontMultFar - pCamera.getRightVec() * halfHSide, pCamera.getUpVec()) };
-	mPlanes[static_cast<int32_t>(PlaneType::LEFT_FACE)] = { pCamera.getPos(),
-														    glm::cross(pCamera.getUpVec(), frontMultFar + pCamera.getRightVec() * halfHSide) };
+	mPlanes[static_cast<int32_t>(PlaneType::RIGHT_FACE)] = { pCamera->getPos(),
+															 glm::cross(frontMultFar - pCamera->getRightVec() * halfHSide, pCamera->getUpVec()) };
+	mPlanes[static_cast<int32_t>(PlaneType::LEFT_FACE)] = { pCamera->getPos(),
+														    glm::cross(pCamera->getUpVec(), frontMultFar + pCamera->getRightVec() * halfHSide) };
 	
-	mPlanes[static_cast<int32_t>(PlaneType::TOP_FACE)] = { pCamera.getPos(),
-														   glm::cross(pCamera.getRightVec(), frontMultFar - pCamera.getUpVec() * halfVSide) };
-	mPlanes[static_cast<int32_t>(PlaneType::BOTTOM_FACE)] = { pCamera.getPos(),
-															  glm::cross(frontMultFar + pCamera.getUpVec() * halfVSide, pCamera.getRightVec()) };
+	mPlanes[static_cast<int32_t>(PlaneType::TOP_FACE)] = { pCamera->getPos(),
+														   glm::cross(pCamera->getRightVec(), frontMultFar - pCamera->getUpVec() * halfVSide) };
+	mPlanes[static_cast<int32_t>(PlaneType::BOTTOM_FACE)] = { pCamera->getPos(),
+															  glm::cross(frontMultFar + pCamera->getUpVec() * halfVSide, pCamera->getRightVec()) };
 }
 
-FrustumCulling::Plane& FrustumCulling::getPlane(PlaneType pPlaneType) noexcept
+Plane& FrustumCulling::getPlane(PlaneType pPlaneType) noexcept
 {
 	return mPlanes[static_cast<int32_t>(pPlaneType)];
 }
 
 /*-------- PLANE --------*/
-FrustumCulling::Plane::Plane(const glm::vec3& pPoint, const glm::vec3& pNormal)
+Plane::Plane(const glm::vec3& pPoint, const glm::vec3& pNormal)
 {
 	mNormal = pNormal;
 	mDistance = glm::dot(pNormal, pPoint);
 }
 
-float FrustumCulling::Plane::getSignedDistanceToPlane(const glm::vec3& pPoint) const
+float Plane::getSignedDistanceToPlane(const glm::vec3& pPoint) const
 {
 	return glm::dot(mNormal, pPoint) - mDistance;
+}
+
+const glm::vec3& Plane::getNormal() const noexcept
+{
+	return mNormal;
+}
+
+float Plane::getDistance() const noexcept
+{
+	return mDistance;
 }
 /*-----------------------*/

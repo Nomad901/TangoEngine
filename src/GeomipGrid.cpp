@@ -67,6 +67,7 @@ void GeomipGrid::createGeomipGrid(int32_t pWidth, int32_t pDepth, uint32_t pPatc
 	initIndices();
 	calcNormals(mVertices, mIndices);
 	createGLState();
+	initAABB();
 }
 
 void GeomipGrid::createGLState()
@@ -82,42 +83,6 @@ void GeomipGrid::createGLState()
 	mVBOLayout.pushLayout(GL_FLOAT, 1);
 	mVAO.addBuffer(mVBO, mVBOLayout);
 	mEBO.init(mIndices.data(), mIndices.size());
-}
-
-void GeomipGrid::render(const glm::vec3& pCameraPos, const glm::mat4& pViewProjMat)
-{
-	mLodManager.update(pCameraPos);
-	FrustumCulling frustumCulling(pViewProjMat);
-	mVAO.bind();
-	
-	float patchSize = static_cast<float>(mPatchSize - 1.0f) * mWorldScale;
-	float halfPatchSize = patchSize / 2.0f;
-	for (uint32_t patchZ = 0; patchZ < mNumPatchesZ; ++patchZ)
-	{
-		for (uint32_t patchX = 0; patchX < mNumPatchesX; ++patchX)
-		{
-			int32_t z = patchZ * (mPatchSize - 1);
-			int32_t x = patchX * (mPatchSize - 1);
-
-			/*if (!isPatchInsideFrustum_WorldSpace(x, z, frustumCulling))
-				continue;*/
-			if (isPatchInsideFrustum_ViewSpace(x, z, pViewProjMat))
-				continue;
-
-			const LodManager::PatchLod& patchLod = mLodManager.getPatchLod(patchX, patchZ);
-			int32_t core   = patchLod.mCore;
-			int32_t left   = patchLod.mLeft;
-			int32_t right  = patchLod.mRight;
-			int32_t top    = patchLod.mTop;
-			int32_t bottom = patchLod.mBottom;
-
-			size_t baseIndex = sizeof(uint32_t) * mLodInfoStorage[core].mSingleLodInfo[left][right][top][bottom].mStart;
-			int32_t baseVertex = z * mWidth + x;
-
-			glDrawElementsBaseVertex(GL_TRIANGLES, mLodInfoStorage[core].mSingleLodInfo[left][right][top][bottom].mCount,
-									 GL_UNSIGNED_INT, (void*)baseIndex, baseVertex);
-		}
-	}
 }
 
 void GeomipGrid::destroy()
@@ -247,6 +212,25 @@ void GeomipGrid::calcNormals(std::vector<Vertex>& pVertices, std::vector<uint32_
 	}
 }
 
+void GeomipGrid::initAABB()
+{
+	glm::vec3 minAABB = glm::vec3(std::numeric_limits<float>::min());
+	glm::vec3 maxAABB = glm::vec3(std::numeric_limits<float>::max());
+	
+	for (auto& vertex : mVertices)
+	{
+		minAABB.x = std::min(minAABB.x, vertex.mPos.x);
+		minAABB.y = std::min(minAABB.y, vertex.mPos.y);
+		minAABB.z = std::min(minAABB.z, vertex.mPos.z);
+
+		maxAABB.x = std::max(maxAABB.x, vertex.mPos.x);
+		maxAABB.y = std::max(maxAABB.y, vertex.mPos.y);
+		maxAABB.z = std::max(maxAABB.z, vertex.mPos.z);
+	}
+
+	mAABB = std::make_unique<AABB>(maxAABB, minAABB);
+}
+
 uint32_t GeomipGrid::addTriangle(uint32_t pIndex, const std::vector<uint32_t>& pIndices, uint32_t pV1, uint32_t pV2, uint32_t pV3)
 {
 	assert(pIndex < mIndices.size());
@@ -359,6 +343,46 @@ int32_t GeomipGrid::calcNumIndices()
 	return numIndices;
 }
 
+void GeomipGrid::render(Camera* pCamera)
+{
+	mLodManager.update(pCamera->getPos());
+	FrustumCulling frustumCulling(pCamera, 1280.0f / 720.0f, glm::radians(pCamera->getZoom()), 0.1f, 100.0f);
+	mVAO.bind();
+
+	float patchSize = static_cast<float>(mPatchSize - 1.0f) * mWorldScale;
+	float halfPatchSize = patchSize / 2.0f;
+	for (uint32_t patchZ = 0; patchZ < mNumPatchesZ; ++patchZ)
+	{
+		for (uint32_t patchX = 0; patchX < mNumPatchesX; ++patchX)
+		{
+			int32_t z = patchZ * (mPatchSize - 1);
+			int32_t x = patchX * (mPatchSize - 1);
+
+			/*if (!isPatchInsideFrustum_WorldSpace(x, z, frustumCulling))
+				continue;*/
+			//if (!isPatchInsideFrustum_ViewSpace(x, z, pViewProjMat))
+			//	continue;
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::translate(matrix, pCamera->getPos());
+			if (!mAABB->isOnFrustum(frustumCulling, matrix))
+				continue;
+
+			const LodManager::PatchLod& patchLod = mLodManager.getPatchLod(patchX, patchZ);
+			int32_t core = patchLod.mCore;
+			int32_t left = patchLod.mLeft;
+			int32_t right = patchLod.mRight;
+			int32_t top = patchLod.mTop;
+			int32_t bottom = patchLod.mBottom;
+
+			size_t baseIndex = sizeof(uint32_t) * mLodInfoStorage[core].mSingleLodInfo[left][right][top][bottom].mStart;
+			int32_t baseVertex = z * mWidth + x;
+
+			glDrawElementsBaseVertex(GL_TRIANGLES, mLodInfoStorage[core].mSingleLodInfo[left][right][top][bottom].mCount,
+				GL_UNSIGNED_INT, (void*)baseIndex, baseVertex);
+		}
+	}
+}
+
 bool GeomipGrid::isPatchInsideFrustum_ViewSpace(int32_t pX, int32_t pZ, const glm::mat4& pViewProj)
 {
 	int32_t x0 = pX;
@@ -367,17 +391,21 @@ bool GeomipGrid::isPatchInsideFrustum_ViewSpace(int32_t pX, int32_t pZ, const gl
 	int32_t z1 = pZ + mPatchSize - 1;
 
 	float heights[3];
+	// minimum point
 	heights[0] = std::min(mTerrain->getHeight(x0, z0),
-				 std::min(mTerrain->getHeight(x0, z1),
-				 std::min(mTerrain->getHeight(x1, z0), mTerrain->getHeight(x1, z1))));
-	heights[1] = (heights[0] + std::max(mTerrain->getHeight(x0, z0),
-							   std::max(mTerrain->getHeight(x0, z1),
-							   std::max(mTerrain->getHeight(x1, z0), mTerrain->getHeight(x1, z1))))) / 2.0f;
+						  std::min(mTerrain->getHeight(x0, z1),
+								   std::min(mTerrain->getHeight(x1, z0), mTerrain->getHeight(x1, z1))));
+	// maximum point
 	heights[2] = std::max(mTerrain->getHeight(x0, z0),
-				 std::max(mTerrain->getHeight(x0, z1),
-				 std::max(mTerrain->getHeight(x1, z0), mTerrain->getHeight(x1, z1))));
+						  std::max(mTerrain->getHeight(x0, z1),
+								   std::max(mTerrain->getHeight(x1, z0), mTerrain->getHeight(x1, z1))));
+	// average point
+	heights[1] = (mTerrain->getHeight(x0, z0) + 
+				  mTerrain->getHeight(x0, z1) +
+				  mTerrain->getHeight(x1, z0) +
+				  mTerrain->getHeight(x1, z1)) / 4.0f;
 
-	for (int h = 0; h < 3; h++) 
+	for (int32_t h = 0; h < std::ssize(heights); ++h) 
 	{
 		glm::vec3 points[4] = 
 		{
@@ -387,7 +415,7 @@ bool GeomipGrid::isPatchInsideFrustum_ViewSpace(int32_t pX, int32_t pZ, const gl
 			{static_cast<float>(x1) * mWorldScale, heights[h], static_cast<float>(z1) * mWorldScale}
 		};
 
-		for (int i = 0; i < 4; i++) 
+		for (int32_t i = 0; i < 4; ++i)
 		{
 			if (Utils::getInstance().isPointInsideFrustum(points[i], pViewProj)) 
 				return true;
@@ -422,17 +450,17 @@ bool GeomipGrid::isPatchInsideFrustum_WorldSpace(int32_t pX, int32_t pZ, const F
 	glm::vec3 p10_max = glm::vec3(static_cast<float>(x1) * mWorldScale, maxHeight, static_cast<float>(z0) * mWorldScale);
 	glm::vec3 p11_max = glm::vec3(static_cast<float>(x1) * mWorldScale, maxHeight, static_cast<float>(z1) * mWorldScale);
 	
-	bool isInside =
-		pFrustumCulling.isPointInsideViewFrustum(p00_min) ||
-		pFrustumCulling.isPointInsideViewFrustum(p01_min) ||
-		pFrustumCulling.isPointInsideViewFrustum(p10_min) ||
-		pFrustumCulling.isPointInsideViewFrustum(p11_min) ||
-		pFrustumCulling.isPointInsideViewFrustum(p00_max) ||
-		pFrustumCulling.isPointInsideViewFrustum(p01_max) ||
-		pFrustumCulling.isPointInsideViewFrustum(p10_max) ||
-		pFrustumCulling.isPointInsideViewFrustum(p11_max);
+	//bool isInside =
+	//	pFrustumCulling.isPointInsideViewFrustum(p00_min) ||
+	//	pFrustumCulling.isPointInsideViewFrustum(p01_min) ||
+	//	pFrustumCulling.isPointInsideViewFrustum(p10_min) ||
+	//	pFrustumCulling.isPointInsideViewFrustum(p11_min) ||
+	//	pFrustumCulling.isPointInsideViewFrustum(p00_max) ||
+	//	pFrustumCulling.isPointInsideViewFrustum(p01_max) ||
+	//	pFrustumCulling.isPointInsideViewFrustum(p10_max) ||
+	//	pFrustumCulling.isPointInsideViewFrustum(p11_max);
 
-	return isInside;
+	return false;
 }
 
 bool GeomipGrid::isCameraInPatch(const glm::vec3& pCameraPos, int32_t pX, int32_t pZ)

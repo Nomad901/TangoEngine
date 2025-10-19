@@ -80,6 +80,7 @@ void UI::control(SceneManager& pSceneManager)
 		reinterpret_cast<MidpointDispTerrain*>(pSceneManager.getModelProperties().mTerrain.get())->setLight(pSceneManager.getLightProperties().mLightDir, 
 																											pSceneManager.getLightProperties().mSoftness);
 		reinterpret_cast<MidpointDispTerrain*>(pSceneManager.getModelProperties().mTerrain.get())->createMidpointDispTerrain(size,
+			5,
 			roughness,
 			minHeight,
 			maxHeight);

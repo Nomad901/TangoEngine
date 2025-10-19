@@ -1,16 +1,16 @@
 #include "Volume.h"
 
-// SPHERE
-Sphere::Sphere(const glm::vec3& pCenter, float pRadius)
+// SphereVolume
+SphereVolume::SphereVolume(const glm::vec3& pCenter, float pRadius)
 	: mCenter(pCenter), mRadius(pRadius)
 {}
 
-bool Sphere::isOnForwardPlane(const Plane& pPlane)
+bool SphereVolume::isOnForwardPlane(const Plane& pPlane)
 {
 	return pPlane.getSignedDistanceToPlane(mCenter) > -mRadius;
 }
 
-bool Sphere::isOnFrustum(FrustumCulling& pFrustumCulling, const glm::mat4& pModelMatrix)
+bool SphereVolume::isOnFrustum(FrustumCulling& pFrustumCulling, const glm::mat4& pModelMatrix)
 {
 	const glm::vec3 globalScale = glm::vec3(glm::length(glm::vec3(pModelMatrix[0][0], pModelMatrix[0][1], pModelMatrix[0][2])),
 											glm::length(glm::vec3(pModelMatrix[1][0], pModelMatrix[1][1], pModelMatrix[1][2])),
@@ -18,14 +18,14 @@ bool Sphere::isOnFrustum(FrustumCulling& pFrustumCulling, const glm::mat4& pMode
 	const glm::vec3 globalCenter{ pModelMatrix * glm::vec4(mCenter, 1.0f) };
 	const float maxScale = std::max(std::max(globalScale.x, globalScale.y), globalScale.z);
 
-	Sphere globalSphere(globalCenter, mRadius * (maxScale * 0.5f));
+	SphereVolume globalSphereVolume(globalCenter, mRadius * (maxScale * 0.5f));
 	
-	return (globalSphere.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::LEFT_FACE))  &&
-			globalSphere.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::RIGHT_FACE)) &&
-			globalSphere.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::NEAR_FACE))  &&
-			globalSphere.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::FAR_FACE))   &&
-			globalSphere.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::TOP_FACE))   &&
-			globalSphere.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::BOTTOM_FACE)));
+	return (globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::LEFT_FACE))  &&
+			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::RIGHT_FACE)) &&
+			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::NEAR_FACE))  &&
+			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::FAR_FACE))   &&
+			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::TOP_FACE))   &&
+			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::BOTTOM_FACE)));
 }
 
 // AABB
@@ -53,15 +53,18 @@ std::array<glm::vec3, 8> AABB::getVertices() const
 
 bool AABB::isOnForwardPlane(const Plane& pPlane) const 
 {
-	return false;
+	const float radius = mExtents.x * std::abs(pPlane.getNormal().x) +
+						 mExtents.y * std::abs(pPlane.getNormal().y) +
+						 mExtents.z * std::abs(pPlane.getNormal().z);
+	return -radius <= pPlane.getSignedDistanceToPlane(mCenter);
 }
 
 bool AABB::isOnFrustum(FrustumCulling& pFrustumCulling, const glm::mat4& pModelMatrix)
 {
 	const glm::vec3 globalCenter = glm::vec3(pModelMatrix * glm::vec4(mCenter, 1.0f));
 	
-	const glm::vec3 rightVec   = pModelMatrix[0] * mExtents.x;
-	const glm::vec3 upVec	   = pModelMatrix[1] * mExtents.y;
+	const glm::vec3 rightVec   =  pModelMatrix[0] * mExtents.x;
+	const glm::vec3 upVec	   =  pModelMatrix[1] * mExtents.y;
 	const glm::vec3 forwardVec = -pModelMatrix[2] * mExtents.z;
 
 	const float newLX = std::abs(glm::dot(glm::vec3(1.0f, 0.0f, 0.0f), rightVec)) +

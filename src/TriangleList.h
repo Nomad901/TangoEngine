@@ -18,14 +18,17 @@ class TriangleList
 public:
 	TriangleList() = default;
 	TriangleList(int32_t pWidth, int32_t pDepth, Terrain* pTerrain);
+	~TriangleList();
 
 	void createTriangleList(int32_t pWidth, int32_t pDepth, Terrain* pTerrain);
 	void createGLState();
 
+	void destroy();
 	void render();
 
 private:
 	void initVertices(const Terrain* pTerrain);
+	void initIndices();
 	void calcNormals(std::vector<Vertex>& pVertices, std::vector<uint32_t>& pIndices);
 
 private:

@@ -66,7 +66,9 @@ std::vector<float> Utils::readFromPNGFile2Float(const std::filesystem::path& pPa
 
 bool Utils::isPointInsideFrustum(const glm::vec3& pPointPos, const glm::mat4& pMatrix)
 {
-	glm::vec4 clipSpace = pMatrix * glm::vec4(pPointPos, 1.0f);
+	glm::vec3 pointPos = pPointPos;
+	pointPos.y = -pointPos.y;
+	glm::vec4 clipSpace = pMatrix * glm::vec4(pointPos, 1.0f);
 
 	if (clipSpace.w <= 0.0f) 
 		return false;
