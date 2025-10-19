@@ -215,12 +215,13 @@ std::string Shader::parsePath(const std::filesystem::path& pPath)
 
 GLuint Shader::getUniformLocation(std::string_view pName)
 {
-	if (mStorageLocations.contains(std::string(pName)))
-		return mStorageLocations[std::string(pName)];
+	std::string name = std::string(pName);
+	if (mStorageLocations.contains(name))
+		return mStorageLocations[name];
 
-	GLuint location = glGetUniformLocation(mShaderID, std::string(pName).c_str());
+	GLuint location = glGetUniformLocation(mShaderID, name.c_str());
 	if (location == -1)
 		std::cout << std::format("Couldnt find the location of this name: {}\n", pName);
-	mStorageLocations.emplace(std::string(pName), location);
+	mStorageLocations.emplace(name, location);
 	return location;
 }

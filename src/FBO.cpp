@@ -3,6 +3,13 @@
 FBO::FBO(uint32_t pWidth, uint32_t pHeight)
 {
     init(pWidth, pHeight);
+    initShader();
+}
+
+FBO::FBO(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize)
+{
+    init(pScreenWidth, pScreenHeight, pPos, pSize);
+    initShader();
 }
 
 FBO::~FBO()
@@ -36,6 +43,38 @@ void FBO::init(uint32_t pWidth, uint32_t pHeight)
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mRenderBufferID);
     
+    // completeness 
+    int32_t status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cout << std::format("Frame buffer wasnt completed! Status: {}\n", status);
+        return;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize)
+{
+    mScreenQuad.init(pScreenWidth, pScreenHeight, pPos, pSize);
+    // frame buffer
+    glGenFramebuffers(1, &mFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+
+    // color texture
+    mTexture.initEmpty(pSize.x, pSize.y);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture.getID(), 0);
+
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    // depth and stencil
+    glGenRenderbuffers(1, &mRenderBufferID);
+    glBindRenderbuffer(GL_RENDERBUFFER, mRenderBufferID);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, pSize.x, pSize.y);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mRenderBufferID);
+
     // completeness 
     int32_t status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -91,8 +130,78 @@ glm::vec4 FBO::getClearColors() const noexcept
     return mClearColors;
 }
 
-void FBO::getSize(uint32_t& pWidht, uint32_t& pHeight)
+void FBO::initShader()
 {
-    pWidht = mWidth;
-    pHeight = mHeight;
+    std::string resourcePath = RESOURCES_PATH;
+    mShader.init(resourcePath + "Shaders/vertFrameBuffer.glsl", resourcePath + "Shaders/fragFrameBuffer.glsl");
+}
+
+glm::vec2 FBO::getSize() const noexcept
+{
+    return mScreenQuad.getSize();
+}
+
+ScreenQuad& FBO::getScreenQuad() noexcept
+{
+    return mScreenQuad;
+}
+
+Shader& FBO::getShader() noexcept
+{
+    return mShader;
+}
+
+ScreenQuad::ScreenQuad(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize)
+{
+    init(pScreenWidth, pScreenHeight, pPos, pSize);
+}
+
+void ScreenQuad::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize)
+{
+    mSize = pSize;
+    mPos = pPos;
+
+    assert(!(pPos.x == 0.0f || pPos.y == 0.0f || 
+             pSize.x == 0.0f || pSize.y == 0.0f));
+
+    glm::vec2 ndc;
+    ndc.x = (pPos.x / pScreenWidth) * 2.0f - 1.0f;
+    ndc.y = (pPos.y / pScreenHeight) * 2.0f - 1.0f;
+
+    glm::vec2 ndcSize;
+    ndcSize.x = (pSize.x / pScreenWidth) * 2.0f;
+    ndcSize.y = (pSize.y / pScreenHeight) * 2.0f;
+    
+    float vertices[] =
+    {
+        ndc.x,             ndc.y,              0.0f, 1.0f,
+        ndc.x,             ndc.y - ndcSize.y,  0.0f, 0.0f,
+        ndc.x + ndcSize.x, ndc.y - ndcSize.y,  1.0f, 0.0f,
+
+        ndc.x,             ndc.y,              0.0f, 1.0f,
+        ndc.x + ndcSize.x, ndc.y - ndcSize.y,  1.0f, 0.0f,
+        ndc.x + ndcSize.x, ndc.y,              1.0f, 1.0f
+    };
+
+    mVAO.bind();
+    mVBO.init(vertices, sizeof(vertices), GL_STATIC_DRAW);
+    mVBOLayout.pushLayout(GL_FLOAT, 2);
+    mVBOLayout.pushLayout(GL_FLOAT, 2);
+    mVAO.addBuffer(mVBO, mVBOLayout);
+}
+
+glm::vec2 ScreenQuad::getSize() const noexcept
+{
+    return mSize;
+}
+
+glm::vec2 ScreenQuad::getPos() const noexcept
+{
+    return mPos;
+}
+
+void ScreenQuad::render()
+{
+    mVAO.bind();
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }

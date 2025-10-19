@@ -13,13 +13,14 @@ void Initializer::init(bool pInitAll)
 
 	// camera
 	mSceneManager->getProgramProperties().mCamera.setSensivity(0.2f);
-
+	mSceneManager->getProgramProperties().mSecondThirdPersonCam.setPos(glm::vec3(10.0f, 10.0f, 10.0f));
 	// projection matrix
 	mSceneManager->getModelProperties().mProjMatrix = glm::perspective(glm::radians(45.0f), (float)mSceneManager->getProgramProperties().mWindowWidth /
 		(float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
 	// fbo
-	mSceneManager->getProgramProperties().mFBO.init(mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight);
-	mSceneManager->getProgramProperties().mFBO.setClearColors({ 0.1f, 0.1f, 0.1f, 0.1f });
+	mSceneManager->getProgramProperties().mFBO = std::make_unique<FBO>(mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight,
+																	   glm::vec2(5.0f, 5.0f), glm::vec2(300.0f, 300.0f));
+	mSceneManager->getProgramProperties().mFBO->setClearColors(glm::vec4(0.1f, 0.1f, 0.1f, 0.1f));
 	if (pInitAll)
 		initAll();
 }
