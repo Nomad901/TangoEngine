@@ -35,12 +35,15 @@ class FBO
 {
 public:
 	FBO() = default;
-	FBO(uint32_t pWidth, uint32_t pHeight);
 	FBO(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize);
 	~FBO();
 
-	void init(uint32_t pWidth, uint32_t pHeight);
 	void init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize);
+
+	void start();
+	void stop();
+	void stopAndRender();
+	void render();
 
 	void bind();
 	void unbind();
@@ -67,7 +70,7 @@ private:
 	ScreenQuad mScreenQuad;
 	Shader mShader;
 
-	uint32_t mWidth{}, mHeight{};
+	uint32_t mScreenWidth{}, mScreenHeight{};
 	glm::vec4 mClearColors{ 1.0f };
 };
 
