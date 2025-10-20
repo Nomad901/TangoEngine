@@ -1,11 +1,5 @@
 #include "FBO.h"
 
-FBO::FBO(uint32_t pWidth, uint32_t pHeight)
-{
-    init(pWidth, pHeight);
-    initShader();
-}
-
 FBO::FBO(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize)
 {
     init(pScreenWidth, pScreenHeight, pPos, pSize);
@@ -20,43 +14,12 @@ FBO::~FBO()
     mTexture.destroyTexture();
 }
 
-void FBO::init(uint32_t pWidth, uint32_t pHeight)
-{
-    mWidth = pWidth;
-    mHeight = pHeight;
-
-    // frame buffer
-    glGenFramebuffers(1, &mFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
-    
-    // color texture
-    mTexture.initEmpty(pWidth, pHeight);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture.getID(), 0);
-
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-
-    // depth and stencil
-    glGenRenderbuffers(1, &mRenderBufferID);
-    glBindRenderbuffer(GL_RENDERBUFFER, mRenderBufferID);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mWidth, mHeight);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mRenderBufferID);
-    
-    // completeness 
-    int32_t status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
-        std::cout << std::format("Frame buffer wasnt completed! Status: {}\n", status);
-        return;
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
 void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize)
 {
     mScreenQuad.init(pScreenWidth, pScreenHeight, pPos, pSize);
+    mScreenWidth = pScreenWidth;
+    mScreenHeight = pScreenHeight;
+
     // frame buffer
     glGenFramebuffers(1, &mFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
@@ -64,9 +27,6 @@ void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, gl
     // color texture
     mTexture.initEmpty(pSize.x, pSize.y);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture.getID(), 0);
-
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
 
     // depth and stencil
     glGenRenderbuffers(1, &mRenderBufferID);
@@ -84,6 +44,40 @@ void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, gl
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void FBO::start()
+{
+    FBO::bind();
+    glViewport(0, 0, static_cast<GLsizei>(mScreenQuad.getSize().x), static_cast<GLsizei>(mScreenQuad.getSize().y));
+    FBO::clearColor();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void FBO::stop()
+{
+    FBO::unbind();
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(static_cast<GLint>(mScreenQuad.getPos().x), static_cast<GLint>(mScreenQuad.getPos().y),
+               static_cast<GLsizei>(mScreenQuad.getSize().x), static_cast<GLsizei>(mScreenQuad.getSize().y));
+}
+
+void FBO::stopAndRender()
+{
+    FBO::stop();
+    FBO::render();
+}
+
+void FBO::render()
+{
+    mShader.bind();
+    mShader.setUniform1i("uTexture", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mTexture.getID());
+    mScreenQuad.render();
+    
+    glViewport(0, 0, mScreenWidth, mScreenHeight);
 }
 
 void FBO::bind()
@@ -188,7 +182,6 @@ void ScreenQuad::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 p
         ndc.x + ndcSize.x, ndc.y - ndcSize.y,  1.0f, 0.0f,  
         ndc.x + ndcSize.x, ndc.y,              1.0f, 1.0f   
     };
-
 
     mVAO.bind();
     mVBO.init(vertices, sizeof(vertices), GL_STATIC_DRAW);
