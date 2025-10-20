@@ -161,27 +161,34 @@ void ScreenQuad::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 p
     mSize = pSize;
     mPos = pPos;
 
-    assert(!(pPos.x == 0.0f || pPos.y == 0.0f || 
-             pSize.x == 0.0f || pSize.y == 0.0f));
+    if (pPos.x == 0.0f)
+        pPos.x = 0.1f;
+    if (pPos.y == 0.0f)
+        pPos.y = 0.1f;
+    if (pSize.x == 0.0f)
+        pSize.x = 0.1f;
+    if (pSize.y == 0.1f)
+        pSize.y = 0.1f;
 
     glm::vec2 ndc;
     ndc.x = (pPos.x / pScreenWidth) * 2.0f - 1.0f;
-    ndc.y = (pPos.y / pScreenHeight) * 2.0f - 1.0f;
+    ndc.y = 1.0f - (pPos.y / pScreenHeight) * 2.0f; 
 
     glm::vec2 ndcSize;
     ndcSize.x = (pSize.x / pScreenWidth) * 2.0f;
     ndcSize.y = (pSize.y / pScreenHeight) * 2.0f;
-    
+
     float vertices[] =
     {
-        ndc.x,             ndc.y,              0.0f, 1.0f,
-        ndc.x,             ndc.y - ndcSize.y,  0.0f, 0.0f,
-        ndc.x + ndcSize.x, ndc.y - ndcSize.y,  1.0f, 0.0f,
+        ndc.x,             ndc.y,              0.0f, 1.0f,  
+        ndc.x,             ndc.y - ndcSize.y,  0.0f, 0.0f,  
+        ndc.x + ndcSize.x, ndc.y - ndcSize.y,  1.0f, 0.0f,  
 
-        ndc.x,             ndc.y,              0.0f, 1.0f,
-        ndc.x + ndcSize.x, ndc.y - ndcSize.y,  1.0f, 0.0f,
-        ndc.x + ndcSize.x, ndc.y,              1.0f, 1.0f
+        ndc.x,             ndc.y,              0.0f, 1.0f,  
+        ndc.x + ndcSize.x, ndc.y - ndcSize.y,  1.0f, 0.0f,  
+        ndc.x + ndcSize.x, ndc.y,              1.0f, 1.0f   
     };
+
 
     mVAO.bind();
     mVBO.init(vertices, sizeof(vertices), GL_STATIC_DRAW);
