@@ -22,31 +22,14 @@ void Renderer::drawScene()
 	
 	auto fboRef = mSceneManager->getProgramProperties().mFBO.get();
 
-	fboRef->bind();
-	glm::vec2 size = fboRef->getSize();
-	glViewport(0, 0, size.x, size.y);
-	fboRef->setClearColors(glm::vec4(0.7f, 0.7f, 0.7f, 1.0f));
-	fboRef->clearColor();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	uint32_t winWidth  = mSceneManager->getProgramProperties().mWindowWidth;
-	uint32_t winHeight = mSceneManager->getProgramProperties().mWindowHeight;
-
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glViewport(0, 0, winWidth / 2, winHeight);
-	fboRef->getShader().bind();
-	fboRef->getShader().setUniform1i("uTexture", 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, fboRef->getTexture().getID());
-	fboRef->getScreenQuad().render();
+	fboRef->start();
 	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
-
-	glViewport(winWidth / 2, 0, winWidth / 2, winHeight);
+	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
+	fboRef->stopAndRender();
 
 	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
 
-	glViewport(0, 0, winWidth, winHeight);
+	//glViewport(0, 0, winWidth, winHeight);
 
 	// crosshair
 	//mSceneManager->mProgramProperties.mCrosshair->render(mSceneManager->mProgramProperties.mWindowWidth, 
