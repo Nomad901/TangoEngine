@@ -30,8 +30,10 @@ void Transform::setLocalScale(const glm::vec3& pScale)
 	mIsShouldBeRecomputed = true;
 }
 
-const glm::mat4& Transform::getModelMatrix() const noexcept
+const glm::mat4& Transform::getModelMatrix() noexcept
 {
+	if (mIsShouldBeRecomputed)
+		computeModelMatrix();
 	return mModelMatrix;
 }
 
