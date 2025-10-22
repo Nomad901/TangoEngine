@@ -346,8 +346,11 @@ int32_t GeomipGrid::calcNumIndices()
 void GeomipGrid::render(Camera* pCamera)
 {
 	mLodManager.update(pCamera->getPos());
-	FrustumCulling frustumCulling(pCamera, 1280.0f / 720.0f, glm::radians(pCamera->getZoom()), 0.1f, 100.0f);
+	//FrustumCulling  frustumCulling(pCamera, 1280.0f / 720.0f, glm::radians(pCamera->getZoom()), 0.1f, 100.0f);
 	mVAO.bind();
+
+	uint32_t wasSentOnGpu  = 0;
+	uint32_t originalValue = mNumPatchesZ * mNumPatchesX;
 
 	float patchSize = static_cast<float>(mPatchSize - 1.0f) * mWorldScale;
 	float halfPatchSize = patchSize / 2.0f;
@@ -357,16 +360,17 @@ void GeomipGrid::render(Camera* pCamera)
 		{
 			int32_t z = patchZ * (mPatchSize - 1);
 			int32_t x = patchX * (mPatchSize - 1);
-
+			
 			/*if (!isPatchInsideFrustum_WorldSpace(x, z, frustumCulling))
 				continue;*/
 			//if (!isPatchInsideFrustum_ViewSpace(x, z, pViewProjMat))
 			//	continue;
-			glm::mat4 matrix = glm::mat4(1.0f);
-			matrix = glm::translate(matrix, pCamera->getPos());
-			if (!mAABB->isOnFrustum(frustumCulling, matrix))
-				continue;
-
+			//glm::mat4 modelMatrix = glm::mat4(1.0f);
+			//modelMatrix = glm::translate(modelMatrix, glm::vec3(x, mTerrain->getHeight(x, z), z));
+			//if (mAABB->isOnFrustum(frustumCulling, modelMatrix))
+			//	continue;
+			
+			wasSentOnGpu++;
 			const LodManager::PatchLod& patchLod = mLodManager.getPatchLod(patchX, patchZ);
 			int32_t core = patchLod.mCore;
 			int32_t left = patchLod.mLeft;
@@ -381,6 +385,49 @@ void GeomipGrid::render(Camera* pCamera)
 				GL_UNSIGNED_INT, (void*)baseIndex, baseVertex);
 		}
 	}
+	std::cout << std::format("Was sent on gpu: {}\t OriginalValue: {}\n\n", wasSentOnGpu, originalValue);
+}
+
+void GeomipGrid::render(Camera* pCamera, const glm::mat4& pViewProj)
+{
+	mLodManager.update(pCamera->getPos());
+	//FrustumCulling frustumCulling(pCamera, 1280.0f / 720.0f, glm::radians(pCamera->getZoom()), 0.1f, 100.0f);
+	FrustumCulling frustumCulling(pViewProj);
+	mVAO.bind();
+
+	uint32_t wasSentOnGpu = 0;
+	uint32_t originalValue = mNumPatchesZ * mNumPatchesX;
+
+	float patchSize = static_cast<float>(mPatchSize - 1.0f) * mWorldScale;
+	float halfPatchSize = patchSize / 2.0f;
+	for (uint32_t patchZ = 0; patchZ < mNumPatchesZ; ++patchZ)
+	{
+		for (uint32_t patchX = 0; patchX < mNumPatchesX; ++patchX)
+		{
+			int32_t z = patchZ * (mPatchSize - 1);
+			int32_t x = patchX * (mPatchSize - 1);
+
+			//if (!isPatchInsideFrustum_WorldSpace(x, z, frustumCulling))
+			//	continue;
+			if (!isPatchInsideFrustum_ViewSpace(x, z, pViewProj))
+				continue;
+			
+			wasSentOnGpu++;
+			const LodManager::PatchLod& patchLod = mLodManager.getPatchLod(patchX, patchZ);
+			int32_t core = patchLod.mCore;
+			int32_t left = patchLod.mLeft;
+			int32_t right = patchLod.mRight;
+			int32_t top = patchLod.mTop;
+			int32_t bottom = patchLod.mBottom;
+
+			size_t baseIndex = sizeof(uint32_t) * mLodInfoStorage[core].mSingleLodInfo[left][right][top][bottom].mStart;
+			int32_t baseVertex = z * mWidth + x;
+
+			glDrawElementsBaseVertex(GL_TRIANGLES, mLodInfoStorage[core].mSingleLodInfo[left][right][top][bottom].mCount,
+				GL_UNSIGNED_INT, (void*)baseIndex, baseVertex);
+		}
+	}
+	std::cout << std::format("Was sent on gpu: {}\t OriginalValue: {}\n\n", wasSentOnGpu, originalValue);
 }
 
 bool GeomipGrid::isPatchInsideFrustum_ViewSpace(int32_t pX, int32_t pZ, const glm::mat4& pViewProj)
@@ -417,11 +464,11 @@ bool GeomipGrid::isPatchInsideFrustum_ViewSpace(int32_t pX, int32_t pZ, const gl
 
 		for (int32_t i = 0; i < 4; ++i)
 		{
-			if (Utils::getInstance().isPointInsideFrustum(points[i], pViewProj)) 
+			if (Utils::getInstance().isPointInsideFrustum(points[i], pViewProj, 3.0f)) 
 				return true;
 		}
 	}
-
+	
 	return false;
 }
 
@@ -450,15 +497,15 @@ bool GeomipGrid::isPatchInsideFrustum_WorldSpace(int32_t pX, int32_t pZ, const F
 	glm::vec3 p10_max = glm::vec3(static_cast<float>(x1) * mWorldScale, maxHeight, static_cast<float>(z0) * mWorldScale);
 	glm::vec3 p11_max = glm::vec3(static_cast<float>(x1) * mWorldScale, maxHeight, static_cast<float>(z1) * mWorldScale);
 	
-	//bool isInside =
-	//	pFrustumCulling.isPointInsideViewFrustum(p00_min) ||
-	//	pFrustumCulling.isPointInsideViewFrustum(p01_min) ||
-	//	pFrustumCulling.isPointInsideViewFrustum(p10_min) ||
-	//	pFrustumCulling.isPointInsideViewFrustum(p11_min) ||
-	//	pFrustumCulling.isPointInsideViewFrustum(p00_max) ||
-	//	pFrustumCulling.isPointInsideViewFrustum(p01_max) ||
-	//	pFrustumCulling.isPointInsideViewFrustum(p10_max) ||
-	//	pFrustumCulling.isPointInsideViewFrustum(p11_max);
+	bool isInside =
+		pFrustumCulling.isPointInsideViewFrustum(p00_min) ||
+		pFrustumCulling.isPointInsideViewFrustum(p01_min) ||
+		pFrustumCulling.isPointInsideViewFrustum(p10_min) ||
+		pFrustumCulling.isPointInsideViewFrustum(p11_min) ||
+		pFrustumCulling.isPointInsideViewFrustum(p00_max) ||
+		pFrustumCulling.isPointInsideViewFrustum(p01_max) ||
+		pFrustumCulling.isPointInsideViewFrustum(p10_max) ||
+		pFrustumCulling.isPointInsideViewFrustum(p11_max);
 
 	return false;
 }

@@ -89,6 +89,24 @@ void Terrain::setDistanceBetweenPatches(float pDistanceBetweenPatches)
 	mPatchDistance = pDistanceBetweenPatches;
 }
 
+const glm::vec3& Terrain::getCameraPosForChar(const glm::vec3& pCameraPos, float pCameraHeight)
+{
+	glm::vec3 newCameraPos = pCameraPos;
+	
+	// checking if the camera is out of terrain
+	if (newCameraPos.x < 0.0f)
+		newCameraPos.x = 0.0f;
+	if (newCameraPos.z < 0.0f)
+		newCameraPos.z = 0.0f;
+	if (newCameraPos.x >= getTerrainWorldSize())
+		newCameraPos.x = getTerrainWorldSize() - 0.5f;
+	if (newCameraPos.z >= getTerrainWorldSize())
+		newCameraPos.z = getTerrainWorldSize() - 0.5f;
+
+	newCameraPos.y = getWorldHeight(newCameraPos.x, newCameraPos.z) + pCameraHeight;
+	return newCameraPos;
+}
+
 float Terrain::getHeight(int32_t pX, int32_t pZ) const
 {
 	return mHeightMap[pX][pZ];
@@ -116,6 +134,13 @@ float Terrain::getHeightInterpolated(float pX, float pZ) const
 	return finalHeight;
 }
 
+float Terrain::getWorldHeight(float pX, float pZ) const
+{
+	float heightMapX = pX / mWorldScale;
+	float heightMapZ = pZ / mWorldScale;
+	return getHeightInterpolated(heightMapX, heightMapZ);
+}
+
 void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
 {
 	mShader.bind();
@@ -138,7 +163,8 @@ void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
 	}
 	//mTriangleList.render();
 	glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
-	mGeomipGrid.render(pCamera);
+	mGeomipGrid.render(pCamera, vpMat);
+	//mGeomipGrid.render(pCamera);
 }
 
 float Terrain::getWorldScale() const noexcept
@@ -159,6 +185,11 @@ float Terrain::getSlopeLight(int32_t pX, int32_t pZ) const noexcept
 int32_t Terrain::getTerrainSize() const noexcept
 {
 	return mTerrainSize;
+}
+
+int32_t Terrain::getTerrainWorldSize() const noexcept
+{
+	return mTerrainSize * mWorldScale;
 }
 
 void Terrain::loadHeightMapFile(const std::filesystem::path& pPath)

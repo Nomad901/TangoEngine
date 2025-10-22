@@ -31,6 +31,7 @@ public:
 	void createGLState();
 
 	void render(Camera* pCamera);
+	void render(Camera* pCamera, const glm::mat4& pViewProj);
 	void destroy();
 
 private:

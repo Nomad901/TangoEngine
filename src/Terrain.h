@@ -33,16 +33,21 @@ public:
 	void finalizeTerrain();
 	void setOneColor(bool pIsOneColor);
 	void setDistanceBetweenPatches(float pDistanceBetweenPatches);
+	const glm::vec3& getCameraPosForChar(const glm::vec3& pCameraPos, float pCameraHeight);
 
 	void render(Camera* pCamera, const glm::mat4& pProj);
 
 	float getHeight(int32_t pX, int32_t pZ) const;
 	float getHeightInterpolated(float pX, float pZ) const;
+	float getWorldHeight(float pX, float pZ) const;
+	
 	float getWorldScale() const noexcept;
 	float getTextureScale() const noexcept;
 	float getSlopeLight(int32_t pX, int32_t pZ) const noexcept;
+
 	int32_t getTerrainSize() const noexcept;
-	
+	int32_t getTerrainWorldSize() const noexcept;
+
 private:
 	void loadHeightMapFile(const std::filesystem::path& pPath);
 	
