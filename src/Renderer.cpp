@@ -19,13 +19,6 @@ void Renderer::preDrawScene()
 void Renderer::drawScene()
 {
 	ImGui::EndFrame();
-	
-	auto fboRef = mSceneManager->getProgramProperties().mFBO.get();
-
-	fboRef->start();
-	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
-	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
-	fboRef->stopAndRender();
 
 	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
 

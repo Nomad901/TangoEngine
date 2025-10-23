@@ -10,6 +10,7 @@ public:
 
 	void update(const SDL_Event& pEvents, const glm::vec3& pCharacterPos, float& pRotationCharY);
 	void resetAngleAroundPlayer();
+	void setZoom(float pZoom) override;
 
 	float getAngleAroundPlayer() const noexcept;
 	float getZoom() const noexcept override;

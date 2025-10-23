@@ -24,7 +24,8 @@ public:
 											 int64_t& pSize);
 	
 	/*-----CAMERA-FRUSTUM MATH-----*/
-	bool isPointInsideFrustum(const glm::vec3& pPointPos, const glm::mat4& pMatrix);
+	bool isPointInsideFrustum(const glm::vec3& pPointPos, const glm::mat4& pMatrix, 
+							  float pMultiplier);
 	void calculateClipPlanes(glm::vec4& pLeft, glm::vec4& pRight, glm::vec4& pTop, 
 							 glm::vec4& pBottom, glm::vec4& pNear, glm::vec4& pFar,
 					   const glm::mat4& pViewProjMat) const;

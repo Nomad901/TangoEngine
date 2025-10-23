@@ -64,7 +64,8 @@ std::vector<float> Utils::readFromPNGFile2Float(const std::filesystem::path& pPa
 	return buffer;
 }
 
-bool Utils::isPointInsideFrustum(const glm::vec3& pPointPos, const glm::mat4& pMatrix)
+bool Utils::isPointInsideFrustum(const glm::vec3& pPointPos, const glm::mat4& pMatrix, 
+								 float pMultiplier)
 {
 	glm::vec3 pointPos = pPointPos;
 	pointPos.y = -pointPos.y;
@@ -75,9 +76,9 @@ bool Utils::isPointInsideFrustum(const glm::vec3& pPointPos, const glm::mat4& pM
 
 	glm::vec3 ndc = glm::vec3(clipSpace) / clipSpace.w;
 
-	bool isInsideFrustum = (ndc.x >= -1.0f && ndc.x <= 1.0f &&
-							ndc.y >= -1.0f && ndc.y <= 1.0f &&
-							ndc.z >= -1.0f && ndc.z <= 1.0f);
+	bool isInsideFrustum = (ndc.x >= (-1.0f * pMultiplier) && ndc.x <= (1.0f * pMultiplier) &&
+							ndc.y >= (-1.0f * pMultiplier) && ndc.y <= (1.0f * pMultiplier) &&
+							ndc.z >= (-1.0f * pMultiplier) && ndc.z <= (1.0f * pMultiplier));
 
 	return isInsideFrustum;
 }

@@ -1,4 +1,4 @@
-#include "Terrain.h"
+﻿#include "Terrain.h"
 
 Terrain::Terrain(float pWorldScale, float pTexScale, std::span<std::filesystem::path> pPaths)
 {

@@ -17,7 +17,7 @@ public:
 	void setLocalRotation(const glm::vec3& pRotation);
 	void setLocalScale(const glm::vec3& pScale);
 	
-	const glm::mat4& getModelMatrix() const noexcept;
+	const glm::mat4& getModelMatrix() noexcept;
 	const glm::vec3& getWorldPosition() const noexcept;
 	const glm::vec3& getLocalPosition() const noexcept;
 	const glm::vec3& getLocalRotation() const noexcept;

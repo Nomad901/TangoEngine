@@ -15,6 +15,11 @@ void thirdPersonCam::resetAngleAroundPlayer()
 	mAngleAroundPlayer = 0.0f;
 }
 
+void thirdPersonCam::setZoom(float pZoom)
+{
+	mDistance = pZoom;
+}
+
 float thirdPersonCam::getAngleAroundPlayer() const noexcept
 {
 	return mAngleAroundPlayer;

@@ -6,8 +6,8 @@
 class Program
 {
 public:
-	//Program(uint32_t pWindowWidth = 1920, uint32_t pWindowHeight = 1080);
-	Program(uint32_t pWindowWidth = 1280, uint32_t pWindowHeight = 720);
+	Program(uint32_t pWindowWidth = 1920, uint32_t pWindowHeight = 1080);
+	//Program(uint32_t pWindowWidth = 1280, uint32_t pWindowHeight = 720);
 	~Program();
 
 	void run();

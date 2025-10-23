@@ -34,6 +34,7 @@
 #include "FaultFormationTerrain.h"
 #include "MidpointDispTerrain.h"
 #include "TextureGenerator.h"
+#include "FractalNoiseTerrain.h"
 
 class Renderer;
 
@@ -64,6 +65,7 @@ public:
 		SDL_GLContext mContext;
 
 		thirdPersonCam mThirdPersonCam;
+		Camera mSecondCamera;
 		Camera mCamera;
 		glm::mat4 mViewMatrix;
 		bool mNoclip{ false };
@@ -74,7 +76,7 @@ public:
 		std::unique_ptr<Skybox> mSkybox;
 		std::unique_ptr<Crosshair> mCrosshair;
 
-		FBO mFBO;
+		std::unique_ptr<FBO> mFBO;
 		std::vector<FBO> mFBOstrg;
 	};
 
