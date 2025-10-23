@@ -1,4 +1,4 @@
-﻿#include "Terrain.h"
+#include "Terrain.h"
 
 Terrain::Terrain(float pWorldScale, float pTexScale, std::span<std::filesystem::path> pPaths)
 {
@@ -75,8 +75,8 @@ void Terrain::setMinMaxHeight(float pMinHeight, float pMaxHeight)
 void Terrain::finalizeTerrain()
 {
 	mSlopeLight.init(mHeightMap, mSlopeLight.getDirectionLight(), mTerrainSize, mSlopeLight.getSoftness());
-	//mTriangleList.createTriangleList(mTerrainSize, mTerrainSize, this);
-	mGeomipGrid.createGeomipGrid(mTerrainSize, mTerrainSize, mPatchSize, mPatchDistance, this);
+	mTriangleList.createTriangleList(mTerrainSize, mTerrainSize, this);
+	//mGeomipGrid.createGeomipGrid(mTerrainSize, mTerrainSize, mPatchSize, mPatchDistance, this);
 }
 
 void Terrain::setOneColor(bool pIsOneColor)
@@ -98,10 +98,10 @@ const glm::vec3& Terrain::getCameraPosForChar(const glm::vec3& pCameraPos, float
 		newCameraPos.x = 0.0f;
 	if (newCameraPos.z < 0.0f)
 		newCameraPos.z = 0.0f;
-	if (newCameraPos.x >= getTerrainWorldSize())
-		newCameraPos.x = getTerrainWorldSize() - 0.5f;
-	if (newCameraPos.z >= getTerrainWorldSize())
-		newCameraPos.z = getTerrainWorldSize() - 0.5f;
+	if (newCameraPos.x >= getTerrainWorldSize() - 5.0f)
+		newCameraPos.x = getTerrainWorldSize() - 5.5f;
+	if (newCameraPos.z >= getTerrainWorldSize() - 5.0f)
+		newCameraPos.z = getTerrainWorldSize() - 5.5f;
 
 	newCameraPos.y = getWorldHeight(newCameraPos.x, newCameraPos.z) + pCameraHeight;
 	return newCameraPos;
@@ -161,9 +161,9 @@ void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
 			mShader.setUniform1f("uHeight" + std::to_string(i), mHeights[i]);
 		}
 	}
-	//mTriangleList.render();
-	glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
-	mGeomipGrid.render(pCamera, vpMat);
+	mTriangleList.render();
+	//glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
+	//mGeomipGrid.render(pCamera, vpMat);
 	//mGeomipGrid.render(pCamera);
 }
 
