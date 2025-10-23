@@ -22,6 +22,8 @@ void FractalNoiseTerrain::init(int32_t pSize, float pMinHeight, float pMaxHeight
 	Terrain::setHeights(pMinHeight + pMaxHeight / 2, pMaxHeight / 2, pMaxHeight / 2 + pMaxHeight / 3, pMaxHeight);
 
 	mFastNoiseLiteGenerator.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+	mFastNoiseLiteGenerator.SetFractalType(FastNoiseLite::FractalType::FractalType_FBm);
+	mFastNoiseLiteGenerator.SetSeed(1337);
 	mFastNoiseLiteGenerator.SetFrequency(mFrequency);
 	mFastNoiseLiteGenerator.SetFractalOctaves(mOctaves);
 	mFastNoiseLiteGenerator.SetFractalLacunarity(mLacunarity);
@@ -39,7 +41,7 @@ void FractalNoiseTerrain::generateFractalNoise()
 		mHeightMap[i].resize(mTerrainSize);
 		for (size_t j = 0; j < mTerrainSize; ++j)
 		{
-			float elevation = mAmplitude; // ai said that i can try instead of mAmplitude - just 0.0f;
+			float elevation = 0.0f; 
 			float tmpFrequency = mFrequency;
 			float tmpAmplitude = mAmplitude;
 
@@ -50,15 +52,15 @@ void FractalNoiseTerrain::generateFractalNoise()
 				elevation += simplexNoise(sampleX, sampleY) * tmpAmplitude;
 				tmpFrequency *= mLacunarity;
 				tmpAmplitude *= mPersistence;
-				elevation = std::clamp(std::round(elevation), mMinHeight, mMaxHeight);
-				mHeightMap[i][j] = elevation;
 			}
+			elevation = std::clamp(std::round(elevation), mMinHeight, mMaxHeight);
+			mHeightMap[i][j] = elevation;
 		}
 	}
 }
 
 float FractalNoiseTerrain::simplexNoise(float pSampleX, float pSampleY)
 {
-	float noiseValue = mFastNoiseLiteGenerator.GetNoise(pSampleX, pSampleX);
+	float noiseValue = mFastNoiseLiteGenerator.GetNoise(pSampleX, pSampleY);
 	return (noiseValue + 1.0f) * 0.5f;
 }

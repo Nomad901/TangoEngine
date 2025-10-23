@@ -5,6 +5,7 @@
 
 #include "Utils.h"
 #include "Camera.h"
+#include "Transform.h"
 
 enum class PlaneType
 {
@@ -32,19 +33,42 @@ private:
 	float mDistance{ 0.0f };
 };
 
+
 class FrustumCulling
 {
 public:
-	FrustumCulling();
-	FrustumCulling(Camera* pCamera, float pAspect, float pFovY,
-				   float pZNear, float pZFar);
+	FrustumCulling() = default;
+	FrustumCulling(const glm::mat4& pViewProjMat);
 
-	void initFrustumFromCamera(Camera* pCamera, float pAspect, float pFovY,
-													  float pZNear, float pZFar);
+	void update(const glm::mat4& pViewProjMat);
+
+	bool isPointInsideViewFrustum(const glm::vec3& pPoint) const;
+	//bool isAABBInsideViewFrustum(const glm::vec3& pMinBounds, 
+	//							 const glm::vec3& pMaxBounds) const;
 	Plane& getPlane(PlaneType pPlaneType) noexcept;
-
 private:
+	glm::vec4 mLeftClipPlane;
+	glm::vec4 mRightClipPlane;
+	glm::vec4 mTopClipPlane;
+	glm::vec4 mBottomClipPlane;
+	glm::vec4 mNearClipPlane;
+	glm::vec4 mFarClipPlane;
 	std::array<Plane, 6> mPlanes;
-
 };
+
+//class FrustumCulling
+//{
+//public:
+//	FrustumCulling();
+//	FrustumCulling(Camera* pCamera, float pAspect, float pFovY,
+//				   float pZNear, float pZFar);
+//
+//	void initFrustumFromCamera(Camera* pCamera, float pAspect, float pFovY,
+//													  float pZNear, float pZFar);
+//	Plane& getPlane(PlaneType pPlaneType) noexcept;
+//
+//private:
+//	std::array<Plane, 6> mPlanes;
+//
+//};
 

@@ -147,12 +147,12 @@ void Initializer::initSkybox()
 	std::string resourcePath = RESOURCES_PATH;
 	std::array<std::filesystem::path, 6> paths =
 	{
-		resourcePath + "ulukai/corona_lf.png",
-		resourcePath + "ulukai/corona_rt.png",
-		resourcePath + "ulukai/corona_up.png",
-		resourcePath + "ulukai/corona_dn.png",
-		resourcePath + "ulukai/corona_ft.png",
-		resourcePath + "ulukai/corona_bk.png"
+		resourcePath + "cloudy/bluecloud_lf.jpg",
+		resourcePath + "cloudy/bluecloud_rt.jpg",
+		resourcePath + "cloudy/bluecloud_up.jpg",
+		resourcePath + "cloudy/bluecloud_dn.jpg",
+		resourcePath + "cloudy/bluecloud_ft.jpg",
+		resourcePath + "cloudy/bluecloud_bk.jpg"
 	};
 	mSceneManager->getProgramProperties().mShaders["skyboxShader"].bind();
 	mSceneManager->getProgramProperties().mSkybox = std::make_unique<Skybox>(typeSkybox::SPHERE, paths, 0);
@@ -176,28 +176,31 @@ void Initializer::initTerrain()
 		resourcePath + "snow.png"
 	};
 	
-	float worldScale = 2.0f;
+	float worldScale = 4.0f;
 	float textureScale = 16.0f;
 	mSceneManager->getModelProperties().mTerrain = std::make_unique<FractalNoiseTerrain>();
 	mSceneManager->getModelProperties().mTerrain->init(worldScale, textureScale, paths);
 	//mSceneManager->getModelProperties().mTerrain->loadFromFile(resourcePath + "terrain.png");
 	
-	uint32_t size = 512;
+	uint32_t size = 513;        // Power of 2 + 1 works better
+	uint32_t octaves = 4;
 	float minHeight = 0.0f;
-	float maxHeight = 150.0f;
-	float roughness = 0.8f;
+	float maxHeight = 200.0f;
+	float amplitude = 50.0f;    // Much higher initial amplitude
+	float frequency = 0.1f;    // Lower frequency for broader features
+	float lacunarity = 2.0f;    // Standard
+	float persistence = 0.5f;
+
+	//float roughness = 2.0f;
+	
+	// TODO: THE PROBLEM OF TERRAIN IN THE HEIGHT GENERATION!!! ABT MidPointDisp
 	reinterpret_cast<FractalNoiseTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setLight(glm::vec3(1.0f, -1.0f, 0.0f), 0.5f);
-
-	float pAmplitude   = 1.0f;
-	float pFrequency   = 0.01f;
-	int32_t pOctaves   = 3;
-	float pLacunarity  = 2.0f;
-	float pPersistence = 0.5f;
-
-	reinterpret_cast<FractalNoiseTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->init(size, minHeight, maxHeight, 1.0f, 0.01f, 3, 2.0f, 0.5f);
+	reinterpret_cast<FractalNoiseTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->init(size, minHeight, maxHeight, amplitude, 
+																									 frequency, octaves, 
+																									 lacunarity, persistence);
 	//reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setPos(glm::vec3(-200.0f, -400.0f, -200.0f));
-	//mSceneManager->getModelProperties().mTerrain->setHeights(maxHeight - 200.0f, maxHeight - 150.0f, maxHeight - 100.0f, maxHeight - 50.0f);
-	mSceneManager->getModelProperties().mTerrain->setOneColor(true);
+	mSceneManager->getModelProperties().mTerrain->setHeights(maxHeight - 200.0f, maxHeight - 150.0f, maxHeight - 100.0f, maxHeight - 50.0f);
+	mSceneManager->getModelProperties().mTerrain->setOneColor(false);
 }
 
 /*

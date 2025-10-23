@@ -9,6 +9,10 @@ Camera::Camera()
     mYaw = -90.0f;
     mPitch = 30.0f;
     mSensivity = 0.2f;
+    mMovementSpeed = 5.0f;
+    mIsInNoclip = false;
+
+    updateCameraVertex();
 }
 
 glm::mat4 Camera::getViewMatrix()
@@ -97,6 +101,11 @@ void Camera::setPitch(float pPitch)
     mPitch = pPitch;
 }
 
+void Camera::setZoom(float pZoom)
+{
+    mZoom = pZoom;
+}
+
 float Camera::getMovementSpeed() const noexcept
 {
     return mMovementSpeed;
@@ -110,6 +119,11 @@ float Camera::getYaw() const noexcept
 float Camera::getPitch() const noexcept
 {
     return mPitch;
+}
+
+float Camera::getZoom() const noexcept
+{
+    return mZoom;
 }
 
 void Camera::turnOnNoclip(bool pNoclip)

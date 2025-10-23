@@ -30,10 +30,13 @@ public:
 	void setSensivity(float pSensivity);
 	void setYaw(float pYaw);
 	void setPitch(float pPitch);
+	virtual void setZoom(float pZoom);
+
 	float getMovementSpeed() const noexcept;
 	float getSensivity() const noexcept;
 	float getYaw() const noexcept;
 	float getPitch() const noexcept;
+	virtual float getZoom() const noexcept;
 
 	void turnOnNoclip(bool pNoclip);
 
@@ -46,7 +49,6 @@ public:
 	glm::vec3 getRightVec() const noexcept;
 	glm::vec3 getLeftVec() const noexcept;
 
-private:
 	void updateCameraVertex();
 
 private:
@@ -54,6 +56,7 @@ private:
 
 	float mYaw{}, mPitch{};
 	float mSensivity{};
+	float mZoom{};
 	float mMovementSpeed{};
 
 	glm::vec3 mEye, mDirection, mUpVec;

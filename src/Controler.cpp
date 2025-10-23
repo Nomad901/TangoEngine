@@ -4,29 +4,12 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	mPlayer.init(glm::vec3(1.0f, 16.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 50.0f, 100.0f, 30.0f, true, 
+	mPlayer.init(glm::vec3(10.0f, 10.0f, -10.0f), glm::vec3(1.0f, 1.0f, 1.0f), 100.0f, 100.0f, 30.0f, true, 
 				 pSceneManager->getProgramProperties().mResourcePath + "Models/player.obj");
 }
 
 void Controler::controlAll(float pDeltaTime)
 {
-	if (mPlayer.isInThirdPersonCamera())
-	{
-		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getThirdPersonCamera().getViewMatrix();
-		mSceneManager->getProgramProperties().mThirdPersonCam = mPlayer.getThirdPersonCamera();
-		mSceneManager->getProgramProperties().mCamera.setPos(mPlayer.getPos());
-		mSceneManager->getProgramProperties().mTakeCursor = false;
-	}
-	else
-	{
-		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getCamera().getViewMatrix();
-		mSceneManager->getProgramProperties().mCamera = mPlayer.getCamera();
-		mSceneManager->getProgramProperties().mCamera.setPos(mPlayer.getPos());
-		mSceneManager->getProgramProperties().mTakeCursor = true;
-	}
-	
-	mPlayer.turnOnNoclip(mSceneManager->getProgramProperties().mNoclip);
-
 	while (SDL_PollEvent(&mEvent))
 	{
 		ImGui_ImplSDL3_ProcessEvent(&mEvent);
@@ -57,6 +40,26 @@ void Controler::controlAll(float pDeltaTime)
 				mSceneManager->getProgramProperties().mRadius -= 0.5f;
 		}
 	}
+
+	if (mPlayer.isInThirdPersonCamera())
+	{
+		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getThirdPersonCamera().getViewMatrix();
+		mSceneManager->getProgramProperties().mThirdPersonCam = mPlayer.getThirdPersonCamera();
+		mSceneManager->getProgramProperties().mTakeCursor = false;
+		mSceneManager->getModelProperties().mProjMatrix = glm::perspective(glm::radians(mPlayer.getThirdPersonCamera().getZoom()),
+																		  (float)mSceneManager->getProgramProperties().mWindowWidth /
+																		  (float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
+	}
+	else
+	{
+		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getCamera().getViewMatrix();
+		mSceneManager->getProgramProperties().mCamera = mPlayer.getCamera();
+		mSceneManager->getProgramProperties().mTakeCursor = true;
+		mSceneManager->getModelProperties().mProjMatrix = glm::perspective(glm::radians(mPlayer.getCamera().getZoom()),
+																		  (float)mSceneManager->getProgramProperties().mWindowWidth /
+																		  (float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
+	}
+	mPlayer.turnOnNoclip(mSceneManager->getProgramProperties().mNoclip);
 
 	controlScreen();
 	controlCamera(pDeltaTime);
