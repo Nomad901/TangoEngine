@@ -13,13 +13,12 @@ void Initializer::init(bool pInitAll)
 
 	// camera
 	mSceneManager->getProgramProperties().mCamera.setSensivity(0.2f);
-	mSceneManager->getProgramProperties().mSecondThirdPersonCam.setPos(glm::vec3(0.0f, 0.0f, 0.0f));
 	// projection matrix
 	mSceneManager->getModelProperties().mProjMatrix = glm::perspective(glm::radians(45.0f), (float)mSceneManager->getProgramProperties().mWindowWidth /
 		(float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
 	// fbo
 	mSceneManager->getProgramProperties().mFBO = std::make_unique<FBO>(mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight,
-																	   glm::vec2(100.0f, 100.0f), glm::vec2(600.0f, 600.0f));
+																	   glm::vec2(0.0f, 0.0f), glm::vec2(600.0f, 600.0f));
 	mSceneManager->getProgramProperties().mFBO->setClearColors(glm::vec4(0.1f, 0.1f, 0.1f, 0.1f));
 	if (pInitAll)
 		initAll();
@@ -177,23 +176,34 @@ void Initializer::initTerrain()
 		resourcePath + "snow.png"
 	};
 	
-	float worldScale = 4.0f;
-	float textureScale = worldScale * worldScale * worldScale;
-	mSceneManager->getModelProperties().mTerrain = std::make_unique<MidpointDispTerrain>();
+	float worldScale = 2.0f;
+	float textureScale = 16.0f;
+	mSceneManager->getModelProperties().mTerrain = std::make_unique<FractalNoiseTerrain>();
 	mSceneManager->getModelProperties().mTerrain->init(worldScale, textureScale, paths);
 	//mSceneManager->getModelProperties().mTerrain->loadFromFile(resourcePath + "terrain.png");
 	
-	uint32_t size = 529;
+	uint32_t size = 512;
 	float minHeight = 0.0f;
-	float maxHeight = 300.0f;
-	float roughness = 1.0f;
-	reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setLight(glm::vec3(100.0f, 100.0f, 100.0f), 0.5f);
-	reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->createMidpointDispTerrain(size, 
-		17,
-		roughness,
-		minHeight, 
-		maxHeight);
-	reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setPos(glm::vec3(-200.0f, -400.0f, -200.0f));
-	mSceneManager->getModelProperties().mTerrain->setHeights(maxHeight - 200.0f, maxHeight - 150.0f, maxHeight - 100.0f, maxHeight - 50.0f);
+	float maxHeight = 150.0f;
+	float roughness = 0.8f;
+	reinterpret_cast<FractalNoiseTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setLight(glm::vec3(1.0f, -1.0f, 0.0f), 0.5f);
+
+	float pAmplitude   = 1.0f;
+	float pFrequency   = 0.01f;
+	int32_t pOctaves   = 3;
+	float pLacunarity  = 2.0f;
+	float pPersistence = 0.5f;
+
+	reinterpret_cast<FractalNoiseTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->init(size, minHeight, maxHeight, 1.0f, 0.01f, 3, 2.0f, 0.5f);
+	//reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setPos(glm::vec3(-200.0f, -400.0f, -200.0f));
+	//mSceneManager->getModelProperties().mTerrain->setHeights(maxHeight - 200.0f, maxHeight - 150.0f, maxHeight - 100.0f, maxHeight - 50.0f);
 	mSceneManager->getModelProperties().mTerrain->setOneColor(true);
 }
+
+/*
+	octave - how many iterations we should do for the grid
+	amplitude - how extreme our grid needs to be 
+	frequency - how much detail
+	lacunarity - how much we should increase our frequency per octave?
+	persistence - how quickly our grid should shrink per octave?
+*/
