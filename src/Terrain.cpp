@@ -1,16 +1,16 @@
-﻿#include "Terrain.h"
+#include "Terrain.h"
 
-Terrain::Terrain(float pWorldScale, float pTexScale, std::span<std::filesystem::path> pPaths)
+Terrain::Terrain(float pWorldScale, float pTexScale, float pPathcSize, std::span<std::filesystem::path> pPaths)
 {
-	init(pWorldScale, pTexScale, pPaths);
+	init(pWorldScale, pTexScale, pPathcSize, pPaths);
 }
 
-Terrain::Terrain(float pWorldScale, float pTexScale)
+Terrain::Terrain(float pWorldScale, float pTexScale, float pPathcSize)
 {
-	init(pWorldScale, pTexScale);
+	init(pWorldScale, pTexScale, pPathcSize);
 }
 
-void Terrain::init(float pWorldScale, float pTexScale, std::span<std::filesystem::path> pPaths)
+void Terrain::init(float pWorldScale, float pTexScale, float pPathcSize, std::span<std::filesystem::path> pPaths)
 {
 	assert(pPaths.size() <= mTextures.size());
 	std::string resourcePath = RESOURCES_PATH;
@@ -24,6 +24,7 @@ void Terrain::init(float pWorldScale, float pTexScale, std::span<std::filesystem
 	};
 	mWorldScale = pWorldScale;
 	mTexScale = pTexScale;
+	mPatchSize = pPathcSize;
 	mIsOneTex = false;
 	for (size_t i = 0; i < pPaths.size(); ++i)
 	{
@@ -32,12 +33,13 @@ void Terrain::init(float pWorldScale, float pTexScale, std::span<std::filesystem
 	}
 }
 
-void Terrain::init(float pWorldScale, float pTexScale)
+void Terrain::init(float pWorldScale, float pTexScale, float pPathcSize)
 {
     std::string resourcePath = RESOURCES_PATH;
 	mShader.init(resourcePath + "Shaders/terrainVert.glsl", resourcePath + "Shaders/terrainFrag.glsl");
 	mWorldScale = pWorldScale;
 	mTexScale = pTexScale;
+	mPatchSize = pPathcSize;
 	mIsOneTex = true;
 }
 
@@ -75,8 +77,8 @@ void Terrain::setMinMaxHeight(float pMinHeight, float pMaxHeight)
 void Terrain::finalizeTerrain()
 {
 	mSlopeLight.init(mHeightMap, mSlopeLight.getDirectionLight(), mTerrainSize, mSlopeLight.getSoftness());
-	mTriangleList.createTriangleList(mTerrainSize, mTerrainSize, this);
-	//mGeomipGrid.createGeomipGrid(mTerrainSize, mTerrainSize, mPatchSize, mPatchDistance, this);
+	//mTriangleList.createTriangleList(mTerrainSize, mTerrainSize, this);
+	mGeomipGrid.createGeomipGrid(mTerrainSize, mTerrainSize, mPatchSize, mPatchDistance, this);
 }
 
 void Terrain::setOneColor(bool pIsOneColor)
@@ -98,10 +100,10 @@ const glm::vec3& Terrain::getCameraPosForChar(const glm::vec3& pCameraPos, float
 		newCameraPos.x = 0.0f;
 	if (newCameraPos.z < 0.0f)
 		newCameraPos.z = 0.0f;
-	if (newCameraPos.x >= getTerrainWorldSize() - 5.0f)
-		newCameraPos.x = getTerrainWorldSize() - 5.5f;
-	if (newCameraPos.z >= getTerrainWorldSize() - 5.0f)
-		newCameraPos.z = getTerrainWorldSize() - 5.5f;
+	if (newCameraPos.x >= static_cast<float>(getTerrainWorldSize() - 5))
+		newCameraPos.x = static_cast<float>(getTerrainWorldSize() - 5);
+	if (newCameraPos.z >= static_cast<float>(getTerrainWorldSize() - 5))
+		newCameraPos.z = static_cast<float>(getTerrainWorldSize() - 5);
 
 	newCameraPos.y = getWorldHeight(newCameraPos.x, newCameraPos.z) + pCameraHeight;
 	return newCameraPos;
@@ -114,23 +116,25 @@ float Terrain::getHeight(int32_t pX, int32_t pZ) const
 
 float Terrain::getHeightInterpolated(float pX, float pZ) const
 {
-	float leftBottom = getHeight(static_cast<int32_t>(pX), static_cast<int32_t>(pZ));
-	if (static_cast<int32_t>(pX) >= mTerrainSize ||
-		static_cast<int32_t>(pZ) >= mTerrainSize)
-	{
-		return leftBottom;
-	}
-	float rightBottom = getHeight(static_cast<int32_t>(pX) + 1, static_cast<int32_t>(pZ));
-	float leftTop = getHeight(static_cast<int32_t>(pX), static_cast<int32_t>(pZ) + 1);
-	float rightTop = getHeight(static_cast<int32_t>(pX) + 1, static_cast<int32_t>(pZ) + 1);
-	
-	float factorX = pX - roundf(pX);
-	float interpolatedBottom = leftBottom + (rightBottom - leftBottom) * factorX;
-	float interpolatedTop = leftTop + (rightTop - leftTop) * factorX;
+	int32_t x0 = static_cast<int32_t>(pX);
+	int32_t z0 = static_cast<int32_t>(pZ);
 
-	float factorZ = pZ - roundf(pZ);
+	if (x0 >= mTerrainSize - 5 || z0 >= mTerrainSize - 5 || 
+		x0 < 0 || z0 < 0)
+		return getHeight(x0, z0); 
+
+	float h00 = getHeight(x0, z0);     
+	float h10 = getHeight(x0 + 1, z0); 
+	float h01 = getHeight(x0, z0 + 1); 
+	float h11 = getHeight(x0 + 1, z0 + 1); 
+
+	float factorX = pX - static_cast<float>(x0);
+	float factorZ = pZ - static_cast<float>(z0);
+
+	float interpolatedBottom = h00 + (h10 - h00) * factorX;
+	float interpolatedTop = h01 + (h11 - h01) * factorX;
 	float finalHeight = interpolatedBottom + (interpolatedTop - interpolatedBottom) * factorZ;
-	
+
 	return finalHeight;
 }
 
@@ -161,9 +165,9 @@ void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
 			mShader.setUniform1f("uHeight" + std::to_string(i), mHeights[i]);
 		}
 	}
-	mTriangleList.render();
-	//glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
-	//mGeomipGrid.render(pCamera, vpMat);
+	//mTriangleList.render();
+	glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
+	mGeomipGrid.render(pCamera, vpMat);
 	//mGeomipGrid.render(pCamera);
 }
 
