@@ -65,13 +65,16 @@ void thirdPersonCam::calculateCameraPosition(float pVerticalDistance, float pHor
 {
 	float offsetX = pHorizontalDistance * glm::sin(glm::radians(mAngleAroundPlayer));
 	float offsetZ = pHorizontalDistance * glm::cos(glm::radians(mAngleAroundPlayer));
-	
-	glm::vec3 cameraPos; 
+
+	glm::vec3 cameraPos;
 	cameraPos.x = pCharacterPos.x - offsetX;
 	cameraPos.y = pCharacterPos.y + pVerticalDistance + 2.0f;
+	float minHeightAboveCharacter = 1.0f; 
+	if (cameraPos.y <= pCharacterPos.y + minHeightAboveCharacter)
+		cameraPos.y = pCharacterPos.y + minHeightAboveCharacter;
 	cameraPos.z = pCharacterPos.z + offsetZ;
 	Camera::setPos(cameraPos);
-	
+
 	glm::vec3 lookAtTarget = pCharacterPos + glm::vec3(0.0f, 5.0f, 0.0f);
 	Camera::setDirection(glm::normalize(lookAtTarget - cameraPos));
 }
