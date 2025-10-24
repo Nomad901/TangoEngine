@@ -1,16 +1,16 @@
 #include "Terrain.h"
 
-Terrain::Terrain(float pWorldScale, float pTexScale, float pPathcSize, std::span<std::filesystem::path> pPaths)
+Terrain::Terrain(float pWorldScale, float pTexScale, float pPathcSize, float pPatchDistance, std::span<std::filesystem::path> pPaths)
 {
-	init(pWorldScale, pTexScale, pPathcSize, pPaths);
+	init(pWorldScale, pTexScale, pPathcSize, pPatchDistance, pPaths);
 }
 
-Terrain::Terrain(float pWorldScale, float pTexScale, float pPathcSize)
+Terrain::Terrain(float pWorldScale, float pTexScale, float pPathcSize, float pPatchDistance)
 {
-	init(pWorldScale, pTexScale, pPathcSize);
+	init(pWorldScale, pTexScale, pPathcSize, pPatchDistance);
 }
 
-void Terrain::init(float pWorldScale, float pTexScale, float pPathcSize, std::span<std::filesystem::path> pPaths)
+void Terrain::init(float pWorldScale, float pTexScale, float pPathcSize, float pPatchDistance, std::span<std::filesystem::path> pPaths)
 {
 	assert(pPaths.size() <= mTextures.size());
 	std::string resourcePath = RESOURCES_PATH;
@@ -25,6 +25,7 @@ void Terrain::init(float pWorldScale, float pTexScale, float pPathcSize, std::sp
 	mWorldScale = pWorldScale;
 	mTexScale = pTexScale;
 	mPatchSize = pPathcSize;
+	mPatchDistance = pPatchDistance;
 	mIsOneTex = false;
 	for (size_t i = 0; i < pPaths.size(); ++i)
 	{
@@ -33,13 +34,14 @@ void Terrain::init(float pWorldScale, float pTexScale, float pPathcSize, std::sp
 	}
 }
 
-void Terrain::init(float pWorldScale, float pTexScale, float pPathcSize)
+void Terrain::init(float pWorldScale, float pTexScale, float pPathcSize, float pPatchDistance)
 {
     std::string resourcePath = RESOURCES_PATH;
 	mShader.init(resourcePath + "Shaders/terrainVert.glsl", resourcePath + "Shaders/terrainFrag.glsl");
 	mWorldScale = pWorldScale;
 	mTexScale = pTexScale;
 	mPatchSize = pPathcSize;
+	mPatchDistance = pPatchDistance;
 	mIsOneTex = true;
 }
 
@@ -168,7 +170,6 @@ void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
 	//mTriangleList.render();
 	glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
 	mGeomipGrid.render(pCamera, vpMat);
-	//mGeomipGrid.render(pCamera);
 }
 
 float Terrain::getWorldScale() const noexcept
