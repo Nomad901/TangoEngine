@@ -22,13 +22,15 @@ void GeomipGrid::createGeomipGrid(int32_t pWidth, int32_t pDepth, uint32_t pPatc
 	{
 		int32_t recommendedWidth = ((pWidth - 1 + pPatchSize - 1) / (pPatchSize - 1)) * (pPatchSize - 1) + 1;
 		std::cout << std::format("Width must be divisible by patchSize. Width and patch size, which uve passed: {} / {}\n", pWidth, pPatchSize);
-		std::cout << std::format("Recommended width: {}\n", recommendedWidth);
+		std::cout << std::format("Recommended width: {}. This will be set\n", recommendedWidth);
+		pWidth = recommendedWidth;
 	}
 	if ((pDepth - 1) % (pPatchSize - 1) != 0)
 	{
 		int32_t recommendedDepth = ((pDepth - 1 + pPatchSize - 1) / (pPatchSize - 1)) * (pPatchSize - 1) + 1;
 		std::cout << std::format("pDepth must be divisible by patchSize. Depth and patch size, which uve passed: {} / {}\n", pDepth, pPatchSize);
-		std::cout << std::format("Recommended pDepth: {}\n", recommendedDepth);
+		std::cout << std::format("Recommended pDepth: {}. This will be set\n", recommendedDepth);
+		pDepth = recommendedDepth;
 	}
 	if (pPatchSize < 3)
 	{
@@ -343,60 +345,14 @@ int32_t GeomipGrid::calcNumIndices()
 	return numIndices;
 }
 
-void GeomipGrid::render(Camera* pCamera)
-{
-	mLodManager.update(pCamera->getPos());
-	//FrustumCulling  frustumCulling(pCamera, 1280.0f / 720.0f, glm::radians(pCamera->getZoom()), 0.1f, 100.0f);
-	mVAO.bind();
-
-	uint32_t wasSentOnGpu  = 0;
-	uint32_t originalValue = mNumPatchesZ * mNumPatchesX;
-
-	float patchSize = static_cast<float>(mPatchSize - 1.0f) * mWorldScale;
-	float halfPatchSize = patchSize / 2.0f;
-	for (uint32_t patchZ = 0; patchZ < mNumPatchesZ; ++patchZ)
-	{
-		for (uint32_t patchX = 0; patchX < mNumPatchesX; ++patchX)
-		{
-			int32_t z = patchZ * (mPatchSize - 1);
-			int32_t x = patchX * (mPatchSize - 1);
-			
-			/*if (!isPatchInsideFrustum_WorldSpace(x, z, frustumCulling))
-				continue;*/
-			//if (!isPatchInsideFrustum_ViewSpace(x, z, pViewProjMat))
-			//	continue;
-			//glm::mat4 modelMatrix = glm::mat4(1.0f);
-			//modelMatrix = glm::translate(modelMatrix, glm::vec3(x, mTerrain->getHeight(x, z), z));
-			//if (mAABB->isOnFrustum(frustumCulling, modelMatrix))
-			//	continue;
-			
-			wasSentOnGpu++;
-			const LodManager::PatchLod& patchLod = mLodManager.getPatchLod(patchX, patchZ);
-			int32_t core = patchLod.mCore;
-			int32_t left = patchLod.mLeft;
-			int32_t right = patchLod.mRight;
-			int32_t top = patchLod.mTop;
-			int32_t bottom = patchLod.mBottom;
-
-			size_t baseIndex = sizeof(uint32_t) * mLodInfoStorage[core].mSingleLodInfo[left][right][top][bottom].mStart;
-			int32_t baseVertex = z * mWidth + x;
-
-			glDrawElementsBaseVertex(GL_TRIANGLES, mLodInfoStorage[core].mSingleLodInfo[left][right][top][bottom].mCount,
-				GL_UNSIGNED_INT, (void*)baseIndex, baseVertex);
-		}
-	}
-	std::cout << std::format("Was sent on gpu: {}\t OriginalValue: {}\n\n", wasSentOnGpu, originalValue);
-}
-
 void GeomipGrid::render(Camera* pCamera, const glm::mat4& pViewProj)
 {
 	mLodManager.update(pCamera->getPos());
-	//FrustumCulling frustumCulling(pCamera, 1280.0f / 720.0f, glm::radians(pCamera->getZoom()), 0.1f, 100.0f);
 	FrustumCulling frustumCulling(pViewProj);
 	mVAO.bind();
 
-	uint32_t wasSentOnGpu = 0;
-	uint32_t originalValue = mNumPatchesZ * mNumPatchesX;
+	uint32_t numPatches = mNumPatchesX * mNumPatchesZ;
+	uint32_t passedNumPatches = 0;
 
 	float patchSize = static_cast<float>(mPatchSize - 1.0f) * mWorldScale;
 	float halfPatchSize = patchSize / 2.0f;
@@ -407,12 +363,11 @@ void GeomipGrid::render(Camera* pCamera, const glm::mat4& pViewProj)
 			int32_t z = patchZ * (mPatchSize - 1);
 			int32_t x = patchX * (mPatchSize - 1);
 
-			//if (!isPatchInsideFrustum_WorldSpace(x, z, frustumCulling))
-			//	continue;
 			if (!isPatchInsideFrustum_ViewSpace(x, z, pViewProj))
 				continue;
-			
-			wasSentOnGpu++;
+
+			passedNumPatches++;
+
 			const LodManager::PatchLod& patchLod = mLodManager.getPatchLod(patchX, patchZ);
 			int32_t core = patchLod.mCore;
 			int32_t left = patchLod.mLeft;
@@ -427,7 +382,7 @@ void GeomipGrid::render(Camera* pCamera, const glm::mat4& pViewProj)
 				GL_UNSIGNED_INT, (void*)baseIndex, baseVertex);
 		}
 	}
-	std::cout << std::format("Was sent on gpu: {}\t OriginalValue: {}\n\n", wasSentOnGpu, originalValue);
+	std::cout << std::format("PassedNumPatches: {}\tNumPatches: {}\n", passedNumPatches, numPatches);
 }
 
 bool GeomipGrid::isPatchInsideFrustum_ViewSpace(int32_t pX, int32_t pZ, const glm::mat4& pViewProj)
@@ -464,7 +419,7 @@ bool GeomipGrid::isPatchInsideFrustum_ViewSpace(int32_t pX, int32_t pZ, const gl
 
 		for (int32_t i = 0; i < 4; ++i)
 		{
-			if (Utils::getInstance().isPointInsideFrustum(points[i], pViewProj, 3.0f)) 
+			if (Utils::getInstance().isPointInsideFrustum(points[i], pViewProj, 8.0f)) 
 				return true;
 		}
 	}
