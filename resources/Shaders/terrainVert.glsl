@@ -7,25 +7,21 @@ layout(location = 4) in float lightFactor;
 
 out vec4 Color;
 out vec2 TexCoord;
-out vec3 worldPos;
+out vec3 FragPos;
 out vec3 Normals;
-out float LightFactor;
 
 uniform mat4 uView;
 uniform mat4 uProj;
 uniform mat4 uModel;
-uniform float uMinHeight;
-uniform float uMaxHeight;
 
 void main()
 {
-	gl_Position = uProj * uView * uModel * vec4(pos, 1.0f);
-	float deltaHeight = uMaxHeight - uMinHeight;
-	float heightRatio = (pos.y - uMinHeight) / deltaHeight;
-	float c = heightRatio * 0.8 + 0.2;
-	Color = vec4(c, c, c, 1.0f);
+	vec4 worldPos = uModel * vec4(pos, 1.0f);
+	FragPos = worldPos.xyz;
 	TexCoord = posTex;
-	worldPos = pos;
-	Normals = normals;
-	LightFactor = lightFactor;
+
+	mat3 normalMatrix = transpose(inverse(mat3(uModel)));
+	Normals = normalMatrix * normals;
+
+	gl_Position = uProj * uView * worldPos;
 }
