@@ -20,19 +20,69 @@ void Renderer::drawScene()
 {
 	ImGui::EndFrame();
 
+	mSceneManager->getProgramProperties().mGBuffer.bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
+	mSceneManager->getProgramProperties().mGBuffer.unbind();
 
-	//glViewport(0, 0, winWidth, winHeight);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mSceneManager->getProgramProperties().mGBuffer.getGPosBuffer());
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, mSceneManager->getProgramProperties().mGBuffer.getGNormalBuffer());
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, mSceneManager->getProgramProperties().mGBuffer.getGColorSpecBuffer());
 
-	// crosshair
-	//mSceneManager->mProgramProperties.mCrosshair->render(mSceneManager->mProgramProperties.mWindowWidth, 
-	//													 mSceneManager->mProgramProperties.mWindowHeight);
+	auto shader = &mSceneManager->getProgramProperties().mShaders["DeferredLight"];
+	shader->bind();
+	shader->setUniform1i("gPos", 0);
+	shader->setUniform1i("gNormals", 1);
+	shader->setUniform1i("gSpec", 2);
+	shader->setUniform3fv("uLight.position", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
+	shader->setUniform3fv("uLight.color", glm::vec3(1.0f, 1.0f, 1.0f));
 
-	// main shader part
-	//mSceneManager->mProgramProperties.mShaders["mainShader"].bind();
-	//mSceneManager->mModelProperties.mModelManager.getModel("museum").render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
-	//mSceneManager->mModelProperties.mModelManager["lampPost1"].render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
-	//mSceneManager->mModelProperties.mModelManager["lampPost2"].render(mSceneManager->mProgramProperties.mShaders["mainShader"]);
+	const float linear = 0.7f;
+	const float quadratic = 1.8f;
+	shader->setUniform1f("uLight.linear", linear);
+	shader->setUniform1f("uLight.quadratic", quadratic);
+	const float constant = 1.0f;
+	const float maxBrightness = std::fmaxf(std::fmaxf(0.0f, 1.0f), 1.0f);
+	const float radius = (-linear + std::sqrt(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * quadratic);
+	shader->setUniform1f("uLight.radius", radius);
+	shader->setUniform3fv("uViewPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
+
+	static uint32_t quadVAO = 0;
+	static uint32_t quadVBO;
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		// setup plane VAO
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+
+	uint32_t screenWidth = mSceneManager->getProgramProperties().mWindowWidth;
+	uint32_t screenHeight = mSceneManager->getProgramProperties().mWindowHeight;
+	mSceneManager->getProgramProperties().mGBuffer.bind();
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	mSceneManager->getProgramProperties().mGBuffer.unbind();
 
 	// skybox 
 	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
