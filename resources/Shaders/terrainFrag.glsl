@@ -5,6 +5,8 @@ out vec4 fragColor;
 in vec4 Color;
 in vec2 TexCoord;
 in vec3 worldPos;
+in vec3 Normals;
+in float LightFactor;
 
 //
 // UNIFORMS TEXTURES
@@ -29,7 +31,7 @@ uniform int isSingleTex;
 
 vec4 calculateTexColor()
 {
-		vec4 texColor;
+	vec4 texColor;
 	float height = worldPos.y;
 
 	if (height < uHeight0)
@@ -67,10 +69,14 @@ vec4 calculateTexColor()
 void main()
 {
 	if(isSingleTex == 1)
-		fragColor = Color;
+	{
+		vec3 result = vec3(Color) * vec3(LightFactor);
+		fragColor = vec4(result.x, result.y, result.z, 0.9f);
+	}
 	else 
 	{
 		vec4 texture_ = calculateTexColor();
-		fragColor = Color * texture_;
+		vec3 result = vec3(texture_) * vec3(LightFactor);
+		fragColor = vec4(result.x, result.y, result.z, 0.9f);
 	}
 }
