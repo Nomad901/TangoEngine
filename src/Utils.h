@@ -35,8 +35,12 @@ public:
 	float randomFloat();
 	int32_t calcNextPowerOfTwo(int32_t pX);
 
-	/*-----OPENGL_HELPER-----*/
+	/*-----OPENGL_HELPERS-----*/
 	void getGLVersion(int32_t& pMajor, int32_t& pMinor);
+
+	/*-----PROGRAM_HELPERS-----*/
+	void updateDeltaTime(float pDeltaTime);
+	float getDeltaTime();
 
 private:
 	Utils() = default;
@@ -45,5 +49,8 @@ private:
 	Utils& operator=(const Utils&) noexcept = delete;
 	Utils(Utils&&) = delete;
 	Utils& operator=(Utils&&) noexcept = delete;
+
+private:
+	float mDeltaTime{ 1.0f };
 };
 

@@ -52,13 +52,13 @@ void UI::control(SceneManager& pSceneManager)
 	ImGui::SliderFloat("Direction light X", &pSceneManager.getLightProperties().mLightDir.x, -500.0f, 500.0f);
 	ImGui::SliderFloat("Direction light Y", &pSceneManager.getLightProperties().mLightDir.y, -500.0f, 500.0f);
 	ImGui::SliderFloat("Direction light Z", &pSceneManager.getLightProperties().mLightDir.z, -500.0f, 500.0f);
-	ImGui::SliderFloat("Light softness", &pSceneManager.getLightProperties().mSoftness, -5.0f, 5.0f);
+	ImGui::SliderFloat("Light softness", &pSceneManager.getLightProperties().mSoftness, 0.0f, 50.0f);
 
 	ImGui::Spacing();
 	ImGui::Spacing();
 	ImGui::Spacing();
 
-	static int32_t size = 513;        
+	static int32_t size = 529;
 	static int32_t octaves = 4;
 	static float minHeight = 0.0f;
 	static float maxHeight = 200.0f;
@@ -67,7 +67,6 @@ void UI::control(SceneManager& pSceneManager)
 	static float lacunarity = 2.0f;    
 	static float persistence = 0.5f;
 
-	ImGui::SliderInt("Size", &size, 256, 1024);
 	ImGui::SliderInt("Octaves", &octaves, 1, 15);
 
 	ImGui::SliderFloat("Min height", &minHeight, 0.0f, 1000.0f);
@@ -80,7 +79,6 @@ void UI::control(SceneManager& pSceneManager)
 
 	if (ImGui::Button("Reset"))
 	{
-		size = 513;
 		octaves = 4;
 		minHeight = 0.0f;
 		maxHeight = 200.0f;
@@ -92,16 +90,49 @@ void UI::control(SceneManager& pSceneManager)
 
 	if (ImGui::Button("Generate"))
 	{
-		//float roughness = 2.0f;
-
-		// TODO: THE PROBLEM OF TERRAIN IN THE HEIGHT GENERATION!!! ABT MidPointDisp
-		reinterpret_cast<FractalNoiseTerrain*>(pSceneManager.getModelProperties().mTerrain.get())->setLight(glm::vec3(1.0f, -1.0f, 0.0f), 0.5f);
+		reinterpret_cast<FractalNoiseTerrain*>(pSceneManager.getModelProperties().mTerrain.get())->setLight(pSceneManager.getLightProperties().mLightDir, 
+																											pSceneManager.getLightProperties().mSoftness);
 		reinterpret_cast<FractalNoiseTerrain*>(pSceneManager.getModelProperties().mTerrain.get())->init(size, minHeight, maxHeight, amplitude,
-			frequency, octaves,
-			lacunarity, persistence);
-		//reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setPos(glm::vec3(-200.0f, -400.0f, -200.0f));
+																										frequency, octaves,
+																										lacunarity, persistence);
+
 		pSceneManager.getModelProperties().mTerrain->setHeights(maxHeight - 200.0f, maxHeight - 150.0f, maxHeight - 100.0f, maxHeight - 50.0f);
 		pSceneManager.getModelProperties().mTerrain->setOneColor(false);
+	}
+
+	ImGui::End();
+
+	// second window
+	static bool firstTimeSecond = true;
+	if (firstTimeSecond)
+	{
+		ImGui::SetNextWindowPos({ 400, 1 });
+		ImGui::SetNextWindowSize({ 400, 200 });
+		ImGui::SetNextWindowCollapsed(true);
+		firstTimeSecond = false;
+	}
+
+	ImGui::Begin("Font", &pSceneManager.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
+
+	static bool showFps = true;
+	if(ImGui::Checkbox("Show fps", &showFps))
+	{
+		pSceneManager.getProgramProperties().mFontSystem.makeShown(showFps);
+	}
+	
+	ImGui::SliderFloat("Scale", &pSceneManager.getProgramProperties().mScaleFont, 0.1f, 10.0f);
+
+	ImGui::SliderFloat("Pos x", &pSceneManager.getProgramProperties().mPosFont.x, 0.0f, pSceneManager.getProgramProperties().mWindowWidth);
+	ImGui::SliderFloat("Pos y", &pSceneManager.getProgramProperties().mPosFont.y, 0.0f, pSceneManager.getProgramProperties().mWindowHeight);
+
+	float colorFont[3] = { pSceneManager.getProgramProperties().mColorFont.x, 
+						   pSceneManager.getProgramProperties().mColorFont.y, 
+						   pSceneManager.getProgramProperties().mColorFont.z };
+	if (ImGui::ColorEdit3("Color", colorFont))
+	{
+		pSceneManager.getProgramProperties().mColorFont.x = colorFont[0];
+		pSceneManager.getProgramProperties().mColorFont.y = colorFont[1];
+		pSceneManager.getProgramProperties().mColorFont.z = colorFont[2];
 	}
 
 	ImGui::End();
