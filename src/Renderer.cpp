@@ -87,6 +87,8 @@ void Renderer::drawScene()
 	// skybox 
 	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
 
+	showFPS();
+	
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -97,19 +99,24 @@ void Renderer::showFPS()
 	static float currTime = 0.0f;
 	static float timeDiff = 0.0f;
 	static uint32_t counter = 0;
-
+	static uint32_t screenWidth = mSceneManager->getProgramProperties().mWindowWidth;
+	static uint32_t screenHeight = mSceneManager->getProgramProperties().mWindowHeight;
+	static std::string fpsText = "";
+	
 	currTime = SDL_GetTicks();
 	timeDiff = currTime - prevTime;
 	counter++;
 	if (timeDiff >= 1.0f / 100.0f)
 	{
-		std::string fps = std::to_string((1.0f / timeDiff) * counter * 1000);
-		std::string ms = std::to_string((timeDiff / counter) * 1000);
-		std::string newTitle = std::format("Museum of lights. FPS: {} | MS: {}", fps, ms);
-		SDL_SetWindowTitle(mSceneManager->mProgramProperties.mWindow, newTitle.c_str());
+		std::string fps = std::to_string(static_cast<int32_t>((1.0f / timeDiff) * counter * 1000));
+		//std::string ms = std::to_string((timeDiff / counter) * 1000);
+		fpsText = "FPS: " + fps;
 		prevTime = currTime;
 		counter = 0;
 	}
+	mSceneManager->mProgramProperties.mFontSystem.renderText(screenWidth, screenHeight, fpsText, mSceneManager->mProgramProperties.mPosFont, 
+																								 mSceneManager->mProgramProperties.mScaleFont, 
+																								 mSceneManager->mProgramProperties.mColorFont);
 }
 
 void Renderer::takeCursor()
@@ -140,7 +147,7 @@ void Renderer::setGLproperties()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// MSAA
-	glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_MULTISAMPLE);
 
 	// OPTIMIZATION
 	glEnable(GL_CULL_FACE);

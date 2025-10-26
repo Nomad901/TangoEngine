@@ -27,7 +27,7 @@ void Controler::controlAll(float pDeltaTime)
 			mKeyCodes[mEvent.key.key] = true;
 		if (mEvent.type == SDL_EVENT_KEY_UP)
 			mKeyCodes[mEvent.key.key] = false;
-
+		
 		// CAMERA MOVING
 		//if (mEvent.type == SDL_EVENT_MOUSE_MOTION && mSceneManager->getProgramProperties().mTakeCursor)
 		//	mPlayer.getThirdPersonCamera().mouseMovement(glm::vec2(mEvent.motion.xrel, mEvent.motion.yrel));
@@ -59,6 +59,7 @@ void Controler::controlAll(float pDeltaTime)
 																		  (float)mSceneManager->getProgramProperties().mWindowWidth /
 																		  (float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
 	}
+	mSceneManager->getModelProperties().mPlayerPos = mPlayer.getPos();
 	mPlayer.turnOnNoclip(mSceneManager->getProgramProperties().mNoclip);
 
 	controlScreen();

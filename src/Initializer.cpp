@@ -20,6 +20,14 @@ void Initializer::init(bool pInitAll)
 	mSceneManager->getProgramProperties().mFBO = std::make_unique<FBO>(mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight,
 																	   glm::vec2(0.0f, 0.0f), glm::vec2(600.0f, 600.0f));
 	mSceneManager->getProgramProperties().mFBO->setClearColors(glm::vec4(0.1f, 0.1f, 0.1f, 0.1f));
+	
+	// GBuffer
+	mSceneManager->getProgramProperties().mGBuffer.init(mSceneManager->getProgramProperties().mWindowWidth, 
+														mSceneManager->getProgramProperties().mWindowHeight);
+
+	// FontSystem
+	mSceneManager->getProgramProperties().mFontSystem.init(mSceneManager->getProgramProperties().mResourcePath + "Fonts/Antonio/static/Antonio-Bold.ttf");
+
 	if (pInitAll)
 		initAll();
 }
@@ -56,6 +64,9 @@ void Initializer::initShaders()
 	// skybox shader
 	mSceneManager->getProgramProperties().mShaders.pushShader("skyboxShader", resourcePath + "Shaders/vertSkybox.glsl",
 																			  resourcePath + "Shaders/fragSkybox.glsl");
+	// Deferred Light shader
+	mSceneManager->getProgramProperties().mShaders.pushShader("DeferredLight", resourcePath + "Shaders/deferredLightVert.glsl",
+																			   resourcePath + "Shaders/deferredLightFrag.glsl");
 }
 
 void Initializer::initTextures()
@@ -179,26 +190,21 @@ void Initializer::initTerrain()
 	float worldScale = 4.0f;
 	float textureScale = 16.0f;
 	mSceneManager->getModelProperties().mTerrain = std::make_unique<FractalNoiseTerrain>();
-	mSceneManager->getModelProperties().mTerrain->init(worldScale, textureScale, paths);
+	mSceneManager->getModelProperties().mTerrain->init(worldScale, textureScale, 17, 10000.0f, paths);
 	//mSceneManager->getModelProperties().mTerrain->loadFromFile(resourcePath + "terrain.png");
 	
-	uint32_t size = 513;        // Power of 2 + 1 works better
+	uint32_t size = 529;
 	uint32_t octaves = 4;
 	float minHeight = 0.0f;
 	float maxHeight = 200.0f;
-	float amplitude = 50.0f;    // Much higher initial amplitude
-	float frequency = 0.1f;    // Lower frequency for broader features
-	float lacunarity = 2.0f;    // Standard
+	float amplitude = 50.0f;   
+	float frequency = 0.1f;    
+	float lacunarity = 2.0f;   
 	float persistence = 0.5f;
-
-	//float roughness = 2.0f;
-	
-	// TODO: THE PROBLEM OF TERRAIN IN THE HEIGHT GENERATION!!! ABT MidPointDisp
-	reinterpret_cast<FractalNoiseTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setLight(glm::vec3(1.0f, -1.0f, 0.0f), 0.5f);
+	reinterpret_cast<FractalNoiseTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setLight(glm::vec3(1.0f, -1.0f, 0.0f), 7.0f);
 	reinterpret_cast<FractalNoiseTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->init(size, minHeight, maxHeight, amplitude, 
 																									 frequency, octaves, 
 																									 lacunarity, persistence);
-	//reinterpret_cast<MidpointDispTerrain*>(mSceneManager->getModelProperties().mTerrain.get())->setPos(glm::vec3(-200.0f, -400.0f, -200.0f));
 	mSceneManager->getModelProperties().mTerrain->setHeights(maxHeight - 200.0f, maxHeight - 150.0f, maxHeight - 100.0f, maxHeight - 50.0f);
 	mSceneManager->getModelProperties().mTerrain->setOneColor(false);
 }
@@ -209,4 +215,7 @@ void Initializer::initTerrain()
 	frequency - how much detail
 	lacunarity - how much we should increase our frequency per octave?
 	persistence - how quickly our grid should shrink per octave?
+
+
+	// TODO: THE PROBLEM OF TERRAIN IN THE HEIGHT GENERATION!!! ABT MidPointDisp
 */

@@ -505,6 +505,35 @@ float SlopeLight::getBrightness(int32_t pX, int32_t pZ) const
 	return brightness;
 }
 
+void SlopeLight::makeLightRotateAroundOf(const glm::vec3 pPos, float pDistance, float pRotationSpeed)
+{
+	mRotationSpeed = pRotationSpeed;
+	
+	mAngleAroundTheSource += Utils::getInstance().getDeltaTime() * pRotationSpeed;
+	if (mAngleAroundTheSource >= 360.0f)
+		mAngleAroundTheSource -= 360.0f;
+	
+	float verticalDistance	 = pDistance * glm::sin(glm::radians(mPitch));
+	float horizontalDistnace = pDistance * glm::cos(glm::radians(mPitch));
+
+	float offsetX = horizontalDistnace * glm::sin(glm::radians(mAngleAroundTheSource));
+	float offsetZ = horizontalDistnace * glm::cos(glm::radians(mAngleAroundTheSource));
+	
+	mDirection.x = pPos.x - offsetX;
+	mDirection.y = pPos.y + verticalDistance;
+	mDirection.z = pPos.z + offsetZ;
+}
+
+void SlopeLight::setPitch(float pPitch)
+{
+	mPitch = pPitch;
+}
+
+void SlopeLight::setRotationSpeed(float pRotationSpeed)
+{
+	mRotationSpeed = pRotationSpeed;
+}
+
 void SlopeLight::setPosLight(const glm::vec3& pPosLight)
 {
 	mPos = pPosLight;

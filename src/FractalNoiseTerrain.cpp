@@ -22,8 +22,7 @@ void FractalNoiseTerrain::init(int32_t pSize, float pMinHeight, float pMaxHeight
 	Terrain::setHeights(pMinHeight + pMaxHeight / 2, pMaxHeight / 2, pMaxHeight / 2 + pMaxHeight / 3, pMaxHeight);
 
 	mFastNoiseLiteGenerator.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-	mFastNoiseLiteGenerator.SetFractalType(FastNoiseLite::FractalType::FractalType_FBm);
-	mFastNoiseLiteGenerator.SetSeed(1337);
+	//mFastNoiseLiteGenerator.SetFractalType(FastNoiseLite::FractalType::FractalType_FBm);
 	mFastNoiseLiteGenerator.SetFrequency(mFrequency);
 	mFastNoiseLiteGenerator.SetFractalOctaves(mOctaves);
 	mFastNoiseLiteGenerator.SetFractalLacunarity(mLacunarity);

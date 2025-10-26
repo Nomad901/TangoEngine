@@ -20,22 +20,23 @@ class Terrain
 {
 public:
 	Terrain() = default;
-	Terrain(float pWorldScale, float pTexScale, std::span<std::filesystem::path> pPaths);
-	Terrain(float pWorldScale, float pTexScale);
+	Terrain(float pWorldScale, float pTexScale, float pPathcSize, float pPatchDistance, std::span<std::filesystem::path> pPaths);
+	Terrain(float pWorldScale, float pTexScale, float pPathcSize, float pPatchDistance);
 
-	void init(float pWorldScale, float pTexScale, std::span<std::filesystem::path> pPaths);
-	void init(float pWorldScale, float pTexScale);
+	void init(float pWorldScale, float pTexScale, float pPathcSize, float pPatchDistance, std::span<std::filesystem::path> pPaths);
+	void init(float pWorldScale, float pTexScale, float pPathcSize, float pPatchDistance);
 	void loadFromFile(const std::filesystem::path& pPath);
+	void finalizeTerrain();
+
+	void updateLights(bool pRotateLightAround);
+	void render(Camera* pCamera, const glm::mat4& pProj);
+
 	void setHeights(float pHeight0, float pHeight1, float pHeight2, float pHeight3);
 	void setPos(const glm::vec3& pPos);
 	void setLight(const glm::vec3& pDirection, float pSoftness);
 	void setMinMaxHeight(float pMinHeight, float pMaxHeight);
-	void finalizeTerrain();
 	void setOneColor(bool pIsOneColor);
 	void setDistanceBetweenPatches(float pDistanceBetweenPatches);
-	const glm::vec3& getCameraPosForChar(const glm::vec3& pCameraPos, float pCameraHeight);
-
-	void render(Camera* pCamera, const glm::mat4& pProj);
 
 	float getHeight(int32_t pX, int32_t pZ) const;
 	float getHeightInterpolated(float pX, float pZ) const;
@@ -48,6 +49,7 @@ public:
 	int32_t getTerrainSize() const noexcept;
 	int32_t getTerrainWorldSize() const noexcept;
 
+	const glm::vec3& getCameraPosForChar(const glm::vec3& pCameraPos, float pCameraHeight);
 private:
 	void loadHeightMapFile(const std::filesystem::path& pPath);
 	

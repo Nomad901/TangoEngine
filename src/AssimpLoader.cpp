@@ -1,4 +1,5 @@
 #include "AssimpLoader.h"
+#include <ft2build.h>
 
 AssimpLoader::AssimpLoader(const std::filesystem::path& pPath)
 {

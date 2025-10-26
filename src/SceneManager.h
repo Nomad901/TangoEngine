@@ -35,6 +35,8 @@
 #include "MidpointDispTerrain.h"
 #include "TextureGenerator.h"
 #include "FractalNoiseTerrain.h"
+#include "GBuffer.h"
+#include "FontSystem.h"
 
 class Renderer;
 
@@ -69,10 +71,16 @@ public:
 		Camera mCamera;
 		glm::mat4 mViewMatrix;
 		bool mNoclip{ false };
+		
+		FontSystem mFontSystem;
+		glm::vec2 mPosFont{ 0.0f, 0.0f };
+		glm::vec3 mColorFont{ 1.0f, 1.0f, 1.0f };
+		float mScaleFont{ 0.5f };
 
 		ShaderManager mShaders;
 		UI mUI;
 		UBO mUBO;
+		GBuffer mGBuffer;
 		std::unique_ptr<Skybox> mSkybox;
 		std::unique_ptr<Crosshair> mCrosshair;
 
@@ -83,8 +91,8 @@ public:
 	struct lightProperties
 	{
 		glm::vec3 mPosLight{ 1.0f };
-		glm::vec3 mLightDir{ 0.0f };
-		float mSoftness{ 1.0f };
+		glm::vec3 mLightDir{ 1.0f };
+		float mSoftness{ 7.0f };
 		LightManager mLightManager;
 	};
 
@@ -108,6 +116,7 @@ public:
 
 		glm::vec3 mRotateForFloor{ 0.0f, 1.0f, 0.0f };
 		glm::vec3 mLastPos{ 1.0f };
+		glm::vec3 mPlayerPos{ 1.0f };
 
 		std::unique_ptr<Terrain> mTerrain;
 		PrimitivesManager mPrimitivesManager;

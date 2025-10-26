@@ -118,7 +118,7 @@ void Player::turnOnRotatingWithCharacter(bool pRotatingWithChar)
 void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::vector<Mesh*>& pCollisionMeshes,
 					Terrain* pTerrain)
 {
-	if(!mNoclip)
+	if (!mNoclip)
 		mPos = pTerrain->getCameraPosForChar(mPos, 10.0f);
 
 	if(mNoclip)

@@ -23,7 +23,7 @@ Program::Program(uint32_t pWindowWidth, uint32_t pWindowHeight)
 	mSceneManager.getProgramProperties().mWindowWidth = pWindowWidth;
 	mSceneManager.getProgramProperties().mWindowHeight = pWindowHeight;
 
-	mSceneManager.getProgramProperties().mWindow = SDL_CreateWindow("Batch Renderer", pWindowWidth, pWindowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	mSceneManager.getProgramProperties().mWindow = SDL_CreateWindow("TangoEngine", pWindowWidth, pWindowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	if (!mSceneManager.getProgramProperties().mWindow)
 		std::cout << "Couldnt set the window!\n";
 	mSceneManager.getProgramProperties().mContext = SDL_GL_CreateContext(mSceneManager.getProgramProperties().mWindow);
@@ -85,7 +85,6 @@ void Program::run()
 		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes, 
 									   mSceneManager.getModelProperties().mTerrain.get());
 
-		mRenderer.showFPS();
 		mSceneManager.setAll();
 		mRenderer.preDrawScene();
 		mRenderer.drawScene();
@@ -94,7 +93,8 @@ void Program::run()
 		float deltaTime = SDL_GetTicks() - beginFrame;
 		if (deltaTime < 8)
 			SDL_Delay(8 - deltaTime);
-		
+		Utils::getInstance().updateDeltaTime(deltaTime); // TODO: maybe i need to recompute the delta time, cuz ive set the delay on the program;
+
 		SDL_GL_SwapWindow(mSceneManager.getProgramProperties().mWindow);
 	}
 }

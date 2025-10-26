@@ -10,6 +10,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 
+
 class Light
 {
 private:
@@ -326,6 +327,17 @@ public:
 
 	float getBrightness(int32_t pX, int32_t pZ) const;
 
+	//
+	// What this function does: this function makes the camera rotates around of position which the user can pass into the function;
+	// pPos - the source of rotation
+	// pDistance - the distance from the source
+	// pRotationSpeed - how fast the camera will be rotating around the object;
+	//
+	void makeLightRotateAroundOf(const glm::vec3 pPos, float pDistance, float pRotationSpeed);
+
+	void setPitch(float pPitch);
+	void setRotationSpeed(float pRotationSpeed);
+
 	void setPosLight(const glm::vec3& pPosLight) override;
 	glm::vec3 getPosLight() const noexcept override;
 	void setDirectionLight(const glm::vec3& pDirectionLight) override;
@@ -339,11 +351,15 @@ private:
 	glm::vec3 mPos{ 0.0 }, mDirection{ 0.0 };
 
 	uint32_t mTerrainSize{ 0 };
-	float mSoftness{ 0.0f };
+	float mSoftness{ 7.0f };
 	float mFactor{ 0.0f };
 
 	int32_t mDZ0{ 0 };
 	int32_t mDX0{ 0 };
 	int32_t mDZ1{ 0 };
 	int32_t mDX1{ 0 };
+
+	float mAngleAroundTheSource{ 0.0f };
+	float mPitch{ 30.0f };
+	float mRotationSpeed{ 30.0f };
 };

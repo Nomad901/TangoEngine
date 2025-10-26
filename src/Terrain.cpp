@@ -1,4 +1,4 @@
-#include "Terrain.h"
+﻿#include "Terrain.h"
 
 Terrain::Terrain(float pWorldScale, float pTexScale, float pPathcSize, float pPatchDistance, std::span<std::filesystem::path> pPaths)
 {
@@ -147,6 +147,14 @@ float Terrain::getWorldHeight(float pX, float pZ) const
 	return getHeightInterpolated(heightMapX, heightMapZ);
 }
 
+void Terrain::updateLights(bool pRotateLightAround)
+{
+	// why this doesnt work - cuz im stupid and ive inserted the light factor inside of the buffer, which is crazy;
+	if (pRotateLightAround)
+		mSlopeLight.makeLightRotateAroundOf(mPos, 100.0f, 10.0f);
+	mSlopeLight.init(mHeightMap, mSlopeLight.getDirectionLight(), mTerrainSize, mSlopeLight.getSoftness());
+}
+
 void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
 {
 	mShader.bind();
@@ -155,19 +163,10 @@ void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
 	mShader.setMatrixUniform4fv("uModel", model);
 	mShader.setMatrixUniform4fv("uView", pCamera->getViewMatrix());
 	mShader.setMatrixUniform4fv("uProj", pProj);
-	mShader.setUniform1f("uMinHeight", mMinHeight);
-	mShader.setUniform1f("uMaxHeight", mMaxHeight);
-	mShader.setUniform1i("isSingleTex", mIsOneTex);
-	if (!mIsOneTex)
-	{
-		for (size_t i = 0; i < mTextures.size(); ++i)
-		{
-			mTextures[i]->bind(i);
-			mShader.setUniform1i("uTextureHeight" + std::to_string(i), i);
-			mShader.setUniform1f("uHeight" + std::to_string(i), mHeights[i]);
-		}
-	}
-	//mTriangleList.render();
+	mTextures[0]->bind();
+	mShader.setUniform1i("uSpecularTex", 0);
+	mTextures[1]->bind(1);
+	mShader.setUniform1i("uDiffuseTex", 1);
 	glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
 	mGeomipGrid.render(pCamera, vpMat);
 }

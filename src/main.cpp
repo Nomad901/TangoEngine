@@ -13,11 +13,13 @@ int32_t main(int32_t argc, int8_t* argv[])
 	2. the terrain itself is really crazy, thats not a terrain - this is just bunch of angles from the floor - terrain's surface
 	   - try to append another algorithm for the terrain, more modern version
 	3. light system is crazy, working incorectly - light system / slope light
+	
 
-
-	1. collision
-	2. frustum culling 
-	3. light
-	4. water 
-	5. repair other terrain generations 
+	1. collision - done
+	2. geomipMapping - done 
+	3. frustum culling (set locker on the camera) - done
+	4. light
+	5. make the terrain an endless, like optimize this
+	6. water 
+	7. repair other terrain generations 
 */
