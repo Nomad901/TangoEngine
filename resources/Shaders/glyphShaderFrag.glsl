@@ -10,5 +10,6 @@ uniform vec3 uTextColor;
 void main()
 {
 	vec4 sampled = vec4(1.0f, 1.0f, 1.0f, texture(uText, texCoord).r);
-	fragColor = vec4(uTextColor, 1.0f) * sampled;
+	float alpha = smoothstep(0.4f, 0.6f, sampled.a);
+	fragColor = vec4(uTextColor, alpha);
 }
