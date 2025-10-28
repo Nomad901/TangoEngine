@@ -36,7 +36,7 @@ if(MSVC)
 add_compile_options(/arch:AVX2) #make sure SIMD optimizations take place
 endif()
 
-project(museumLights)
+project(tangoEngine)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
  
