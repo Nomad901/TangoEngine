@@ -20,6 +20,7 @@ void Renderer::drawScene()
 {
 	ImGui::EndFrame();
 
+	// initialaztion cubes and lights 
 	unsigned int cubeVAO = 0;
 	unsigned int cubeVBO = 0;
 	if (cubeVAO == 0)
@@ -85,6 +86,7 @@ void Renderer::drawScene()
 		glBindVertexArray(0);
 	}
 	
+	// lights 
 	static const unsigned int NR_LIGHTS = 32;
 	static std::vector<glm::vec3> lightPositions;
 	static std::vector<glm::vec3> lightColors;
@@ -108,34 +110,42 @@ void Renderer::drawScene()
 		firstTime = false;
 	}
 
+
+	// gbuffer
 	auto gBuffer = &mSceneManager->getProgramProperties().mGBuffer;
 
 	gBuffer->bindForWriting();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
-	
 	gBuffer->unbind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	gBuffer->bindForReading();
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	gBuffer->bindForReading();
 	uint32_t screenWidth = mSceneManager->getProgramProperties().mWindowWidth;
 	uint32_t screenHeight = mSceneManager->getProgramProperties().mWindowHeight;
 	uint32_t halfScreenWidth = screenWidth / 2;
 	uint32_t halfScreenHeight = screenHeight / 2;
 
 	gBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION);
-	//glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, halfScreenWidth, halfScreenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-	glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-	gBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_DIFFUSE);
-	//glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, halfScreenHeight, halfScreenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-	glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	glBlitNamedFramebuffer(gBuffer->getGBuffer(), gBuffer->getGBuffer(), 
+						   0, 0, screenWidth, screenHeight, 
+						   0, 0, halfScreenWidth, halfScreenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 	gBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_NORMAL);
-	glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-	
+	glBlitNamedFramebuffer(gBuffer->getGBuffer(), gBuffer->getGBuffer(),
+						   0, 0, screenWidth, screenHeight, 
+						   0, halfScreenHeight, halfScreenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+	gBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_DIFFUSE);
+	glBlitNamedFramebuffer(gBuffer->getGBuffer(), gBuffer->getGBuffer(),
+						   0, 0, screenWidth, screenHeight, 
+						   halfScreenWidth, halfScreenHeight, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
 	gBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_TEXCOORD);
-	glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	glBlitNamedFramebuffer(gBuffer->getGBuffer(), gBuffer->getGBuffer(),
+						   0, 0, screenWidth, screenHeight, 
+						   halfScreenWidth, 0, screenWidth, halfScreenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 	//auto shader = &mSceneManager->getProgramProperties().mShaders["DeferredLight"];
 	//shader->bind();
