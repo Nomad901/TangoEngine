@@ -20,7 +20,6 @@ void Renderer::drawScene()
 {
 	ImGui::EndFrame();
 
-	// initialaztion cubes and lights 
 	unsigned int cubeVAO = 0;
 	unsigned int cubeVBO = 0;
 	if (cubeVAO == 0)
@@ -93,7 +92,6 @@ void Renderer::drawScene()
 	static bool firstTime = true;
 	if (firstTime)
 	{
-		srand(13);
 		for (unsigned int i = 0; i < NR_LIGHTS; i++)
 		{
 			// calculate slightly random offsets
@@ -109,100 +107,76 @@ void Renderer::drawScene()
 		}
 		firstTime = false;
 	}
-
-
-	// gbuffer
+	
 	auto gBuffer = &mSceneManager->getProgramProperties().mGBuffer;
+
 
 	gBuffer->bindForWriting();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
-	gBuffer->unbind();
-
+	gBuffer->unbindForWriting();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	gBuffer->bindForReading();
+	auto shader = &mSceneManager->getProgramProperties().mShaders["DeferredLight"];
+	shader->bind();
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, gBuffer->getGPosBuffer());
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, gBuffer->getGNormalBuffer());
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, gBuffer->getGColorSpecBuffer());
+	
+	for (size_t i = 0; i < NR_LIGHTS; i++)
+	{
+		shader->setUniform3fv("lights[" + std::to_string(i) + "].position", lightPositions[i]);
+		shader->setUniform3fv("lights[" + std::to_string(i) + "].color", lightColors[i]);
+	
+		const float linear = 0.09f;
+		const float quadratic = 0.032f;
+		shader->setUniform1f("lights[" + std::to_string(i) + "].linear", linear);
+		shader->setUniform1f("lights[" + std::to_string(i) + "].quadratic", quadratic);
+		const float constant = 1.0f;
+		const float maxBrightness = std::fmaxf(std::fmaxf(lightColors[i].r, lightColors[i].g), lightColors[i].b);
+		const float radius = (-linear + std::sqrt(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * quadratic);
+		shader->setUniform1f("lights[" + std::to_string(i) + "].radius", mSceneManager->getLightProperties().mRadius);
+	}
+	shader->setUniform1i("uNumLights", NR_LIGHTS);
+	shader->setUniform3fv("uViewPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
+
+	static uint32_t quadVAO = 0;
+	static uint32_t quadVBO;
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			// positions        // texture coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+
 	uint32_t screenWidth = mSceneManager->getProgramProperties().mWindowWidth;
 	uint32_t screenHeight = mSceneManager->getProgramProperties().mWindowHeight;
-	uint32_t halfScreenWidth = screenWidth / 2;
-	uint32_t halfScreenHeight = screenHeight / 2;
-
-	gBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION);
-	glBlitNamedFramebuffer(gBuffer->getGBuffer(), gBuffer->getGBuffer(), 
-						   0, 0, screenWidth, screenHeight, 
-						   0, 0, halfScreenWidth, halfScreenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-	gBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_NORMAL);
-	glBlitNamedFramebuffer(gBuffer->getGBuffer(), gBuffer->getGBuffer(),
-						   0, 0, screenWidth, screenHeight, 
-						   0, halfScreenHeight, halfScreenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-	gBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_DIFFUSE);
-	glBlitNamedFramebuffer(gBuffer->getGBuffer(), gBuffer->getGBuffer(),
-						   0, 0, screenWidth, screenHeight, 
-						   halfScreenWidth, halfScreenHeight, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-	gBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_TEXCOORD);
-	glBlitNamedFramebuffer(gBuffer->getGBuffer(), gBuffer->getGBuffer(),
-						   0, 0, screenWidth, screenHeight, 
-						   halfScreenWidth, 0, screenWidth, halfScreenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-	//auto shader = &mSceneManager->getProgramProperties().mShaders["DeferredLight"];
-	//shader->bind();
-	//shader->setUniform1i("gPos", 0);
-	//shader->setUniform1i("gNormals", 1);
-	//shader->setUniform1i("gSpec", 2);
-	//
-	//for (size_t i = 0; i < NR_LIGHTS; i++)
-	//{
-	//	shader->setUniform3fv("lights[" + std::to_string(i) + "].position", lightPositions[i]);
-	//	//shader->setUniform3fv("uLight.position", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
-	//	shader->setUniform3fv("lights[" + std::to_string(i) + "].color", lightColors[i]);
-
-	//	const float linear = 0.09f;
-	//	const float quadratic = 0.032f;
-	//	shader->setUniform1f("lights[" + std::to_string(i) + "].linear", linear);
-	//	shader->setUniform1f("lights[" + std::to_string(i) + "].quadratic", quadratic);
-	//	const float constant = 1.0f;
-	//	const float maxBrightness = std::fmaxf(std::fmaxf(lightColors[i].r, lightColors[i].g), lightColors[i].b);
-	//	const float radius = (-linear + std::sqrt(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * quadratic);
-	//	shader->setUniform1f("lights[" + std::to_string(i) + "].radius", mSceneManager->getLightProperties().mRadius);
-	//}
-	//shader->setUniform3fv("uViewPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
-
-	//static uint32_t quadVAO = 0;
-	//static uint32_t quadVBO;
-	//if (quadVAO == 0)
-	//{
-	//	float quadVertices[] = {
-	//		// positions        // texture coords
-	//		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-	//		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-	//		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-	//		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-	//	};
-	//	glGenVertexArrays(1, &quadVAO);
-	//	glGenBuffers(1, &quadVBO);
-	//	glBindVertexArray(quadVAO);
-	//	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	//	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-	//	glEnableVertexAttribArray(0);
-	//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	//	glEnableVertexAttribArray(1);
-	//	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	//}
-	//glBindVertexArray(quadVAO);
-	//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	//glBindVertexArray(0);
-
-	//mSceneManager->getProgramProperties().mGBuffer.bindForReading();
-	//glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	//mSceneManager->getProgramProperties().mGBuffer.unbindForReading();
-
-	// skybox 
-	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
-
-	showFPS();
+	gBuffer->bindForReading();
+	gBuffer->unbindForWriting();
+	glBlitFramebuffer(0, 0, screenWidth, screenHeight,
+					  0, 0, screenWidth, screenHeight,
+					  GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	gBuffer->unbindForReading();
 
 	mSceneManager->getProgramProperties().mShaders["singleColorShader"].bind();
 	uint32_t index = 0;
@@ -222,6 +196,11 @@ void Renderer::drawScene()
 
 		index++;
 	}
+
+	// skybox 
+	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
+
+	showFPS();
 	
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
