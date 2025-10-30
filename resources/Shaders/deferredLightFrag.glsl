@@ -10,41 +10,51 @@ uniform sampler2D gSpec;
 
 struct Light
 {
-	vec3 position;
-	vec3 color;
-	
-	float linear;
-	float quadratic;
-	float radius;
+    vec3 position;
+    vec3 color;
+
+    float linear;
+    float quadratic;
+    float radius;
 };
 
-uniform Light uLight;
+const int MAX_LIGHTS = 32;
+uniform Light lights[MAX_LIGHTS];
+uniform int uNumLights;
 uniform vec3 uViewPos;
 
 void main()
 {
-	vec3 fragPos = texture(gPos, fragTexCoord).rgb;
-	vec3 normal = texture(gNormals, fragTexCoord).rgb;
-	vec3 diffuse = texture(gSpec, fragTexCoord).rgb;
-	float specular = texture(gSpec, fragTexCoord).a;
+    vec3 fragPos = texture(gPos, fragTexCoord).rgb;
+    vec3 normal = texture(gNormals, fragTexCoord).rgb;
+    vec3 albedo = texture(gSpec, fragTexCoord).rgb;  
+    float specular = texture(gSpec, fragTexCoord).a;
 
-	vec3 lighting = diffuse * 0.1f;
-	vec3 viewDir = normalize(uViewPos - fragPos);
+    vec3 lighting = albedo * 0.1f;  
+    vec3 viewDir = normalize(uViewPos - fragPos);
 
-	float distance = length(uLight.position - fragPos);
-	if(distance < uLight.radius)
-	{
-		vec3 lightDir = normalize(uLight.position - fragPos);
-		vec3 diffuse = max(dot(normal, lightDir), 0.0f) * diffuse * uLight.color;
+    for (int i = 0; i < uNumLights; i++)
+    {
+        float distance = length(lights[i].position - fragPos);
+        if (distance < lights[i].radius)
+        {
+            vec3 lightDir = normalize(lights[i].position - fragPos);
+            
+            float diff = max(dot(normal, lightDir), 0.0f);
+            vec3 diffuse = diff * albedo * lights[i].color;
 
-		vec3 halfWayDir = normalize(lightDir + viewDir);
-		float spec = pow(max(dot(normal, halfWayDir), 0.0f), 16.0f);
-		vec3 specular = uLight.color * spec * specular;
+            vec3 halfwayDir = normalize(lightDir + viewDir);
+            float spec = pow(max(dot(normal, halfwayDir), 0.0f), 16.0f);
+            vec3 specularColor = lights[i].color * spec * specular;
 
-		float attenuation = 1.0f / (1.0f + uLight.linear * distance + uLight.quadratic * distance * distance);
-		diffuse *= attenuation;
-		specular *= attenuation;
-		lighting += diffuse + specular;
-	}
-	finalFragColor = vec4(lighting, 1.0f);
+            float attenuation = 1.0f / (1.0f + lights[i].linear * distance + lights[i].quadratic * distance * distance);
+            
+            lighting += (diffuse + specularColor) * attenuation;
+        }
+    }
+
+    //lighting = lighting / (lighting + vec3(1.0f));
+    //lighting = pow(lighting, vec3(1.0f/2.2f)); 
+
+    finalFragColor = vec4(lighting, 1.0f);
 }
