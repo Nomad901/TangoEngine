@@ -67,6 +67,11 @@ void Initializer::initShaders()
 	// Deferred Light shader
 	mSceneManager->getProgramProperties().mShaders.pushShader("DeferredLight", resourcePath + "Shaders/deferredLightVert.glsl",
 																			   resourcePath + "Shaders/deferredLightFrag.glsl");
+	auto shader = &mSceneManager->getProgramProperties().mShaders["DeferredLight"];
+	shader->bind();
+	shader->setUniform1i("gPos", 0);
+	shader->setUniform1i("gNormals", 1);
+	shader->setUniform1i("gSpec", 2);
 }
 
 void Initializer::initTextures()
