@@ -64,14 +64,21 @@ void Initializer::initShaders()
 	// skybox shader
 	mSceneManager->getProgramProperties().mShaders.pushShader("skyboxShader", resourcePath + "Shaders/vertSkybox.glsl",
 																			  resourcePath + "Shaders/fragSkybox.glsl");
-	// Deferred Light shader
-	mSceneManager->getProgramProperties().mShaders.pushShader("DeferredLight", resourcePath + "Shaders/deferredLightVert.glsl",
-																			   resourcePath + "Shaders/deferredLightFrag.glsl");
-	auto shader = &mSceneManager->getProgramProperties().mShaders["DeferredLight"];
-	shader->bind();
-	shader->setUniform1i("gPos", 0);
-	shader->setUniform1i("gNormals", 1);
-	shader->setUniform1i("gSpec", 2);
+	//
+	// Deferred Light shaders
+	//
+	// ----------------------
+	//
+	// point light pass
+	//
+	mSceneManager->getProgramProperties().mShaders.pushShader("pointLight", resourcePath + "Shaders/OGLDEV deferred light tutorials/lightPassVert.glsl",
+																		    resourcePath + "Shaders/OGLDEV deferred light tutorials/pointLightPassFrag.glsl");
+	// 
+	// directional light pass
+	//	
+	mSceneManager->getProgramProperties().mShaders.pushShader("dirLight", resourcePath + "Shaders/OGLDEV deferred light tutorials/lightPassVert.glsl",
+																		  resourcePath + "Shaders/OGLDEV deferred light tutorials/dirLightPassFrag.glsl");
+	// ----------------------
 }
 
 void Initializer::initTextures()
@@ -128,6 +135,8 @@ void Initializer::initModels()
 	//												  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));
 	//mSceneManager->getModelProperties().mModelManager.pushModel("lampPost2", std::make_unique<Model>(glm::vec3(2.0f),
 	//												  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));
+	mSceneManager->getModelProperties().mModelManager.pushModel("sphere", std::make_unique<Model>(glm::vec3(1.0f),
+																mSceneManager->getProgramProperties().mResourcePath + "Models/sphere.obj"));
 }
 
 void Initializer::initLights()
@@ -143,6 +152,22 @@ void Initializer::initLights()
 	//mSceneManager->getLightProperties().mLightManager.pushLight("lampPost2", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -91.09918), 0.5f, 0.045f, 0.075f));
 	//mSceneManager->getLightProperties().mLightManager.pushLight("lampPost3", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -68.599525), 0.5f, 0.045f, 0.075f));
 	//mSceneManager->getLightProperties().mLightManager.pushLight("lampPost4", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -88.19923), 0.5f, 0.045f, 0.075f));
+
+
+	const uint32_t NR_LIGHTS = 32;
+	for (uint32_t i = 0; i < NR_LIGHTS; i++)
+	{
+		// calculate slightly random offsets
+		float xPos = static_cast<float>(((rand() % mSceneManager->getModelProperties().mTerrain->getTerrainWorldSize())));
+		float yPos = 70.0f;
+		float zPos = static_cast<float>(((rand() % mSceneManager->getModelProperties().mTerrain->getTerrainWorldSize())));
+		mSceneManager->getLightProperties().lightPositions.push_back(glm::vec3(xPos, yPos, zPos));
+		// also calculate random color
+		float rColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
+		float gColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
+		float bColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
+		mSceneManager->getLightProperties().lightColors.push_back(glm::vec3(rColor, gColor, bColor));
+	}
 }
 
 void Initializer::initCrosshair()
