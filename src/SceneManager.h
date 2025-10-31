@@ -86,6 +86,9 @@ public:
 
 		std::unique_ptr<FBO> mFBO;
 		std::vector<FBO> mFBOstrg;
+
+
+		int32_t currentTexture{ 0 };
 	};
 
 	struct lightProperties
@@ -93,6 +96,11 @@ public:
 		glm::vec3 mPosLight{ 1.0f };
 		glm::vec3 mLightDir{ 1.0f };
 		float mSoftness{ 7.0f };
+		float mRadius{ 50.0f };
+
+		std::vector<glm::vec3> lightPositions;
+		std::vector<glm::vec3> lightColors;
+
 		LightManager mLightManager;
 	};
 

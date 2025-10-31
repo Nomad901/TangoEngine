@@ -20,188 +20,23 @@ void Renderer::drawScene()
 {
 	ImGui::EndFrame();
 
-	unsigned int cubeVAO = 0;
-	unsigned int cubeVBO = 0;
-	if (cubeVAO == 0)
-	{
-		float vertices[] = {
-			// back face
-			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-			 1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
-			 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			-1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
-			// front face
-			-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-			 1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-			 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-			-1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
-			-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-			// left face
-			-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-			-1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
-			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-			-1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-			-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-			// right face
-			 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-			 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-			 1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
-			 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-			 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-			 1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
-			 // bottom face
-			 -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-			  1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
-			  1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-			  1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-			 -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-			 -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-			 // top face
-			 -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-			  1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-			  1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
-			  1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-			 -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-			 -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
-		};
-		glGenVertexArrays(1, &cubeVAO);
-		glGenBuffers(1, &cubeVBO);
-		// fill buffer
-		glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		// link vertex attributes
-		glBindVertexArray(cubeVAO);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
-	
-	// lights 
-	static const unsigned int NR_LIGHTS = 32;
-	static std::vector<glm::vec3> lightPositions;
-	static std::vector<glm::vec3> lightColors;
-	static bool firstTime = true;
-	if (firstTime)
-	{
-		for (unsigned int i = 0; i < NR_LIGHTS; i++)
-		{
-			// calculate slightly random offsets
-			float xPos = static_cast<float>(((rand() % mSceneManager->getModelProperties().mTerrain->getTerrainWorldSize())));
-			float yPos = 70.0f;
-			float zPos = static_cast<float>(((rand() % mSceneManager->getModelProperties().mTerrain->getTerrainWorldSize())));
-			lightPositions.push_back(glm::vec3(xPos, yPos, zPos));
-			// also calculate random color
-			float rColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-			float gColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-			float bColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-			lightColors.push_back(glm::vec3(rColor, gColor, bColor));
-		}
-		firstTime = false;
-	}
-	
-	auto gBuffer = &mSceneManager->getProgramProperties().mGBuffer;
-	gBuffer->bindForWriting();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
-	gBuffer->unbindForWriting();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//
+	// gbuffer and terrain 
+	//
+	auto gbufferRef = &mSceneManager->mProgramProperties.mGBuffer;
 
-	auto shader = &mSceneManager->getProgramProperties().mShaders["DeferredLight"];
-	shader->bind();
-	
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gBuffer->getGPosBuffer());
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, gBuffer->getGNormalBuffer());
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, gBuffer->getGColorSpecBuffer());
+	geometryPass(gbufferRef);
+	beginLightPass(gbufferRef);
+	pointLightPass(gbufferRef);
+	directionalLightPass(gbufferRef);
 
-	// theory: the bug CAN be in the light system, but i cant prove it...
-	for (size_t i = 0; i < NR_LIGHTS; i++)
-	{
-		shader->setUniform3fv("lights[" + std::to_string(i) + "].position", lightPositions[i]);
-		shader->setUniform3fv("lights[" + std::to_string(i) + "].color", lightColors[i]);
-	
-		const float linear = 0.09f;
-		const float quadratic = 0.032f;
-		shader->setUniform1f("lights[" + std::to_string(i) + "].linear", linear);
-		shader->setUniform1f("lights[" + std::to_string(i) + "].quadratic", quadratic);
-		const float constant = 1.0f;
-		const float maxBrightness = std::fmaxf(std::fmaxf(lightColors[i].r, lightColors[i].g), lightColors[i].b);
-		const float radius = (-linear + std::sqrt(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * quadratic);
-		shader->setUniform1f("lights[" + std::to_string(i) + "].radius", radius);
-		//shader->setUniform1f("lights[" + std::to_string(i) + "].radius", mSceneManager->getLightProperties().mRadius);
-	}
-	shader->setUniform1i("uNumLights", NR_LIGHTS);
-	shader->setUniform3fv("uViewPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
-
-	static VAO vao;
-	static VBO vbo;
-	static VBOLayout vboLayout;
-	
-	static bool firstTimeQuad = true;
-	if (firstTimeQuad)
-	{
-		float quadVertices[] = {
-			// positions        // texture coords
-			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		};
-
-		vao.bind();
-		vbo.init(quadVertices, sizeof(quadVertices), GL_STATIC_DRAW);
-		vboLayout.pushLayout(GL_FLOAT, 3);
-		vboLayout.pushLayout(GL_FLOAT, 2);
-		vao.addBuffer(vbo, vboLayout);
-
-		firstTimeQuad = false;
-	}
-	vao.bind();
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	vao.unbind();
-
-	uint32_t screenWidth = mSceneManager->getProgramProperties().mWindowWidth;
-	uint32_t screenHeight = mSceneManager->getProgramProperties().mWindowHeight;
-	gBuffer->bindForReading();
-	gBuffer->unbindForWriting();
-	glBlitFramebuffer(0, 0, screenWidth, screenHeight,
-					  0, 0, screenWidth, screenHeight,
-					  GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	gBuffer->unbindForReading();
-
-	mSceneManager->getProgramProperties().mShaders["singleColorShader"].bind();
-	uint32_t index = 0;
-	for (auto& i : lightPositions)
-	{
-		glm::mat4 MVP = glm::mat4(1.0f);
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, i);
-		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-		MVP = mSceneManager->getModelProperties().mProjMatrix * mSceneManager->getProgramProperties().mThirdPersonCam.getViewMatrix() * model;
-		mSceneManager->getProgramProperties().mShaders["singleColorShader"].setMatrixUniform4fv("uMVP", MVP);
-		mSceneManager->getProgramProperties().mShaders["singleColorShader"].setUniform3fv("uColor", lightColors[index]);
-
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-
-		index++;
-	}
-
+	//
 	// skybox 
+	//
 	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
-
+	//
+	// fps 
+	//
 	showFPS();
 	
 	ImGui::Render();
@@ -286,3 +121,125 @@ void Renderer::setGLproperties()
 		glClearColor(0.20f, 0.20f, 0.20f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
+
+void Renderer::geometryPass(GBuffer* pBuffer)
+{
+	pBuffer->bindForWriting();
+
+	glDepthMask(GL_TRUE);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	
+	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
+
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+}
+
+void Renderer::beginLightPass(GBuffer* pBuffer)
+{
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	pBuffer->bindForReading();
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Renderer::pointLightPass(GBuffer* pBuffer)
+{
+	mSceneManager->mProgramProperties.mShaders.getShader("pointLight").bind();
+	mSceneManager->mProgramProperties.mShaders.getShader("pointLight").setUniform3fv("uViewWorldPos", 
+																					 mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
+	static std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> lights = 
+		   std::make_pair(mSceneManager->mLightProperties.lightPositions, 
+						  mSceneManager->mLightProperties.lightColors);
+
+	for (size_t i = 0; i < lights.first.size(); ++i)
+	{
+
+	}
+	
+}
+
+void Renderer::directionalLightPass(GBuffer* pBuffer)
+{
+
+}
+
+void Renderer::spotLightPass(GBuffer* pBuffer)
+{
+
+}
+
+float Renderer::calcPointLightSphere(const glm::vec3& pLightPos)
+{
+
+	return 0.0f;
+}
+
+void Renderer::renderLightSphere()
+{
+
+}
+
+
+//void Renderer::lightPass(GBuffer* pBuffer)
+//{
+//	pBuffer->unbind();
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//	pBuffer->bindForReading();
+//	
+//	uint32_t windowWidth = mSceneManager->mProgramProperties.mWindowWidth;
+//	uint32_t windowHeight = mSceneManager->mProgramProperties.mWindowHeight;
+//	uint32_t halfWindowWidth = windowWidth / 2;
+//	uint32_t halfWindowHeight = windowHeight / 2;
+//	
+//	//pBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION);
+//	//glBlitFramebuffer(halfWindowWidth, halfWindowHeight, windowWidth, windowHeight, 
+//	//				  halfWindowWidth, halfWindowHeight, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+//
+//	//pBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_DIFFUSE);
+//	//glBlitFramebuffer(0, halfWindowHeight, halfWindowWidth, windowHeight, 
+//	//				  0, halfWindowHeight, halfWindowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+//	
+//	//pBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_NORMAL);
+//	//glBlitFramebuffer(0, 0, halfWindowWidth, halfWindowHeight, 
+//	//				  0, 0, halfWindowWidth, halfWindowHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+//
+//	//pBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_NORMAL);
+//	//glBlitFramebuffer(0, 0, windowWidth, windowHeight,
+//	//				  0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+//
+//	//pBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_TEXCOORD);
+//	//glBlitFramebuffer(halfWindowWidth, 0, windowWidth, halfWindowHeight, 
+//	//				  halfWindowWidth, 0, windowWidth, halfWindowHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+//
+//	if (mSceneManager->getProgramProperties().currentTexture == 0)
+//	{
+//		pBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION);
+//		glBlitFramebuffer(0, 0, windowWidth, windowHeight,
+//						  0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+//	}
+//	else if (mSceneManager->getProgramProperties().currentTexture == 2)
+//	{
+//		pBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_DIFFUSE);
+//		glBlitFramebuffer(0, 0, windowWidth, windowHeight,
+//						  0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+//	}
+//	else if (mSceneManager->getProgramProperties().currentTexture == 3)
+//	{
+//		pBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_NORMAL);
+//		glBlitFramebuffer(0, 0, windowWidth, windowHeight,
+//						  0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+//	}
+//	else
+//	{
+//		pBuffer->setReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE::GBUFFER_TEXCOORD);
+//		glBlitFramebuffer(0, 0, windowWidth, windowHeight,
+//						  0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+//	}
+//
+//	pBuffer->unbindForReading();
+//}
