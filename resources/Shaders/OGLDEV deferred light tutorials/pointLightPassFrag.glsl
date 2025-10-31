@@ -52,8 +52,10 @@ uniform sampler2D uNormalMap;
 //
 // lights;
 //
-uniform directionalLight uDirectionalLight;
-uniform pointLight uPointLight;
+const int numberOfLights = 32; 
+uniform directionalLight uDirectionalLight[numberOfLights];
+uniform pointLight uPointLight[numberOfLights];
+uniform int uNumberLightsToProcess; 
 // todo: spotlight;
 
 //
@@ -97,24 +99,24 @@ vec4 calcInternalLight(baseLight pBaseLight,
 	return (ambientColor + diffuseColor + specularColor);
 }
 
-vec4 calcDirectionalLight(vec3 pWorldPos, vec3 pNormal)
+vec4 calcDirectionalLight(vec3 pWorldPos, vec3 pNormal, int pIndex)
 {
-	return calcInternalLight(uDirectionalLight.mBaseLight,
-							 uDirectionalLight.mDirection,
+	return calcInternalLight(uDirectionalLight[pIndex].mBaseLight,
+							 uDirectionalLight[pIndex].mDirection,
 							 pWorldPos, pNormal);
 }
 
-vec4 calcPointLight(vec3 pWorldPos, vec3 pNormal)
+vec4 calcPointLight(vec3 pWorldPos, vec3 pNormal, int pIndex)
 {
-	vec3 lightDirection = pWorldPos - uPointLight.mPos;
+	vec3 lightDirection = pWorldPos - uPointLight[pIndex].mPos;
 	float distance = length(lightDirection);
 	lightDirection = normalize(lightDirection);
 
-	vec4 color = calcInternalLight(uPointLight.mBaseLight, lightDirection, pWorldPos, pNormal);
+	vec4 color = calcInternalLight(uPointLight[pIndex].mBaseLight, lightDirection, pWorldPos, pNormal);
 	
-	float attenuationFactor = uPointLight.mAttenuation.mConstant + 
-							  uPointLight.mAttenuation.mLinear * distance +
-							  uPointLight.mAttenuation.mExp * distance * distance;
+	float attenuationFactor = uPointLight[pIndex].mAttenuation.mConstant + 
+							  uPointLight[pIndex].mAttenuation.mLinear * distance +
+							  uPointLight[pIndex].mAttenuation.mExp * distance * distance;
 
 	attenuationFactor = max(1.0f, attenuationFactor);
 
@@ -136,5 +138,5 @@ void main()
 	vec3 normal   = texture(uNormalMap, texCoord).xyz;
 	normal = normalize(normal);
 
-	fragColor = vec4(color, 1.0f) * calcPointLight(worldPos, normal);
+	fragColor = vec4(color, 1.0f) * calcPointLight(worldPos, normal, 0);
 }
