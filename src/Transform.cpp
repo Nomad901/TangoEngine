@@ -30,6 +30,40 @@ void Transform::setLocalScale(const glm::vec3& pScale)
 	mIsShouldBeRecomputed = true;
 }
 
+glm::mat4 Transform::getVPTTransf(Camera& pCamera, const glm::mat4& pProjMatrix)
+{
+	glm::mat4 viewMat = getViewTransf(pCamera);
+	return pProjMatrix * viewMat;
+}
+
+glm::mat4 Transform::getWVPTransf(Camera& pCamera, const glm::mat4& pProjMatrix)
+{
+	glm::mat4 worldMatrix = getModelMatrix();
+	glm::mat4 VPTMatrix = getVPTTransf(pCamera, pProjMatrix);
+	return VPTMatrix * worldMatrix;
+}
+
+glm::mat4 Transform::getWVOrthoPTransf(Camera& pCamera, const glm::mat4& pOrthoProjMatrix)
+{
+	glm::mat4 worldMatrix = getModelMatrix();
+	glm::mat4 viewMatrix = getViewTransf(pCamera);
+
+	return pOrthoProjMatrix * viewMatrix * worldMatrix;
+}
+
+glm::mat4 Transform::getWVTransf(Camera& pCamera)
+{
+	glm::mat4 worldMatrix = getModelMatrix();
+	glm::mat4 viewMatrix = getViewTransf(pCamera);
+
+	return viewMatrix * worldMatrix;
+}
+
+glm::mat4 Transform::getViewTransf(Camera& pCamera)
+{
+	return glm::lookAt(pCamera.getPos(), pCamera.getPos() + pCamera.getDirection(), pCamera.getUpVec());
+}
+
 const glm::mat4& Transform::getModelMatrix() noexcept
 {
 	if (mIsShouldBeRecomputed)
@@ -37,9 +71,9 @@ const glm::mat4& Transform::getModelMatrix() noexcept
 	return mModelMatrix;
 }
 
-const glm::vec3& Transform::getWorldPosition() const noexcept
+glm::vec3 Transform::getWorldPosition() const noexcept
 {
-	return mModelMatrix[3];
+	return glm::vec3(mModelMatrix[3]);
 }
 
 const glm::vec3& Transform::getLocalPosition() const noexcept
@@ -57,27 +91,27 @@ const glm::vec3& Transform::getLocalScale() const noexcept
 	return mScale;
 }
 
-const glm::vec3& Transform::getRightVec() const
+glm::vec3 Transform::getRightVec() const
 {
-	return mModelMatrix[0];
+	return glm::vec3(mModelMatrix[0]);
 }
 
-const glm::vec3& Transform::getUpVec() const
+glm::vec3 Transform::getUpVec() const
 {
-	return mModelMatrix[1];
+	return glm::vec3(mModelMatrix[1]);
 }
 
-const glm::vec3& Transform::getBackwardVec() const
+glm::vec3 Transform::getBackwardVec() const
 {
-	return mModelMatrix[2];
+	return glm::vec3(mModelMatrix[2]);
 }
 
-const glm::vec3& Transform::getForwardVec() const
+glm::vec3 Transform::getForwardVec() const
 {
-	return -mModelMatrix[2];
+	return -glm::vec3(mModelMatrix[2]);
 }
 
-const glm::vec3& Transform::getGlobalScale() const
+glm::vec3 Transform::getGlobalScale() const
 {
 	return glm::vec3(glm::length(getRightVec()), glm::length(getUpVec()), glm::length(getBackwardVec()));
 }
