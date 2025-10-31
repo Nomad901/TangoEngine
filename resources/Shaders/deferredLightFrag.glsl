@@ -42,7 +42,7 @@ void main()
             
             float diff = max(dot(normal, lightDir), 0.0f);
             vec3 diffuse = diff * albedo * lights[i].color;
-
+            
             vec3 halfwayDir = normalize(lightDir + viewDir);
             float spec = pow(max(dot(normal, halfwayDir), 0.0f), 16.0f);
             vec3 specularColor = lights[i].color * spec * specular;
