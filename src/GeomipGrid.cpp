@@ -351,9 +351,6 @@ void GeomipGrid::render(Camera* pCamera, const glm::mat4& pViewProj)
 	FrustumCulling frustumCulling(pViewProj);
 	mVAO.bind();
 
-	//uint32_t numPatches = mNumPatchesX * mNumPatchesZ;
-	//uint32_t passedNumPatches = 0;
-
 	float patchSize = static_cast<float>(mPatchSize - 1.0f) * mWorldScale;
 	float halfPatchSize = patchSize / 2.0f;
 	for (uint32_t patchZ = 0; patchZ < mNumPatchesZ; ++patchZ)
@@ -365,8 +362,6 @@ void GeomipGrid::render(Camera* pCamera, const glm::mat4& pViewProj)
 
 			if (!isPatchInsideFrustum_ViewSpace(x, z, pViewProj))
 				continue;
-
-			//passedNumPatches++;
 
 			const LodManager::PatchLod& patchLod = mLodManager.getPatchLod(patchX, patchZ);
 			int32_t core = patchLod.mCore;
@@ -383,7 +378,6 @@ void GeomipGrid::render(Camera* pCamera, const glm::mat4& pViewProj)
 		}
 	}
 	mVAO.unbind();
-	//std::cout << std::format("PassedNumPatches: {}\tNumPatches: {}\n", passedNumPatches, numPatches);
 }
 
 bool GeomipGrid::isPatchInsideFrustum_ViewSpace(int32_t pX, int32_t pZ, const glm::mat4& pViewProj)
