@@ -11,41 +11,65 @@ GBuffer::~GBuffer()
 
 void GBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 {
-	glGenFramebuffers(1, &mGBuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mGBuffer);
-
+    glGenFramebuffers(1, &mGBuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mGBuffer);
+	
+	// generating gbuffer textures and depth buffer
 	glGenTextures(mTextures.size(), mTextures.data());
+	glGenTextures(1, &mDepthBuffer);
 
+	// gbuffer textures
 	for (size_t i = 0; i < mTextures.size(); ++i)
 	{
 		glBindTexture(GL_TEXTURE_2D, mTextures[i]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, pScreenWidth, pScreenHeight, 0, GL_RGB, GL_FLOAT, nullptr);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, mTextures[i], 0);
 	}
 
-	glGenTextures(1, &mDepthBuffer);
+	// depth buffer
 	glBindTexture(GL_TEXTURE_2D, mDepthBuffer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, pScreenWidth, pScreenHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mDepthBuffer, 0);
 
 	std::array<GLenum, 4> drawBuffers = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 	glDrawBuffers(drawBuffers.size(), drawBuffers.data());
-
+	
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
 	if (status != GL_FRAMEBUFFER_COMPLETE)
 	{
-		std::cout << std::format("Frame buffer was not completed! Returning... {}\n", status);
+		std::cout << std::format("FrameBuffer is not completed, status: {}\n", status);
 		return;
 	}
+
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
+void GBuffer::onWindowResize(uint32_t pScreenWidth, uint32_t pScreenHeight)
+{
+    destroy();
+    init(pScreenWidth, pScreenHeight);
 }
 
 void GBuffer::bind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, mGBuffer);
+	for (size_t i = 0; i < mTextures.size(); ++i)
+	{
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION) + i]);
+	}
 }
 
 void GBuffer::bindForWriting()
@@ -56,6 +80,11 @@ void GBuffer::bindForWriting()
 void GBuffer::bindForReading()
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, mGBuffer);
+	for (size_t i = 0; i < mTextures.size(); ++i)
+	{
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION) + i]);
+	}
 }
 
 void GBuffer::unbind()
@@ -98,9 +127,14 @@ uint32_t GBuffer::getGNormalBuffer() const noexcept
 	return mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_NORMAL)];
 }
 
-uint32_t GBuffer::getGColorSpecBuffer() const noexcept
+uint32_t GBuffer::getGDiffuseBuffer() const noexcept
 {
 	return mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_DIFFUSE)];
+}
+
+uint32_t GBuffer::getTexCoordBuffer() const noexcept
+{
+    return mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_TEXCOORD)];
 }
 
 uint32_t GBuffer::getRBOBuffer() const noexcept
