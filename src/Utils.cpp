@@ -152,3 +152,31 @@ float Utils::getDeltaTime()
 {
 	return mDeltaTime;
 }
+
+bool Utils::bufferIsBound(GLenum pTarget, uint32_t pID)
+{
+	int32_t currentBoundBuffer = 0;
+	switch (pTarget)
+	{
+	case GL_ARRAY_BUFFER: 
+		glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &currentBoundBuffer); 
+		break;
+	case GL_ELEMENT_ARRAY_BUFFER:
+		glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &currentBoundBuffer);
+		break;
+	case GL_UNIFORM_BUFFER:
+		glGetIntegerv(GL_UNIFORM_BUFFER_BINDING, &currentBoundBuffer);
+		break;
+	case GL_FRAMEBUFFER:
+		break;
+	case GL_READ_FRAMEBUFFER:
+		glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &currentBoundBuffer);
+		break;
+	case GL_DRAW_FRAMEBUFFER:
+		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &currentBoundBuffer);
+		break;
+	default:
+		return false;
+	}
+	return static_cast<uint32_t>(currentBoundBuffer) == pID;
+}
