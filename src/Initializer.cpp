@@ -40,12 +40,12 @@ void Initializer::initAll()
 	initMeshes();
 	initMaterial();
 	initModels();
-	initLights();
 	initCrosshair();
 	initMousePicker();
 	initSkybox();
 	initUBO();
 	initTerrain();
+	initLights();
 }
 
 void Initializer::initShaders()
@@ -71,13 +71,13 @@ void Initializer::initShaders()
 	//
 	// point light pass
 	//
-	mSceneManager->getProgramProperties().mShaders.pushShader("pointLight", resourcePath + "Shaders/OGLDEV deferred light tutorials/lightPassVert.glsl",
-																		    resourcePath + "Shaders/OGLDEV deferred light tutorials/pointLightPassFrag.glsl");
+	mSceneManager->getProgramProperties().mShaders.pushShader("pointLight", resourcePath + "Shaders/OGLDEV_Deferred_Light/lightPassVert.glsl",
+																		    resourcePath + "Shaders/OGLDEV_Deferred_Light/pointLightPassFrag.glsl");
 	// 
 	// directional light pass
 	//	
-	mSceneManager->getProgramProperties().mShaders.pushShader("dirLight", resourcePath + "Shaders/OGLDEV deferred light tutorials/lightPassVert.glsl",
-																		  resourcePath + "Shaders/OGLDEV deferred light tutorials/dirLightPassFrag.glsl");
+	mSceneManager->getProgramProperties().mShaders.pushShader("dirLight", resourcePath + "Shaders/OGLDEV_Deferred_Light/lightPassVert.glsl",
+																		  resourcePath + "Shaders/OGLDEV_Deferred_Light/dirLightPassFrag.glsl");
 	// ----------------------
 }
 
@@ -137,6 +137,8 @@ void Initializer::initModels()
 	//												  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));
 	mSceneManager->getModelProperties().mModelManager.pushModel("sphere", std::make_unique<Model>(glm::vec3(1.0f),
 																mSceneManager->getProgramProperties().mResourcePath + "Models/sphere.obj"));
+	//mSceneManager->getModelProperties().mModelManager.pushModel("quad", std::make_unique<Model>(glm::vec3(1.0f),
+	//															mSceneManager->getProgramProperties().mResourcePath + "Models/quad.obj"));
 }
 
 void Initializer::initLights()
@@ -185,18 +187,8 @@ void Initializer::initMousePicker()
 
 void Initializer::initSkybox()
 {
-	std::string resourcePath = RESOURCES_PATH;
-	std::array<std::filesystem::path, 6> paths =
-	{
-		resourcePath + "cloudy/bluecloud_lf.jpg",
-		resourcePath + "cloudy/bluecloud_rt.jpg",
-		resourcePath + "cloudy/bluecloud_up.jpg",
-		resourcePath + "cloudy/bluecloud_dn.jpg",
-		resourcePath + "cloudy/bluecloud_ft.jpg",
-		resourcePath + "cloudy/bluecloud_bk.jpg"
-	};
 	mSceneManager->getProgramProperties().mShaders["skyboxShader"].bind();
-	mSceneManager->getProgramProperties().mSkybox = std::make_unique<Skybox>(typeSkybox::SPHERE, paths, 0);
+	mSceneManager->getProgramProperties().mSkybox = std::make_unique<Skybox>(Skybox::typeSkybox::SPHERE, Skybox::SkyboxArtType::SPACE, 0);
 	mSceneManager->getProgramProperties().mShaders["skyboxShader"].setUniform1i("uSkybox", 0);
 }
 
