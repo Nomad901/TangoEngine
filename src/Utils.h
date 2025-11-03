@@ -42,6 +42,9 @@ public:
 	void updateDeltaTime(float pDeltaTime);
 	float getDeltaTime();
 
+	/*-----BUFFER_HELPERS-----*/
+	bool bufferIsBound(GLenum pTarget, uint32_t pID);
+
 private:
 	Utils() = default;
 	~Utils() = default;
