@@ -18,12 +18,10 @@ private:
 
 	void geometryPass(GBuffer* pBuffer);
 	void beginLightPass(GBuffer* pBuffer);
-	void pointLightPass(GBuffer* pBuffer);
-	void directionalLightPass(GBuffer* pBuffer);
-	void spotLightPass(GBuffer* pBuffer);
-
-	float calcPointLightSphere(const glm::vec3& pLightPos);
-	void renderLightSphere();
+	void pointLightPass();
+	void directionalLightPass();
+	void spotLightPass();
+	void renderCubeLights();
 
 private:
 	SceneManager* mSceneManager;

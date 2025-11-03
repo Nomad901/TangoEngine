@@ -1,4 +1,4 @@
-#include "Renderer.h"
+﻿#include "Renderer.h"
 
 Renderer::Renderer(SceneManager* pSceneManager)
 {
@@ -36,7 +36,7 @@ void Renderer::drawScene()
 	beginLightPass(gbufferRef);
 	pointLightPass();
 	directionalLightPass();
-	
+
 	//
 	// copying the generated framebuffer into the main one;
 	//
@@ -54,7 +54,7 @@ void Renderer::drawScene()
 	glDepthMask(GL_LEQUAL);
 	glDisable(GL_BLEND);
 
-	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
+	//mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
 
 	// 
 	// Light cubes and fps
@@ -161,6 +161,8 @@ void Renderer::geometryPass(GBuffer* pBuffer)
 
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
+	
+	pBuffer->unbindForWriting();
 }
 
 void Renderer::beginLightPass(GBuffer* pBuffer)
@@ -168,6 +170,8 @@ void Renderer::beginLightPass(GBuffer* pBuffer)
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_ONE, GL_ONE);
+	
+	glDisable(GL_CULL_FACE);
 
 	pBuffer->bindForReading(mSceneManager->getProgramProperties().mShaders.getShader("pointLight"),
 							{ "uPositionMap", "uColorMap", "uNormalMap" });
@@ -189,7 +193,7 @@ void Renderer::pointLightPass()
 	pointLightShader->setUniform1i("uNumberLightsToProcess", static_cast<int32_t>(lights.first.size()));
 
 	Transform transform;
-	float ambientIntensity = 0.1f;   
+	float ambientIntensity = 1.1f;   
 	float diffuseIntensity = 1.0f;   
 	float constant = 1.0f;           
 	float linear = 0.09f;            
@@ -209,7 +213,7 @@ void Renderer::pointLightPass()
 		float sphereScale = (-linear + std::sqrtf(linear * linear - 4 * exp * (exp - 256 * maxChannel * diffuseIntensity))) /
 							(2 * exp);
 		transform.setLocalPosition(lights.first[i]);
-		transform.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+		transform.setLocalRotation(glm::vec3(0.0f));
 		transform.setLocalScale(glm::vec3(std::fmaxf(1.0f, sphereScale)));
 
 		glm::mat4 WVPMatrix = transform.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam, 
