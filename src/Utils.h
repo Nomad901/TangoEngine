@@ -44,6 +44,8 @@ public:
 
 	/*-----BUFFER_HELPERS-----*/
 	bool bufferIsBound(GLenum pTarget, uint32_t pID);
+	bool shaderIsBound(uint32_t pID);
+	bool stencilBufferIsBound();
 
 private:
 	Utils() = default;

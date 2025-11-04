@@ -180,3 +180,18 @@ bool Utils::bufferIsBound(GLenum pTarget, uint32_t pID)
 	}
 	return static_cast<uint32_t>(currentBoundBuffer) == pID;
 }
+
+bool Utils::shaderIsBound(uint32_t pID)
+{
+	int32_t currentShaderBinder = 0;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &currentShaderBinder);
+	return static_cast<uint32_t>(currentShaderBinder) == pID;
+}
+
+bool Utils::stencilBufferIsBound()
+{
+	int32_t attachmentType;
+	glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+										  GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &attachmentType);
+	return (attachmentType != GL_NONE);
+}
