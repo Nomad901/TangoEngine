@@ -51,49 +51,15 @@ Program::~Program()
 
 void Program::run()
 {
-	mInitializer.init(true);
-	mControler = std::make_unique<Controler>(&mSceneManager);
-
-	std::vector<Mesh*> meshes;
-	meshes.reserve(mSceneManager.getModelProperties().mFactoryMeshes.getStorageMeshes().size() + 
-				   mSceneManager.getModelProperties().mModelManager.getStorageModels().size());
+	start();
 
 	while (mSceneManager.getProgramProperties().mProgIsRunning)
 	{
-		float beginFrame = SDL_GetTicks();
-		static uint32_t lastTime = SDL_GetTicks();
-		uint32_t currentTime = SDL_GetTicks();
-
-		float physicsDeltaTime = (currentTime - lastTime) / 1000.0f;
-		lastTime = currentTime;
-
-		meshes.clear();
-		for (auto& [key, value] : mSceneManager.getModelProperties().mFactoryMeshes.getStorageMeshes())
-		{
-			meshes.push_back(value.get());
-		}
-		for (auto& [key, value] : mSceneManager.getModelProperties().mModelManager.getStorageModels())
-		{
-			for (auto& mesh : value.get()->getMeshes())
-			{
-				meshes.push_back(mesh.get());
-			}
-		}
-		//meshes.push_back(&mSceneManager.getModelProperties().mTerrain.get()->getMesh());
-
-		mControler->controlAll(physicsDeltaTime);
-		mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, physicsDeltaTime, meshes, 
-									   mSceneManager.getModelProperties().mTerrain.get());
-
-		mSceneManager.setAll();
-		mRenderer.preDrawScene();
-		mRenderer.drawScene();
-		mControler->getPlayer().renderCharacter(mSceneManager.getProgramProperties().mShaders["mainShader"]);
-		
-		float deltaTime = SDL_GetTicks() - beginFrame;
-		if (deltaTime < 8)
-			SDL_Delay(8 - deltaTime);
-		Utils::getInstance().updateDeltaTime(deltaTime); // TODO: maybe i need to recompute the delta time, cuz ive set the delay on the program;
+		mSceneManager.getProgramProperties().mFPSRegulator.beginFrame();
+		input();
+		preUpdate();
+		update();
+		mSceneManager.getProgramProperties().mFPSRegulator.endFrame();
 
 		SDL_GL_SwapWindow(mSceneManager.getProgramProperties().mWindow);
 	}
@@ -139,4 +105,63 @@ void Program::debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity
 	case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
 	}
 	std::cout << std::endl << std::endl;
+}
+
+void Program::manageWindowSize()
+{
+	static int32_t winWidth = 0, winHeight = 0;
+	SDL_GetWindowSize(mSceneManager.getProgramProperties().mWindow, &winWidth, &winHeight);
+	if (winWidth != mSceneManager.getProgramProperties().mWindowWidth ||
+		winHeight != mSceneManager.getProgramProperties().mWindowHeight)
+	{
+		mSceneManager.getProgramProperties().mWindowWidth = winWidth;
+		mSceneManager.getProgramProperties().mWindowHeight = winHeight;
+	}
+}
+
+void Program::start()
+{
+	mInitializer.init(true);
+	mControler = std::make_unique<Controler>(&mSceneManager);
+}
+
+void Program::input()
+{
+	manageControler(mSceneManager.getProgramProperties().mFPSRegulator.getPhysicsDeltaTime());
+}
+
+void Program::preUpdate()
+{
+	mSceneManager.setAll();
+	mRenderer.preDrawScene();
+}
+
+void Program::update()
+{
+	mRenderer.drawScene();
+	mControler->getPlayer().renderCharacter(mSceneManager.getProgramProperties().mShaders["mainShader"]);
+
+	manageWindowSize();
+}
+
+void Program::manageControler(float pPhysicsDeltaTime)
+{
+	std::vector<Mesh*> meshes;
+	meshes.reserve(mSceneManager.getModelProperties().mFactoryMeshes.getStorageMeshes().size() +
+				   mSceneManager.getModelProperties().mModelManager.getStorageModels().size());
+
+	for (auto& [key, value] : mSceneManager.getModelProperties().mFactoryMeshes.getStorageMeshes())
+	{
+		meshes.push_back(value.get());
+	}
+	for (auto& [key, value] : mSceneManager.getModelProperties().mModelManager.getStorageModels())
+	{
+		for (auto& mesh : value.get()->getMeshes())
+		{
+			meshes.push_back(mesh.get());
+		}
+	}
+	mControler->controlAll(pPhysicsDeltaTime);
+	mControler->getPlayer().update(mSceneManager.getModelProperties().mProjMatrix, pPhysicsDeltaTime, meshes,
+								   mSceneManager.getModelProperties().mTerrain.get());
 }

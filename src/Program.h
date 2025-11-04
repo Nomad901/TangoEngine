@@ -20,6 +20,14 @@ private:
 							GLsizei length,
 							const GLchar* message,
 							const void* userParam);
+	void manageWindowSize();
+	void manageControler(float pPhysicsDeltaTime);
+
+	void start();
+	void input();
+	void preUpdate();
+	void update();
+
 private:
 
 	SceneManager mSceneManager;

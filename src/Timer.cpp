@@ -28,8 +28,8 @@ void Timer::resetTimer()
 
 void Timer::setProperFPS(const Uint32 pDelay)
 {
-	float elapsedTime = getDeltaTime(false);
 	stopTimer();
+	float elapsedTime = getDeltaTime(false);
 	if (elapsedTime < pDelay)
 		SDL_Delay(static_cast<Uint32>(pDelay - elapsedTime));
 	else

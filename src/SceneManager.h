@@ -37,6 +37,7 @@
 #include "FractalNoiseTerrain.h"
 #include "GBuffer.h"
 #include "FontSystem.h"
+#include "FPSRegulator.h"
 
 class Renderer;
 
@@ -87,6 +88,8 @@ public:
 		std::unique_ptr<FBO> mFBO;
 		std::vector<FBO> mFBOstrg;
 
+		Timer mTimer;
+		FPSRegulator mFPSRegulator;
 
 		int32_t currentTexture{ 0 };
 	};

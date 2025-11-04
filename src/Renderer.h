@@ -16,10 +16,13 @@ private:
 	void setImGui();
 	void setGLproperties();
 
-	void geometryPass(GBuffer* pBuffer);
-	void beginLightPass(GBuffer* pBuffer);
-	void pointLightPass();
-	void directionalLightPass();
+	void geometryPass(GBuffer* pGBuffer);
+	void beginLightPass(GBuffer* pGBuffer);
+	void pointLightPass(GBuffer* pGBuffer, std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> pStorages, uint32_t pIndex);
+	void directionalLightPass(GBuffer* pGBuffer);
+	void stencilPass(GBuffer* pGBuffer, std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> pStorages,
+					 uint32_t pIndex);
+	void finalPass(GBuffer* pGBuffer);
 	void spotLightPass();
 	void renderCubeLights();
 
