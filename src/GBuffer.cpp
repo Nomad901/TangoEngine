@@ -18,7 +18,7 @@ void GBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 	// generating gbuffer textures and depth buffer
 	glGenTextures(mTextures.size(), mTextures.data());
 	glGenTextures(1, &mDepthBuffer);
-	glGenTextures(1, &mFinalTexture);
+	glGenTextures(1, &mStencilBuffer);
 
 	// gbuffer textures
 	for (size_t i = 0; i < mTextures.size(); ++i)
@@ -34,15 +34,15 @@ void GBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 
 	// depth buffer
 	glBindTexture(GL_TEXTURE_2D, mDepthBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, pScreenWidth, pScreenHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mDepthBuffer, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, pScreenWidth, pScreenHeight, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, mDepthBuffer, 0);
 
 	// final buffer
-	glBindTexture(GL_TEXTURE_2D, mFinalTexture);
+	glBindTexture(GL_TEXTURE_2D, mStencilBuffer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pScreenWidth, pScreenHeight, 0, GL_RGB, GL_FLOAT, nullptr);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, mFinalTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, mStencilBuffer, 0);
 	
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -67,7 +67,7 @@ void GBuffer::startFrame()
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void GBuffer::bindForGeomBuffer()
+void GBuffer::bindForGeomPass()
 {
 	bindForWriting();
 	std::array<GLenum, 3> colorAttachments = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };

@@ -29,7 +29,7 @@ public:
 	void onWindowResize(uint32_t pScreenWidth, uint32_t pScreenHeight);
 
 	void startFrame();
-	void bindForGeomBuffer();
+	void bindForGeomPass();
 	void bindForStencilPass();
 	void bindForLightPass();
 	void bindForFinalPass();
@@ -54,7 +54,7 @@ public:
 private:
 	uint32_t mGBuffer{};
 	uint32_t mDepthBuffer{};
-	uint32_t mFinalTexture{};
+	uint32_t mStencilBuffer{};
 	std::array<uint32_t, static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_NUM_TEXTURES)> mTextures;
 };
 
