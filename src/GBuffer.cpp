@@ -18,7 +18,7 @@ void GBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 	// generating gbuffer textures and depth buffer
 	glGenTextures(mTextures.size(), mTextures.data());
 	glGenTextures(1, &mDepthBuffer);
-	glGenTextures(1, &mStencilBuffer);
+	glGenTextures(1, &mFinalTexture);
 
 	// gbuffer textures
 	for (size_t i = 0; i < mTextures.size(); ++i)
@@ -38,11 +38,11 @@ void GBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, mDepthBuffer, 0);
 
 	// final buffer
-	glBindTexture(GL_TEXTURE_2D, mStencilBuffer);
+	glBindTexture(GL_TEXTURE_2D, mFinalTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pScreenWidth, pScreenHeight, 0, GL_RGB, GL_FLOAT, nullptr);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, mStencilBuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, mFinalTexture, 0);
 	
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -62,6 +62,10 @@ void GBuffer::onWindowResize(uint32_t pScreenWidth, uint32_t pScreenHeight)
 
 void GBuffer::startFrame()
 {
+	//
+	// here we set our gbuffer in order to write into this
+	// also we choose in which buffer to write - into our final texture which is under GL_COLOR_ATTACHMENT4;
+	//
 	bindForWriting();
 	glDrawBuffer(GL_COLOR_ATTACHMENT4);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -69,7 +73,12 @@ void GBuffer::startFrame()
 
 void GBuffer::bindForGeomPass()
 {
-	bindForWriting();
+	//
+	// here we set in which buffers we need to write data from geometry pass;
+	//
+	if (!Utils::getInstance().bufferIsBound(GL_DRAW_FRAMEBUFFER, mGBuffer))
+		bindForWriting();
+
 	std::array<GLenum, 3> colorAttachments = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(colorAttachments.size(), colorAttachments.data());
 }
@@ -82,18 +91,18 @@ void GBuffer::bindForStencilPass()
 void GBuffer::bindForLightPass()
 {
 	glDrawBuffer(GL_COLOR_ATTACHMENT4);
-	
+
 	for (size_t i = 0; i < mTextures.size(); ++i)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION) + 1]);
+		glBindTexture(GL_TEXTURE_2D, mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION) + i]);
 	}
 }
 
 void GBuffer::bindForFinalPass()
 {
 	unbindForWriting();
-	bindForReading();
+	bindForReading(false);
 	glReadBuffer(GL_COLOR_ATTACHMENT4);
 }
 
@@ -127,13 +136,16 @@ void GBuffer::bindForWriting()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mGBuffer);
 }
 
-void GBuffer::bindForReading()
+void GBuffer::bindForReading(bool pWithTextures)
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, mGBuffer);
-	for (size_t i = 0; i < mTextures.size(); ++i)
+	if (pWithTextures)
 	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION) + i]);
+		for (size_t i = 0; i < mTextures.size(); ++i)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION) + i]);
+		}
 	}
 }
 
@@ -197,7 +209,7 @@ uint32_t GBuffer::getGDiffuseBuffer() const noexcept
 	return mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_DIFFUSE)];
 }
 
-uint32_t GBuffer::getRBOBuffer() const noexcept
+uint32_t GBuffer::getDepthBuffer() const noexcept
 {
 	return mDepthBuffer;
 }

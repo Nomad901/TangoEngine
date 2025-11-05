@@ -127,7 +127,7 @@ void Program::start()
 
 void Program::input()
 {
-	manageControler(mSceneManager.getProgramProperties().mFPSRegulator.getPhysicsDeltaTime());
+	manageControler(mSceneManager.getProgramProperties().mFPSRegulator.getPhysicsDeltaTime(1000.0f));
 }
 
 void Program::preUpdate()

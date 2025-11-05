@@ -2,11 +2,11 @@
 
 void FPSRegulator::beginFrame()
 {
-	float beginFrame = SDL_GetTicks();
+	mBeginFrame = SDL_GetTicks();
 	static uint32_t lastTime = SDL_GetTicks();
 	uint32_t currentTime = SDL_GetTicks();
 
-	mPhysicsDeltaTime = (currentTime - lastTime) / 1000.0f;
+	mPhysicsDeltaTime = (static_cast<float>(currentTime) - static_cast<float>(lastTime));
 	lastTime = currentTime;
 }
 
@@ -18,7 +18,7 @@ void FPSRegulator::endFrame()
 	Utils::getInstance().updateDeltaTime(deltaTime); // TODO: maybe i need to recompute the delta time, cuz ive set the delay on the program;
 }
 
-uint32_t FPSRegulator::getPhysicsDeltaTime()
+float FPSRegulator::getPhysicsDeltaTime(float pDividerTime)
 {
-	return mPhysicsDeltaTime;
+	return mPhysicsDeltaTime / pDividerTime;
 }

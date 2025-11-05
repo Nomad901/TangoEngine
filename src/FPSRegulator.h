@@ -13,10 +13,10 @@ public:
 	void beginFrame();
 	void endFrame();
 
-	uint32_t getPhysicsDeltaTime();
+	float getPhysicsDeltaTime(float pDividerTime);
 
 private:
 	uint32_t mBeginFrame{};
-	uint32_t mPhysicsDeltaTime{};
+	float mPhysicsDeltaTime{};
 };
 

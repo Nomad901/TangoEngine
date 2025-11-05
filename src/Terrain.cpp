@@ -147,6 +147,11 @@ float Terrain::getWorldHeight(float pX, float pZ) const
 	return getHeightInterpolated(heightMapX, heightMapZ);
 }
 
+Shader& Terrain::getShader() noexcept
+{
+	return mShader;
+}
+
 void Terrain::updateLights(bool pRotateLightAround)
 {
 	// why this doesnt work - cuz im stupid and ive inserted the light factor inside of the buffer, which is crazy;
@@ -163,10 +168,8 @@ void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
 	mShader.setMatrixUniform4fv("uModel", model);
 	mShader.setMatrixUniform4fv("uView", pCamera->getViewMatrix());
 	mShader.setMatrixUniform4fv("uProj", pProj);
-	mTextures[0]->bind();
-	mShader.setUniform1i("uSpecularTex", 0);
-	mTextures[1]->bind(1);
-	mShader.setUniform1i("uDiffuseTex", 1);
+	mTextures[1]->bind(0);
+	mShader.setUniform1i("uColorMap", 0);
 	glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
 	mGeomipGrid.render(pCamera, vpMat);
 }
@@ -193,7 +196,7 @@ int32_t Terrain::getTerrainSize() const noexcept
 
 int32_t Terrain::getTerrainWorldSize() const noexcept
 {
-	return mTerrainSize * mWorldScale;
+	return mTerrainSize * static_cast<int32_t>(mWorldScale);
 }
 
 void Terrain::loadHeightMapFile(const std::filesystem::path& pPath)

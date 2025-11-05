@@ -61,10 +61,10 @@ glm::mat4 Transform::getWVTransf(Camera& pCamera)
 
 glm::mat4 Transform::getViewTransf(Camera& pCamera)
 {
-	return glm::lookAt(pCamera.getPos(), pCamera.getPos() + pCamera.getDirection(), pCamera.getUpVec());
+	return pCamera.getViewMatrix();
 }
 
-const glm::mat4& Transform::getModelMatrix() noexcept
+const glm::mat4& Transform::getModelMatrix() 
 {
 	if (mIsShouldBeRecomputed)
 		computeModelMatrix();

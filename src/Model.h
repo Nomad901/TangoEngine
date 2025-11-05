@@ -58,6 +58,7 @@ public:
 	bool modelIsTaken() const noexcept;
 
 	void render(Shader& pShader, const glm::vec3& pColor = glm::vec3(1.0f, 1.0f, 1.0f));
+	void render();
 	void renderInstanced(uint32_t pNumber);
 
 private:

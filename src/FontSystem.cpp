@@ -132,7 +132,7 @@ void FontSystem::initCharacters(FT_Face& pFT_Face)
 
 	// disable byte-alignment restriction
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
+	
 	for (uint8_t glyph = 0; glyph < 128; ++glyph)
 	{
 		if (FT_Load_Char(pFT_Face, glyph, FT_LOAD_RENDER))

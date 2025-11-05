@@ -17,7 +17,6 @@ Texture2::Texture2(GLenum pTarget)
 
 Texture2::~Texture2()
 {
-	std::cout << std::format("Texture was deleted! ID: {}\n", mRendererID);
 	glDeleteTextures(1, &mRendererID);
 }
 

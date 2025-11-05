@@ -66,12 +66,12 @@ uint32_t Shader::getID() const noexcept
 
 void Shader::setUniform1i(std::string_view pName, int32_t pValue)
 {
-	glUniform1i(Shader::getUniformLocation(pName), pValue);
+	glUniform1i(getUniformLocation(pName), pValue);
 }
 
 void Shader::setUniform1f(std::string_view pName, float pValue)
 {
-	glUniform1f(Shader::getUniformLocation(pName), pValue);
+	glUniform1f(getUniformLocation(pName), pValue);
 }
 
 void Shader::setMatrixUniform4fv(std::string_view pName, const glm::mat4& pValue)

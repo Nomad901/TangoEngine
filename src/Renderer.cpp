@@ -27,16 +27,13 @@ void Renderer::drawScene()
 	
 	gbufferRef->startFrame();
 
-	//
-	// geometry pass
-	//
 	geometryPass(gbufferRef);
 
 	glEnable(GL_STENCIL_TEST);
 
 	static std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> lights =
 		   std::make_pair(mSceneManager->mLightProperties.lightPositions,
-		   			   mSceneManager->mLightProperties.lightColors);
+		   			      mSceneManager->mLightProperties.lightColors);
 	for (size_t i = 0; i < lights.first.size(); ++i)
 	{
 		// 
@@ -239,13 +236,47 @@ void Renderer::directionalLightPass(GBuffer* pGBuffer)
 	dirLightShader->setUniform1i("uPositionMap", 0);
 	dirLightShader->setUniform1i("uColorMap", 1);
 	dirLightShader->setUniform1i("uNormalMap", 2);
-
+	
+	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_ONE, GL_ONE);
 
-	mSceneManager->getModelProperties().mModelManager.getModel("quad").render();
+	//Transform quadTransform;
+	//quadTransform.setLocalPosition(glm::vec3(10.0f));
+	//quadTransform.setLocalRotation(glm::vec3(1.0f));
+	//quadTransform.setLocalScale(glm::vec3(20.0f));
+	//dirLightShader->setMatrixUniform4fv("uWVP", quadTransform.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam,
+	//																	   mSceneManager->getModelProperties().mProjMatrix));
+	//mSceneManager->getModelProperties().mModelManager.getModel("quad").render();
+	static uint32_t quadVAO = 0;
+	static uint32_t quadVBO;
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			// positions			// texCoords
+			-1.0f,  1.0f, 0.0f,		0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,
+			 1.0f, -1.0f, 0.0f,		1.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f,		1.0f, 1.0f,
+		};
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	if (mSceneManager->getProgramProperties().mRenderTheQuadForGBuffer)
+	{
+		glBindVertexArray(quadVAO);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		glBindVertexArray(0);
+	}
 
 	glDisable(GL_BLEND);
 }

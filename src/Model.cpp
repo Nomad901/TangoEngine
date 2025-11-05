@@ -148,6 +148,14 @@ void Model::render(Shader& pShader, const glm::vec3& pColor)
 	}
 }
 
+void Model::render()
+{
+	for (auto& i : mMeshes)
+	{
+		i->draw();
+	}
+}
+
 void Model::renderInstanced(uint32_t pNumber)
 {
 	for (auto& i : mMeshes)

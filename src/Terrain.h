@@ -42,6 +42,8 @@ public:
 	float getHeightInterpolated(float pX, float pZ) const;
 	float getWorldHeight(float pX, float pZ) const;
 	
+	Shader& getShader() noexcept;
+
 	float getWorldScale() const noexcept;
 	float getTextureScale() const noexcept;
 	float getSlopeLight(int32_t pX, int32_t pZ) const noexcept;

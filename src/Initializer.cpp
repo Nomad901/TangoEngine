@@ -79,6 +79,9 @@ void Initializer::initShaders()
 	mSceneManager->getProgramProperties().mShaders.pushShader("dirLight", resourcePath + "Shaders/OGLDEV_Deferred_Light/lightPassVert.glsl",
 																		  resourcePath + "Shaders/OGLDEV_Deferred_Light/dirLightPassFrag.glsl");
 	// ----------------------
+
+	mSceneManager->getProgramProperties().mShaders.pushShader("nullShader", resourcePath + "Shaders/nullShaderVert.glsl",
+																			resourcePath + "Shaders/nullShaderFrag.glsl");
 }
 
 void Initializer::initTextures()
@@ -137,8 +140,8 @@ void Initializer::initModels()
 	//												  mSceneManager->getProgramProperties().mResourcePath + "Models/lamppost.obj"));
 	mSceneManager->getModelProperties().mModelManager.pushModel("sphere", std::make_unique<Model>(glm::vec3(1.0f),
 																mSceneManager->getProgramProperties().mResourcePath + "Models/sphere.obj"));
-	//mSceneManager->getModelProperties().mModelManager.pushModel("quad", std::make_unique<Model>(glm::vec3(1.0f),
-	//															mSceneManager->getProgramProperties().mResourcePath + "Models/quad.obj"));
+	mSceneManager->getModelProperties().mModelManager.pushModel("quad", std::make_unique<Model>(glm::vec3(1.0f),
+																mSceneManager->getProgramProperties().mResourcePath + "Models/quad.obj"));
 }
 
 void Initializer::initLights()
@@ -195,7 +198,7 @@ void Initializer::initSkybox()
 void Initializer::initUBO()
 {
 	mSceneManager->getProgramProperties().mUBO.init({ {mSceneManager->getProgramProperties().mShaders["mainShader"].getID(), "Matrices"}},
-										  0, 2 * sizeof(glm::mat4));
+													0, 2 * sizeof(glm::mat4));
 }
 
 void Initializer::initTerrain()	

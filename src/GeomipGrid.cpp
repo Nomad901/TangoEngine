@@ -428,7 +428,7 @@ bool GeomipGrid::isPatchInsideFrustum_WorldSpace(int32_t pX, int32_t pZ, const F
 	int32_t x1 = pX + mPatchSize - 1;
 	int32_t z0 = pZ;
 	int32_t z1 = pZ + mPatchSize - 1;
-
+	
 	float h00 = mTerrain->getHeight(x0, z0);
 	float h01 = mTerrain->getHeight(x0, z1);
 	float h10 = mTerrain->getHeight(x1, z0);

@@ -37,7 +37,7 @@ public:
 	void bind();
 	void bind(Shader& pShader, const std::vector<std::string_view>& pTextureNames);
 	void bindForWriting();
-	void bindForReading();
+	void bindForReading(bool pWithTextures);
 	void bindForReading(Shader& pShader, const std::vector<std::string_view>& pTextureNames);
 	void unbind();
 	void unbindForWriting();
@@ -49,12 +49,12 @@ public:
 	uint32_t getGPosBuffer() const noexcept;
 	uint32_t getGNormalBuffer() const noexcept;
 	uint32_t getGDiffuseBuffer() const noexcept;
-	uint32_t getRBOBuffer() const noexcept;
+	uint32_t getDepthBuffer() const noexcept;
 
 private:
 	uint32_t mGBuffer{};
 	uint32_t mDepthBuffer{};
-	uint32_t mStencilBuffer{};
+	uint32_t mFinalTexture{};
 	std::array<uint32_t, static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_NUM_TEXTURES)> mTextures;
 };
 

@@ -48,7 +48,6 @@ void Skybox::init(typeSkybox pTypeSkybox, SkyboxArtType pSkyboxArtType, uint32_t
 		mSkybox.init(weakSphere);
 	}
 	getTexture().setTarget(GL_TEXTURE_CUBE_MAP);
-
 }
 
 Mesh& Skybox::getMesh() noexcept
@@ -142,7 +141,7 @@ auto Skybox::getPhotosExtension(PhotosExtensions pPhotosExtension) -> std::strin
 		photosExtension = ".jpg";
 		break;
 	default:
-		std::cout << "You were not supposed to reach this point!\n";
+		std::cout << "You were not supposed to reach this point! ang99 easter egg\n";
 		exit(1);
 		break;
 	}

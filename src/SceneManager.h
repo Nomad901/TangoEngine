@@ -38,6 +38,7 @@
 #include "GBuffer.h"
 #include "FontSystem.h"
 #include "FPSRegulator.h"
+#include "Timer.h"
 
 class Renderer;
 
@@ -87,9 +88,14 @@ public:
 
 		std::unique_ptr<FBO> mFBO;
 		std::vector<FBO> mFBOstrg;
-
+		
 		Timer mTimer;
 		FPSRegulator mFPSRegulator;
+
+		//
+		// for debugging;
+		//
+		bool mRenderTheQuadForGBuffer;
 
 		int32_t currentTexture{ 0 };
 	};
