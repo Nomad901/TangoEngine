@@ -279,9 +279,30 @@ void UI::manageLight(SceneManager& pSceneManager)
 	ImGui::End();
 }
 
+void UI::manageSystem(SceneManager& pSceneManager)
+{
+	static bool firstTimeLight = true;
+	if (firstTimeLight)
+	{
+		mWindowPos = glm::vec2(1.0f, 20.0f);
+		mWindowSize = glm::vec2(300.0f, 200.0f);
+		createWindow(mWindowPos, mWindowSize, mWindowIsCollapsed);
+		firstTimeLight = false;
+	}
+
+	ImGui::Begin("System", &pSceneManager.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
+
+	ImGui::SliderInt("Current texture", &pSceneManager.mProgramProperties.currentTexture, 0, 4);
+
+	ImGui::Checkbox("Render quad on the screen", &pSceneManager.mProgramProperties.mRenderTheQuadForGBuffer);
+	
+	ImGui::End();
+}
+
 void UI::manageAll(SceneManager& pSceneManager)
 {
 	manageTerrain(pSceneManager);
 	manageFonts(pSceneManager);
 	manageLight(pSceneManager);
+	manageSystem(pSceneManager);
 }

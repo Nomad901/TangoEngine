@@ -54,6 +54,7 @@ private:
 	void manageTerrain(SceneManager& pSceneManager);
 	void manageFonts(SceneManager& pSceneManager);
 	void manageLight(SceneManager& pSceneManager);
+	void manageSystem(SceneManager& pSceneManager);
 	void manageAll(SceneManager& pSceneManager);
 	// -----------
 
