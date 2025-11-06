@@ -1,7 +1,18 @@
 #include "Animator.h"
 
+Animator::Animator()
+{
+	mVertexBoneDataStorage.reserve(10000);
+	mMeshBaseVertices.reserve(10000);
+	mBonesIndices.reserve(10000);
+}
+
 Animator::Animator(const std::filesystem::path& pPath)
 {
+	mVertexBoneDataStorage.reserve(10000);
+	mMeshBaseVertices.reserve(10000);
+	mBonesIndices.reserve(10000);
+
 	init(pPath);
 }
 
@@ -57,4 +68,38 @@ void Animator::parseSingleBone(uint32_t pIndex, const aiBone* pBone)
 	{
 		const aiVertexWeight& vertexWeight = pBone->mWeights[i];
 	}
+}
+
+int32_t Animator::getBonesIndex(const aiBone* pBone)
+{
+	int32_t boneId = 0;
+	std::string boneName = pBone->mName.C_Str();
+
+	if (mBonesIndices.contains(boneName))
+	{
+		boneId = mBonesIndices[boneName];
+	}
+	else
+	{
+		boneId = mBonesIndices.size();
+		mBonesIndices.emplace(boneName, boneId);
+	}
+
+	return boneId;
+}
+
+void Animator::VertexBoneData::addBoneData(uint32_t pBoneId, float pBoneWeight)
+{
+	uint32_t counter = 0;
+	for (size_t i = 0; i < mBonesId.size(); ++i)
+	{
+		if (mWeights[i] == 0.0f)
+		{
+			mBonesId[i] = pBoneId;
+			mWeights[i] = pBoneWeight;
+			return;
+		}
+		counter++;
+	}
+	std::cout << std::format("We have more bones than we can dissect: {}!\n", counter);
 }
