@@ -39,34 +39,45 @@ void Animator::parseMeshes(const aiScene* pScene)
 	uint32_t numIndicesTotal  = 0;
 	uint32_t numBonesTotal    = 0;
 
+	mMeshBaseVertices.resize(pScene->mNumMeshes);
+
 	for (size_t i = 0; i < pScene->mNumMeshes; ++i)
 	{
 		const aiMesh* mesh = pScene->mMeshes[i];
 		uint32_t numVertices = mesh->mNumVertices;
 		uint32_t numIndices  = mesh->mNumFaces * 3;
 		uint32_t numBones    = mesh->mNumBones;
+		mMeshBaseVertices[i] = numVerticesTotal;
 		numVerticesTotal += numVertices;
 		numIndicesTotal  += numIndices;
 		numBonesTotal    += numBones;
 
+		mVertexBoneDataStorage.resize(numBonesTotal);
 		if (mesh->HasBones())
-			parseMeshBones(mesh);
+			parseMeshBones(i, mesh);
 	}
 }
 
-void Animator::parseMeshBones(const aiMesh* pMesh)
+void Animator::parseMeshBones(uint32_t pIndex, const aiMesh* pMesh)
 {
 	for (size_t i = 0; i < pMesh->mNumBones; ++i)
 	{
-		parseSingleBone(i, pMesh->mBones[i]);
+		parseSingleBone(pIndex, pMesh->mBones[i]);
 	}
 }
 
 void Animator::parseSingleBone(uint32_t pIndex, const aiBone* pBone)
 {
+	uint32_t boneId = getBonesIndex(pBone);
+
 	for (size_t i = 0; i < pBone->mNumWeights; ++i)
 	{
 		const aiVertexWeight& vertexWeight = pBone->mWeights[i];
+
+		uint32_t globalVertexID = mMeshBaseVertices[pIndex] + vertexWeight.mVertexId;
+
+		assert(globalVertexID < mVertexBoneDataStorage.size());
+		mVertexBoneDataStorage[i].addBoneData(boneId, vertexWeight.mWeight);
 	}
 }
 
@@ -86,20 +97,4 @@ int32_t Animator::getBonesIndex(const aiBone* pBone)
 	}
 
 	return boneId;
-}
-
-void Animator::VertexBoneData::addBoneData(uint32_t pBoneId, float pBoneWeight)
-{
-	uint32_t counter = 0;
-	for (size_t i = 0; i < mBonesId.size(); ++i)
-	{
-		if (mWeights[i] == 0.0f)
-		{
-			mBonesId[i] = pBoneId;
-			mWeights[i] = pBoneWeight;
-			return;
-		}
-		counter++;
-	}
-	std::cout << std::format("We have more bones than we can dissect: {}!\n", counter);
 }

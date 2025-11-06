@@ -38,6 +38,16 @@ void VBO::destroy()
 	glDeleteBuffers(1, &mRendererID);
 }
 
+void VBO::generate(uint32_t pCount, uint32_t* pBuffers)
+{
+	glGenBuffers(pCount, pBuffers);
+}
+
+void VBO::setID(uint32_t pRendererID)
+{
+	mRendererID = pRendererID;
+}
+
 void VBO::bind() const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, mRendererID);

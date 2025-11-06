@@ -49,6 +49,8 @@ public:
 	void init(const void* pData, GLuint pSize, GLenum pUsage);
 
 	void destroy();
+	void generate(uint32_t pCount, uint32_t* pBuffers);
+	void setID(uint32_t pRendererID);
 	void bind() const;
 	void unbind() const;
 
