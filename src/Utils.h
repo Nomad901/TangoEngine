@@ -47,6 +47,9 @@ public:
 	bool shaderIsBound(uint32_t pID);
 	bool stencilBufferIsBound();
 
+	/*-----FILES_HELPERS-----*/
+	std::string getDirectoryFromFilePath(const std::filesystem::path& pPath);
+
 private:
 	Utils() = default;
 	~Utils() = default;

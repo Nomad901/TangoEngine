@@ -195,3 +195,8 @@ bool Utils::stencilBufferIsBound()
 										  GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &attachmentType);
 	return (attachmentType != GL_NONE);
 }
+
+std::string Utils::getDirectoryFromFilePath(const std::filesystem::path& pPath)
+{
+	return pPath.parent_path().string();
+}

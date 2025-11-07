@@ -17,7 +17,8 @@ public:
 	VAO(VAO&&) = default;
 	VAO& operator=(VAO&&) = default;
 
-	void addBuffer(const VBO& pVBO, VBOLayout pVBOLayout);
+	void addBuffer(const VBO& pVBO, VBOLayout& pVBOLayout);
+	void addBuffer(VBOLayout& pVBOLayout);
 
 	void destroy();
 	void generate();

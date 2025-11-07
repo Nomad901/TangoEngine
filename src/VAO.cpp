@@ -10,10 +10,24 @@ VAO::~VAO()
 	glDeleteVertexArrays(1, &mRendererID);
 }
 
-void VAO::addBuffer(const VBO& pVBO, VBOLayout pVBOLayout)
+void VAO::addBuffer(const VBO& pVBO, VBOLayout& pVBOLayout)
 {
 	bind();
 	pVBO.bind();
+	auto& elements = pVBOLayout.getComponentsOfLayout();
+	uint32_t stride = 0;
+	for (size_t i = 0; i < elements.size(); ++i)
+	{
+		auto& element = elements[i];
+		glEnableVertexAttribArray(i);
+		glVertexAttribPointer(i, element.mCount, element.mType, element.mNormalized, pVBOLayout.getCount(), (void*)stride);
+		stride += element.mCount * VBOLayoutComponents::sizeOf(element.mType);
+	}
+}
+
+void VAO::addBuffer(VBOLayout& pVBOLayout)
+{
+	bind();
 	auto& elements = pVBOLayout.getComponentsOfLayout();
 	uint32_t stride = 0;
 	for (size_t i = 0; i < elements.size(); ++i)

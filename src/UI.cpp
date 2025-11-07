@@ -274,6 +274,9 @@ void UI::manageLight(SceneManager& pSceneManager)
 	setSlidersVec3(pSceneManager.getLightProperties().mPosLight, { {"Position", std::make_pair(-500.0f, 500.0f)} });
 	setSpaces(2);
 	setSliderFloat("Light Radius", pSceneManager.getLightProperties().mRadius, 1.0f, 500.0f);
+	setSpaces(1);
+	setSliderFloat("Ambient intensity", pSceneManager.getLightProperties().mAmbientIntensity, -50.0f, 50.0f);
+	setSliderFloat("Diffuse intensiyt", pSceneManager.getLightProperties().mDiffuseIntensity, -50.0f, 50.0f);
 	// ----------------------------
 
 	ImGui::End();
@@ -295,6 +298,8 @@ void UI::manageSystem(SceneManager& pSceneManager)
 	ImGui::SliderInt("Current texture", &pSceneManager.mProgramProperties.currentTexture, 0, 4);
 
 	ImGui::Checkbox("Render quad on the screen", &pSceneManager.mProgramProperties.mRenderTheQuadForGBuffer);
+	
+	ImGui::SliderInt("Current bone", &pSceneManager.mModelProperties.mDisplayedBoneIndex, 0, 40);
 	
 	ImGui::End();
 }
