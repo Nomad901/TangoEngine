@@ -46,8 +46,9 @@ void Initializer::initAll()
 	initUBO();
 	initTerrain();
 	initLights();
-	
-	mSceneManager->getModelProperties().mAnimator.init(mSceneManager->getProgramProperties().mResourcePath + "Models/Crouch To Stand.fbx");
+
+	mSceneManager->getModelProperties().mSkinnedMesh = std::make_unique<SkinnedMesh>();
+	mSceneManager->getModelProperties().mSkinnedMesh->loadMesh(mSceneManager->getProgramProperties().mResourcePath + "Models/Crouch To Stand.fbx");
 }
 
 void Initializer::initShaders()
@@ -84,6 +85,10 @@ void Initializer::initShaders()
 
 	mSceneManager->getProgramProperties().mShaders.pushShader("nullShader", resourcePath + "Shaders/nullShaderVert.glsl",
 																			resourcePath + "Shaders/nullShaderFrag.glsl");
+
+	// skinMeshTest
+	mSceneManager->getProgramProperties().mShaders.pushShader("skinMesh", resourcePath + "Shaders/skinMeshTestVert.glsl",
+																		  resourcePath + "Shaders/skinMeshTestFrag.glsl");
 }
 
 void Initializer::initTextures()

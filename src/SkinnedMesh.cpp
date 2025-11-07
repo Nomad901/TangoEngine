@@ -105,23 +105,72 @@ void SkinnedMesh::initFromSceneAssimp(const aiScene* pScene, const std::filesyst
 
 void SkinnedMesh::populateBuffers()
 {
-	if (!Utils::getInstance().bufferIsBound(GL_ARRAY_BUFFER, mVAO.getID()))
-		mVAO.bind();
+	mVAO.bind();
 
-	mBuffers[getIndexBufferType(BUFFER_TYPE::POS_BUFFER)].init(mPos.data(), mPos.size(), GL_STATIC_DRAW);
-	mBuffers[getIndexBufferType(BUFFER_TYPE::TEXCOORD_BUFFER)].init(mTexCoord.data(), mTexCoord.size(), GL_STATIC_DRAW);
-	mBuffers[getIndexBufferType(BUFFER_TYPE::NORMAL_BUFFER)].init(mNormals.data(), mNormals.size(), GL_STATIC_DRAW);
-	mBuffers[getIndexBufferType(BUFFER_TYPE::BONES_BUFFER)].init(mBones.data(), mBones.size(), GL_STATIC_DRAW);
+	//
+	// was made for simplicity when calling buffers from mBuffers;
+	// 
+	uint32_t posBufferIndex		 = getIndexBufferType(BUFFER_TYPE::POS_BUFFER);
+	uint32_t texCoordBufferIndex = getIndexBufferType(BUFFER_TYPE::TEXCOORD_BUFFER);
+	uint32_t normalBufferIndex   = getIndexBufferType(BUFFER_TYPE::NORMAL_BUFFER);
+	uint32_t bonesBufferIndex    = getIndexBufferType(BUFFER_TYPE::BONES_BUFFER);
+	uint32_t indicesBufferIndex	 = getIndexBufferType(BUFFER_TYPE::INDEX_BUFFER);
 
-	VBOLayout layout;
-	layout.pushLayout(GL_FLOAT, 3);
-	layout.pushLayout(GL_FLOAT, 2);
-	layout.pushLayout(GL_FLOAT, 3);
-	layout.pushLayout(GL_INT, MAX_NUMBER_BONES_PER_VERTEX);
-	layout.pushLayout(GL_FLOAT, MAX_NUMBER_BONES_PER_VERTEX);
-	mVAO.addBuffer(layout);
-	mEBO.init(mIndices.data(), mIndices.size());
-	mEBO.bind();
+	//
+	// "defines" for convenience;
+	// locations of pointers for each buffer;
+	// 
+	uint32_t positionLocation   = 0;
+	uint32_t texCoordLocation   = 1;
+	uint32_t normalLocation	    = 2;
+	uint32_t boneIdLocation     = 3;
+	uint32_t boneWeightLocation = 4;
+
+	//
+	// was made in order to eliminate copy-paste code
+	//
+	auto setPointer = [](uint32_t pLocation, uint32_t pStride)
+		{
+			glEnableVertexAttribArray(pLocation);
+			glVertexAttribPointer(pLocation, pStride, GL_FLOAT, GL_FALSE, 0, 0);
+		};
+	
+	// 
+	// positions buffer;
+	//
+	glBindBuffer(GL_ARRAY_BUFFER, mBuffers[posBufferIndex].getID());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mPos[0]) * mPos.size(), mPos.data(), GL_STATIC_DRAW);
+	setPointer(positionLocation, 3);
+
+	// 
+	// texture coordinates buffer;
+	//
+	glBindBuffer(GL_ARRAY_BUFFER, mBuffers[texCoordBufferIndex].getID());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mTexCoord[0]) * mTexCoord.size(), mTexCoord.data(), GL_STATIC_DRAW);
+	setPointer(texCoordLocation, 2);
+
+	//
+	// normals buffer;
+	//
+	glBindBuffer(GL_ARRAY_BUFFER, mBuffers[normalBufferIndex].getID());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mNormals[0]) * mNormals.size(), mNormals.data(), GL_STATIC_DRAW);
+	setPointer(normalLocation, 3);
+
+	// 
+	// bones ID buffer;
+	//
+	glBindBuffer(GL_ARRAY_BUFFER, mBuffers[bonesBufferIndex].getID());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mBones[0]) * mBones.size(), mBones.data(), GL_STATIC_DRAW);
+	// bone ID pointer
+	glEnableVertexAttribArray(boneIdLocation);
+	glVertexAttribIPointer(boneIdLocation, MAX_NUMBER_BONES_PER_VERTEX, GL_INT, sizeof(VertexBoneData), 0);
+	// bone weights pointer;
+	glEnableVertexAttribArray(boneWeightLocation);
+	glVertexAttribPointer(boneWeightLocation, MAX_NUMBER_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
+						 (const void*)(MAX_NUMBER_BONES_PER_VERTEX * sizeof(int32_t)));
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffers[indicesBufferIndex].getID());
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(mIndices[0]) * mIndices.size(), mIndices.data(), GL_STATIC_DRAW);
 }
 
 std::pair<uint32_t, uint32_t> SkinnedMesh::getNumVerticesAndIndices(const aiScene* pScene)
@@ -154,7 +203,7 @@ void SkinnedMesh::initAllMeshes(const aiScene* pScene)
 
 void SkinnedMesh::initSingleMesh(uint32_t pIndex, const aiMesh* pMesh)
 {
-	glm::vec3 identityVec = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 zeroVec = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	for (size_t i = 0; i < pMesh->mNumVertices; ++i)
 	{
@@ -164,9 +213,9 @@ void SkinnedMesh::initSingleMesh(uint32_t pIndex, const aiMesh* pMesh)
 		const aiVector3D& normals = pMesh->mNormals ? pMesh->mNormals[i] : aiVector3D(0.0f, 1.0f, 0.0f);
 		mNormals.push_back(glm::vec3(normals.x, normals.y, normals.z));
 
-		const aiVector3D& texCoord = pMesh->HasTextureCoords(0) ? pMesh->mTextureCoords[0][i] : aiVector3D(identityVec.x, 
-																										   identityVec.y, 
-																										   identityVec.z);
+		const aiVector3D& texCoord = pMesh->HasTextureCoords(0) ? pMesh->mTextureCoords[0][i] : aiVector3D(zeroVec.x,
+																										   zeroVec.y, 
+																										   zeroVec.z);
 		mTexCoord.push_back(glm::vec2(texCoord.x, texCoord.y));
 	}
 
@@ -307,7 +356,6 @@ void SkinnedMesh::loadSingleBone(uint32_t pIndex, const aiBone* pBone)
 	for (size_t i = 0; i < pBone->mNumWeights; ++i)
 	{
 		const aiVertexWeight& vertexWeight = pBone->mWeights[i];
-		uint32_t globalVertexID = mMeshes[pIndex].mBaseVertex + vertexWeight.mVertexId;
 		mBones[i].addBoneData(boneId, vertexWeight.mWeight);
 	}
 }

@@ -39,6 +39,8 @@
 #include "FontSystem.h"
 #include "FPSRegulator.h"
 #include "Timer.h"
+#include "Animator.h"
+#include "SkinnedMesh.h"
 
 class Renderer;
 
@@ -95,7 +97,9 @@ public:
 		//
 		// for debugging;
 		//
-		bool mRenderTheQuadForGBuffer;
+		bool mRenderTheQuadForGBuffer{ true };
+
+		bool mWindowWasChanged{ false };
 
 		int32_t currentTexture{ 0 };
 	};
@@ -109,6 +113,9 @@ public:
 
 		std::vector<glm::vec3> lightPositions;
 		std::vector<glm::vec3> lightColors;
+
+		float mAmbientIntensity{};
+		float mDiffuseIntensity{};
 
 		LightManager mLightManager;
 	};
@@ -144,8 +151,13 @@ public:
 		OBJLoader mOBJLoader;
 		AssimpLoader mAssimpLoader;
 
+		Animator mAnimator;
+
 		TextureGenerator mTextureGenerator;
 		std::unique_ptr<Texture2> mTexture;
+
+		std::unique_ptr<SkinnedMesh> mSkinnedMesh;
+		uint32_t mDisplayedBoneIndex{};
 	};
 
 public:

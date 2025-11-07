@@ -28,7 +28,7 @@ void Renderer::drawScene()
 	gbufferRef->startFrame();
 
 	geometryPass(gbufferRef);
-
+	
 	glEnable(GL_STENCIL_TEST);
 
 	static std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> lights =
@@ -47,7 +47,7 @@ void Renderer::drawScene()
 	glDisable(GL_STENCIL_TEST);
 	
 	directionalLightPass(gbufferRef);
-	finalPass(gbufferRef);
+	finalPass(gbufferRef); 
 
 	//
 	// Skybox
@@ -55,7 +55,6 @@ void Renderer::drawScene()
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_LEQUAL);
 	glDisable(GL_BLEND);
-
 	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
 
 	// 
@@ -208,9 +207,9 @@ void Renderer::pointLightPass(GBuffer* pGBuffer, std::pair<std::vector<glm::vec3
 	pointLightShader->setUniform1f("uPointLight[" +  std::to_string(pIndex) + "].mAttenuation.mExp", exp);
 
 	float maxChannel = std::fmaxf(std::fmaxf(pStorages.second[pIndex].x, pStorages.second[pIndex].y), pStorages.second[pIndex].z);
-
 	float sphereScale = (-linear + std::sqrtf(linear * linear - 4 * exp * (exp - 256 * maxChannel * diffuseIntensity))) /
-		(2 * exp);
+						(2 * exp);
+
 	transform.setLocalPosition(pStorages.first[pIndex]); 
 	transform.setLocalRotation(glm::vec3(0.0f));
 	transform.setLocalScale(glm::vec3(std::fmaxf(1.0f, sphereScale)));
@@ -233,6 +232,8 @@ void Renderer::directionalLightPass(GBuffer* pGBuffer)
 	dirLightShader->setUniform3fv("uViewWorldPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
 	dirLightShader->setUniform2fv("uScreenSize", glm::vec2(mSceneManager->getProgramProperties().mWindowWidth,
 														   mSceneManager->getProgramProperties().mWindowHeight));
+	dirLightShader->setUniform1i("uNumberLightsToProcess", mSceneManager->mLightProperties.lightPositions.size());
+
 	dirLightShader->setUniform1i("uPositionMap", 0);
 	dirLightShader->setUniform1i("uColorMap", 1);
 	dirLightShader->setUniform1i("uNormalMap", 2);
@@ -243,23 +244,24 @@ void Renderer::directionalLightPass(GBuffer* pGBuffer)
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_ONE, GL_ONE);
 
-	//Transform quadTransform;
-	//quadTransform.setLocalPosition(glm::vec3(10.0f));
-	//quadTransform.setLocalRotation(glm::vec3(1.0f));
-	//quadTransform.setLocalScale(glm::vec3(20.0f));
-	//dirLightShader->setMatrixUniform4fv("uWVP", quadTransform.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam,
-	//																	   mSceneManager->getModelProperties().mProjMatrix));
-	//mSceneManager->getModelProperties().mModelManager.getModel("quad").render();
+	Transform transform;
+	dirLightShader->setUniform3fv("uDirectionalLight[0].mBaseLight.mColor", glm::vec3(1.0f, 1.0f, 0.9f));
+	dirLightShader->setUniform3fv("uDirectionalLight[0].mDirection", mSceneManager->getLightProperties().mLightDir);
+	//dirLightShader->setUniform3fv("uDirectionalLight[0].mDirection", glm::vec3(-1.0f, -1.0f, -1.0f));
+	dirLightShader->setUniform1f("uDirectionalLight[0].mBaseLight.mAmbientIntensity", mSceneManager->getLightProperties().mAmbientIntensity);
+	dirLightShader->setUniform1f("uDirectionalLight[0].mBaseLight.mDiffuseIntensity", mSceneManager->getLightProperties().mDiffuseIntensity);
+
 	static uint32_t quadVAO = 0;
 	static uint32_t quadVBO;
 	if (quadVAO == 0)
 	{
 		float quadVertices[] = {
-			// positions			// texCoords
-			-1.0f,  1.0f, 0.0f,		0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,
-			 1.0f, -1.0f, 0.0f,		1.0f, 0.0f,
-			 1.0f,  1.0f, 0.0f,		1.0f, 1.0f,
+			-1.0f,  1.0f, -1.0f,  
+			-1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f,  1.0f, -1.0f,
 		};
 		glGenVertexArrays(1, &quadVAO);
 		glGenBuffers(1, &quadVBO);
@@ -267,14 +269,14 @@ void Renderer::directionalLightPass(GBuffer* pGBuffer)
 		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		//glEnableVertexAttribArray(1);
+		//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	}
 	if (mSceneManager->getProgramProperties().mRenderTheQuadForGBuffer)
 	{
 		glBindVertexArray(quadVAO);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
 	}
 
@@ -306,10 +308,11 @@ void Renderer::stencilPass(GBuffer* pGBuffer, std::pair<std::vector<glm::vec3>, 
 	float constant = 1.0f;
 	float linear = 0.09f;
 	float exp = 0.032f;
-	float maxChannel = std::fmaxf(std::fmaxf(pStorages.second[pIndex].x, pStorages.second[pIndex].y), pStorages.second[pIndex].z);
 
+	float maxChannel = std::fmaxf(std::fmaxf(pStorages.second[pIndex].x, pStorages.second[pIndex].y), pStorages.second[pIndex].z);
 	float sphereScale = (-linear + std::sqrtf(linear * linear - 4 * exp * (exp - 256 * maxChannel * diffuseIntensity))) /
-		(2 * exp);
+						(2 * exp);
+
 	transform.setLocalPosition(pStorages.first[pIndex]);
 	transform.setLocalRotation(glm::vec3(0.0f));
 	transform.setLocalScale(glm::vec3(std::fmaxf(1.0f, sphereScale)));
