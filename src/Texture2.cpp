@@ -234,6 +234,16 @@ void Texture2::bind(uint32_t pSlot)
 	glBindTexture(mTarget, mRendererID);
 }
 
+void Texture2::bind(GLenum pTextureUnit)
+{
+	int32_t majorVersion, minorVersion;
+	Utils::getInstance().getGLVersion(majorVersion, minorVersion);
+	if (majorVersion >= 4 && minorVersion >= 5)
+		bindDSA(pTextureUnit);
+	else
+		bindNonDSA(pTextureUnit);
+}
+
 void Texture2::unbind()
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -333,7 +343,7 @@ void Texture2::loadInternal(const void* pImageData, bool pIsRGB)
 {
 	int32_t majorVersion, minorVersion;
 	Utils::getInstance().getGLVersion(majorVersion, minorVersion);
-	if (majorVersion == 4 && minorVersion > 5)
+	if (majorVersion >= 4 && minorVersion >= 5)
 		loadInternalDSA(pImageData, pIsRGB);
 	else
 		loadNonInternalDSA(pImageData, pIsRGB);
@@ -445,6 +455,17 @@ void Texture2::loadNonInternalDSA(const void* pImageData, bool pIsRGB)
 	glGenerateMipmap(mTarget);
 
 	glBindTexture(mTarget, 0);
+}
+
+void Texture2::bindDSA(GLenum pTextureUnit)
+{
+	glBindTextureUnit(pTextureUnit - GL_TEXTURE0, mRendererID);
+}
+
+void Texture2::bindNonDSA(GLenum pTextureUnit)
+{
+	glActiveTexture(pTextureUnit);
+	glBindTexture(mTarget, mRendererID);
 }
 
 terrainTexture::terrainTexture(const std::filesystem::path& pPath)

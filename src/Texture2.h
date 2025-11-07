@@ -34,6 +34,7 @@ public:
 	void loadRaw(int32_t pWidth, int32_t pHeight, int32_t pBPP, uint8_t* pImageData, bool pIsRGB);
 
 	void bind(uint32_t pSlot = 0);
+	void bind(GLenum pTextureUnit);
 	void unbind();
 
 	std::string getUniformName() const noexcept;
@@ -62,6 +63,9 @@ private:
 	void loadInternal(const void* pImageData, bool pIsRGB);
 	void loadInternalDSA(const void* pImageData, bool pIsRGB);
 	void loadNonInternalDSA(const void* pImageData, bool pIsRGB);
+
+	void bindDSA(GLenum pTextureUnit);
+	void bindNonDSA(GLenum pTextureUnit);
 
 private:
 	int32_t mWidth{ 0 }, mHeight{ 0 }, mBPP{ 0 };

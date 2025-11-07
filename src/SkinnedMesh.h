@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <format>
 #include <filesystem>
 
 #include "glad/glad.h"
@@ -91,7 +92,6 @@ private:
 
 private:
 	Transform mTransform;
-	PBRMaterial mMaterial;
 	
 	VAO mVAO;
 	EBO mEBO;

@@ -43,16 +43,44 @@ uint32_t SkinnedMesh::getNumBones() const
 
 Transform& SkinnedMesh::getTransform() noexcept
 {
-
+	return mTransform;
 }
 
 Material& SkinnedMesh::getMaterial() noexcept
 {
-
+	for (auto& i : mMaterials)
+	{
+		if (i.mAmbientColor != glm::vec4(0.0f, 0.0f, 0.0f, 0.0f))
+			return i;
+	}
+	return mMaterials[0];
 }
 
 void SkinnedMesh::render()
 {
+	mVAO.bind();
+
+	for (size_t i = 0; i < mMeshes.size(); ++i)
+	{
+		uint32_t materialIndex = mMeshes[i].mMaterialIndex;
+		if (materialIndex > mMaterials.size())
+		{
+			std::cout << std::format("Material index: {}, is bigger than the size of materials: {}!\n", materialIndex, mMaterials.size());
+			return;
+		}
+
+		uint32_t typeBaseIndex = mMaterials[materialIndex].getIndex(PBRMaterial::TEXTURE_TYPE::TEX_TYPE_BASE);
+		uint32_t typeSpecIndex = mMaterials[materialIndex].getIndex(PBRMaterial::TEXTURE_TYPE::TEX_TYPE_SPECULAR);
+
+		if (mMaterials[materialIndex].mTextures[typeBaseIndex])
+			mMaterials[materialIndex].mTextures[typeBaseIndex]->bind(GL_TEXTURE0);
+		if (mMaterials[materialIndex].mTextures[typeSpecIndex])
+			mMaterials[materialIndex].mTextures[typeSpecIndex]->bind(GL_TEXTURE1);
+		
+		glDrawElementsBaseVertex(GL_TRIANGLES, mMeshes[i].mNumIndices, GL_UNSIGNED_INT,
+								(void*)(sizeof(uint32_t) * mMeshes[i].mBaseIndex),
+								mMeshes[i].mBaseVertex);
+	}
 }
 
 void SkinnedMesh::initFromSceneAssimp(const aiScene* pScene, const std::filesystem::path& pPath)
@@ -93,6 +121,7 @@ void SkinnedMesh::populateBuffers()
 	layout.pushLayout(GL_FLOAT, MAX_NUMBER_BONES_PER_VERTEX);
 	mVAO.addBuffer(layout);
 	mEBO.init(mIndices.data(), mIndices.size());
+	mEBO.bind();
 }
 
 std::pair<uint32_t, uint32_t> SkinnedMesh::getNumVerticesAndIndices(const aiScene* pScene)
@@ -155,10 +184,11 @@ void SkinnedMesh::initSingleMesh(uint32_t pIndex, const aiMesh* pMesh)
 
 void SkinnedMesh::initMaterials(const aiScene* pScene, const std::filesystem::path& pPath)
 {
+	std::string directory = Utils::getInstance().getDirectoryFromFilePath(pPath);
 	for (size_t i = 0; i < pScene->mNumMaterials; ++i)
 	{
 		const aiMaterial* material = pScene->mMaterials[i];
-		loadTexture(pPath, material, i);
+		loadTexture(directory, material, i);
 		loadColors(material, i);
 	}
 }
@@ -171,19 +201,92 @@ void SkinnedMesh::loadTexture(const std::filesystem::path& pPath, const aiMateri
 
 void SkinnedMesh::loadDiffuseTexture(const std::filesystem::path& pPath, const aiMaterial* pMaterial, uint32_t pIndex)
 {
-	mMaterials[pIndex].mTextures[mMaterial.getIndex(PBRMaterial::TEXTURE_TYPE::TEX_TYPE_BASE)] = nullptr;
+	uint32_t indexTexType = mMaterials[pIndex].getIndex(PBRMaterial::TEXTURE_TYPE::TEX_TYPE_BASE);
+	mMaterials[pIndex].mTextures[indexTexType] = nullptr;
 	
-	if(pMaterial->GetTextureCount(aiTextureType_DIFFUSE))
+	if (pMaterial->GetTextureCount(aiTextureType_DIFFUSE))
+	{
+		aiString materialPath;
+
+		if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &materialPath) == AI_SUCCESS)
+		{
+			std::string fullPath = pPath.string() + '/' + materialPath.data;
+			
+			mMaterials[pIndex].mTextures[indexTexType] = std::make_unique<Texture2>(fullPath);
+			mMaterials[pIndex].mTextures[indexTexType]->setTarget(GL_TEXTURE_2D);
+		}
+	}
 }
 
 void SkinnedMesh::loadSpecularTexture(const std::filesystem::path& pPath, const aiMaterial* pMaterial, uint32_t pIndex)
 {
+	uint32_t indexTexType = mMaterials[pIndex].getIndex(PBRMaterial::TEXTURE_TYPE::TEX_TYPE_BASE);
+	mMaterials[pIndex].mTextures[indexTexType] = nullptr;
 
+	if (pMaterial->GetTextureCount(aiTextureType_SHININESS))
+	{
+		aiString materialPath;
+
+		if (pMaterial->GetTexture(aiTextureType_SHININESS, 0, &materialPath) == AI_SUCCESS)
+		{
+			std::string fullPath = pPath.string() + '/' + materialPath.data;
+
+			mMaterials[pIndex].mTextures[indexTexType] = std::make_unique<Texture2>(fullPath);
+			mMaterials[pIndex].mTextures[indexTexType]->setTarget(GL_TEXTURE_2D);
+		}
+	}
 }
 
 void SkinnedMesh::loadColors(const aiMaterial* pMaterial, uint32_t pIndex)
 {
+	aiColor4D ambientColor  = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+	aiColor4D diffuseColor  = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+	aiColor4D specularColor = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+	glm::vec4 identityVec = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec4 zeroVec = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
+	int32_t shadingModel = 0;
+	if (!pMaterial->Get(AI_MATKEY_SHADING_MODEL, shadingModel) == AI_SUCCESS)
+	{
+		std::cout << std::format("Couldnt get shading model! Shading model: {} Index of materials: {}\n", shadingModel, pIndex);
+		return;
+	}
+	
+	if (pMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor) == AI_SUCCESS)
+	{
+		mMaterials[pIndex].mAmbientColor = glm::vec4(ambientColor.r,
+													 ambientColor.g,
+													 ambientColor.b,
+													 ambientColor.a);
+	} 
+	else
+	{
+		mMaterials[pIndex].mAmbientColor = identityVec;
+	}
+
+	if (pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS)
+	{
+		mMaterials[pIndex].mDiffuseColor = glm::vec4(diffuseColor.r,
+													 diffuseColor.g,
+													 diffuseColor.b,
+													 diffuseColor.a);
+	}
+	else
+	{
+		mMaterials[pIndex].mDiffuseColor = zeroVec;
+	}
+
+	if (pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specularColor) == AI_SUCCESS)
+	{
+		mMaterials[pIndex].mSpecularColor = glm::vec4(specularColor.r,
+													  specularColor.g,
+													  specularColor.b,
+													  specularColor.a);
+	}
+	else
+	{
+		mMaterials[pIndex].mSpecularColor = zeroVec;
+	}
 }
 
 void SkinnedMesh::loadMeshBones(uint32_t pIndex, const aiMesh* pMesh)
