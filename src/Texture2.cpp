@@ -230,18 +230,12 @@ void Texture2::loadRaw(int32_t pWidth, int32_t pHeight, int32_t pBPP, uint8_t* p
 
 void Texture2::bind(uint32_t pSlot)
 {
-	glActiveTexture(GL_TEXTURE0 + pSlot);
-	glBindTexture(mTarget, mRendererID);
-}
-
-void Texture2::bind(GLenum pTextureUnit)
-{
 	int32_t majorVersion, minorVersion;
 	Utils::getInstance().getGLVersion(majorVersion, minorVersion);
 	if (majorVersion >= 4 && minorVersion >= 5)
-		bindDSA(pTextureUnit);
+		bindDSA(GL_TEXTURE0 + pSlot);
 	else
-		bindNonDSA(pTextureUnit);
+		bindNonDSA(GL_TEXTURE0 + pSlot);
 }
 
 void Texture2::unbind()

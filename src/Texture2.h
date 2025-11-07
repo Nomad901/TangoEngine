@@ -34,7 +34,6 @@ public:
 	void loadRaw(int32_t pWidth, int32_t pHeight, int32_t pBPP, uint8_t* pImageData, bool pIsRGB);
 
 	void bind(uint32_t pSlot = 0);
-	void bind(GLenum pTextureUnit);
 	void unbind();
 
 	std::string getUniformName() const noexcept;
