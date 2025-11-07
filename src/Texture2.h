@@ -63,8 +63,8 @@ private:
 	void loadInternalDSA(const void* pImageData, bool pIsRGB);
 	void loadNonInternalDSA(const void* pImageData, bool pIsRGB);
 
-	void bindDSA(GLenum pTextureUnit);
-	void bindNonDSA(GLenum pTextureUnit);
+	void bindDSA(uint32_t pSlot);
+	void bindNonDSA(uint32_t pSlot);
 
 private:
 	int32_t mWidth{ 0 }, mHeight{ 0 }, mBPP{ 0 };

@@ -49,6 +49,12 @@ void Initializer::initAll()
 
 	mSceneManager->getModelProperties().mSkinnedMesh = std::make_unique<SkinnedMesh>();
 	mSceneManager->getModelProperties().mSkinnedMesh->loadMesh(mSceneManager->getProgramProperties().mResourcePath + "Models/Crouch To Stand.fbx");
+
+	auto skinShader = &mSceneManager->getProgramProperties().mShaders.getShader("skinMesh");
+	skinShader->bind();
+	skinShader->setUniform1i("uSampler", 0);
+	skinShader->setUniform1i("uSamplerSpecularComponent", 1);
+	skinShader->setUniform1i("uNumberOfBones", mSceneManager->getModelProperties().mSkinnedMesh->getNumBones());	
 }
 
 void Initializer::initShaders()

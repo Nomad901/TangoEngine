@@ -116,6 +116,7 @@ void Program::manageWindowSize()
 	{
 		mSceneManager.getProgramProperties().mWindowWidth = winWidth;
 		mSceneManager.getProgramProperties().mWindowHeight = winHeight;
+		mSceneManager.getProgramProperties().mWindowWasChanged = true;
 	}
 }
 
@@ -141,6 +142,7 @@ void Program::update()
 	mRenderer.drawScene();
 	mControler->getPlayer().renderCharacter(mSceneManager.getProgramProperties().mShaders["mainShader"]);
 
+	mSceneManager.getProgramProperties().mWindowWasChanged = false;
 	manageWindowSize();
 }
 

@@ -233,9 +233,9 @@ void Texture2::bind(uint32_t pSlot)
 	int32_t majorVersion, minorVersion;
 	Utils::getInstance().getGLVersion(majorVersion, minorVersion);
 	if (majorVersion >= 4 && minorVersion >= 5)
-		bindDSA(GL_TEXTURE0 + pSlot);
+		bindDSA(pSlot);
 	else
-		bindNonDSA(GL_TEXTURE0 + pSlot);
+		bindNonDSA(pSlot);
 }
 
 void Texture2::unbind()
@@ -451,14 +451,14 @@ void Texture2::loadNonInternalDSA(const void* pImageData, bool pIsRGB)
 	glBindTexture(mTarget, 0);
 }
 
-void Texture2::bindDSA(GLenum pTextureUnit)
+void Texture2::bindDSA(uint32_t pSlot)
 {
-	glBindTextureUnit(pTextureUnit - GL_TEXTURE0, mRendererID);
+	glBindTextureUnit(GL_TEXTURE0 + pSlot, mRendererID);
 }
 
-void Texture2::bindNonDSA(GLenum pTextureUnit)
+void Texture2::bindNonDSA(uint32_t pSlot)
 {
-	glActiveTexture(pTextureUnit);
+	glActiveTexture(GL_TEXTURE0 + pSlot);
 	glBindTexture(mTarget, mRendererID);
 }
 

@@ -9,7 +9,6 @@ struct PBRMaterial : public Material
 	enum class TEXTURE_TYPE : uint32_t;
 public:
 	PBRMaterial() = default;
-	~PBRMaterial();
 
 	uint32_t getIndex(TEXTURE_TYPE pTEXTURE_TYPE);
 
@@ -19,25 +18,19 @@ public:
 	//
 	enum class TEXTURE_TYPE : uint32_t
 	{
-		TEX_TYPE_BASE = 0,
-		TEX_TYPE_METALLIC = 1,
-		TEX_TYPE_ROUGHNESS = 2,
-		TEX_TYPE_ALPHA = 3,
-
-		TEX_TYPE_NORMAL = 4,
-		TEX_TYPE_SPECULAR = 5,
-
-		TEX_TYPE_CLEARCOAT = 6,
-		TEX_TYPE_CLEARCOAT_ROUGNESS = 7,
-		TEX_TYPE_CLEARCOAT_NORMAL = 8,
-
-		TEX_TYPE_EMISSIVE_COLOR = 9,
-		TEX_TYPE_EMISSIVE = 10,
-
-		TEX_TYPE_NORMAL_CAMERA = 11,
-		TEX_TYPE_AMBIENT_OCCLUSION = 12,
-
-		NUMBER_OF_TEX_TYPE = 13
+		TEX_TYPE_BASE = 0,      
+		TEX_TYPE_SPECULAR = 1,
+		TEX_TYPE_NORMAL = 2,
+		TEX_TYPE_METALNESS = 3,
+		TEX_TYPE_EMISSIVE = 4,
+		TEX_TYPE_NORMAL_CAMERA = 5,
+		TEX_TYPE_EMISSION_COLOR = 6,
+		TEX_TYPE_ROUGHNESS = 7,
+		TEX_TYPE_AMBIENT_OCCLUSION = 8,
+		TEX_TYPE_CLEARCOAT = 9,
+		TEX_TYPE_CLEARCOAT_ROUGHNESS = 10,
+		TEX_TYPE_CLEARCOAT_NORMAL = 11,
+		TEX_TYPE_NUM = 12
 	};
 
 	// PBR material parameters;
@@ -61,7 +54,7 @@ public:
 	glm::vec4 mMetallicRoughnessOcclusion{ glm::vec4(0.0f, 0.0f, 0.0f, 0.0f) };
 	glm::vec4 mClearCoatTransmission{ glm::vec4(0.0f, 0.0f, 0.0f, 0.0f) };
 	
-	Texture2* mTextures[static_cast<uint32_t>(TEXTURE_TYPE::NUMBER_OF_TEX_TYPE)] = { 0 };
+	std::array<std::unique_ptr<Texture2>, static_cast<uint32_t>(TEXTURE_TYPE::TEX_TYPE_NUM)> mTextures;
 
 	float mTransparencyFactor{ 1.0f };
 	float mAlphaFactor{ 0.0f };

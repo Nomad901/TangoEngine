@@ -157,7 +157,7 @@ public:
 		std::unique_ptr<Texture2> mTexture;
 
 		std::unique_ptr<SkinnedMesh> mSkinnedMesh;
-		uint32_t mDisplayedBoneIndex{};
+		int32_t mDisplayedBoneIndex{ 1 };
 	};
 
 public:

@@ -18,21 +18,21 @@
 class Animator
 {
 private:
-	struct VertexBoneData;
-public:
-	Animator();
-	Animator(const std::filesystem::path& pPath);
 
-	void init(const std::filesystem::path& pPath);
+public:
+	//Animator();
+	//Animator(const std::filesystem::path& pPath);
+	//
+	//void init(const std::filesystem::path& pPath);
 
 private:
 	void parseScene(const aiScene* pScene);
 	void parseMeshes(const aiScene* pScene);
 	void parseMeshBones(uint32_t pIndex, const aiMesh* pMesh);
-	void parseSingleBone(uint32_t pIndex, const aiBone* pBone);
+	//void parseSingleBone(uint32_t pIndex, const aiBone* pBone);
 
 private:
-	std::vector<VertexBoneData> mVertexBoneDataStorage;
+	//std::vector<VertexBoneData> mVertexBoneDataStorage;
 	std::vector<int32_t> mMeshBaseVertices;
 };
 

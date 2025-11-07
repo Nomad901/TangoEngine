@@ -98,7 +98,7 @@ void GBuffer::bindForLightPass()
 		glBindTexture(GL_TEXTURE_2D, mTextures[static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_POSITION) + i]);
 	}
 }
-
+	
 void GBuffer::bindForFinalPass()
 {
 	unbindForWriting();

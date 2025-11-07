@@ -23,47 +23,121 @@ void Renderer::drawScene()
 	//
 	// gbuffer and terrain 
 	//
-	auto gbufferRef = &mSceneManager->mProgramProperties.mGBuffer;
-	
-	gbufferRef->startFrame();
-
-	geometryPass(gbufferRef);
-	
-	glEnable(GL_STENCIL_TEST);
-
-	static std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> lights =
-		   std::make_pair(mSceneManager->mLightProperties.lightPositions,
-		   			      mSceneManager->mLightProperties.lightColors);
-	for (size_t i = 0; i < lights.first.size(); ++i)
-	{
-		// 
-		// stencil pass is needed for optimization and correcting problems;
-		// we do not render pixels which are not needed; 
-		//
-		stencilPass(gbufferRef, lights, i);
-		pointLightPass(gbufferRef, lights, i);
-	}
-	
-	glDisable(GL_STENCIL_TEST);
-	
-	directionalLightPass(gbufferRef);
-	finalPass(gbufferRef); 
+	//auto gbufferRef = &mSceneManager->mProgramProperties.mGBuffer;
+	//
+	//gbufferRef->startFrame();
+	//
+	//geometryPass(gbufferRef);
+	//
+	//glEnable(GL_STENCIL_TEST);
+	//
+	//static std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> lights =
+	//	   std::make_pair(mSceneManager->mLightProperties.lightPositions,
+	//	   			      mSceneManager->mLightProperties.lightColors);
+	//for (size_t i = 0; i < lights.first.size(); ++i)
+	//{
+	//	// 
+	//	// stencil pass is needed for optimization and correcting problems;
+	//	// we do not render pixels which are not needed; 
+	//	//
+	//	stencilPass(gbufferRef, lights, i);
+	//	pointLightPass(gbufferRef, lights, i);
+	//}
+	//
+	//glDisable(GL_STENCIL_TEST);
+	//
+	//directionalLightPass(gbufferRef);
+	//finalPass(gbufferRef); 
 
 	//
 	// Skybox
 	//
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_LEQUAL);
-	glDisable(GL_BLEND);
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthMask(GL_LEQUAL);
+	//glDisable(GL_BLEND);
 	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
 
 	// 
 	// Light cubes and fps
 	//
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	renderCubeLights();
 	showFPS();
+
+	auto skinShader = &mSceneManager->getProgramProperties().mShaders.getShader("skinMesh");
+	skinShader->bind();
+
+	Transform& skinMeshTransform = mSceneManager->getModelProperties().mSkinnedMesh->getTransform();
+	
+	skinMeshTransform.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+	skinMeshTransform.setLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f)); // Changed from 10.0f to see better
+	skinMeshTransform.setLocalScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+	glm::mat4 WVP = skinMeshTransform.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam,
+		mSceneManager->getModelProperties().mProjMatrix);
+	skinShader->setMatrixUniform4fv("uMVP", WVP);
+
+	skinShader->setUniform1i("uNumberPointLights", 2);
+	skinShader->setUniform1i("uNumberSpotLights", 2);
+
+	std::array<glm::vec3, 2> pointLightPositions =
+	{
+		glm::vec3(2.0f, 3.0f, 2.0f),    
+		glm::vec3(-2.0f, 3.0f, -2.0f)   
+	};
+
+	std::array<glm::vec3, 2> spotLightPositions =
+	{
+		glm::vec3(0.0f, 5.0f, 3.0f),    
+		glm::vec3(0.0f, 5.0f, -3.0f)    
+	};
+
+	for (size_t i = 0; i < pointLightPositions.size(); ++i)
+	{
+		skinShader->setUniform3fv("uPointLight[" + std::to_string(i) + "].mBaseLight.mColor", glm::vec3(1.0f, 1.0f, 1.0f));
+		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mBaseLight.mAmbientIntensity", 0.3f); // Reduced
+		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mBaseLight.mDiffuseIntensity", 0.8f); // Reduced
+
+		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mAttenuation.mConstant", 1.0f);
+		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mAttenuation.mLinear", 0.09f);
+		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mAttenuation.mExp", 0.032f);
+
+		skinShader->setUniform3fv("uPointLight[" + std::to_string(i) + "].mPos", pointLightPositions[i]);
+	}
+
+	for (size_t i = 0; i < spotLightPositions.size(); ++i)
+	{
+		skinShader->setUniform3fv("uSpotLight[" + std::to_string(i) + "].mPointLight.mBaseLight.mColor", glm::vec3(1.0f, 1.0f, 1.0f));
+		skinShader->setUniform1f("uSpotLight[" + std::to_string(i) + "].mPointLight.mBaseLight.mAmbientIntensity", 0.2f);
+		skinShader->setUniform1f("uSpotLight[" + std::to_string(i) + "].mPointLight.mBaseLight.mDiffuseIntensity", 1.0f);
+
+		skinShader->setUniform1f("uSpotLight[" + std::to_string(i) + "].mPointLight.mAttenuation.mConstant", 1.0f);
+		skinShader->setUniform1f("uSpotLight[" + std::to_string(i) + "].mPointLight.mAttenuation.mLinear", 0.09f);
+		skinShader->setUniform1f("uSpotLight[" + std::to_string(i) + "].mPointLight.mAttenuation.mExp", 0.032f);
+
+		skinShader->setUniform3fv("uSpotLight[" + std::to_string(i) + "].mPointLight.mPos", spotLightPositions[i]);
+
+		skinShader->setUniform3fv("uSpotLight[" + std::to_string(i) + "].mDirection", glm::vec3(0.0f, -1.0f, 0.0f));
+
+		skinShader->setUniform1f("uSpotLight[" + std::to_string(i) + "].mCutOff", glm::cos(glm::radians(12.5f)));
+	}
+
+	skinShader->setUniform3fv("uDirectionalLight.mBaseLight.mColor", glm::vec3(1.0f, 1.0f, 1.0f));
+	skinShader->setUniform1f("uDirectionalLight.mBaseLight.mAmbientIntensity", 0.4f);
+	skinShader->setUniform1f("uDirectionalLight.mBaseLight.mDiffuseIntensity", 0.6f);
+	skinShader->setUniform3fv("uDirectionalLight.mDirection", glm::vec3(-0.5f, -1.0f, -0.5f)); 
+
+	auto skinMeshRef = &mSceneManager->getModelProperties().mSkinnedMesh;
+	skinShader->setUniform3fv("uMaterial.mAmbientColor", skinMeshRef->get()->getMaterial().mAmbientColor);
+	skinShader->setUniform3fv("uMaterial.mDiffuseColor", skinMeshRef->get()->getMaterial().mDiffuseColor);
+	skinShader->setUniform3fv("uMaterial.mSpecularColor", skinMeshRef->get()->getMaterial().mSpecularColor);
+
+	skinShader->setUniform3fv("uCameraPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
+
+	skinShader->setUniform1i("uDisplayBoneIndex", mSceneManager->getModelProperties().mDisplayedBoneIndex);
+
+	skinMeshRef->get()->render();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

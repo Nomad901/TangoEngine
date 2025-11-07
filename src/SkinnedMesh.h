@@ -18,7 +18,7 @@
 #include "VBO.h"
 #include "EBO.h"
 
-#define MAX_NUMBER_BONES_PER_VERTEX 4
+#define MAX_NUMBER_BONES_PER_VERTEX 6
 #define INVALID_MATERIAL 0xFFFFFFFF
 
 class SkinnedMesh
@@ -34,7 +34,7 @@ public:
 
 	uint32_t getNumBones() const;
 	Transform& getTransform() noexcept;
-	Material& getMaterial() noexcept;
+	PBRMaterial& getMaterial() noexcept;
 
 	void render();
 

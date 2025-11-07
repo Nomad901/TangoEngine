@@ -46,7 +46,7 @@ Transform& SkinnedMesh::getTransform() noexcept
 	return mTransform;
 }
 
-Material& SkinnedMesh::getMaterial() noexcept
+PBRMaterial& SkinnedMesh::getMaterial() noexcept
 {
 	for (auto& i : mMaterials)
 	{
@@ -73,9 +73,9 @@ void SkinnedMesh::render()
 		uint32_t typeSpecIndex = mMaterials[materialIndex].getIndex(PBRMaterial::TEXTURE_TYPE::TEX_TYPE_SPECULAR);
 
 		if (mMaterials[materialIndex].mTextures[typeBaseIndex])
-			mMaterials[materialIndex].mTextures[typeBaseIndex]->bind(GL_TEXTURE0);
+			mMaterials[materialIndex].mTextures[typeBaseIndex]->bind(0);
 		if (mMaterials[materialIndex].mTextures[typeSpecIndex])
-			mMaterials[materialIndex].mTextures[typeSpecIndex]->bind(GL_TEXTURE1);
+			mMaterials[materialIndex].mTextures[typeSpecIndex]->bind(1);
 		
 		glDrawElementsBaseVertex(GL_TRIANGLES, mMeshes[i].mNumIndices, GL_UNSIGNED_INT,
 								(void*)(sizeof(uint32_t) * mMeshes[i].mBaseIndex),
@@ -96,7 +96,7 @@ void SkinnedMesh::initFromSceneAssimp(const aiScene* pScene, const std::filesyst
 	mNormals.reserve(numVertices);
 	mTexCoord.reserve(numVertices);
 	mIndices.reserve(numIndices);
-	mBones.reserve(numVertices);
+	mBones.resize(numVertices);
 
 	initAllMeshes(pScene);
 	initMaterials(pScene, pPath);
@@ -163,11 +163,17 @@ void SkinnedMesh::populateBuffers()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(mBones[0]) * mBones.size(), mBones.data(), GL_STATIC_DRAW);
 	// bone ID pointer
 	glEnableVertexAttribArray(boneIdLocation);
-	glVertexAttribIPointer(boneIdLocation, MAX_NUMBER_BONES_PER_VERTEX, GL_INT, sizeof(VertexBoneData), 0);
+	glVertexAttribIPointer(boneIdLocation, 4, GL_INT, sizeof(VertexBoneData), 0);
+	glEnableVertexAttribArray(boneIdLocation + 1);
+	glVertexAttribIPointer(boneIdLocation + 1, 2, GL_INT, sizeof(VertexBoneData), (const void*)(4 * sizeof(int32_t)));
+
 	// bone weights pointer;
 	glEnableVertexAttribArray(boneWeightLocation);
-	glVertexAttribPointer(boneWeightLocation, MAX_NUMBER_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
+	glVertexAttribPointer(boneWeightLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
 						 (const void*)(MAX_NUMBER_BONES_PER_VERTEX * sizeof(int32_t)));
+	glEnableVertexAttribArray(boneWeightLocation + 1);
+	glVertexAttribPointer(boneWeightLocation + 1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
+						 (const void*)(MAX_NUMBER_BONES_PER_VERTEX * sizeof(int32_t) + 4 * sizeof(float)));
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffers[indicesBufferIndex].getID());
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(mIndices[0]) * mIndices.size(), mIndices.data(), GL_STATIC_DRAW);
@@ -356,7 +362,8 @@ void SkinnedMesh::loadSingleBone(uint32_t pIndex, const aiBone* pBone)
 	for (size_t i = 0; i < pBone->mNumWeights; ++i)
 	{
 		const aiVertexWeight& vertexWeight = pBone->mWeights[i];
-		mBones[i].addBoneData(boneId, vertexWeight.mWeight);
+		uint32_t globalVertexID = mMeshes[pIndex].mBaseVertex + pBone->mWeights[i].mVertexId;
+		mBones[globalVertexID].addBoneData(boneId, vertexWeight.mWeight);
 	}
 }
 
