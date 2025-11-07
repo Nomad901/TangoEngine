@@ -89,16 +89,11 @@ void SkinnedMesh::populateBuffers()
 	layout.pushLayout(GL_FLOAT, 3);
 	layout.pushLayout(GL_FLOAT, 2);
 	layout.pushLayout(GL_FLOAT, 3);
+	layout.pushLayout(GL_INT, MAX_NUMBER_BONES_PER_VERTEX);
 	layout.pushLayout(GL_FLOAT, MAX_NUMBER_BONES_PER_VERTEX);
-
+	mVAO.addBuffer(layout);
+	mEBO.init(mIndices.data(), mIndices.size());
 }
-
-//INDEX_BUFFER = 0,
-//POS_BUFFER = 1,
-//TEXCOORD_BUFFER = 2,
-//NORMAL_BUFFER = 3,
-//BONES_BUFFER = 4,
-//NUM_TYPE_BUFFERS = 5
 
 std::pair<uint32_t, uint32_t> SkinnedMesh::getNumVerticesAndIndices(const aiScene* pScene)
 {
@@ -121,43 +116,115 @@ std::pair<uint32_t, uint32_t> SkinnedMesh::getNumVerticesAndIndices(const aiScen
 
 void SkinnedMesh::initAllMeshes(const aiScene* pScene)
 {
+	for (size_t i = 0; i < pScene->mNumMeshes; ++i)
+	{
+		const aiMesh* mesh = pScene->mMeshes[i];
+		initSingleMesh(i, mesh);
+	}
 }
 
 void SkinnedMesh::initSingleMesh(uint32_t pIndex, const aiMesh* pMesh)
 {
+	glm::vec3 identityVec = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	for (size_t i = 0; i < pMesh->mNumVertices; ++i)
+	{
+		const aiVector3D& pos = pMesh->mVertices[i];
+		mPos.push_back(glm::vec3(pos.x, pos.y, pos.z));
+
+		const aiVector3D& normals = pMesh->mNormals ? pMesh->mNormals[i] : aiVector3D(0.0f, 1.0f, 0.0f);
+		mNormals.push_back(glm::vec3(normals.x, normals.y, normals.z));
+
+		const aiVector3D& texCoord = pMesh->HasTextureCoords(0) ? pMesh->mTextureCoords[0][i] : aiVector3D(identityVec.x, 
+																										   identityVec.y, 
+																										   identityVec.z);
+		mTexCoord.push_back(glm::vec2(texCoord.x, texCoord.y));
+	}
+
+	loadMeshBones(pIndex, pMesh);
+
+	for (size_t i = 0; i < pMesh->mNumFaces; ++i)
+	{
+		const aiFace& face = pMesh->mFaces[i];
+
+		mIndices.push_back(face.mIndices[0]);
+		mIndices.push_back(face.mIndices[1]);
+		mIndices.push_back(face.mIndices[2]);
+	}
 }
 
 void SkinnedMesh::initMaterials(const aiScene* pScene, const std::filesystem::path& pPath)
 {
+	for (size_t i = 0; i < pScene->mNumMaterials; ++i)
+	{
+		const aiMaterial* material = pScene->mMaterials[i];
+		loadTexture(pPath, material, i);
+		loadColors(material, i);
+	}
 }
 
 void SkinnedMesh::loadTexture(const std::filesystem::path& pPath, const aiMaterial* pMaterial, uint32_t pIndex)
 {
+	loadDiffuseTexture(pPath, pMaterial, pIndex);
+	loadSpecularTexture(pPath, pMaterial, pIndex);
 }
 
 void SkinnedMesh::loadDiffuseTexture(const std::filesystem::path& pPath, const aiMaterial* pMaterial, uint32_t pIndex)
 {
+	mMaterials[pIndex].mTextures[mMaterial.getIndex(PBRMaterial::TEXTURE_TYPE::TEX_TYPE_BASE)] = nullptr;
+	
+	if(pMaterial->GetTextureCount(aiTextureType_DIFFUSE))
 }
 
 void SkinnedMesh::loadSpecularTexture(const std::filesystem::path& pPath, const aiMaterial* pMaterial, uint32_t pIndex)
 {
+
 }
 
 void SkinnedMesh::loadColors(const aiMaterial* pMaterial, uint32_t pIndex)
 {
+
 }
 
-void SkinnedMesh::parseMeshBones(uint32_t pIndex, const aiMesh* pMesh)
+void SkinnedMesh::loadMeshBones(uint32_t pIndex, const aiMesh* pMesh)
 {
+	if (!pMesh->HasBones())
+		return;
+
+	for (size_t i = 0; i < pMesh->mNumBones; ++i)
+	{
+		loadSingleBone(pIndex, pMesh->mBones[i]);
+	}
 }
 
-void SkinnedMesh::parseSingleBone(uint32_t pIndex, const aiBone* pBone)
+void SkinnedMesh::loadSingleBone(uint32_t pIndex, const aiBone* pBone)
 {
+	uint32_t boneId = getBonesIndex(pBone);
+
+	for (size_t i = 0; i < pBone->mNumWeights; ++i)
+	{
+		const aiVertexWeight& vertexWeight = pBone->mWeights[i];
+		uint32_t globalVertexID = mMeshes[pIndex].mBaseVertex + vertexWeight.mVertexId;
+		mBones[i].addBoneData(boneId, vertexWeight.mWeight);
+	}
 }
 
 int32_t SkinnedMesh::getBonesIndex(const aiBone* pBone)
 {
-	return 0;
+	int32_t boneId = 0;
+	std::string boneName = pBone->mName.C_Str();
+
+	if (mBonesIndices.contains(boneName))
+	{
+		boneId = mBonesIndices[boneName];
+	}
+	else
+	{
+		boneId = mBonesIndices.size();
+		mBonesIndices.emplace(boneName, boneId);
+	}
+
+	return boneId;
 }
 
 uint32_t SkinnedMesh::getIndexBufferType(BUFFER_TYPE pBUFFER_TYPE)

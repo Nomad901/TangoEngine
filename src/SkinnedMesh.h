@@ -10,11 +10,12 @@
 
 #include "Utils.h"
 #include "Transform.h" 
-#include "material.h"
+#include "PBRMaterial.h"
 #include "Texture2.h"
 #include "Shader.h"
 #include "VAO.h"
 #include "VBO.h"
+#include "EBO.h"
 
 #define MAX_NUMBER_BONES_PER_VERTEX 4
 #define INVALID_MATERIAL 0xFFFFFFFF
@@ -52,8 +53,8 @@ private:
 	void loadSpecularTexture(const std::filesystem::path& pPath, const aiMaterial* pMaterial, uint32_t pIndex);
 	void loadColors(const aiMaterial* pMaterial, uint32_t pIndex);
 
-	void parseMeshBones(uint32_t pIndex, const aiMesh* pMesh);
-	void parseSingleBone(uint32_t pIndex, const aiBone* pBone);
+	void loadMeshBones(uint32_t pIndex, const aiMesh* pMesh);
+	void loadSingleBone(uint32_t pIndex, const aiBone* pBone);
 	int32_t getBonesIndex(const aiBone* pBone);
 	
 	uint32_t getIndexBufferType(BUFFER_TYPE pBUFFER_TYPE);
@@ -90,13 +91,14 @@ private:
 
 private:
 	Transform mTransform;
-	Material mMaterial;
+	PBRMaterial mMaterial;
 	
 	VAO mVAO;
+	EBO mEBO;
 	std::array<VBO, static_cast<uint32_t>(BUFFER_TYPE::NUM_TYPE_BUFFERS)> mBuffers;
 	
 	std::vector<basicMeshEntry> mMeshes;
-	std::vector<Material> mMaterials;
+	std::vector<PBRMaterial> mMaterials;
 
 	std::vector<glm::vec3> mPos;
 	std::vector<glm::vec3> mNormals;
