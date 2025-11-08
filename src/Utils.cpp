@@ -200,3 +200,19 @@ std::string Utils::getDirectoryFromFilePath(const std::filesystem::path& pPath)
 {
 	return pPath.parent_path().string();
 }
+
+glm::mat4 Utils::getGlmMatrix4FromAiMat4x4(const aiMatrix4x4& pAiMatrix4x4)
+{
+	return glm::mat4(pAiMatrix4x4.a1, pAiMatrix4x4.b1, pAiMatrix4x4.c1, pAiMatrix4x4.d1,
+					 pAiMatrix4x4.a2, pAiMatrix4x4.b2, pAiMatrix4x4.c2, pAiMatrix4x4.d2,
+					 pAiMatrix4x4.a3, pAiMatrix4x4.b3, pAiMatrix4x4.c3, pAiMatrix4x4.d3,
+					 pAiMatrix4x4.a4, pAiMatrix4x4.b4, pAiMatrix4x4.c4, pAiMatrix4x4.d4);
+}
+
+aiMatrix4x4 Utils::getAiMatrix4x4FromGlmMatrix4(const glm::mat4& pGlmMatrix4)
+{
+	return aiMatrix4x4(ai_real(pGlmMatrix4[0][0]), ai_real(pGlmMatrix4[1][0]), ai_real(pGlmMatrix4[2][0]), ai_real(pGlmMatrix4[3][0]),
+					   ai_real(pGlmMatrix4[0][1]), ai_real(pGlmMatrix4[1][1]), ai_real(pGlmMatrix4[2][1]), ai_real(pGlmMatrix4[3][1]),
+					   ai_real(pGlmMatrix4[0][2]), ai_real(pGlmMatrix4[1][2]), ai_real(pGlmMatrix4[2][2]), ai_real(pGlmMatrix4[3][2]),
+					   ai_real(pGlmMatrix4[0][3]), ai_real(pGlmMatrix4[1][3]), ai_real(pGlmMatrix4[2][3]), ai_real(pGlmMatrix4[3][3]));
+}
