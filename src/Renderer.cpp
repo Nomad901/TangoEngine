@@ -70,8 +70,8 @@ void Renderer::drawScene()
 
 	Transform& skinMeshTransform = mSceneManager->getModelProperties().mSkinnedMesh->getTransform();
 	
-	skinMeshTransform.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-	skinMeshTransform.setLocalPosition(glm::vec3(0.0f, 0.0f, 0.0f)); // Changed from 10.0f to see better
+	skinMeshTransform.setLocalRotation(glm::vec3(-90.0f, 0.0f, 0.0f));
+	skinMeshTransform.setLocalPosition(glm::vec3(0.0f, 30.0f, 0.0f)); 
 	skinMeshTransform.setLocalScale(glm::vec3(1.0f, 1.0f, 1.0f));
 
 	glm::mat4 WVP = skinMeshTransform.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam,
@@ -96,8 +96,8 @@ void Renderer::drawScene()
 	for (size_t i = 0; i < pointLightPositions.size(); ++i)
 	{
 		skinShader->setUniform3fv("uPointLight[" + std::to_string(i) + "].mBaseLight.mColor", glm::vec3(1.0f, 1.0f, 1.0f));
-		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mBaseLight.mAmbientIntensity", 0.3f); // Reduced
-		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mBaseLight.mDiffuseIntensity", 0.8f); // Reduced
+		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mBaseLight.mAmbientIntensity", 0.3f); 
+		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mBaseLight.mDiffuseIntensity", 0.8f); 
 
 		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mAttenuation.mConstant", 1.0f);
 		skinShader->setUniform1f("uPointLight[" + std::to_string(i) + "].mAttenuation.mLinear", 0.09f);
@@ -136,6 +136,9 @@ void Renderer::drawScene()
 	skinShader->setUniform3fv("uCameraPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
 
 	skinShader->setUniform1i("uDisplayBoneIndex", mSceneManager->getModelProperties().mDisplayedBoneIndex);
+
+	std::vector<glm::mat4> bonesTransformations;
+	skinMeshRef->get()->getBoneTransformations(bonesTransformations);
 
 	skinMeshRef->get()->render();
 

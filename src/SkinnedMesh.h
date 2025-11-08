@@ -35,6 +35,7 @@ public:
 	uint32_t getNumBones() const;
 	Transform& getTransform() noexcept;
 	PBRMaterial& getMaterial() noexcept;
+	void getBoneTransformations(std::vector<glm::mat4>& pTransformations);
 
 	void render();
 
@@ -60,6 +61,8 @@ private:
 	
 	uint32_t getIndexBufferType(BUFFER_TYPE pBUFFER_TYPE);
 
+	void readNodeHierachy(const aiNode* pNode, const glm::mat4& pTransformation);
+
 private:
 	struct VertexBoneData
 	{
@@ -71,6 +74,17 @@ private:
 	public:
 		std::array<uint32_t, MAX_NUMBER_BONES_PER_VERTEX> mBonesId;
 		std::array<float, MAX_NUMBER_BONES_PER_VERTEX> mWeights;
+	};
+	struct boneInfo
+	{
+		boneInfo(const glm::mat4& pOffset)
+		{
+			mOffset = pOffset;
+			mTransformation = glm::mat4(0.0f);
+		}
+
+		glm::mat4 mOffset;
+		glm::mat4 mTransformation;
 	};
 	struct basicMeshEntry
 	{
@@ -93,6 +107,9 @@ private:
 private:
 	Transform mTransform;
 	
+	Assimp::Importer mImporter;
+	const aiScene* mScene{ nullptr };
+
 	VAO mVAO;
 	EBO mEBO;
 	std::array<VBO, static_cast<uint32_t>(BUFFER_TYPE::NUM_TYPE_BUFFERS)> mBuffers;
@@ -105,6 +122,8 @@ private:
 	std::vector<glm::vec2> mTexCoord;
 	std::vector<uint32_t> mIndices;
 	std::vector<VertexBoneData> mBones;
+
+	std::vector<boneInfo> mBonesInfo;
 
 	std::unordered_map<std::string, uint32_t> mBonesIndices;
 };

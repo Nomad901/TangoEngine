@@ -14,13 +14,11 @@ void SkinnedMesh::loadMesh(const std::filesystem::path& pPath)
 		mBuffers[i].setID(buffers[i]);
 	}
 
-	Assimp::Importer importer;
-
 	const uint32_t ASSIMP_LOAD_FLAGS = (aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices);
-	const aiScene* scene = importer.ReadFile(pPath.string(), ASSIMP_LOAD_FLAGS);
+	mScene = mImporter.ReadFile(pPath.string(), ASSIMP_LOAD_FLAGS);
 
-	if (scene)
-		initFromSceneAssimp(scene, pPath);
+	if (mScene)
+		initFromSceneAssimp(mScene, pPath);
 	else
 		std::cout << std::format("Couldnt load the path: {}\n", pPath.string());
 	
@@ -54,6 +52,22 @@ PBRMaterial& SkinnedMesh::getMaterial() noexcept
 			return i;
 	}
 	return mMaterials[0];
+}
+
+void SkinnedMesh::getBoneTransformations(std::vector<glm::mat4>& pTransformations)
+{
+	if (!pTransformations.empty())
+		pTransformations.clear();
+	pTransformations.resize(mBonesInfo.size());
+
+	glm::mat4 identityMatrix = glm::mat4(1.0f);
+
+	readNodeHierachy(mScene->mRootNode, identityMatrix);
+
+	for (size_t i = 0; i < mBonesInfo.size(); ++i)
+	{
+		pTransformations[i] = mBonesInfo[i].mTransformation;
+	}
 }
 
 void SkinnedMesh::render()
@@ -359,6 +373,12 @@ void SkinnedMesh::loadSingleBone(uint32_t pIndex, const aiBone* pBone)
 {
 	uint32_t boneId = getBonesIndex(pBone);
 
+	if (boneId == mBonesInfo.size())
+	{
+		boneInfo tmpBoneInfo(Utils::getInstance().getGlmMatrix4FromAiMat4x4(pBone->mOffsetMatrix));
+		mBonesInfo.push_back(tmpBoneInfo);
+	}
+
 	for (size_t i = 0; i < pBone->mNumWeights; ++i)
 	{
 		const aiVertexWeight& vertexWeight = pBone->mWeights[i];
@@ -388,6 +408,24 @@ int32_t SkinnedMesh::getBonesIndex(const aiBone* pBone)
 uint32_t SkinnedMesh::getIndexBufferType(BUFFER_TYPE pBUFFER_TYPE)
 {
 	return static_cast<uint32_t>(pBUFFER_TYPE);
+}
+
+void SkinnedMesh::readNodeHierachy(const aiNode* pNode, const glm::mat4& pTransformation)
+{
+	std::string nodeName = pNode->mName.data;
+	glm::mat4 nodeTransformation = Utils::getInstance().getGlmMatrix4FromAiMat4x4(pNode->mTransformation);
+	glm::mat4 globalTransformation = pTransformation * nodeTransformation;
+
+	if (!mBonesIndices.contains(nodeName))
+	{
+		uint32_t boneIndex = mBonesIndices[nodeName];
+		mBonesInfo[boneIndex].mTransformation = globalTransformation * mBonesInfo[boneIndex].mOffset;
+	}
+
+	for (size_t i = 0; i < pNode->mNumChildren; ++i)
+	{
+		readNodeHierachy(pNode->mChildren[i], globalTransformation);
+	}
 }
 
 void SkinnedMesh::VertexBoneData::addBoneData(uint32_t pBoneId, float pBoneWeight)
