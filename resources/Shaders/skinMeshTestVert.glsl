@@ -15,11 +15,22 @@ flat out vec2 fragBoneID2;
 out vec4 fragBoneWeights;
 out vec2 fragBoneWeights2;
 
+
 uniform mat4 uMVP;
+const int MAX_NUMBER_OF_BONES = 100;
+uniform mat4 uBones[MAX_NUMBER_OF_BONES];
 
 void main()
 {
-	gl_Position = uMVP * vec4(pos, 1.0f);
+	mat4 boneTransform =  uBones[boneID[0]] * boneWeights[0];
+		 boneTransform += uBones[boneID[1]] * boneWeights[1];
+		 boneTransform += uBones[boneID[2]] * boneWeights[2];
+		 boneTransform += uBones[boneID[3]] * boneWeights[3];
+		 boneTransform += uBones[boneID2[0]] * boneWeights2[0];
+		 boneTransform += uBones[boneID2[1]] * boneWeights2[1];
+
+	vec4 posWithBone = boneTransform * vec4(pos, 1.0f);
+	gl_Position = uMVP * posWithBone;
 	
 	fragPos = pos;
 	fragTexCoord = texCoord;
