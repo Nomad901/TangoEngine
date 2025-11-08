@@ -9,6 +9,7 @@
 #include "dependencies/stb_image.h"
 #include "glad/glad.h"
 #include "glm/glm.hpp"
+#include "AssimpLoader.h"
 
 class Utils
 {
@@ -49,6 +50,10 @@ public:
 
 	/*-----FILES_HELPERS-----*/
 	std::string getDirectoryFromFilePath(const std::filesystem::path& pPath);
+
+	/*-----ASSIMP_HELPERS-----*/
+	glm::mat4 getGlmMatrix4FromAiMat4x4(const aiMatrix4x4& pAiMatrix4x4);
+	aiMatrix4x4 getAiMatrix4x4FromGlmMatrix4(const glm::mat4& pGlmMatrix4);
 
 private:
 	Utils() = default;
