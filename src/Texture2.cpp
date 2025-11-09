@@ -71,6 +71,11 @@ void Texture2::init(const std::filesystem::path& pPath, std::string_view pUnifor
 	mFilePath = pPath;
 	stbi_set_flip_vertically_on_load(1);
 	mLocalBuffer = stbi_load(pPath.string().c_str(), &mWidth, &mHeight, &mBPP, 4);
+	if (!mLocalBuffer)
+	{
+		std::cout << std::format("Couldnt load the texture! The path: {}\n", pPath.string());
+		return;
+	}
 
 	glGenTextures(1, &mRendererID);
 	glBindTexture(GL_TEXTURE_2D, mRendererID);
@@ -100,6 +105,11 @@ void Texture2::init(const std::filesystem::path& pPath, bool pRepeatTexture)
 	mFilePath = pPath;
 	stbi_set_flip_vertically_on_load(1);
 	mLocalBuffer = stbi_load(pPath.string().c_str(), &mWidth, &mHeight, &mBPP, 4);
+	if (!mLocalBuffer)
+	{
+		std::cout << std::format("Couldnt load the texture! The path: {}\n", pPath.string());
+		return;
+	}
 
 	glGenTextures(1, &mRendererID);
 	glBindTexture(GL_TEXTURE_2D, mRendererID);
@@ -135,6 +145,11 @@ void Texture2::initWithMSAA(const std::filesystem::path& pPath, std::string_view
 	mFilePath = pPath;
 	stbi_set_flip_vertically_on_load(1);
 	mLocalBuffer = stbi_load(pPath.string().c_str(), &mWidth, &mHeight, &mBPP, 4);
+	if (!mLocalBuffer)
+	{
+		std::cout << std::format("Couldnt load the texture! The path: {}\n", pPath.string());
+		return;
+	}
 
 	glGenTextures(1, &mRendererID);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mRendererID);
@@ -156,6 +171,11 @@ void Texture2::initWithMSAA(const std::filesystem::path& pPath, uint32_t pSample
 	mFilePath = pPath;
 	stbi_set_flip_vertically_on_load(1);
 	mLocalBuffer = stbi_load(pPath.string().c_str(), &mWidth, &mHeight, &mBPP, 4);
+	if (!mLocalBuffer)
+	{
+		std::cout << std::format("Couldnt load the texture! The path: {}\n", pPath.string());
+		return;
+	}
 
 	glGenTextures(1, &mRendererID);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mRendererID);
