@@ -30,6 +30,9 @@ void Initializer::init(bool pInitAll)
 
 	if (pInitAll)
 		initAll();
+
+	mSceneManager->getProgramProperties().mTimer.setDimensionOfTime(Dimension::MILISECONDS);
+	mSceneManager->getProgramProperties().mTimer.startTimer();
 }
 
 void Initializer::initAll()
@@ -48,7 +51,7 @@ void Initializer::initAll()
 	initLights();
 
 	mSceneManager->getModelProperties().mSkinnedMesh = std::make_unique<SkinnedMesh>();
-	mSceneManager->getModelProperties().mSkinnedMesh->loadMesh(mSceneManager->getProgramProperties().mResourcePath + "Models/boblampclean.md5mesh");
+	mSceneManager->getModelProperties().mSkinnedMesh->loadMesh(mSceneManager->getProgramProperties().mResourcePath + "Models/boblampclean.md5anim");
 
 	auto skinShader = &mSceneManager->getProgramProperties().mShaders.getShader("skinMesh");
 	skinShader->bind();

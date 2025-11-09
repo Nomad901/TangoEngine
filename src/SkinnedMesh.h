@@ -15,7 +15,6 @@
 #include "Texture2.h"
 #include "Shader.h"
 #include "VAO.h"
-#include "VBO.h"
 #include "EBO.h"
 
 #define MAX_NUMBER_BONES_PER_VERTEX 6
@@ -25,7 +24,7 @@ class SkinnedMesh
 {
 private: 
 	enum class BUFFER_TYPE : uint32_t;
-
+	enum class IndexType;
 public:
 	SkinnedMesh() = default;
 
@@ -35,7 +34,7 @@ public:
 	uint32_t getNumBones() const;
 	Transform& getTransform() noexcept;
 	PBRMaterial& getMaterial() noexcept;
-	void getBoneTransformations(std::vector<glm::mat4>& pTransformations);
+	void getBoneTransformations(float pAnimTime, std::vector<glm::mat4>& pTransformations);
 
 	void render();
 
@@ -61,7 +60,13 @@ private:
 	
 	uint32_t getIndexBufferType(BUFFER_TYPE pBUFFER_TYPE);
 
-	void readNodeHierachy(const aiNode* pNode, const glm::mat4& pTransformation);
+	void readNodeHierachy(float pAnimTime, const aiNode* pNode, const glm::mat4& pTransformation);
+	const aiNodeAnim* findNodeAnim(const aiAnimation* pAnimation, std::string_view pNodeName);
+
+	void calcInterpolatedScale(aiVector3D& pScaling, float pAnimTimeTicks, const aiNodeAnim* pAiNodeAnim);
+	void calcInterpolatedRotation(aiQuaternion& pRotation, float pAnimTimeTicks, const aiNodeAnim* pAiNodeAnim);
+	void calcInterpolatedPosition(aiVector3D& pPosition, float pAnimTimeTicks, const aiNodeAnim* pAiNodeAnim);
+	uint32_t findInterpolatedIndex(IndexType pIndexType, float pAnimTicks, const aiNodeAnim* pAiNodeAnim);
 
 private:
 	struct VertexBoneData
@@ -103,10 +108,17 @@ private:
 		BONES_BUFFER     = 4,
 		NUM_TYPE_BUFFERS = 5
 	};
+	enum class IndexType
+	{
+		SCALING_INDEX  = 0,
+		ROTATION_INDEX = 1,
+		POSITION_INDEX = 2
+	};
 
 private:
 	Transform mTransform;
-	
+	glm::mat4 mGlobalInverseTransf;
+
 	Assimp::Importer mImporter;
 	const aiScene* mScene{ nullptr };
 

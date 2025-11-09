@@ -137,8 +137,21 @@ void Renderer::drawScene()
 
 	skinShader->setUniform1i("uDisplayBoneIndex", mSceneManager->getModelProperties().mDisplayedBoneIndex);
 
+	float animationTime = mSceneManager->getProgramProperties().mTimer.getDeltaTime(false);
+
 	std::vector<glm::mat4> bonesTransformations;
-	skinMeshRef->get()->getBoneTransformations(bonesTransformations);
+	skinMeshRef->get()->getBoneTransformations(animationTime, bonesTransformations);
+	std::cout << "Number of bones: " << bonesTransformations.size() << std::endl;
+	for (size_t i = 0; i < std::min(bonesTransformations.size(), size_t(5)); ++i) {
+		std::cout << "Bone " << i << " transform: " << std::endl;
+		// Print the first row of the matrix to see if it's identity or has values
+		std::cout << bonesTransformations[i][0][0] << " " << bonesTransformations[i][0][1] << " " << bonesTransformations[i][0][2] << " "\
+			<< bonesTransformations[i][0][3] << std::endl;
+	}
+	for (size_t i = 0; i < bonesTransformations.size(); ++i)
+	{
+		skinShader->setMatrixUniform4fv("uBones[" + std::to_string(i) + ']', bonesTransformations[i]);
+	}
 
 	skinMeshRef->get()->render();
 
