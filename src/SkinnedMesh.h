@@ -17,7 +17,7 @@
 #include "VAO.h"
 #include "EBO.h"
 
-#define MAX_NUMBER_BONES_PER_VERTEX 6
+#define MAX_NUMBER_BONES_PER_VERTEX 4
 #define INVALID_MATERIAL 0xFFFFFFFF
 
 class SkinnedMesh
@@ -32,6 +32,8 @@ public:
 	void destroy();
 
 	uint32_t getNumBones() const;
+	uint32_t getNumVertices() const;
+	uint32_t getNumIndices() const;
 	Transform& getTransform() noexcept;
 	PBRMaterial& getMaterial() noexcept;
 	void getBoneTransformations(float pAnimTime, std::vector<glm::mat4>& pTransformations);

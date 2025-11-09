@@ -83,14 +83,14 @@ void Renderer::drawScene()
 
 	std::array<glm::vec3, 2> pointLightPositions =
 	{
-		glm::vec3(2.0f, 3.0f, 2.0f),    
-		glm::vec3(-2.0f, 3.0f, -2.0f)   
+		mSceneManager->getLightProperties().lightPositions[0],
+		mSceneManager->getLightProperties().lightPositions[1] 
 	};
 
 	std::array<glm::vec3, 2> spotLightPositions =
 	{
-		glm::vec3(0.0f, 5.0f, 3.0f),    
-		glm::vec3(0.0f, 5.0f, -3.0f)    
+		mSceneManager->getLightProperties().lightPositions[2],
+		mSceneManager->getLightProperties().lightPositions[3] 
 	};
 
 	for (size_t i = 0; i < pointLightPositions.size(); ++i)
@@ -129,6 +129,7 @@ void Renderer::drawScene()
 	skinShader->setUniform3fv("uDirectionalLight.mDirection", glm::vec3(-0.5f, -1.0f, -0.5f)); 
 
 	auto skinMeshRef = &mSceneManager->getModelProperties().mSkinnedMesh;
+	
 	skinShader->setUniform3fv("uMaterial.mAmbientColor", skinMeshRef->get()->getMaterial().mAmbientColor);
 	skinShader->setUniform3fv("uMaterial.mDiffuseColor", skinMeshRef->get()->getMaterial().mDiffuseColor);
 	skinShader->setUniform3fv("uMaterial.mSpecularColor", skinMeshRef->get()->getMaterial().mSpecularColor);
@@ -137,17 +138,22 @@ void Renderer::drawScene()
 
 	skinShader->setUniform1i("uDisplayBoneIndex", mSceneManager->getModelProperties().mDisplayedBoneIndex);
 
-	float animationTime = mSceneManager->getProgramProperties().mTimer.getDeltaTime(false);
+	float animationTime = mSceneManager->getProgramProperties().mTimer.getDeltaTime(false) / 1000.0f;
 
 	std::vector<glm::mat4> bonesTransformations;
 	skinMeshRef->get()->getBoneTransformations(animationTime, bonesTransformations);
-	std::cout << "Number of bones: " << bonesTransformations.size() << std::endl;
-	for (size_t i = 0; i < std::min(bonesTransformations.size(), size_t(5)); ++i) {
-		std::cout << "Bone " << i << " transform: " << std::endl;
-		// Print the first row of the matrix to see if it's identity or has values
-		std::cout << bonesTransformations[i][0][0] << " " << bonesTransformations[i][0][1] << " " << bonesTransformations[i][0][2] << " "\
-			<< bonesTransformations[i][0][3] << std::endl;
-	}
+	//for (size_t i = 0; i < std::min(bonesTransformations.size(), size_t(3)); ++i) {
+	//	std::cout << "Bone " << i << " matrix:\n";
+	//	for (int row = 0; row < 4; ++row) {
+	//		std::cout << bonesTransformations[i][row][0] << " "
+	//			<< bonesTransformations[i][row][1] << " "
+	//			<< bonesTransformations[i][row][2] << " "
+	//			<< bonesTransformations[i][row][3] << "\n";
+	//	}
+	//	std::cout << "---\n";
+	//}
+	// 
+	// todo: Hey me in the future!! the problem is: the bone matrix has just extremely huge numbers of translations, thats so interesting...
 	for (size_t i = 0; i < bonesTransformations.size(); ++i)
 	{
 		skinShader->setMatrixUniform4fv("uBones[" + std::to_string(i) + ']', bonesTransformations[i]);
