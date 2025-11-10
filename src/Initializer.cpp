@@ -51,8 +51,7 @@ void Initializer::initAll()
 	initLights();
 
 	mSceneManager->getModelProperties().mSkinnedMesh = std::make_unique<SkinnedMesh>();
-	//mSceneManager->getModelProperties().mSkinnedMesh->loadMesh(mSceneManager->getProgramProperties().mResourcePath + "Models/boblampclean.md5anim");
-	mSceneManager->getModelProperties().mSkinnedMesh->loadMesh(mSceneManager->getProgramProperties().mResourcePath + "Models/boblampclean.md5mesh");
+	mSceneManager->getModelProperties().mSkinnedMesh->loadMesh(mSceneManager->getProgramProperties().mResourcePath + "Models/Crouch To Stand.fbx");
 
 	auto skinShader = &mSceneManager->getProgramProperties().mShaders.getShader("skinMesh");
 	skinShader->bind();

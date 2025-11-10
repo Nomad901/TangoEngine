@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 
-#include "Material.h"
 #include "Texture2.h"
 
 struct PBRMaterial : public Material

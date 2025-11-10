@@ -63,7 +63,6 @@ void Renderer::drawScene()
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	renderCubeLights();
-	showFPS();
 
 	auto skinShader = &mSceneManager->getProgramProperties().mShaders.getShader("skinMesh");
 	skinShader->bind();
@@ -152,14 +151,17 @@ void Renderer::drawScene()
 	//	}
 	//	std::cout << "---\n";
 	//}
-	// 
-	// todo: Hey me in the future!! the problem is: the bone matrix has just extremely huge numbers of translations, thats so interesting...
+
 	for (size_t i = 0; i < bonesTransformations.size(); ++i)
 	{
 		skinShader->setMatrixUniform4fv("uBones[" + std::to_string(i) + ']', bonesTransformations[i]);
 	}
 
 	skinMeshRef->get()->render();
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	showFPS();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

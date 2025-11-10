@@ -8,7 +8,6 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "Shader.h"
-#include "Texture2.h"
 
 class Texture2;
 

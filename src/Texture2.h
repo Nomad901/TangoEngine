@@ -7,8 +7,8 @@
 #include "glad/glad.h"
 #include "dependencies/stb_image.h"
 
-#include "Material.h"
 #include "Utils.h"
+#include "Material.h"
 
 class Texture2
 {

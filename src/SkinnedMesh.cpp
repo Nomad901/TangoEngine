@@ -194,17 +194,17 @@ void SkinnedMesh::populateBuffers()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(mBones[0]) * mBones.size(), mBones.data(), GL_STATIC_DRAW);
 	// bone ID pointer
 	glEnableVertexAttribArray(boneIdLocation);
-	glVertexAttribIPointer(boneIdLocation, MAX_NUMBER_BONES_PER_VERTEX, GL_INT, sizeof(VertexBoneData), 0);
-	//glEnableVertexAttribArray(boneIdLocation + 1);
-	//glVertexAttribIPointer(boneIdLocation + 1, 2, GL_INT, sizeof(VertexBoneData), (const void*)(4 * sizeof(int32_t)));
+	glVertexAttribIPointer(boneIdLocation, 4, GL_INT, sizeof(VertexBoneData), 0);
+	glEnableVertexAttribArray(boneIdLocation + 1);
+	glVertexAttribIPointer(boneIdLocation + 1, 4, GL_INT, sizeof(VertexBoneData), (const void*)(4 * sizeof(int32_t)));
 
 	// bone weights pointer;
 	glEnableVertexAttribArray(boneWeightLocation);
-	glVertexAttribPointer(boneWeightLocation, MAX_NUMBER_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
-						 (const void*)(MAX_NUMBER_BONES_PER_VERTEX * sizeof(int32_t)));
-	//glEnableVertexAttribArray(boneWeightLocation + 1);
-	//glVertexAttribPointer(boneWeightLocation + 1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
-	//					 (const void*)(MAX_NUMBER_BONES_PER_VERTEX * sizeof(int32_t) + 4 * sizeof(float)));
+	glVertexAttribPointer(boneWeightLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
+						 (const void*)(4 * sizeof(int32_t)));
+	glEnableVertexAttribArray(boneWeightLocation + 1);
+	glVertexAttribPointer(boneWeightLocation + 1, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
+						 (const void*)(4 * sizeof(int32_t) + 4 * sizeof(float)));
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffers[indicesBufferIndex].getID());
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(mIndices[0]) * mIndices.size(), mIndices.data(), GL_STATIC_DRAW);
@@ -369,7 +369,6 @@ void SkinnedMesh::loadSingleBone(uint32_t pIndex, const aiBone* pBone)
 
 	if (boneId == mBonesInfo.size())
 	{
-		// TODO:
 		//boneInfo tmpBoneInfo(glm::mat4(1.0f));
 		boneInfo tmpBoneInfo(Utils::getInstance().getGlmMatrix4FromAiMat4x4(pBone->mOffsetMatrix));
 		mBonesInfo.push_back(tmpBoneInfo);

@@ -17,7 +17,7 @@
 #include "VAO.h"
 #include "EBO.h"
 
-#define MAX_NUMBER_BONES_PER_VERTEX 4
+#define MAX_NUMBER_BONES_PER_VERTEX 8
 #define INVALID_MATERIAL 0xFFFFFFFF
 
 class SkinnedMesh
