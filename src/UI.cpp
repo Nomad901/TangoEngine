@@ -277,6 +277,12 @@ void UI::manageLight(SceneManager& pSceneManager)
 	setSpaces(1);
 	setSliderFloat("Ambient intensity", pSceneManager.getLightProperties().mAmbientIntensity, -50.0f, 50.0f);
 	setSliderFloat("Diffuse intensiyt", pSceneManager.getLightProperties().mDiffuseIntensity, -50.0f, 50.0f);
+	setSpaces(3);
+	setSlidersVec3(pSceneManager.getLightProperties().lightPositions[0], { { "Position light 1", std::make_pair(0.0f, 200.0f) } });
+	setSlidersVec3(pSceneManager.getLightProperties().lightPositions[1], { { "Position light 2", std::make_pair(0.0f, 200.0f) } });
+	setSlidersVec3(pSceneManager.getLightProperties().lightPositions[2], { { "Position light 3", std::make_pair(0.0f, 200.0f) } });
+	setSlidersVec3(pSceneManager.getLightProperties().lightPositions[3], { { "Position light 4", std::make_pair(0.0f, 200.0f) } });
+
 	// ----------------------------
 
 	ImGui::End();
