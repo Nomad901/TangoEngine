@@ -1,4 +1,5 @@
 #include "SkinnedMesh.h"
+#include "Timer.h"
 
 void SkinnedMesh::loadMesh(const std::filesystem::path& pPath)
 {
@@ -438,7 +439,43 @@ void SkinnedMesh::readNodeHierachy(float pAnimTime, const aiNode* pNode, const g
 	if (mBonesIndices.contains(nodeName))
 	{
 		uint32_t boneIndex = mBonesIndices[nodeName];
-		mBonesInfo[boneIndex].mTransformation = mGlobalInverseTransf * globalTransformation * mBonesInfo[boneIndex].mOffset;
+		//mBonesInfo[boneIndex].mTransformation = mGlobalInverseTransf * globalTransformation * mBonesInfo[boneIndex].mOffset;
+		mBonesInfo[boneIndex].mTransformation = mGlobalInverseTransf * globalTransformation;
+		
+		//for (int row = 0; row < 4; ++row) {
+		//	std::cout << globalTransformation[row][0] << " "
+		//			  << globalTransformation[row][1] << " "
+		//			  << globalTransformation[row][2] << " "
+		//			  << globalTransformation[row][3] << "\n";
+		//}
+		//std::cout << "---\n";
+		/*
+		85226 1.0484e+06 31231.7 10282.5
+		6610.98 24299.8 723.899 238.329
+		---
+		33287 122354 3645.84 1200.02
+		399143 1.46712e+06 43706 14389.3
+		266900 981037 29225 9621.86
+		6610.98 24299.8 723.899 238.329
+		---
+		-44423.6 -163286 -4863.41 -1601.48
+		388060 1.42638e+06 42492.6 13989.8
+		294025 1.08074e+06 32195.3 10599.7
+		6610.98 24299.8 723.899 238.329
+		---
+		-59384.6 -218278 -6501.64 -2140.83
+		310497 1.14129e+06 33999.5 11193.5
+		394344 1.44948e+06 43180.2 14216.3
+		6610.98 24299.8 723.899 238.329
+		---
+		-65281.8 -239954 -7147.39 -2353.43
+		270676 994918 29639.2 9758
+		435879 1.60215e+06 47728.4 15713.7
+		6610.98 24299.8 723.899 238.329
+		---
+		-66589.2 -244759 -7290.52 -2400.56
+		388238 1.42704e+06 42512.1 13996.2
+		*/
 	}
 
 	for (size_t i = 0; i < pNode->mNumChildren; ++i)
@@ -449,13 +486,27 @@ void SkinnedMesh::readNodeHierachy(float pAnimTime, const aiNode* pNode, const g
 
 const aiNodeAnim* SkinnedMesh::findNodeAnim(const aiAnimation* pAnimation, std::string_view pNodeName)
 {
+	static Timer timer;
+	timer.startTimer();
+	//std::string nodeAnimName = std::string(pNodeName);
+	//if (mStorageNodesAnim.contains(nodeAnimName))
+	//{
+	//	std::cout << "im here!\n";
+	//	return mStorageNodesAnim[nodeAnimName];
+	//}
+
 	for (size_t i = 0; i < pAnimation->mNumChannels; ++i)
 	{
 		const aiNodeAnim* animMesh = pAnimation->mChannels[i];
-		if (static_cast<std::string>(animMesh->mNodeName.data) == pNodeName)
+		if (std::string(animMesh->mNodeName.data) == pNodeName)
+		{
+			//mStorageNodesAnim.insert_or_assign(nodeAnimName, animMesh);
+			std::cout << std::format("Time: {}\n", timer.getDeltaTime(true));
 			return animMesh;
+		}
 	}
 
+	std::cout << std::format("Time: {}\n", timer.getDeltaTime(true));
 	return nullptr;
 }
 

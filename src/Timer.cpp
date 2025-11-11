@@ -63,64 +63,38 @@ float Timer::getLimit()
 	return mLimit;
 }
 
-float Timer::getDeltaTime(bool pFromEnd)
+float Timer::getDeltaTime(bool pStopTimer)
 {
 	using namespace std::chrono;
 
-	if (!pFromEnd)
-	{
-		if (mRunning)
-		{
-			mEndTime = std::chrono::high_resolution_clock::now();
-			if (mDimension == Dimension::MILISECONDS)
-				return static_cast<float>(duration_cast<milliseconds>(mEndTime - mStartTime).count());
-			else if (mDimension == Dimension::SECONDS)
-				return static_cast<float>(duration_cast<seconds>(mEndTime - mStartTime).count());
-			else if (mDimension == Dimension::MINUTES)
-				return static_cast<float>(duration_cast<minutes>(mEndTime - mStartTime).count());
-			else
-				return 0.0f;
-		}
-		else
-		{
-			std::cout << "Time is not running, i cant compute the delta time!\n";
-			return 0.0f;
-		}
-	}
+	if (mRunning && pStopTimer)
+		stopTimer();
 	else
-	{
-		if (mRunning)
-		{
-			mStartTime = std::chrono::high_resolution_clock::now();
-			if (mDimension == Dimension::MILISECONDS)
-				return static_cast<float>(duration_cast<milliseconds>(mEndTime - mStartTime).count());
-			else if (mDimension == Dimension::SECONDS)
-				return static_cast<float>(duration_cast<seconds>(mEndTime - mStartTime).count());
-			else if (mDimension == Dimension::MINUTES)
-				return static_cast<float>(duration_cast<minutes>(mEndTime - mStartTime).count());
-			else
-				return 0.0f;
-		}
-		else
-		{
-			std::cout << "Time is not running, i cant compute the delta time!\n";
-			return 0.0f;
-		}
-	}
+		mEndTime = high_resolution_clock::now();
+
+	if (mDimension == Dimension::MILISECONDS)
+		return static_cast<float>(duration_cast<milliseconds>(mEndTime - mStartTime).count());
+	else if (mDimension == Dimension::SECONDS)
+		return static_cast<float>(duration_cast<seconds>(mEndTime - mStartTime).count());
+	else if (mDimension == Dimension::MINUTES)
+		return static_cast<float>(duration_cast<minutes>(mEndTime - mStartTime).count());
+
 	return 0.0f;
 }
 
 std::chrono::time_point<std::chrono::high_resolution_clock> Timer::getCurrentTimeOfTimer() const
 {
+	using namespace std::chrono;
+
 	if (mRunning)
 	{
-		std::chrono::time_point<std::chrono::high_resolution_clock> time = std::chrono::high_resolution_clock::now();
+		time_point<high_resolution_clock> time = high_resolution_clock::now();
 		if (mDimension == Dimension::SECONDS)
-			return std::chrono::time_point_cast<std::chrono::seconds>(time);
+			return time_point_cast<seconds>(time);
 		else if (mDimension == Dimension::MINUTES)
-			return std::chrono::time_point_cast<std::chrono::minutes>(time);
+			return time_point_cast<minutes>(time);
 		else
-			return std::chrono::time_point_cast<std::chrono::milliseconds>(time);
+			return time_point_cast<milliseconds>(time);
 	}
 	else
 	{

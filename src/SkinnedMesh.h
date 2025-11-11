@@ -140,5 +140,6 @@ private:
 	std::vector<boneInfo> mBonesInfo;
 
 	std::unordered_map<std::string, uint32_t> mBonesIndices;
+	std::unordered_map<std::string, const aiNodeAnim*> mStorageNodesAnim;
 };
 

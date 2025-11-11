@@ -5,7 +5,12 @@
 
 #include "SDL3/SDL.h"
 
-enum class Dimension { MILISECONDS, SECONDS, MINUTES };
+enum class Dimension 
+{ 
+	MILISECONDS = 0, 
+	SECONDS		= 1, 
+	MINUTES		= 2
+};
 
 class Timer
 {
@@ -26,7 +31,7 @@ public:
 	bool isLimit();
 
 	float getLimit();
-	float getDeltaTime(bool pFromEnd);
+	float getDeltaTime(bool pStopTimer);
 	std::chrono::time_point<std::chrono::high_resolution_clock> getCurrentTimeOfTimer() const;
 
 private:
