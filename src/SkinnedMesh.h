@@ -16,6 +16,7 @@
 #include "Shader.h"
 #include "VAO.h"
 #include "EBO.h"
+#include "Timer.h"
 
 #define MAX_NUMBER_BONES_PER_VERTEX 8
 #define INVALID_MATERIAL 0xFFFFFFFF
@@ -120,6 +121,7 @@ private:
 private:
 	Transform mTransform;
 	glm::mat4 mGlobalInverseTransf;
+	Timer mTimer;
 
 	Assimp::Importer mImporter;
 	const aiScene* mScene{ nullptr };

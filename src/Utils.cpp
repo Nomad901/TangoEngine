@@ -137,6 +137,18 @@ int32_t Utils::calcNextPowerOfTwo(int32_t pX)
 	return ret;
 }
 
+void Utils::printMatrix4x4(const glm::mat4& pMatrix4x4)
+{
+	for (uint32_t i = 0; i < 4; ++i) {
+		std::cout << std::fixed << std::setprecision(6)
+				  << std::setw(12) << pMatrix4x4[i][0] << " "
+				  << std::setw(12) << pMatrix4x4[i][1] << " "
+				  << std::setw(12) << pMatrix4x4[i][2] << " "
+				  << std::setw(12) << pMatrix4x4[i][3] << '\n';
+	}
+	std::cout << "---\n";
+}
+
 void Utils::getGLVersion(int32_t& pMajor, int32_t& pMinor)
 {
 	glGetIntegerv(GL_MAJOR_VERSION, &pMajor);
@@ -203,10 +215,10 @@ std::string Utils::getDirectoryFromFilePath(const std::filesystem::path& pPath)
 
 glm::mat4 Utils::getGlmMatrix4FromAiMat4x4(const aiMatrix4x4& pAiMatrix4x4)
 {
-	return glm::mat4(pAiMatrix4x4.a1, pAiMatrix4x4.a2, pAiMatrix4x4.a3, pAiMatrix4x4.a4,  
-					 pAiMatrix4x4.b1, pAiMatrix4x4.b2, pAiMatrix4x4.b3, pAiMatrix4x4.b4,  
-					 pAiMatrix4x4.c1, pAiMatrix4x4.c2, pAiMatrix4x4.c3, pAiMatrix4x4.c4,  
-					 pAiMatrix4x4.d1, pAiMatrix4x4.d2, pAiMatrix4x4.d3, pAiMatrix4x4.d4);
+	return glm::transpose(glm::mat4(pAiMatrix4x4.a1, pAiMatrix4x4.a2, pAiMatrix4x4.a3, pAiMatrix4x4.a4,  
+									pAiMatrix4x4.b1, pAiMatrix4x4.b2, pAiMatrix4x4.b3, pAiMatrix4x4.b4,  
+									pAiMatrix4x4.c1, pAiMatrix4x4.c2, pAiMatrix4x4.c3, pAiMatrix4x4.c4,  
+									pAiMatrix4x4.d1, pAiMatrix4x4.d2, pAiMatrix4x4.d3, pAiMatrix4x4.d4));
 }
 
 aiMatrix4x4 Utils::getAiMatrix4x4FromGlmMatrix4(const glm::mat4& pGlmMatrix4)

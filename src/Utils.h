@@ -35,6 +35,7 @@ public:
 	float randomFloatRange(float pStart, float pEnd);
 	float randomFloat();
 	int32_t calcNextPowerOfTwo(int32_t pX);
+	void printMatrix4x4(const glm::mat4& pMatrix4x4); 
 
 	/*-----OPENGL_HELPERS-----*/
 	void getGLVersion(int32_t& pMajor, int32_t& pMinor);
