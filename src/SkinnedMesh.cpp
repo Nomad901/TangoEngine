@@ -78,8 +78,6 @@ void SkinnedMesh::getBoneTransformations(float pAnimTime, std::vector<glm::mat4>
 	float animationsTimeTick = fmod(timeInTick, static_cast<float>(mScene->mAnimations[0]->mDuration));
 
 	readNodeHierachy(animationsTimeTick, mScene->mRootNode, identityMatrix);
-	if (!pTransformations.empty())
-		pTransformations.clear();
 	pTransformations.resize(mBonesInfo.size());
 
 	for (size_t i = 0; i < mBonesInfo.size(); ++i)
@@ -152,11 +150,13 @@ void SkinnedMesh::populateBuffers()
 	// "defines" for convenience;
 	// locations of pointers for each buffer;
 	// 
-	uint32_t positionLocation   = 0;
-	uint32_t texCoordLocation   = 1;
-	uint32_t normalLocation	    = 2;
-	uint32_t boneIdLocation     = 3;
-	uint32_t boneWeightLocation = 4;
+	uint32_t positionLocation    = 0;
+	uint32_t texCoordLocation    = 1;
+	uint32_t normalLocation	     = 2;
+	uint32_t boneIdLocation      = 3;
+	uint32_t boneId2Location	 = 4;
+	uint32_t boneWeightLocation  = 5;
+	uint32_t boneWeight2Location = 6;
 
 	//
 	// was made in order to eliminate copy-paste code
@@ -196,16 +196,16 @@ void SkinnedMesh::populateBuffers()
 	// bone ID pointer
 	glEnableVertexAttribArray(boneIdLocation);
 	glVertexAttribIPointer(boneIdLocation, 4, GL_INT, sizeof(VertexBoneData), 0);
-	glEnableVertexAttribArray(boneIdLocation + 1);
-	glVertexAttribIPointer(boneIdLocation + 1, 4, GL_INT, sizeof(VertexBoneData), (const void*)(4 * sizeof(int32_t)));
+	glEnableVertexAttribArray(boneId2Location);
+	glVertexAttribIPointer(boneId2Location, 4, GL_INT, sizeof(VertexBoneData), (const void*)(4 * sizeof(int32_t)));
 
 	// bone weights pointer;
 	glEnableVertexAttribArray(boneWeightLocation);
 	glVertexAttribPointer(boneWeightLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
-						 (const void*)(4 * sizeof(int32_t)));
-	glEnableVertexAttribArray(boneWeightLocation + 1);
-	glVertexAttribPointer(boneWeightLocation + 1, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
-						 (const void*)(4 * sizeof(int32_t) + 4 * sizeof(float)));
+						 (const void*)(MAX_NUMBER_BONES_PER_VERTEX * sizeof(int32_t)));
+	glEnableVertexAttribArray(boneWeight2Location);
+	glVertexAttribPointer(boneWeight2Location, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
+						 (const void*)(MAX_NUMBER_BONES_PER_VERTEX * sizeof(int32_t) + 4 * sizeof(float)));
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffers[indicesBufferIndex].getID());
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(mIndices[0]) * mIndices.size(), mIndices.data(), GL_STATIC_DRAW);
@@ -307,7 +307,7 @@ void SkinnedMesh::loadDiffuseTexture(const std::filesystem::path& pPath, const a
 
 void SkinnedMesh::loadSpecularTexture(const std::filesystem::path& pPath, const aiMaterial* pMaterial, uint32_t pIndex)
 {
-	uint32_t indexTexType = mMaterials[pIndex].getIndex(PBRMaterial::TEXTURE_TYPE::TEX_TYPE_BASE);
+	uint32_t indexTexType = mMaterials[pIndex].getIndex(PBRMaterial::TEXTURE_TYPE::TEX_TYPE_SPECULAR);
 	mMaterials[pIndex].mTextures[indexTexType] = nullptr;
 
 	if (pMaterial->GetTextureCount(aiTextureType_SHININESS))
@@ -334,9 +334,6 @@ void SkinnedMesh::loadColors(const aiMaterial* pMaterial, uint32_t pIndex)
 	glm::vec4 defaultDiffuse = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);  
 	glm::vec4 defaultSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);  
 
-	int32_t shadingModel = 0;
-	aiReturn shadingResult = pMaterial->Get(AI_MATKEY_SHADING_MODEL, shadingModel);
-
 	if (pMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor) == AI_SUCCESS) 
 		mMaterials[pIndex].mAmbientColor = glm::vec4(ambientColor.r, ambientColor.g, ambientColor.b, 1.0f);
 	else 
@@ -355,9 +352,6 @@ void SkinnedMesh::loadColors(const aiMaterial* pMaterial, uint32_t pIndex)
 
 void SkinnedMesh::loadMeshBones(uint32_t pIndex, const aiMesh* pMesh)
 {
-	if (!pMesh->HasBones())
-		return;
-
 	for (size_t i = 0; i < pMesh->mNumBones; ++i)
 	{
 		loadSingleBone(pIndex, pMesh->mBones[i]);
@@ -387,7 +381,7 @@ int32_t SkinnedMesh::getBonesIndex(const aiBone* pBone)
 	int32_t boneId = 0;
 	std::string boneName = pBone->mName.C_Str();
 
-	if (mBonesIndices.contains(boneName))
+	if (!mBonesIndices.contains(boneName))
 	{
 		boneId = mBonesIndices.size();
 		mBonesIndices.emplace(boneName, boneId);
@@ -410,7 +404,7 @@ void SkinnedMesh::readNodeHierachy(float pAnimTime, const aiNode* pNode, const g
 	std::string nodeName = pNode->mName.data;
 	glm::mat4 nodeTransformation = Utils::getInstance().getGlmMatrix4FromAiMat4x4(pNode->mTransformation);
 
-	const aiAnimation* animation = mScene->mAnimations[0];
+	const aiAnimation* animation = mScene->mAnimations[0]; 
 	const aiNodeAnim* nodeAnimation = findNodeAnim(animation, nodeName);
 
 	if (nodeAnimation)
@@ -427,9 +421,10 @@ void SkinnedMesh::readNodeHierachy(float pAnimTime, const aiNode* pNode, const g
 		
 		aiQuaternion rotation;
 		calcInterpolatedRotation(rotation, pAnimTime, nodeAnimation);
-		glm::mat4 rotationMatrix = glm::mat4(1.0f);
-		rotationMatrix = Utils::getInstance().getGlmMatrix4FromAiMat4x4(static_cast<aiMatrix4x4>(rotation.GetMatrix()));
-		
+		glm::quat quaternionRotation = glm::quat(rotation.x, rotation.y, rotation.z, rotation.w);
+		glm::mat4 rotationMatrix = glm::mat4_cast(quaternionRotation);
+
+		//nodeTransformation = rotationMatrix * scaleMatrix * translationMatrix;
 		nodeTransformation = translationMatrix * scaleMatrix * rotationMatrix;
 	}
 	
@@ -444,7 +439,7 @@ void SkinnedMesh::readNodeHierachy(float pAnimTime, const aiNode* pNode, const g
 	for (size_t i = 0; i < pNode->mNumChildren; ++i)
 	{
 		readNodeHierachy(pAnimTime, pNode->mChildren[i], globalTransformation);
-	}
+	} 
 }
 
 const aiNodeAnim* SkinnedMesh::findNodeAnim(const aiAnimation* pAnimation, std::string_view pNodeName)
