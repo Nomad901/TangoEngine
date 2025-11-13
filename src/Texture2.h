@@ -8,7 +8,6 @@
 #include "dependencies/stb_image.h"
 
 #include "Utils.h"
-#include "Material.h"
 
 class Texture2
 {

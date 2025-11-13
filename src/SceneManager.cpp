@@ -5,17 +5,13 @@ void SceneManager::setAll()
 {
 	setLights();
 	//setLightCube();
-	setMaterials();
 	setModels();
 	setSkybox();
 }
 
 void SceneManager::setLights()
 {
-	setMaterials();
-
 	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShaders["mainShader"]);
-	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShaders["mainShader"]);
 
 	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShaders["singleColorShader"]);
 }
@@ -37,19 +33,10 @@ void SceneManager::setLightCube()
 	glEnable(GL_CULL_FACE);
 }
 
-void SceneManager::setMaterials()
-{
-	mMaterialProperties.mMaterial->setAmbient(mMaterialProperties.mAmbient);
-	mMaterialProperties.mMaterial->setDiffuse(mMaterialProperties.mDiffuse);
-	mMaterialProperties.mMaterial->setSpecular(mMaterialProperties.mSpecular);
-	mMaterialProperties.mMaterial->setShines(mMaterialProperties.mShines);
-}
-
 void SceneManager::setModels()
 {
 	mProgramProperties.mShaders["mainShader"].bind();
 	mProgramProperties.mShaders["mainShader"].setUniform3fv("cameraPos", mProgramProperties.mThirdPersonCam.getPos());
-	mMaterialProperties.mMaterial->sendToShaderColored(mProgramProperties.mShaders["mainShader"]);
 
 	//// museum
 	//mModelProperties.mModelManager.getModel("museum").initMVP(mModelProperties.mProjMatrix,
@@ -92,11 +79,6 @@ SceneManager::programProperties& SceneManager::getProgramProperties() noexcept
 SceneManager::lightProperties& SceneManager::getLightProperties() noexcept
 {
 	return mLightProperties;
-}
-
-SceneManager::materialProperties& SceneManager::getMaterialProperties() noexcept
-{
-	return mMaterialProperties;
 }
 
 SceneManager::modelProperties& SceneManager::getModelProperties() noexcept

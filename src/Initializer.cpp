@@ -41,7 +41,6 @@ void Initializer::initAll()
 	initTextures();
 	initPrimitives();
 	initMeshes();
-	initMaterial();
 	initModels();
 	initCrosshair();
 	initMousePicker();
@@ -58,7 +57,6 @@ void Initializer::initAll()
 	skinShader->bind();
 	skinShader->setUniform1i("uSampler", 0);
 	skinShader->setUniform1i("uSamplerSpecularComponent", 1);
-	skinShader->setUniform1i("uNumberOfBones", mSceneManager->getModelProperties().mSkinnedMesh->getNumBones());	
 }
 
 void Initializer::initShaders()
@@ -134,14 +132,6 @@ void Initializer::initMeshes()
 	//mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost3", std::make_unique<Mesh>(light3));
 	//std::weak_ptr<Primitive> light4 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost4"];
 	//mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost4", std::make_unique<Mesh>(light4));
-}
-
-void Initializer::initMaterial()
-{
-	mSceneManager->getMaterialProperties().mMaterial = std::make_unique<Material>(mSceneManager->getMaterialProperties().mAmbient,
-																			      mSceneManager->getMaterialProperties().mDiffuse,
-																			      mSceneManager->getMaterialProperties().mSpecular,
-																			      32.0f);
 }
 
 void Initializer::initModels()

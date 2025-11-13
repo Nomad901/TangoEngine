@@ -15,7 +15,6 @@
 #include "imgui_impl_opengl3.h"
 
 #include "FactoryMesh.h"
-#include "Shader.h"
 #include "thirdPersonCam.h"
 #include "Primitive.h"
 #include "OBJLoader.h"
@@ -39,7 +38,6 @@
 #include "FontSystem.h"
 #include "FPSRegulator.h"
 #include "Timer.h"
-#include "Animator.h"
 #include "SkinnedMesh.h"
 
 class Renderer;
@@ -50,7 +48,6 @@ public:
 	void setAll();
 	void setLights();
 	void setLightCube();
-	void setMaterials();
 	void setModels();
 	void setSkybox();
 
@@ -120,16 +117,6 @@ public:
 		LightManager mLightManager;
 	};
 
-	struct materialProperties
-	{
-		glm::vec3 mAmbient{ 0.172f, 0.172f, 0.172f };
-		glm::vec3 mDiffuse{ 0.160f, 0.160f, 0.160f };
-		glm::vec3 mSpecular{ 1.0f };
-		float mShines{ 32.0f };
-
-		std::unique_ptr<Material> mMaterial;
-	};
-
 	struct modelProperties
 	{
 		bool mRotatedMode{ false };
@@ -151,8 +138,6 @@ public:
 		OBJLoader mOBJLoader;
 		AssimpLoader mAssimpLoader;
 
-		Animator mAnimator;
-
 		TextureGenerator mTextureGenerator;
 		std::unique_ptr<Texture2> mTexture;
 
@@ -163,13 +148,11 @@ public:
 public:
 	programProperties& getProgramProperties() noexcept;
 	lightProperties& getLightProperties() noexcept;
-	materialProperties& getMaterialProperties() noexcept;
 	modelProperties& getModelProperties() noexcept;
 
 private:
 	programProperties mProgramProperties;
 	lightProperties mLightProperties;
-	materialProperties mMaterialProperties;
 	modelProperties mModelProperties;
 
 	friend class UI;

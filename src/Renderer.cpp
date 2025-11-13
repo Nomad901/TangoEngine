@@ -77,9 +77,6 @@ void Renderer::drawScene()
 		mSceneManager->getModelProperties().mProjMatrix);
 	skinShader->setMatrixUniform4fv("uMVP", WVP);
 
-	skinShader->setUniform1i("uNumberPointLights", 2);
-	skinShader->setUniform1i("uNumberSpotLights", 2);
-
 	std::array<glm::vec3, 2> pointLightPositions =
 	{
 		mSceneManager->getLightProperties().lightPositions[0],
@@ -91,6 +88,9 @@ void Renderer::drawScene()
 		mSceneManager->getLightProperties().lightPositions[2],
 		mSceneManager->getLightProperties().lightPositions[3] 
 	};
+
+	skinShader->setUniform1i("uNumberPointLights", pointLightPositions.size());
+	skinShader->setUniform1i("uNumberSpotLights", spotLightPositions.size());
 
 	for (size_t i = 0; i < pointLightPositions.size(); ++i)
 	{
@@ -135,23 +135,11 @@ void Renderer::drawScene()
 
 	skinShader->setUniform3fv("uCameraPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
 
-	skinShader->setUniform1i("uDisplayBoneIndex", mSceneManager->getModelProperties().mDisplayedBoneIndex);
-
 	float animationTime = mSceneManager->getProgramProperties().mTimer.getDeltaTime(false) / 1000.0f;
 
 	std::vector<glm::mat4> bonesTransformations;
-	skinMeshRef->get()->getBoneTransformations(animationTime, bonesTransformations);
-	//for (size_t i = 0; i < std::min(bonesTransformations.size(), size_t(3)); ++i) {
-	//	std::cout << "Bone " << i << " matrix:\n";
-	//	for (int row = 0; row < 4; ++row) {
-	//		std::cout << bonesTransformations[i][row][0] << " "
-	//			<< bonesTransformations[i][row][1] << " "
-	//			<< bonesTransformations[i][row][2] << " "
-	//			<< bonesTransformations[i][row][3] << "\n";
-	//	}
-	//	std::cout << "---\n";
-	//}
-
+	//skinMeshRef->get()->getBoneTransformations(animationTime, bonesTransformations);
+	bonesTransformations.resize(100, glm::mat4(1.0f));
 	for (size_t i = 0; i < bonesTransformations.size(); ++i)
 	{
 		skinShader->setMatrixUniform4fv("uBones[" + std::to_string(i) + ']', bonesTransformations[i]);

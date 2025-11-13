@@ -13,7 +13,6 @@ public:
 	void initTextures();
 	void initPrimitives();
 	void initMeshes();
-	void initMaterial();
 	void initModels();
 	void initLights();
 	void initCrosshair();
