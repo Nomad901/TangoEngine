@@ -413,7 +413,7 @@ void SkinnedMesh::readNodeHierachy(float pAnimTime, const aiNode* pNode, const g
 		calcInterpolatedScale(scaling, pAnimTime, nodeAnimation);
 		glm::mat4 scaleMatrix = glm::mat4(1.0f);
 		scaleMatrix = glm::scale(scaleMatrix, glm::vec3(scaling.x, scaling.y, scaling.z));
-
+		
 		aiVector3D position;
 		calcInterpolatedPosition(position, pAnimTime, nodeAnimation);
 		glm::mat4 translationMatrix = glm::mat4(1.0f);
@@ -421,15 +421,13 @@ void SkinnedMesh::readNodeHierachy(float pAnimTime, const aiNode* pNode, const g
 		
 		aiQuaternion rotation;
 		calcInterpolatedRotation(rotation, pAnimTime, nodeAnimation);
-		glm::quat quaternionRotation = glm::quat(rotation.x, rotation.y, rotation.z, rotation.w);
-		glm::mat4 rotationMatrix = glm::mat4_cast(quaternionRotation);
-
-		//nodeTransformation = rotationMatrix * scaleMatrix * translationMatrix;
+		glm::mat4 rotationMatrix = Utils::getInstance().getGlmMatrix4FromAiMat4x4(static_cast<aiMatrix4x4>(rotation.GetMatrix()));
+		
 		nodeTransformation = translationMatrix * scaleMatrix * rotationMatrix;
 	}
-	
+
 	glm::mat4 globalTransformation = pTransformation * nodeTransformation;
-	
+
 	if (mBonesIndices.contains(nodeName))
 	{
 		uint32_t boneIndex = mBonesIndices[nodeName];
