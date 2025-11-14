@@ -2,37 +2,46 @@
 #include <iostream>
 #include <format>
 #include <filesystem>
-#include <string>
-#include <vector>
-#include <array>
-#include <unordered_map>
-
-#include "assimp/Importer.hpp"
-#include "assimp/scene.h"
-#include "assimp/postprocess.h"
 
 #include "Utils.h"
-
-#define MAX_NUMBER_VERTICES_PER_BONE 4
+#include "Shader.h"
+#include "SkinnedMesh.h"
+#include "AnimatorShader.h"
 
 class Animator
 {
-private:
-
 public:
-	//Animator();
-	//Animator(const std::filesystem::path& pPath);
-	//
-	//void init(const std::filesystem::path& pPath);
+	Animator() = default;
+	Animator(const std::filesystem::path& pModelPath,
+			 const std::filesystem::path& pVertShaderPath,
+			 const std::filesystem::path& pFragShaderPath,
+			 float pTimeOfAnimation);
+	~Animator() = default;
+
+	void loadModel(const std::filesystem::path& pModelPath,
+				   const std::filesystem::path& pVertShaderPath, 
+				   const std::filesystem::path& pFragShaderPath, 
+				   float pTimeOfAnimation);
+
+	void stopAnimation();
+	void continueAnimation();
+	void playAnimationFromBeginning();
+	void setTimeOfAnimation(float pTimeOfAnimation);
+
+	void setLightPostions(const std::array<glm::vec3, 2> pPointLightPositions,
+						  const std::array<glm::vec3, 2> pSpotLightPositions);
+	void setLightDirection(const glm::vec3& pLightDirecion);
+
+	float getTimeOfAnimation() const noexcept;
+	bool animationIsPlaying() const noexcept;
+
+	void update(Camera& pCamera, const glm::mat4& pProjMatrix, Timer& pTimer);
+	void render();
 
 private:
-	void parseScene(const aiScene* pScene);
-	void parseMeshes(const aiScene* pScene);
-	void parseMeshBones(uint32_t pIndex, const aiMesh* pMesh);
-	//void parseSingleBone(uint32_t pIndex, const aiBone* pBone);
-
-private:
-	//std::vector<VertexBoneData> mVertexBoneDataStorage;
-	std::vector<int32_t> mMeshBaseVertices;
+	float mTimeOfAnim{ 0.0f };
+	
+	AnimatorShader mAnimatorShader;
+	SkinnedMesh mSkinnedMesh;
 };
 
