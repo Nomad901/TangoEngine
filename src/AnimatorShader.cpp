@@ -15,6 +15,11 @@ void AnimatorShader::init(const std::filesystem::path& pVertPath,
 					   glm::vec3(20.0f, 20.0f, 20.0f) };
 	mSpotLightPos = { glm::vec3(15.0f, 15.0f, 15.0f),
 					  glm::vec3(25.0f, 25.0f, 25.0f) };
+
+	mShader.bind();
+	mShader.setUniform1i("uSampler", 0);
+	mShader.setUniform1i("uSamplerSpecularComponent", 1);
+	mShader.unbind();
 }
 
 AnimatorShader::STATE_ANIM AnimatorShader::getAnimState() const noexcept
@@ -35,6 +40,16 @@ void AnimatorShader::accelerateAnim()
 void AnimatorShader::slowAnim()
 {
 	mAnimAccelerator *= 10.0f;
+}
+
+void AnimatorShader::setAnimAccelerator(float pAnimAccelerator)
+{
+	mAnimAccelerator = pAnimAccelerator;
+}
+
+float AnimatorShader::getAnimAccelerator() const noexcept
+{
+	return mAnimAccelerator;
 }
 
 void AnimatorShader::setLightPostions(const std::array<glm::vec3, 2> pPointLightPositions,

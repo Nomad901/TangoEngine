@@ -1,5 +1,10 @@
 #include "SkinnedMesh.h"
 
+SkinnedMesh::~SkinnedMesh()
+{
+	destroy();
+}
+
 void SkinnedMesh::loadMesh(const std::filesystem::path& pPath)
 {
 	mTimer.setDimensionOfTime(Dimension::NANOSECONDS);

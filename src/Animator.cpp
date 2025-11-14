@@ -2,20 +2,17 @@
 
 Animator::Animator(const std::filesystem::path& pModelPath,
 				   const std::filesystem::path& pVertShaderPath,
-				   const std::filesystem::path& pFragShaderPath, 
-				   float pTimeOfAnimation)
+				   const std::filesystem::path& pFragShaderPath)
 {
-	loadModel(pModelPath, pVertShaderPath, pFragShaderPath, pTimeOfAnimation);
+	loadModel(pModelPath, pVertShaderPath, pFragShaderPath);
 }
 
 void Animator::loadModel(const std::filesystem::path& pModelPath,
 						 const std::filesystem::path& pVertShaderPath,
-						 const std::filesystem::path& pFragShaderPath, 
-						 float pTimeOfAnimation)
+						 const std::filesystem::path& pFragShaderPath)
 {
 	mSkinnedMesh.loadMesh(pModelPath);
 	mAnimatorShader.init(pVertShaderPath, pFragShaderPath);
-	mTimeOfAnim = pTimeOfAnimation;
 }
 
 void Animator::stopAnimation()
@@ -31,11 +28,6 @@ void Animator::continueAnimation()
 void Animator::playAnimationFromBeginning()
 {
 	mAnimatorShader.setStateOfAnimation(AnimatorShader::STATE_ANIM::PLAY);
-}
-
-void Animator::setTimeOfAnimation(float pTimeOfAnimation)
-{
-	mTimeOfAnim = pTimeOfAnimation;
 }
 
 void Animator::setLightPostions(const std::array<glm::vec3, 2> pPointLightPositions, 

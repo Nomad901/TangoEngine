@@ -38,7 +38,7 @@
 #include "FontSystem.h"
 #include "FPSRegulator.h"
 #include "Timer.h"
-#include "SkinnedMesh.h"
+#include "AnimatorManager.h"
 
 class Renderer;
 
@@ -141,7 +141,8 @@ public:
 		TextureGenerator mTextureGenerator;
 		std::unique_ptr<Texture2> mTexture;
 
-		std::unique_ptr<SkinnedMesh> mSkinnedMesh;
+		AnimatorManager mAnimatorManager;
+		
 		int32_t mDisplayedBoneIndex{ 1 };
 	};
 

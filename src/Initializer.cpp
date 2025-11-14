@@ -49,14 +49,12 @@ void Initializer::initAll()
 	initTerrain();
 	initLights();
 
-	mSceneManager->getModelProperties().mSkinnedMesh = std::make_unique<SkinnedMesh>();
-	//mSceneManager->getModelProperties().mSkinnedMesh->loadMesh(mSceneManager->getProgramProperties().mResourcePath + "Models/Crouch To Stand.fbx");
-	mSceneManager->getModelProperties().mSkinnedMesh->loadMesh(mSceneManager->getProgramProperties().mResourcePath + "Models/boblampclean.md5mesh");
-
-	auto skinShader = &mSceneManager->getProgramProperties().mShaders.getShader("skinMesh");
-	skinShader->bind();
-	skinShader->setUniform1i("uSampler", 0);
-	skinShader->setUniform1i("uSamplerSpecularComponent", 1);
+	std::string resourcePath = mSceneManager->getProgramProperties().mResourcePath;
+	std::filesystem::path modelPath = resourcePath + "Models/boblampclean.md5mesh";
+	std::filesystem::path skinMeshVertPath = resourcePath + "Shaders/skinMeshTestVert.glsl";
+	std::filesystem::path skinMeshFragPath = resourcePath + "Shaders/skinMeshTestFrag.glsl";
+	
+	mSceneManager->getModelProperties().mAnimatorManager.pushAnimator("bobAnim", std::make_unique<Animator>(modelPath, skinMeshVertPath, skinMeshFragPath));
 }
 
 void Initializer::initShaders()
@@ -198,7 +196,7 @@ void Initializer::initMousePicker()
 void Initializer::initSkybox()
 {
 	mSceneManager->getProgramProperties().mShaders["skyboxShader"].bind();
-	mSceneManager->getProgramProperties().mSkybox = std::make_unique<Skybox>(Skybox::typeSkybox::SPHERE, Skybox::SkyboxArtType::CLOUDS, 0);
+	mSceneManager->getProgramProperties().mSkybox = std::make_unique<Skybox>(Skybox::typeSkybox::SPHERE, Skybox::SkyboxArtType::SPACE, 0);
 	mSceneManager->getProgramProperties().mShaders["skyboxShader"].setUniform1i("uSkybox", 0);
 }
 

@@ -64,7 +64,11 @@ void Renderer::drawScene()
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	renderCubeLights();
 
-
+	Camera& camera = mSceneManager->getProgramProperties().mThirdPersonCam;
+	glm::mat4& projMat = mSceneManager->getModelProperties().mProjMatrix;
+	Timer& time = mSceneManager->getProgramProperties().mTimer;
+	mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->update(camera, projMat, time);
+	mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->render();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

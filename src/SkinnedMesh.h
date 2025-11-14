@@ -28,6 +28,7 @@ private:
 	enum class IndexType;
 public:
 	SkinnedMesh() = default;
+	~SkinnedMesh();
 
 	void loadMesh(const std::filesystem::path& pPath);
 	void destroy();

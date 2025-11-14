@@ -44,6 +44,8 @@ public:
 	//
 	void accelerateAnim();
 	void slowAnim();
+	void setAnimAccelerator(float pAnimAccelerator);
+	float getAnimAccelerator() const noexcept;
 
 	void setLightPostions(const std::array<glm::vec3, 2> pPointLightPositions,
 						  const std::array<glm::vec3, 2> pSpotLightPositions);
@@ -70,7 +72,7 @@ private:
 	float mAnimTime{ 0.0f };
 	float mAnimAccelerator{ 1000.0f };
 	float mLastTickAnim{ 0.0f };
-	STATE_ANIM mStateAnim;
+	STATE_ANIM mStateAnim{ STATE_ANIM::PLAY };
 
 	std::array<glm::vec3, 2> mPointLightPos;
 	std::array<glm::vec3, 2> mSpotLightPos;
