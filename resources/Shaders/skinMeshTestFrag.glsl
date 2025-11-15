@@ -5,10 +5,6 @@ out vec4 fragColor;
 in vec3 fragPos;
 in vec2 fragTexCoord;
 in vec3 fragNormals;
-flat in vec4 fragBoneID;
-flat in vec2 fragBoneID2;
-in vec4 fragBoneWeights;
-in vec2 fragBoneWeights2;
 
 const int MAX_POINT_LIGHTS = 2;
 const int MAX_SPOT_LIGHTS = 2;
@@ -57,7 +53,7 @@ struct material
 uniform directionalLight uDirectionalLight;
 uniform pointLight uPointLight[MAX_POINT_LIGHTS];
 uniform spotLight uSpotLight[MAX_SPOT_LIGHTS];
-uniform int uNimberPointLights;
+uniform int uNumberPointLights;
 uniform int uNumberSpotLights;
 
 uniform material uMaterial;
@@ -66,9 +62,6 @@ uniform sampler2D uSampler;
 uniform sampler2D uSamplerSpecularComponent;
 
 uniform vec3 uCameraPos;
-
-uniform int uDisplayBoneIndex;
-uniform int uNumberOfBones;
 
 vec4 calcLightInternal(baseLight pBaseLight, vec3 pLightDirection, vec3 pNormal)
 {
@@ -145,7 +138,7 @@ void main()
 	vec3 normal = normalize(fragNormals);
 	vec4 totalLight = calcDirectionalLight(normal);
 
-	for (int i = 0; i < uNimberPointLights; ++i)
+	for (int i = 0; i < uNumberPointLights; ++i)
 	{
 		totalLight += calcPointLight(uPointLight[i], normal);
 	}
@@ -153,44 +146,7 @@ void main()
 	{
 		totalLight += calcSpotLight(uSpotLight[i], normal);
 	}
-
-	bool found = false;
 	
-	int boneIDs[6];
-	float boneWeights[6];
-
-	boneIDs[0] = int(fragBoneID.x);
-	boneIDs[1] = int(fragBoneID.y);
-	boneIDs[2] = int(fragBoneID.z);
-	boneIDs[3] = int(fragBoneID.w);
-	boneIDs[4] = int(fragBoneID2.x);
-	boneIDs[5] = int(fragBoneID2.y);
-
-	boneWeights[0] = fragBoneWeights.x;
-	boneWeights[1] = fragBoneWeights.y;
-	boneWeights[2] = fragBoneWeights.z;
-	boneWeights[3] = fragBoneWeights.w;
-	boneWeights[4] = fragBoneWeights2.x;
-	boneWeights[5] = fragBoneWeights2.y;
-
-	for(int i = 0; i < uNumberOfBones; ++i)
-	{
-		if(boneIDs[i] == uDisplayBoneIndex)
-		{
-			if(boneWeights[i] >= 0.7f)
-				fragColor = vec4(1.0f, 0.0f, 0.0f, 0.0f) * boneWeights[i];
-			else if(boneWeights[i] >= 0.4f && boneWeights[i] <= 0.7f)
-				fragColor = vec4(0.0f, 1.0f, 0.0f, 0.0f) * boneWeights[i];
-			else if(boneWeights[i] >= 0.0f)
-				fragColor = vec4(1.0f, 1.0f, 0.0f, 0.0f) * boneWeights[i];
-			
-			found = true;
-			break;
-		}
-	}
-
-	if(!found)
-	{
-		fragColor = texture(uSampler, fragTexCoord) * totalLight * vec4(0.0001f) + vec4(0.0f, 0.0f, 1.0f, 1.0f);
-	}
+	fragColor = texture(uSampler, fragTexCoord);	
+	//fragColor = texture(uSampler, fragTexCoord) * totalLight;	
 }

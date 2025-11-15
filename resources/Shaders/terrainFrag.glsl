@@ -1,7 +1,7 @@
 #version 430 core
-layout (location = 0) out vec3 fragPosOut;
-layout (location = 1) out vec3 diffuseOut;
-layout (location = 2) out vec3 normalsOut;
+layout (location = 0) out vec4 fragPosOut;
+layout (location = 1) out vec4 diffuseOut;
+layout (location = 2) out vec4 normalsOut;
 
 in vec2 TexCoord;
 in vec3 FragPos;
@@ -11,8 +11,7 @@ uniform sampler2D uColorMap;
 
 void main()
 {
-	fragPosOut = FragPos;
-	diffuseOut = texture(uColorMap, TexCoord).xyz;
-	//diffuseOut = vec3(1.0f, 0.0f, 0.0f);
-	normalsOut = normalize(Normals);
+	fragPosOut = vec4(FragPos, 1.0f);
+	diffuseOut = texture(uColorMap, TexCoord).rgba;
+	normalsOut = vec4(normalize(Normals), 1.0f);
 }
