@@ -20,17 +20,26 @@ void GBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 	glGenTextures(1, &mDepthBuffer);
 	glGenTextures(1, &mFinalTexture);
 
-	// gbuffer textures
-	for (size_t i = 0; i < mTextures.size(); ++i)
-	{
-		glBindTexture(GL_TEXTURE_2D, mTextures[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, pScreenWidth, pScreenHeight, 0, GL_RGB, GL_FLOAT, nullptr);
+	// position texture
+	glBindTexture(GL_TEXTURE_2D, mTextures[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, pScreenWidth, pScreenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextures[0], 0);
+	
+	// diffuse texture
+	glBindTexture(GL_TEXTURE_2D, mTextures[1]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, pScreenWidth, pScreenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, mTextures[1], 0);
 
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, mTextures[i], 0);
-	}
+	// normal texture
+	glBindTexture(GL_TEXTURE_2D, mTextures[2]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, pScreenWidth, pScreenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, mTextures[2], 0);
 
 	// depth buffer
 	glBindTexture(GL_TEXTURE_2D, mDepthBuffer);
@@ -39,7 +48,7 @@ void GBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 
 	// final buffer
 	glBindTexture(GL_TEXTURE_2D, mFinalTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pScreenWidth, pScreenHeight, 0, GL_RGB, GL_FLOAT, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, pScreenWidth, pScreenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, mFinalTexture, 0);
@@ -67,7 +76,14 @@ void GBuffer::startFrame()
 	// also we choose in which buffer to write - into our final texture which is under GL_COLOR_ATTACHMENT4;
 	//
 	bindForWriting();
-	glDrawBuffer(GL_COLOR_ATTACHMENT4);
+
+	std::array<GLenum, 3> colorAttachments = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(colorAttachments.size(), colorAttachments.data());
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	GLenum finalAttachment = GL_COLOR_ATTACHMENT4;
+	glDrawBuffer(finalAttachment);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
