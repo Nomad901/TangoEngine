@@ -268,20 +268,26 @@ void UI::manageLight(SceneManager& pSceneManager)
 	ImGui::Begin("Light", &pSceneManager.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
 
 	// -------- CONTROLING --------
-	setSlidersVec3(pSceneManager.getLightProperties().mLightDir, { {"Direction", std::make_pair(-500.0f, 500.0f)} });
-	setSliderFloat("Light softness", pSceneManager.getLightProperties().mSoftness, 0.0f, 50.0f);
-	setSpaces(2);
-	setSlidersVec3(pSceneManager.getLightProperties().mPosLight, { {"Position", std::make_pair(-500.0f, 500.0f)} });
-	setSpaces(2);
-	setSliderFloat("Light Radius", pSceneManager.getLightProperties().mRadius, 1.0f, 500.0f);
-	setSpaces(1);
-	setSliderFloat("Ambient intensity", pSceneManager.getLightProperties().mAmbientIntensity, -50.0f, 50.0f);
-	setSliderFloat("Diffuse intensiyt", pSceneManager.getLightProperties().mDiffuseIntensity, -50.0f, 50.0f);
-	setSpaces(3);
-	setSlidersVec3(pSceneManager.getLightProperties().lightPositions[0], { { "Position light 1", std::make_pair(0.0f, 200.0f) } });
-	setSlidersVec3(pSceneManager.getLightProperties().lightPositions[1], { { "Position light 2", std::make_pair(0.0f, 200.0f) } });
-	setSlidersVec3(pSceneManager.getLightProperties().lightPositions[2], { { "Position light 3", std::make_pair(0.0f, 200.0f) } });
-	setSlidersVec3(pSceneManager.getLightProperties().lightPositions[3], { { "Position light 4", std::make_pair(0.0f, 200.0f) } });
+	//setSlidersVec3(pSceneManager.getLightProperties().mLightDir, { {"Direction", std::make_pair(-500.0f, 500.0f)} });
+	//setSliderFloat("Light softness", pSceneManager.getLightProperties().mSoftness, 0.0f, 50.0f);
+	//setSpaces(2);
+	//setSlidersVec3(pSceneManager.getLightProperties().mPosLight, { {"Position", std::make_pair(-500.0f, 500.0f)} });
+	//setSpaces(2);
+	//setSliderFloat("Light Radius", pSceneManager.getLightProperties().mRadius, 1.0f, 500.0f);
+	//setSpaces(1);
+	//setSliderFloat("Ambient intensity", pSceneManager.getLightProperties().mAmbientIntensity, -50.0f, 50.0f);
+	//setSliderFloat("Diffuse intensiyt", pSceneManager.getLightProperties().mDiffuseIntensity, -50.0f, 50.0f);
+	//setSpaces(3);
+	//setSlidersVec3(pSceneManager.getLightProperties().lightPositions[0], { { "Position light 1", std::make_pair(0.0f, 200.0f) } });
+	//setSlidersVec3(pSceneManager.getLightProperties().lightPositions[1], { { "Position light 2", std::make_pair(0.0f, 200.0f) } });
+	//setSlidersVec3(pSceneManager.getLightProperties().lightPositions[2], { { "Position light 3", std::make_pair(0.0f, 200.0f) } });
+	//setSlidersVec3(pSceneManager.getLightProperties().lightPositions[3], { { "Position light 4", std::make_pair(0.0f, 200.0f) } });
+	
+	setSliderFloat("Ambient intensity", pSceneManager.getLightProperties().mAmbientIntensity, -10.0f, 10.0f);
+	setSliderFloat("Diffuse intensity", pSceneManager.getLightProperties().mDiffuseIntensity, -100.0f, 100.0f);
+	setSliderFloat("Constant", pSceneManager.getLightProperties().mConstant, -10.0f, 10.0f);
+	setSliderFloat("Linear", pSceneManager.getLightProperties().mLinear, -100.0f, 100.0f);
+	setSliderFloat("Exp", pSceneManager.getLightProperties().mExp, -10.0f, 10.0f);
 
 	// ----------------------------
 
@@ -305,8 +311,10 @@ void UI::manageSystem(SceneManager& pSceneManager)
 
 	ImGui::Checkbox("Render quad on the screen", &pSceneManager.mProgramProperties.mRenderTheQuadForGBuffer);
 	
-	ImGui::SliderInt("Current bone", &pSceneManager.mModelProperties.mDisplayedBoneIndex, 0, 40);
-	
+	setSpaces(2);
+
+	ImGui::SliderInt("Current number of quad to display", &pSceneManager.mModelProperties.displayedQuad, 0, 2);
+
 	ImGui::End();
 }
 

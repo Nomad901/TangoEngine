@@ -111,8 +111,11 @@ public:
 		std::vector<glm::vec3> lightPositions;
 		std::vector<glm::vec3> lightColors;
 
-		float mAmbientIntensity{};
-		float mDiffuseIntensity{};
+		float mAmbientIntensity{ 4.1f };
+		float mDiffuseIntensity{ 10.0f };
+		float mConstant{ 1.0f };
+		float mLinear{ -10.0f };
+		float mExp{ 0.032f };
 
 		LightManager mLightManager;
 	};
@@ -142,8 +145,8 @@ public:
 		std::unique_ptr<Texture2> mTexture;
 
 		AnimatorManager mAnimatorManager;
-		
-		int32_t mDisplayedBoneIndex{ 1 };
+
+		int32_t displayedQuad{ 0 };
 	};
 
 public:

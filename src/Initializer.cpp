@@ -80,13 +80,13 @@ void Initializer::initShaders()
 	//
 	// point light pass
 	//
-	mSceneManager->getProgramProperties().mShaders.pushShader("pointLight", resourcePath + "Shaders/OGLDEV_Deferred_Light/lightPassVert.glsl",
-																		    resourcePath + "Shaders/OGLDEV_Deferred_Light/pointLightPassFrag.glsl");
+	mSceneManager->getProgramProperties().mShaders.pushShader("pointLight", resourcePath + "Shaders/lightPassVert.glsl",
+																		    resourcePath + "Shaders/pointLightPassFrag.glsl");
 	// 
 	// directional light pass
 	//	
-	mSceneManager->getProgramProperties().mShaders.pushShader("dirLight", resourcePath + "Shaders/OGLDEV_Deferred_Light/lightPassVert.glsl",
-																		  resourcePath + "Shaders/OGLDEV_Deferred_Light/dirLightPassFrag.glsl");
+	mSceneManager->getProgramProperties().mShaders.pushShader("dirLight", resourcePath + "Shaders/lightPassVert.glsl",
+																		  resourcePath + "Shaders/dirLightPassFrag.glsl");
 	// ----------------------
 
 	mSceneManager->getProgramProperties().mShaders.pushShader("nullShader", resourcePath + "Shaders/nullShaderVert.glsl",
@@ -95,6 +95,10 @@ void Initializer::initShaders()
 	// skinMeshTest
 	mSceneManager->getProgramProperties().mShaders.pushShader("skinMesh", resourcePath + "Shaders/skinMeshTestVert.glsl",
 																		  resourcePath + "Shaders/skinMeshTestFrag.glsl");
+
+	// debug shader
+	mSceneManager->getProgramProperties().mShaders.pushShader("debugShader", resourcePath + "Shaders/debugVert.glsl", 
+																			 resourcePath + "Shaders/debugFrag.glsl");
 }
 
 void Initializer::initTextures()
