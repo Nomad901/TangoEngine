@@ -110,6 +110,10 @@ vec4 calcPointLight(vec3 pWorldPos, vec3 pNormal, int pIndex)
 {
 	vec3 lightDirection = pWorldPos - uPointLight[pIndex].mPos;
 	float distance = length(lightDirection);
+	const float MAX_DISTANCE = 50.0f;
+	if (distance > MAX_DISTANCE)
+		return vec4(0.0f);
+
 	lightDirection = normalize(lightDirection);
 
 	vec4 color = calcInternalLight(uPointLight[pIndex].mBaseLight, lightDirection, pWorldPos, pNormal);
@@ -118,9 +122,15 @@ vec4 calcPointLight(vec3 pWorldPos, vec3 pNormal, int pIndex)
 							  uPointLight[pIndex].mAttenuation.mLinear * distance +
 							  uPointLight[pIndex].mAttenuation.mExp * distance * distance;
 
-	attenuationFactor = max(1.0f, attenuationFactor);
+	//attenuationFactor = max(1.0f, attenuationFactor);
+	attenuationFactor = max(attenuationFactor, 0.001f);
+	
+	color /= attenuationFactor;
+	
+	float fade = 1.0f - smoothstep(MAX_DISTANCE * 0.7f, MAX_DISTANCE, distance);
+	color *= fade;
 
-	return color / attenuationFactor;
+	return color;
 }
 
 // todo: calculate point light;
@@ -134,6 +144,11 @@ void main()
 {
 	vec2 texCoord = calcTexCoord();
 	vec3 worldPos = texture(uPositionMap, texCoord).xyz;
+	if (worldPos.z < 0.01f)
+	{
+		fragColor = vec4(0.0f);
+		return;
+	}
 	vec3 color	  = texture(uColorMap, texCoord).xyz;
 	vec3 normal   = texture(uNormalMap, texCoord).xyz;
 	normal = normalize(normal);
@@ -143,7 +158,10 @@ void main()
 	for (int i = 0; i < uNumberLightsToProcess; ++i)
 	{
 		vec4 tmpPointLight = calcPointLight(worldPos, normal, i);
+		tmpPointLight = min(tmpPointLight, vec4(10.0f));
 		lighting += tmpPointLight;
 	}
+	lighting /= (lighting + vec4(1.0f));
+
 	fragColor = lighting * vec4(color, 1.0f);
 }
