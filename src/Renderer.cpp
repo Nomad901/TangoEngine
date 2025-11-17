@@ -34,6 +34,7 @@ void Renderer::drawScene()
 	static std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> lights =
 		   std::make_pair(mSceneManager->mLightProperties.lightPositions,
 		   			      mSceneManager->mLightProperties.lightColors);
+
 	for (size_t i = 0; i < lights.first.size(); ++i)
 	{
 		// 
@@ -54,7 +55,7 @@ void Renderer::drawScene()
 	//
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
+	//mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
 	glDepthFunc(GL_LESS);
 	
 	// 
@@ -246,7 +247,7 @@ void Renderer::directionalLightPass(GBuffer* pGBuffer)
 	dirLightShader->bind();
 	dirLightShader->setUniform3fv("uViewWorldPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
 	dirLightShader->setUniform2fv("uScreenSize", glm::vec2(mSceneManager->getProgramProperties().mWindowWidth,
-		mSceneManager->getProgramProperties().mWindowHeight));
+														   mSceneManager->getProgramProperties().mWindowHeight));
 	dirLightShader->setUniform1i("uNumberLightsToProcess", mSceneManager->mLightProperties.lightPositions.size());
 
 	dirLightShader->setUniform1i("uPositionMap", 0);

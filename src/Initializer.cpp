@@ -216,7 +216,7 @@ void Initializer::initTerrain()
 	std::vector<std::filesystem::path> paths =
 	{
 		resourcePath + "sand.png",
-		resourcePath + "grass.png",
+		resourcePath + "Grass02.png",
 		resourcePath + "stone.png",
 		resourcePath + "snow.png"
 	};

@@ -13,6 +13,7 @@ Terrain::Terrain(float pWorldScale, float pTexScale, float pPathcSize, float pPa
 void Terrain::init(float pWorldScale, float pTexScale, float pPathcSize, float pPatchDistance, std::span<std::filesystem::path> pPaths)
 {
 	assert(pPaths.size() <= mTextures.size());
+
 	std::string resourcePath = RESOURCES_PATH;
 	mShader.init(resourcePath + "Shaders/terrainVert.glsl", resourcePath + "Shaders/terrainFrag.glsl");
 	mHeights =
@@ -27,10 +28,12 @@ void Terrain::init(float pWorldScale, float pTexScale, float pPathcSize, float p
 	mPatchSize = pPathcSize;
 	mPatchDistance = pPatchDistance;
 	mIsOneTex = false;
+	
 	for (size_t i = 0; i < pPaths.size(); ++i)
 	{
-		mTextures[i] = std::make_unique<Texture2>(pPaths[i], true);
-		mTextures[i]->setTarget(GL_TEXTURE_2D);
+		//mTextures[i] = std::make_unique<Texture2>(pPaths[i], true);
+		mTextures[i] = std::make_unique<Texture2>();
+		initTexture(i, pPaths[i]);
 	}
 }
 
@@ -221,6 +224,46 @@ void Terrain::loadHeightMapFile(const std::filesystem::path& pPath)
 			mHeightMap[i][j] = heightData[i * mTerrainSize + j];
 		}
 	}
+}
+
+void Terrain::initTexture(uint32_t pIndex, const std::filesystem::path& pPath)
+{
+	stbi_set_flip_vertically_on_load(1);
+	int32_t width{}, height{}, bpp{};
+	
+	uint8_t* localBuffer = stbi_load(pPath.string().c_str(), &width, &height, &bpp, 4);
+	if (!localBuffer)
+	{
+		std::cout << std::format("Couldnt load the texture! The path: {}\n", pPath.string());
+		return;
+	}
+
+	mTextures[pIndex]->setWidth(width);
+	mTextures[pIndex]->setHeight(height);
+	mTextures[pIndex]->setBPP(bpp);
+	mTextures[pIndex]->setLocalBuffer(localBuffer);
+	
+	mTextures[pIndex]->setTarget(GL_TEXTURE_2D);
+	GLenum textureTarget = mTextures[pIndex]->getTarget();
+
+	uint32_t textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(textureTarget, textureID);
+
+	glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexImage2D(textureTarget, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
+	glGenerateMipmap(textureTarget);
+	glBindTexture(textureTarget, 0);
+
+	if (localBuffer)
+		stbi_image_free(localBuffer);
+
+	mTextures[pIndex]->setID(textureID);
+	mTextures[pIndex]->setLocalBuffer(nullptr);
 }
 
 void Terrain::getMinMax(float& pMin, float& pMax)

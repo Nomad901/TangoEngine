@@ -308,7 +308,7 @@ void Texture2::setBPP(int32_t pBPP)
 	mBPP = pBPP;
 }
 
-uint32_t Texture2::getID() const noexcept
+uint32_t& Texture2::getID() noexcept
 {
 	return mRendererID;
 }
@@ -323,17 +323,17 @@ std::filesystem::path Texture2::getPath() const noexcept
 	return mFilePath;
 }
 
-int32_t Texture2::getWidth() const noexcept
+int32_t& Texture2::getWidth() noexcept
 {
 	return mWidth;
 }
 
-int32_t Texture2::getHeight() const noexcept
+int32_t& Texture2::getHeight() noexcept
 {
 	return mHeight;
 }
 
-int32_t Texture2::getBPP() const noexcept
+int32_t& Texture2::getBPP() noexcept
 {
 	return mBPP;
 }
@@ -346,6 +346,11 @@ uint8_t* Texture2::getLocalBuffer() noexcept
 uint64_t Texture2::getBindlessHandle() const noexcept
 {
 	return mBindlessHandle;
+}
+
+GLenum Texture2::getTarget() const noexcept
+{
+	return mTarget;
 }
 
 void Texture2::destroyTexture()

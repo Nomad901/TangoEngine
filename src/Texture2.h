@@ -46,14 +46,15 @@ public:
 	void setHeight(int32_t pHeight);
 	void setBPP(int32_t pBPP);
 
-	uint32_t getID() const noexcept;
+	uint32_t& getID() noexcept;
 	std::string getType() const noexcept;
 	std::filesystem::path getPath() const noexcept;
-	int32_t getWidth() const noexcept;
-	int32_t getHeight() const noexcept;
-	int32_t getBPP() const noexcept;
+	int32_t& getWidth() noexcept;
+	int32_t& getHeight() noexcept;
+	int32_t& getBPP() noexcept;
 	uint8_t* getLocalBuffer() noexcept;
 	uint64_t getBindlessHandle() const noexcept;
+	GLenum getTarget() const noexcept;
 
 	void destroyTexture();
 

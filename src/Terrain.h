@@ -54,6 +54,7 @@ public:
 	const glm::vec3& getCameraPosForChar(const glm::vec3& pCameraPos, float pCameraHeight);
 private:
 	void loadHeightMapFile(const std::filesystem::path& pPath);
+	void initTexture(uint32_t pIndex, const std::filesystem::path& pPath);
 	
 protected:
 	void getMinMax(float& pMin, float& pMax);
