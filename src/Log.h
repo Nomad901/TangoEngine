@@ -3,6 +3,8 @@
 #include <format>
 #include <filesystem>
 #include <string>
+#include <chrono>
+#include <ctime>
 
 #include "Singleton.h"
 
@@ -23,15 +25,15 @@ private:
 	Log(Log&&) = delete;
 	Log& operator=(Log&&) = delete;
 
-	void manageWarning(std::string_view pMessage, 
+	void manageWarning(std::string_view pMessage, std::string_view pTime, 
 					   const std::filesystem::path& pFilePath,
 					   int32_t pLine);
-	void manageWarning(std::string_view pMessage,
-					   const std::filesystem::path& pFilePath,
-					   int32_t pLine);
-	void manageWarning(std::string_view pMessage,
-					   const std::filesystem::path& pFilePath,
-					   int32_t pLine);
+	void manageError(std::string_view pMessage, std::string_view pTime,
+					 const std::filesystem::path& pFilePath,
+					 int32_t pLine);
+	void manageCriticalError(std::string_view pMessage, std::string_view pTime,
+							 const std::filesystem::path& pFilePath,
+							 int32_t pLine);
 
 private:
 	enum class TypeOfProblem
