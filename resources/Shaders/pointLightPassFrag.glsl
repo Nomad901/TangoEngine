@@ -70,6 +70,7 @@ uniform int uLightType;
 // 
 uniform vec3 uViewWorldPos;
 uniform vec2 uScreenSize;
+uniform float uSphereScale;
 
 vec4 calcInternalLight(baseLight pBaseLight,
 					   vec3 pLightDirection,
@@ -110,7 +111,7 @@ vec4 calcPointLight(vec3 pWorldPos, vec3 pNormal, int pIndex)
 {
 	vec3 lightDirection = pWorldPos - uPointLight[pIndex].mPos;
 	float distance = length(lightDirection);
-	const float MAX_DISTANCE = 50.0f;
+	const float MAX_DISTANCE = uSphereScale;
 	if (distance > MAX_DISTANCE)
 		return vec4(0.0f);
 
@@ -144,11 +145,6 @@ void main()
 {
 	vec2 texCoord = calcTexCoord();
 	vec3 worldPos = texture(uPositionMap, texCoord).xyz;
-	if (worldPos.z < 0.01f)
-	{
-		fragColor = vec4(0.0f);
-		return;
-	}
 	vec3 color	  = texture(uColorMap, texCoord).xyz;
 	vec3 normal   = texture(uNormalMap, texCoord).xyz;
 	normal = normalize(normal);
