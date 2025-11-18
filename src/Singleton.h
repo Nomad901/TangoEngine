@@ -5,20 +5,9 @@ template <typename T>
 class Singleton
 {
 public:
-	static void init()
-	{
-		destroy();
-		mInstance = new T();
-	}
-	static T& getInstance()
-	{
-		return mInstance;
-	}
-	static void destroy()
-	{
-		delete mInstance;
-		mInstance = nullptr;
-	}
+	static void init();
+	static T& getInstance();
+	static void destroy();
 
 	Singleton() = default;
 	virtual ~Singleton() = default;
@@ -36,3 +25,23 @@ private:
 template <typename T>
 T* Singleton<T>::mInstance = nullptr;
 
+template<typename T>
+inline void Singleton<T>::init()
+{
+	destroy();
+	mInstance = new T();
+}
+
+template<typename T>
+inline T& Singleton<T>::getInstance()
+{
+	if (mInstance != nullptr)
+		return *mInstance;
+}
+
+template<typename T>
+inline void Singleton<T>::destroy()
+{
+	delete mInstance;
+	mInstance = nullptr;
+}

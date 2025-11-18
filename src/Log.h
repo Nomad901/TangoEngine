@@ -8,18 +8,25 @@
 
 #include "Singleton.h"
 
-class Log 
+class Log : public Singleton<Log>
 {
 public:
-	enum class TypeOfProblem;
+	enum class TypeOfProblem
+	{
+		WARNING = 0,
+		ERROR = 1,
+		CRITICAL_ERROR = 2
+	};
 public:
+	Log() = default;
+	~Log() = default;
+
 	void log(std::string_view pMessage,
 			 TypeOfProblem pTypeOfProblem,
 			 const std::filesystem::path& pFilePath = __FILE__,
 			 int32_t pLine = __LINE__);
+
 private:
-	Log() = default;
-	~Log() = default;
 	Log(const Log&) = delete;
 	Log& operator=(const Log&) = delete;
 	Log(Log&&) = delete;
@@ -34,13 +41,9 @@ private:
 	void manageCriticalError(std::string_view pMessage, std::string_view pTime,
 							 const std::filesystem::path& pFilePath,
 							 int32_t pLine);
-
-private:
-	enum class TypeOfProblem
-	{
-		WARNING = 0,
-		ERROR = 1,
-		CRITICAL_ERROR = 2
-	};
+	// 
+	// clears these symbols at the end: '\n' '\t' and so on;
+	//
+	void correctMessage(std::string& pMessage);
 };
 

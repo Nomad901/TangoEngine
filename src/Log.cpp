@@ -10,22 +10,29 @@ void Log::log(std::string_view pMessage, TypeOfProblem pTypeOfProblem,
 	std::tm time;
 	localtime_s(&time, &nowTime);
 
-	std::ostringstream streamTime;
-	std::cout << std::put_time(&time, "%Y-%m-%d %H:%M:%S");
+	std::string timeStr = [&]() -> std::string
+		{
+			std::ostringstream streamTime;
+			streamTime << std::put_time(&time, "%Y-%m-%d %H:%M:%S");
+			return streamTime.str();
+		}();
 	
+	std::string message = std::string(pMessage);
+	correctMessage(message);
+
 	switch (pTypeOfProblem)
 	{
 	case Log::TypeOfProblem::WARNING:
-		manageWarning(pMessage, streamTime.str(), pFilePath, pLine);
+		manageWarning(message, timeStr, pFilePath, pLine);
 		break;
 	case Log::TypeOfProblem::ERROR:
-		manageError(pMessage, streamTime.str(), pFilePath, pLine);
+		manageError(message, timeStr, pFilePath, pLine);
 		break;
 	case Log::TypeOfProblem::CRITICAL_ERROR:
-		manageCriticalError(pMessage, streamTime.str(), pFilePath, pLine);
+		manageCriticalError(message, timeStr, pFilePath, pLine);
 		break;
 	default:
-		std::cout << std::format("You cant reach this point: {}\n", std::string(pMessage));
+		std::cout << std::format("You cant reach this point: {}\n", message);
 		break;
 	}
 }
@@ -38,9 +45,11 @@ void Log::manageWarning(std::string_view pMessage, std::string_view pTime,
 	
 	if (!pFilePath.empty())
 	{
-		std::cout << std::format("[FILE: {}][LINE: {}]", pFilePath.string(), 
-														 pLine > 0 ? std::to_string(pLine) : "0");
+		std::cout << std::format("[FILE: {}][LINE: {}]\n", pFilePath.string(), 
+														   pLine > 0 ? std::to_string(pLine) : "0");
 	}
+	else 
+		std::cout << '\n';
 }
 
 void Log::manageError(std::string_view pMessage, std::string_view pTime,
@@ -51,10 +60,12 @@ void Log::manageError(std::string_view pMessage, std::string_view pTime,
 
 	if (!pFilePath.empty())
 	{
-		std::cout << std::format("[FILE: {}][LINE: {}]", pFilePath.string(),
-			pLine > 0 ? std::to_string(pLine) : "0");
+		std::cout << std::format("[FILE: {}][LINE: {}]\n", pFilePath.string(),
+														   pLine > 0 ? std::to_string(pLine) : "0");
 	}
-	
+	else
+		std::cout << '\n';
+
 	exit(1);
 }
 
@@ -66,9 +77,21 @@ void Log::manageCriticalError(std::string_view pMessage, std::string_view pTime,
 
 	if (!pFilePath.empty())
 	{
-		std::cout << std::format("[FILE: {}][LINE: {}]", pFilePath.string(),
-			pLine > 0 ? std::to_string(pLine) : "0");
+		std::cout << std::format("[FILE: {}][LINE: {}]\n", pFilePath.string(),
+														   pLine > 0 ? std::to_string(pLine) : "0");
 	}
+	else
+		std::cout << '\n';
 	
 	exit(1);
+}
+
+void Log::correctMessage(std::string& pMessage)
+{
+	if (!pMessage.empty())
+	{
+		char spaceSymbol = pMessage[pMessage.size() - 1];
+		if (std::isspace(spaceSymbol))
+			pMessage.pop_back();
+	}
 }
