@@ -41,22 +41,22 @@ void Renderer::drawScene()
 		// stencil pass is needed for optimization and correcting problems;
 		// we do not render pixels which are not needed; 
 		//
-		stencilPass(gbufferRef, lights, i);
-		pointLightPass(gbufferRef, lights, i);
+		stencilPass(gbufferRef, lights, i); 
+		pointLightPass(gbufferRef, lights, i); 
 	}
 	
 	glDisable(GL_STENCIL_TEST);
 	
-	directionalLightPass(gbufferRef);
+	directionalLightPass(gbufferRef); 
 	finalPass(gbufferRef); 
 
 	//
 	// Skybox
 	//
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LEQUAL);
 	//mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 	
 	// 
 	// Light cubes and fps
@@ -143,7 +143,7 @@ void Renderer::setGLproperties()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+	
 	// DEPTH TEST
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -197,7 +197,7 @@ void Renderer::pointLightPass(GBuffer* pGBuffer, std::pair<std::vector<glm::vec3
 	glBlendFunc(GL_ONE, GL_ONE);
 
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+	glCullFace(GL_BACK);
 
 	Transform transform;
 	float ambientIntensity = 4.1f;
@@ -226,15 +226,35 @@ void Renderer::pointLightPass(GBuffer* pGBuffer, std::pair<std::vector<glm::vec3
 	float sphereScale = (-linear + std::sqrtf(linear * linear - 4 * exp * (exp - 256 * maxChannel * diffuseIntensity))) /
 						(2 * exp);
 
-	transform.setLocalPosition(pStorages.first[pIndex]); 
-	transform.setLocalRotation(glm::vec3(0.0f));
-	transform.setLocalScale(glm::vec3(std::fmaxf(1.0f, sphereScale)));
-	
-	glm::mat4 WVPMatrix = transform.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam,
-		mSceneManager->getModelProperties().mProjMatrix);
-	pointLightShader->setMatrixUniform4fv("uWVP", WVPMatrix);
+	pointLightShader->setUniform1f("uSphereScale", sphereScale);
 
-	mSceneManager->getModelProperties().mModelManager.getModel("sphere").render();
+	static uint32_t quadVAO = 0;
+	static uint32_t quadVBO;
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			-1.0f,  1.0f,
+			-1.0f, -1.0f,
+			 1.0f, -1.0f,
+
+			-1.0f,  1.0f,
+			 1.0f, -1.0f,
+			 1.0f,  1.0f
+		};
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	}
+	if (mSceneManager->getProgramProperties().mRenderTheQuadForGBuffer)
+	{
+		glBindVertexArray(quadVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+	}
 
 	glCullFace(GL_BACK);
 	glDisable(GL_BLEND);
@@ -248,7 +268,6 @@ void Renderer::directionalLightPass(GBuffer* pGBuffer)
 	dirLightShader->setUniform3fv("uViewWorldPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
 	dirLightShader->setUniform2fv("uScreenSize", glm::vec2(mSceneManager->getProgramProperties().mWindowWidth,
 														   mSceneManager->getProgramProperties().mWindowHeight));
-	dirLightShader->setUniform1i("uNumberLightsToProcess", mSceneManager->mLightProperties.lightPositions.size());
 
 	dirLightShader->setUniform1i("uPositionMap", 0);
 	dirLightShader->setUniform1i("uColorMap", 1);
@@ -261,9 +280,8 @@ void Renderer::directionalLightPass(GBuffer* pGBuffer)
 	glBlendFunc(GL_ONE, GL_ONE);
 
 	Transform transform;
-	dirLightShader->setUniform3fv("uDirectionalLight[0].mBaseLight.mColor", glm::vec3(1.0f, 1.0f, 0.9f));
+	dirLightShader->setUniform3fv("uDirectionalLight[0].mBaseLight.mColor", glm::vec3(1.0f, 1.0f, 1.0f));
 	dirLightShader->setUniform3fv("uDirectionalLight[0].mDirection", mSceneManager->getLightProperties().mLightDir);
-	//dirLightShader->setUniform3fv("uDirectionalLight[0].mDirection", glm::vec3(-1.0f, -1.0f, -1.0f));
 	dirLightShader->setUniform1f("uDirectionalLight[0].mBaseLight.mAmbientIntensity", 0.1f);
 	dirLightShader->setUniform1f("uDirectionalLight[0].mBaseLight.mDiffuseIntensity", 0.1f);
 
@@ -294,7 +312,7 @@ void Renderer::directionalLightPass(GBuffer* pGBuffer)
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
 	}
-
+	
 	glDisable(GL_BLEND);
 }
 
@@ -326,12 +344,13 @@ void Renderer::stencilPass(GBuffer* pGBuffer, std::pair<std::vector<glm::vec3>, 
 	float maxChannel = std::fmaxf(std::fmaxf(pStorages.second[pIndex].x, pStorages.second[pIndex].y), pStorages.second[pIndex].z);
 	float sphereScale = (-linear + std::sqrtf(linear * linear - 4 * exp * (exp - 256 * maxChannel * diffuseIntensity))) /
 						(2 * exp);
-	//float sphereScale = 200.0f;
+	
 	transform.setLocalPosition(pStorages.first[pIndex]);
 	transform.setLocalRotation(glm::vec3(0.0f));
-	transform.setLocalScale(glm::vec3(std::fmaxf(1.0f, sphereScale)));
+	transform.setLocalScale(glm::vec3(sphereScale));
 	glm::mat4 WVPMatrix = transform.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->getModelProperties().mProjMatrix);
 	shader->setMatrixUniform4fv("uWVP", WVPMatrix);
+
 	mSceneManager->getModelProperties().mModelManager.getModel("sphere").render();
 }
 
