@@ -1,4 +1,4 @@
-﻿#include "Renderer.h"
+#include "Renderer.h"
 
 Renderer::Renderer(SceneManager* pSceneManager)
 {
@@ -19,7 +19,7 @@ void Renderer::preDrawScene()
 void Renderer::drawScene()
 {
 	ImGui::EndFrame();
-
+	
 	//
 	// gbuffer and terrain 
 	//
@@ -47,29 +47,30 @@ void Renderer::drawScene()
 	
 	glDisable(GL_STENCIL_TEST);
 	
-	directionalLightPass(gbufferRef); 
-	finalPass(gbufferRef); 
+	directionalLightPass(gbufferRef);
 
 	//
 	// Skybox
 	//
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LEQUAL);
-	//mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
-	//glDepthFunc(GL_LESS);
-	
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
+	glDepthFunc(GL_LESS);
+
 	// 
 	// Light cubes and fps
 	//
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	renderCubeLights();
-	
+
 	Camera& camera = mSceneManager->getProgramProperties().mThirdPersonCam;
 	glm::mat4& projMat = mSceneManager->getModelProperties().mProjMatrix;
 	Timer& time = mSceneManager->getProgramProperties().mTimer;
 	mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->update(camera, projMat, time);
 	mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->render();
+
+	finalPass(gbufferRef); 
 
 	showFPS();
 
@@ -312,7 +313,7 @@ void Renderer::directionalLightPass(GBuffer* pGBuffer)
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
 	}
-	
+
 	glDisable(GL_BLEND);
 }
 
