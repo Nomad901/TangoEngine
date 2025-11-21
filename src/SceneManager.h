@@ -40,7 +40,7 @@
 #include "Timer.h"
 #include "AnimatorManager.h"
 #include "DeferredLightSystem.h"
-#include "WaterRenderer.h"
+#include "WaterFBO.h"
 
 class Renderer;
 
@@ -94,6 +94,7 @@ public:
 		FPSRegulator mFPSRegulator;
 
 		WaterRenderer mWaterRenderer;
+		std::unique_ptr<WaterFBO> mWaterFBO;
 		std::vector<Water> mWaterTiles;
 
 		bool mWindowWasChanged{ false };

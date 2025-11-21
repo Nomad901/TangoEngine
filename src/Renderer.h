@@ -12,10 +12,11 @@ public:
 
 private:
 	void takeCursor();
-
+	
 	void setImGui();
 	void setGLproperties();
 
+	void drawSceneTMP();
 	void renderCubeLights();
 
 private:

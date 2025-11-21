@@ -55,6 +55,13 @@ void Initializer::initAll()
 	mSceneManager->getProgramProperties().mWaterRenderer.init(resourcePath + "Shaders/waterVert.glsl", 
 															  resourcePath + "Shaders/waterFrag.glsl");
 	mSceneManager->getProgramProperties().mWaterTiles.push_back(Water(glm::vec3(541.0f, 50.0f, 524.0f))); 
+
+
+	uint32_t windowWidth = mSceneManager->getProgramProperties().mWindowWidth;
+	uint32_t windowHeight = mSceneManager->getProgramProperties().mWindowHeight;
+	mSceneManager->getProgramProperties().mWaterFBO = std::make_unique<WaterFBO>(windowWidth, windowHeight,
+																				 glm::vec2(0.0f, 0.0f), glm::vec2(320.0f, 180.0f),
+																				 glm::vec2(0.0f, 0.0f), glm::vec2(windowWidth, windowHeight));
 }
 
 void Initializer::initShaders()

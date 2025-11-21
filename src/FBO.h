@@ -40,6 +40,8 @@ public:
 
 	void init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize);
 
+	void destroy();
+
 	void start();
 	void stop();
 	void stopAndRender();
@@ -50,7 +52,7 @@ public:
 	void clearColor();
 
 	uint32_t getFBO() const noexcept;
-	uint32_t getRenderBufferID() const noexcept;
+	uint32_t getDepthBuffer() const noexcept;
 	glm::vec2 getSize() const noexcept;
 
 	Texture2& getTexture() noexcept;
@@ -65,7 +67,7 @@ private:
 
 private:
 	uint32_t mFBO{};
-	uint32_t mRenderBufferID{};
+	uint32_t mDepthBuffer{};
 	Texture2 mTexture;
 	ScreenQuad mScreenQuad;
 	Shader mShader;

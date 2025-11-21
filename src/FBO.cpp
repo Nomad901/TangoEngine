@@ -8,10 +8,7 @@ FBO::FBO(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec
 
 FBO::~FBO()
 {
-    glDeleteFramebuffers(1, &mFBO);
-    mFBO = 0;
-    mRenderBufferID = 0;
-    mTexture.destroyTexture();
+    destroy();
 }
 
 void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize)
@@ -29,11 +26,11 @@ void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, gl
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture.getID(), 0);
 
     // depth and stencil
-    glGenRenderbuffers(1, &mRenderBufferID);
-    glBindRenderbuffer(GL_RENDERBUFFER, mRenderBufferID);
+    glGenRenderbuffers(1, &mDepthBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, mDepthBuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, pSize.x, pSize.y);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mRenderBufferID);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthBuffer);
 
     // completeness 
     int32_t status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -44,6 +41,14 @@ void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, gl
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void FBO::destroy()
+{
+    glDeleteFramebuffers(1, &mFBO);
+    mFBO = 0;
+    mDepthBuffer = 0;
+    mTexture.destroyTexture();
 }
 
 void FBO::start()
@@ -109,9 +114,9 @@ Texture2& FBO::getTexture() noexcept
     return mTexture;
 }
 
-uint32_t FBO::getRenderBufferID() const noexcept
+uint32_t FBO::getDepthBuffer() const noexcept
 {
-    return mRenderBufferID;
+    return mDepthBuffer;
 }
 
 void FBO::setClearColors(const glm::vec4& pClearColors)
