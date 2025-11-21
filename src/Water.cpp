@@ -1,60 +1,21 @@
 #include "Water.h"
 
-Water::Water()
+Water::Water(const glm::vec3& pWaterPos)
 {
-	mDudvMap.init(GL_TEXTURE_2D);
-	mNormalMap.init(GL_TEXTURE_2D);
+	init(pWaterPos);
 }
 
-void Water::init(int32_t pSize, float pWorldSize)
+void Water::init(const glm::vec3& pWaterPos)
 {
-	mWaterShader.init();
-
-	mWaterShader.bind();
-
+	mWaterPos = pWaterPos;
 }
 
-void Water::setWorldHeight(float pHeight)
+uint32_t Water::getTileSize() const noexcept
 {
-	mHeight = pHeight;
+	return mTileSize;
 }
 
-void Water::render(const glm::vec3& pCamPos, const glm::mat4& pVP, const glm::vec3& pLightDir)
+const glm::vec3& Water::getWaterPos() const noexcept
 {
-}
-
-void Water::startReflectionPass()
-{
-}
-
-void Water::stopReflectionPass()
-{
-}
-
-void Water::startRefractionPass()
-{
-}
-
-void Water::stopRefractionPass()
-{
-}
-
-float Water::getHeight() const noexcept
-{
-	return mHeight;
-}
-
-GLint Water::getReflectionFBO() const noexcept
-{
-	return mReflectionFBO.getRenderBufferID();
-}
-
-GLint Water::getRefractionFBO() const noexcept
-{
-	return mRefractionFBO.getRenderBufferID();
-}
-
-GLint Water::getDudvMapTexture() const noexcept
-{
-	return mDudvMap.getID();;
+	return mWaterPos;
 }

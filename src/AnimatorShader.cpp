@@ -17,8 +17,10 @@ void AnimatorShader::init(const std::filesystem::path& pVertPath,
 					  glm::vec3(25.0f, 25.0f, 25.0f) };
 
 	mShader.bind();
-	mShader.setUniform1i("uSampler", 0);
-	mShader.setUniform1i("uSamplerSpecularComponent", 1);
+	if(mShader.isUniformExist("uSampler"))
+		mShader.setUniform1i("uSampler", 0);
+	if (mShader.isUniformExist("uSamplerSpecularComponent"))
+		mShader.setUniform1i("uSamplerSpecularComponent", 1);
 	mShader.unbind();
 }
 
@@ -87,7 +89,7 @@ void AnimatorShader::setShader(Camera& pCamera, const glm::mat4& pProjMatrix,
 
 	setTransformations(pCamera, pProjMatrix, pSkinnedMesh.getTransform());
 	setLights();
-	setMaterial(pSkinnedMesh);
+	//setMaterial(pSkinnedMesh);
 	setCamera(pCamera);
 	setBones(pSkinnedMesh, pTimer);
 }
@@ -138,9 +140,9 @@ void AnimatorShader::setLights()
 		mShader.setUniform1f("uSpotLight[" + std::to_string(i) + "].mCutOff", glm::cos(glm::radians(12.5f)));
 	}
 
-	mShader.setUniform3fv("uDirectionalLight.mBaseLight.mColor", glm::vec3(1.0f, 1.0f, 1.0f));
-	mShader.setUniform1f("uDirectionalLight.mBaseLight.mAmbientIntensity", 0.4f);
-	mShader.setUniform1f("uDirectionalLight.mBaseLight.mDiffuseIntensity", 0.6f);
+	//mShader.setUniform3fv("uDirectionalLight.mBaseLight.mColor", glm::vec3(1.0f, 1.0f, 1.0f));
+	//mShader.setUniform1f("uDirectionalLight.mBaseLight.mAmbientIntensity", 0.4f);
+	//mShader.setUniform1f("uDirectionalLight.mBaseLight.mDiffuseIntensity", 0.6f);
 	mShader.setUniform3fv("uDirectionalLight.mDirection", glm::vec3(-0.5f, -1.0f, -0.5f));
 }
 

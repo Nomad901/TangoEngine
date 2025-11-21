@@ -8,6 +8,8 @@
 #include "glm.hpp"
 #include "glad/glad.h"
 
+#include "Log.h"
+
 class Shader
 {
 public:
@@ -51,7 +53,9 @@ public:
 
 	std::string getResourcePath() const noexcept;
 
+	bool isUniformExist(std::string_view pName);
 	GLuint getUniformLocation(std::string_view pName);
+
 private:
 	uint32_t createShaders(std::string_view pVertexSource, std::string_view pFragmentSource);
 	uint32_t createShaders(std::string_view pVertexSource, std::string_view pFragmentSource, std::string_view pGeometrySource);

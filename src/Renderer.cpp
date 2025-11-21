@@ -1,4 +1,4 @@
-#include "Renderer.h"
+﻿#include "Renderer.h"
 
 Renderer::Renderer(SceneManager* pSceneManager)
 {
@@ -19,35 +19,17 @@ void Renderer::preDrawScene()
 void Renderer::drawScene()
 {
 	ImGui::EndFrame();
-	
-	//
-	// gbuffer and terrain 
-	//
-	auto gbufferRef = &mSceneManager->mProgramProperties.mGBuffer;
-	
-	gbufferRef->startFrame();
-	
-	geometryPass(gbufferRef);
-	
-	glEnable(GL_STENCIL_TEST);
-	
-	static std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> lights =
-		   std::make_pair(mSceneManager->mLightProperties.lightPositions,
-		   			      mSceneManager->mLightProperties.lightColors);
 
-	for (size_t i = 0; i < lights.first.size(); ++i)
-	{
-		// 
-		// stencil pass is needed for optimization and correcting problems;
-		// we do not render pixels which are not needed; 
-		//
-		stencilPass(gbufferRef, lights, i); 
-		pointLightPass(gbufferRef, lights, i); 
-	}
-	
-	glDisable(GL_STENCIL_TEST);
-	
-	directionalLightPass(gbufferRef);
+	auto deferredLighting = &mSceneManager->getLightProperties().mDeferredLightSystem;
+	deferredLighting->startGeometryPass();
+
+	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
+
+	deferredLighting->stopGeometryPass();
+
+	auto camera = &mSceneManager->getProgramProperties().mThirdPersonCam;
+	auto projMatrix = &mSceneManager->getModelProperties().mProjMatrix;
+	deferredLighting->startLightPass(*camera, *projMatrix);
 
 	//
 	// Skybox
@@ -64,15 +46,18 @@ void Renderer::drawScene()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	renderCubeLights();
 
-	Camera& camera = mSceneManager->getProgramProperties().mThirdPersonCam;
-	glm::mat4& projMat = mSceneManager->getModelProperties().mProjMatrix;
-	Timer& time = mSceneManager->getProgramProperties().mTimer;
-	mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->update(camera, projMat, time);
-	mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->render();
+	//Camera& cameraForChar = mSceneManager->getProgramProperties().mThirdPersonCam;
+	//glm::mat4& projMat = mSceneManager->getModelProperties().mProjMatrix;
+	//Timer& time = mSceneManager->getProgramProperties().mTimer;
+	//mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->update(cameraForChar, projMat, time);
+	//mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->render();
 
-	finalPass(gbufferRef); 
-
+	mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
+															    mSceneManager->getProgramProperties().mThirdPersonCam, 
+															    mSceneManager->getModelProperties().mProjMatrix);
 	showFPS();
+
+	deferredLighting->stopLightPassAndRenderFrame();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -155,212 +140,6 @@ void Renderer::setGLproperties()
 	else
 		glClearColor(0.20f, 0.20f, 0.20f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void Renderer::geometryPass(GBuffer* pGBuffer)
-{
-	pGBuffer->bindForGeomPass();
-
-	// 
-	// preparing brand new depth buffer and color buffer...
-	//
-	glDepthMask(GL_TRUE);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	
-	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
-
-	glDepthMask(GL_FALSE);
-}
-
-void Renderer::pointLightPass(GBuffer* pGBuffer, std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> pStorages,
-							  uint32_t pIndex)
-{
-	pGBuffer->bindForLightPass();
-
-	auto pointLightShader = &mSceneManager->mProgramProperties.mShaders.getShader("pointLight");
-	pointLightShader->bind();
-	pointLightShader->setUniform3fv("uViewWorldPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
-	pointLightShader->setUniform1i("uNumberLightsToProcess", mSceneManager->mLightProperties.lightPositions.size());
-	pointLightShader->setUniform2fv("uScreenSize", glm::vec2(mSceneManager->getProgramProperties().mWindowWidth,
-															 mSceneManager->getProgramProperties().mWindowHeight));
-	pointLightShader->setUniform1i("uPositionMap", 0);
-	pointLightShader->setUniform1i("uColorMap", 1);
-	pointLightShader->setUniform1i("uNormalMap", 2);
-
-	//
-	// we render only pixels, which are not 0 into the stencil buffer;
-	//
-	glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_ONE, GL_ONE);
-
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-
-	Transform transform;
-	float ambientIntensity = 4.1f;
-	float diffuseIntensity = 4.0f;
-	float constant = 1.0f;
-	float linear = 0.09f;
-	float exp = 0.032f;
-
-	/*
-		float ambientIntensity = mSceneManager->getLightProperties().mAmbientIntensity;
-		float diffuseIntensity = mSceneManager->getLightProperties().mDiffuseIntensity;
-		float constant = mSceneManager->getLightProperties().mConstant;
-		float linear = mSceneManager->getLightProperties().mLinear;
-		float exp = mSceneManager->getLightProperties().mExp;
-	*/
-
-	pointLightShader->setUniform3fv("uPointLight[" + std::to_string(pIndex) + "].mBaseLight.mColor", pStorages.second[pIndex]);
-	pointLightShader->setUniform3fv("uPointLight[" + std::to_string(pIndex) + "].mPos", pStorages.first[pIndex]);
-	pointLightShader->setUniform1f("uPointLight[" +  std::to_string(pIndex) + "].mBaseLight.mAmbientIntensity", ambientIntensity);
-	pointLightShader->setUniform1f("uPointLight[" +  std::to_string(pIndex) + "].mBaseLight.mDiffuseIntensity", diffuseIntensity);
-	pointLightShader->setUniform1f("uPointLight[" +  std::to_string(pIndex) + "].mAttenuation.mConstant", constant);
-	pointLightShader->setUniform1f("uPointLight[" +  std::to_string(pIndex) + "].mAttenuation.mLinear", linear);
-	pointLightShader->setUniform1f("uPointLight[" +  std::to_string(pIndex) + "].mAttenuation.mExp", exp);
-
-	float maxChannel = std::fmaxf(std::fmaxf(pStorages.second[pIndex].x, pStorages.second[pIndex].y), pStorages.second[pIndex].z);
-	float sphereScale = (-linear + std::sqrtf(linear * linear - 4 * exp * (exp - 256 * maxChannel * diffuseIntensity))) /
-						(2 * exp);
-
-	pointLightShader->setUniform1f("uSphereScale", sphereScale);
-
-	static uint32_t quadVAO = 0;
-	static uint32_t quadVBO;
-	if (quadVAO == 0)
-	{
-		float quadVertices[] = {
-			-1.0f,  1.0f,
-			-1.0f, -1.0f,
-			 1.0f, -1.0f,
-
-			-1.0f,  1.0f,
-			 1.0f, -1.0f,
-			 1.0f,  1.0f
-		};
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	}
-	if (mSceneManager->getProgramProperties().mRenderTheQuadForGBuffer)
-	{
-		glBindVertexArray(quadVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-	}
-
-	glCullFace(GL_BACK);
-	glDisable(GL_BLEND);
-}
-
-void Renderer::directionalLightPass(GBuffer* pGBuffer)
-{
-	pGBuffer->bindForLightPass();
-	auto dirLightShader = &mSceneManager->getProgramProperties().mShaders["dirLight"];
-	dirLightShader->bind();
-	dirLightShader->setUniform3fv("uViewWorldPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
-	dirLightShader->setUniform2fv("uScreenSize", glm::vec2(mSceneManager->getProgramProperties().mWindowWidth,
-														   mSceneManager->getProgramProperties().mWindowHeight));
-
-	dirLightShader->setUniform1i("uPositionMap", 0);
-	dirLightShader->setUniform1i("uColorMap", 1);
-	dirLightShader->setUniform1i("uNormalMap", 2);
-
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_ONE, GL_ONE);
-
-	Transform transform;
-	dirLightShader->setUniform3fv("uDirectionalLight[0].mBaseLight.mColor", glm::vec3(1.0f, 1.0f, 1.0f));
-	dirLightShader->setUniform3fv("uDirectionalLight[0].mDirection", mSceneManager->getLightProperties().mLightDir);
-	dirLightShader->setUniform1f("uDirectionalLight[0].mBaseLight.mAmbientIntensity", 0.1f);
-	dirLightShader->setUniform1f("uDirectionalLight[0].mBaseLight.mDiffuseIntensity", 0.1f);
-
-	static uint32_t quadVAO = 0;
-	static uint32_t quadVBO;
-	if (quadVAO == 0)
-	{
-		float quadVertices[] = {
-			-1.0f,  1.0f,
-			-1.0f, -1.0f,
-			 1.0f, -1.0f,
-						
-			-1.0f,  1.0f,
-			 1.0f, -1.0f,
-			 1.0f,  1.0f	
-		};
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	}
-	if (mSceneManager->getProgramProperties().mRenderTheQuadForGBuffer)
-	{
-		glBindVertexArray(quadVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-	}
-
-	glDisable(GL_BLEND);
-}
-
-void Renderer::stencilPass(GBuffer* pGBuffer, std::pair<std::vector<glm::vec3>, std::vector<glm::vec3>> pStorages, 
-						   uint32_t pIndex)
-{
-	auto shader = &mSceneManager->getProgramProperties().mShaders.getShader("nullShader");
-	shader->bind();
-	//
-	// turns off all write buffers cuz from this moment we need to read from the buffer, instead of writing into it;
-	//
-	pGBuffer->bindForStencilPass();
-
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-
-	glClear(GL_STENCIL_BUFFER_BIT);
-
-	glStencilFunc(GL_ALWAYS, 0, 0);
-	glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-	
-	Transform transform;
-	float ambientIntensity = mSceneManager->getLightProperties().mAmbientIntensity;
-	float diffuseIntensity = mSceneManager->getLightProperties().mDiffuseIntensity;
-	float constant = mSceneManager->getLightProperties().mConstant;
-	float linear = mSceneManager->getLightProperties().mLinear;
-	float exp = mSceneManager->getLightProperties().mExp;
-	float maxChannel = std::fmaxf(std::fmaxf(pStorages.second[pIndex].x, pStorages.second[pIndex].y), pStorages.second[pIndex].z);
-	float sphereScale = (-linear + std::sqrtf(linear * linear - 4 * exp * (exp - 256 * maxChannel * diffuseIntensity))) /
-						(2 * exp);
-	
-	transform.setLocalPosition(pStorages.first[pIndex]);
-	transform.setLocalRotation(glm::vec3(0.0f));
-	transform.setLocalScale(glm::vec3(sphereScale));
-	glm::mat4 WVPMatrix = transform.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->getModelProperties().mProjMatrix);
-	shader->setMatrixUniform4fv("uWVP", WVPMatrix);
-
-	mSceneManager->getModelProperties().mModelManager.getModel("sphere").render();
-}
-
-void Renderer::finalPass(GBuffer* pGBuffer)
-{
-	pGBuffer->bindForFinalPass();
-	glBlitFramebuffer(0, 0, mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight,
-					  0, 0, mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight, 
-					  GL_COLOR_BUFFER_BIT, GL_LINEAR);
 }
 
 void Renderer::renderCubeLights()
@@ -446,7 +225,7 @@ void Renderer::renderCubeLights()
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-
+		
 		index++;
 	}
 }

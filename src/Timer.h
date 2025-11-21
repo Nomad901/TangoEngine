@@ -9,7 +9,8 @@ enum class Dimension
 { 
 	MILISECONDS = 0, 
 	SECONDS		= 1, 
-	MINUTES		= 2
+	MINUTES		= 2,
+	NANOSECONDS = 3
 };
 
 class Timer

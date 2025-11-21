@@ -1,0 +1,68 @@
+#include "WaterRenderer.h"
+
+WaterRenderer::WaterRenderer(const std::filesystem::path& pVertPath,
+							 const std::filesystem::path& pFragPath)
+{
+	init(pVertPath, pFragPath);
+}
+
+void WaterRenderer::init(const std::filesystem::path& pVertPath, const std::filesystem::path& pFragPath)
+{
+	mWaterShader.init(pVertPath, pFragPath);
+	setUpQuad();
+}
+
+void WaterRenderer::render(const std::vector<Water> pWaterTiles, 
+						   Camera& pCamera,
+						   const glm::mat4& pProjMat)
+{
+	bind(pCamera, pProjMat);
+	for (auto& i : pWaterTiles)
+	{
+		glm::vec3 waterPos = i.getWaterPos();
+		mQuadTransform.setLocalPosition(glm::vec3(waterPos.x, waterPos.y, waterPos.z));
+		mQuadTransform.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+		float tileSize = i.getTileSize();
+		mQuadTransform.setLocalScale(glm::vec3(tileSize, tileSize, tileSize));
+
+		mWaterShader.setMatrixUniform4fv("uModel", mQuadTransform.getModelMatrix());
+
+		renderQuad();
+	}
+}
+
+void WaterRenderer::bind(Camera& pCamera,
+						 const glm::mat4& pProjMat)
+{
+	mWaterShader.bind();
+	mWaterShader.setMatrixUniform4fv("uProj", pProjMat);
+	mWaterShader.setMatrixUniform4fv("uView", pCamera.getViewMatrix());
+}
+
+void WaterRenderer::renderQuad()
+{
+	glBindVertexArray(mVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
+}
+
+void WaterRenderer::setUpQuad()
+{
+	float quadVertices[] = 
+	{
+		-1.0f,  1.0f,
+		 1.0f, -1.0f,	
+		-1.0f, -1.0f,
+
+		 1.0f, -1.0f,
+		-1.0f,  1.0f,
+		 1.0f,  1.0f
+	};
+	glGenVertexArrays(1, &mVAO);
+	glGenBuffers(1, &mVBO);
+	glBindVertexArray(mVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+}

@@ -2,17 +2,20 @@
 
 Shader::Shader(const std::filesystem::path& pPathVertex, const std::filesystem::path& pPathFragment)
 {
+	Log::init();
 	init(pPathVertex, pPathFragment);
 }
 
 Shader::Shader(const std::filesystem::path& pPathVertex, const std::filesystem::path& pPathFragment, const std::filesystem::path& pPathGeometry)
 {
+	Log::init();
 	init(pPathVertex, pPathFragment, pPathGeometry);
 }
 
 Shader::Shader(const std::filesystem::path& pPathVertex, const std::filesystem::path& pPathFragment,
 			   const std::filesystem::path& pPathTCS, const std::filesystem::path& pPathTES)
 {
+	Log::init();
 	init(pPathVertex, pPathFragment, pPathTCS, pPathTES);
 }
 
@@ -190,7 +193,8 @@ uint32_t Shader::compileShaders(GLuint pType, const std::string& pStr)
 		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 		char* string = (char*)_malloca(length * sizeof(char));
 		glGetShaderInfoLog(id, length, &length, string);
-		std::cout << std::format("Couldnt compile the shaders: {}\n", pStr);
+		Log::getInstance().log(std::format("Couldnt compile the shaders: {}\n", pStr),
+							   Log::TypeOfProblem::WARNING, __FILE__, __LINE__);
 		glDeleteShader(id);
 		return 0;
 	}
@@ -202,7 +206,9 @@ std::string Shader::parsePath(const std::filesystem::path& pPath)
 	std::ifstream ifstream(pPath);
 	if (!ifstream.is_open())
 	{
-		std::cout << "Couldnt open the ifstream!\n";
+		Log::getInstance().log("Couldnt open the ifstream!\n",
+							    Log::TypeOfProblem::WARNING, 
+								__FILE__, __LINE__);
 		return "";
 	}
 	std::string finalStr, line;
@@ -213,6 +219,16 @@ std::string Shader::parsePath(const std::filesystem::path& pPath)
 	return finalStr;
 }
 
+bool Shader::isUniformExist(std::string_view pName)
+{
+	std::string name = std::string(pName);
+	if (mStorageLocations.contains(name))
+		return true;
+
+	GLuint location = glGetUniformLocation(mShaderID, name.c_str());
+	return location != -1; 
+}
+
 GLuint Shader::getUniformLocation(std::string_view pName)
 {
 	std::string name = std::string(pName);
@@ -221,7 +237,10 @@ GLuint Shader::getUniformLocation(std::string_view pName)
 
 	GLuint location = glGetUniformLocation(mShaderID, name.c_str());
 	if (location == -1)
-		std::cout << std::format("Couldnt find the location of this name: {}\n", pName);
+	{ 
+		Log::getInstance().log(std::format("Couldnt find the location of this name: {}\n", pName),
+							   Log::TypeOfProblem::WARNING, __FILE__, __LINE__);
+	}
 	mStorageLocations.emplace(name, location);
 	return location;
 }

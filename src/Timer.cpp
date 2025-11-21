@@ -72,13 +72,18 @@ float Timer::getDeltaTime(bool pStopTimer)
 	else
 		mEndTime = high_resolution_clock::now();
 
-	if (mDimension == Dimension::MILISECONDS)
+	switch (mDimension)
+	{
+	case Dimension::MILISECONDS:
 		return static_cast<float>(duration_cast<milliseconds>(mEndTime - mStartTime).count());
-	else if (mDimension == Dimension::SECONDS)
+	case Dimension::SECONDS:
 		return static_cast<float>(duration_cast<seconds>(mEndTime - mStartTime).count());
-	else if (mDimension == Dimension::MINUTES)
+	case Dimension::MINUTES:
 		return static_cast<float>(duration_cast<minutes>(mEndTime - mStartTime).count());
-
+	case Dimension::NANOSECONDS:
+		return static_cast<float>(duration_cast<nanoseconds>(mEndTime - mStartTime).count());
+	}
+	
 	return 0.0f;
 }
 
@@ -89,12 +94,17 @@ std::chrono::time_point<std::chrono::high_resolution_clock> Timer::getCurrentTim
 	if (mRunning)
 	{
 		time_point<high_resolution_clock> time = high_resolution_clock::now();
-		if (mDimension == Dimension::SECONDS)
-			return time_point_cast<seconds>(time);
-		else if (mDimension == Dimension::MINUTES)
-			return time_point_cast<minutes>(time);
-		else
+		switch (mDimension)
+		{
+		case Dimension::MILISECONDS:
 			return time_point_cast<milliseconds>(time);
+		case Dimension::SECONDS:
+			return time_point_cast<seconds>(time);
+		case Dimension::MINUTES:
+			return time_point_cast<minutes>(time);
+		case Dimension::NANOSECONDS:
+			return time_point_cast<nanoseconds>(time);
+		}
 	}
 	else
 	{

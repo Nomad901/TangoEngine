@@ -39,6 +39,8 @@
 #include "FPSRegulator.h"
 #include "Timer.h"
 #include "AnimatorManager.h"
+#include "DeferredLightSystem.h"
+#include "WaterRenderer.h"
 
 class Renderer;
 
@@ -91,10 +93,8 @@ public:
 		Timer mTimer;
 		FPSRegulator mFPSRegulator;
 
-		//
-		// for debugging;
-		//
-		bool mRenderTheQuadForGBuffer{ true };
+		WaterRenderer mWaterRenderer;
+		std::vector<Water> mWaterTiles;
 
 		bool mWindowWasChanged{ false };
 
@@ -111,11 +111,7 @@ public:
 		std::vector<glm::vec3> lightPositions;
 		std::vector<glm::vec3> lightColors;
 
-		float mAmbientIntensity{ 4.1f };
-		float mDiffuseIntensity{ 10.0f };
-		float mConstant{ 1.0f };
-		float mLinear{ -10.0f };
-		float mExp{ 0.032f };
+		DeferredLightSystem mDeferredLightSystem;
 
 		LightManager mLightManager;
 	};

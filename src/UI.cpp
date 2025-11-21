@@ -179,9 +179,11 @@ void UI::manageTerrain(SceneManager& pSceneManager)
 	setSpaces(3);
 
 	static int32_t size = 529;
-	static int32_t octaves = 4;
+	//static int32_t octaves = 4;
+	static int32_t octaves = 8;
 	static float minHeight = 0.0f;
-	static float maxHeight = 200.0f;
+	//static float maxHeight = 200.0f;
+	static float maxHeight = 400.0f;
 	static float amplitude = 50.0f;
 	static float frequency = 0.1f;
 	static float lacunarity = 2.0f;
@@ -282,12 +284,6 @@ void UI::manageLight(SceneManager& pSceneManager)
 	//setSlidersVec3(pSceneManager.getLightProperties().lightPositions[1], { { "Position light 2", std::make_pair(0.0f, 200.0f) } });
 	//setSlidersVec3(pSceneManager.getLightProperties().lightPositions[2], { { "Position light 3", std::make_pair(0.0f, 200.0f) } });
 	//setSlidersVec3(pSceneManager.getLightProperties().lightPositions[3], { { "Position light 4", std::make_pair(0.0f, 200.0f) } });
-	
-	setSliderFloat("Ambient intensity", pSceneManager.getLightProperties().mAmbientIntensity, -10.0f, 10.0f);
-	setSliderFloat("Diffuse intensity", pSceneManager.getLightProperties().mDiffuseIntensity, -100.0f, 100.0f);
-	setSliderFloat("Constant", pSceneManager.getLightProperties().mConstant, -10.0f, 10.0f);
-	setSliderFloat("Linear", pSceneManager.getLightProperties().mLinear, -100.0f, 100.0f);
-	setSliderFloat("Exp", pSceneManager.getLightProperties().mExp, -10.0f, 10.0f);
 
 	// ----------------------------
 
@@ -309,8 +305,6 @@ void UI::manageSystem(SceneManager& pSceneManager)
 
 	ImGui::SliderInt("Current texture", &pSceneManager.mProgramProperties.currentTexture, 0, 4);
 
-	ImGui::Checkbox("Render quad on the screen", &pSceneManager.mProgramProperties.mRenderTheQuadForGBuffer);
-	
 	setSpaces(2);
 
 	ImGui::SliderInt("Current number of quad to display", &pSceneManager.mModelProperties.displayedQuad, 0, 2);

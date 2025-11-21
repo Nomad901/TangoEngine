@@ -3,7 +3,7 @@
 
 void SceneManager::setAll()
 {
-	setLights();
+	//setLights();
 	//setLightCube();
 	setModels();
 	setSkybox();
@@ -12,7 +12,7 @@ void SceneManager::setAll()
 void SceneManager::setLights()
 {
 	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShaders["mainShader"]);
-
+	
 	mLightProperties.mLightManager.sendAllToShader(mProgramProperties.mShaders["singleColorShader"]);
 }
 

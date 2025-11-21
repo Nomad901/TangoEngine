@@ -48,13 +48,13 @@ void Initializer::initAll()
 	initUBO();
 	initTerrain();
 	initLights();
+	initCharacter();
+	initDeferredLights();
 
-	std::string resourcePath = mSceneManager->getProgramProperties().mResourcePath;
-	std::filesystem::path modelPath = resourcePath + "Models/boblampclean.md5mesh";
-	std::filesystem::path skinMeshVertPath = resourcePath + "Shaders/skinMeshTestVert.glsl";
-	std::filesystem::path skinMeshFragPath = resourcePath + "Shaders/skinMeshTestFrag.glsl";
-	
-	mSceneManager->getModelProperties().mAnimatorManager.pushAnimator("bobAnim", std::make_unique<Animator>(modelPath, skinMeshVertPath, skinMeshFragPath));
+	std::string resourcePath = RESOURCES_PATH;
+	mSceneManager->getProgramProperties().mWaterRenderer.init(resourcePath + "Shaders/waterVert.glsl", 
+															  resourcePath + "Shaders/waterFrag.glsl");
+	mSceneManager->getProgramProperties().mWaterTiles.push_back(Water(glm::vec3(541.0f, 50.0f, 524.0f))); 
 }
 
 void Initializer::initShaders()
@@ -73,24 +73,6 @@ void Initializer::initShaders()
 	// skybox shader
 	mSceneManager->getProgramProperties().mShaders.pushShader("skyboxShader", resourcePath + "Shaders/vertSkybox.glsl",
 																			  resourcePath + "Shaders/fragSkybox.glsl");
-	//
-	// Deferred Light shaders
-	//
-	// ----------------------
-	//
-	// point light pass
-	//
-	mSceneManager->getProgramProperties().mShaders.pushShader("pointLight", resourcePath + "Shaders/lightPassVert.glsl",
-																		    resourcePath + "Shaders/pointLightPassFrag.glsl");
-	// 
-	// directional light pass
-	//	
-	mSceneManager->getProgramProperties().mShaders.pushShader("dirLight", resourcePath + "Shaders/lightPassVert.glsl",
-																		  resourcePath + "Shaders/dirLightPassFrag.glsl");
-	// ----------------------
-
-	mSceneManager->getProgramProperties().mShaders.pushShader("nullShader", resourcePath + "Shaders/nullShaderVert.glsl",
-																			resourcePath + "Shaders/nullShaderFrag.glsl");
 
 	// skinMeshTest
 	mSceneManager->getProgramProperties().mShaders.pushShader("skinMesh", resourcePath + "Shaders/skinMeshTestVert.glsl",
@@ -166,22 +148,6 @@ void Initializer::initLights()
 	//mSceneManager->getLightProperties().mLightManager.pushLight("lampPost2", std::make_unique<PointLight>(glm::vec3(38.399986, 75.799416, -91.09918), 0.5f, 0.045f, 0.075f));
 	//mSceneManager->getLightProperties().mLightManager.pushLight("lampPost3", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -68.599525), 0.5f, 0.045f, 0.075f));
 	//mSceneManager->getLightProperties().mLightManager.pushLight("lampPost4", std::make_unique<PointLight>(glm::vec3(-125.79866, 75.899414, -88.19923), 0.5f, 0.045f, 0.075f));
-
-
-	const uint32_t NR_LIGHTS = 32;
-	for (uint32_t i = 0; i < NR_LIGHTS; i++)
-	{
-		// calculate slightly random offsets
-		float xPos = static_cast<float>(((rand() % mSceneManager->getModelProperties().mTerrain->getTerrainWorldSize())));
-		float yPos = 70.0f;
-		float zPos = static_cast<float>(((rand() % mSceneManager->getModelProperties().mTerrain->getTerrainWorldSize())));
-		mSceneManager->getLightProperties().lightPositions.push_back(glm::vec3(xPos, yPos, zPos));
-		// also calculate random color
-		float rColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-		float gColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-		float bColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-		mSceneManager->getLightProperties().lightColors.push_back(glm::vec3(rColor, gColor, bColor));
-	}
 }
 
 void Initializer::initCrosshair()
@@ -228,9 +194,11 @@ void Initializer::initTerrain()
 	//mSceneManager->getModelProperties().mTerrain->loadFromFile(resourcePath + "terrain.png");
 	
 	uint32_t size = 529;
-	uint32_t octaves = 4;
+	//uint32_t octaves = 4;
+	uint32_t octaves = 8;
 	float minHeight = 0.0f;
-	float maxHeight = 200.0f;
+	//float maxHeight = 200.0f;
+	float maxHeight = 400.0f;
 	float amplitude = 50.0f;   
 	float frequency = 0.1f;    
 	float lacunarity = 2.0f;   
@@ -243,13 +211,48 @@ void Initializer::initTerrain()
 	mSceneManager->getModelProperties().mTerrain->setOneColor(false);
 }
 
-/*
-	octave - how many iterations we should do for the grid
-	amplitude - how extreme our grid needs to be 
-	frequency - how much detail
-	lacunarity - how much we should increase our frequency per octave?
-	persistence - how quickly our grid should shrink per octave?
+void Initializer::initCharacter()
+{
+	std::string resourcePath = mSceneManager->getProgramProperties().mResourcePath;
+	std::filesystem::path modelPath = resourcePath + "Models/boblampclean.md5mesh";
+	std::filesystem::path skinMeshVertPath = resourcePath + "Shaders/skinMeshTestVert.glsl";
+	std::filesystem::path skinMeshFragPath = resourcePath + "Shaders/skinMeshTestFrag.glsl";
 
+	mSceneManager->getModelProperties().mAnimatorManager.pushAnimator("bobAnim", std::make_unique<Animator>(modelPath, skinMeshVertPath, skinMeshFragPath));
+}
 
-	// TODO: THE PROBLEM OF TERRAIN IN THE HEIGHT GENERATION!!! ABT MidPointDisp
-*/
+void Initializer::initDeferredLights()
+{
+	const uint32_t NR_LIGHTS = 32;
+	for (uint32_t i = 0; i < NR_LIGHTS; i++)
+	{
+		float xPos = static_cast<float>(((rand() % mSceneManager->getModelProperties().mTerrain->getTerrainWorldSize())));
+		float yPos = 70.0f;
+		float zPos = static_cast<float>(((rand() % mSceneManager->getModelProperties().mTerrain->getTerrainWorldSize())));
+		mSceneManager->getLightProperties().lightPositions.push_back(glm::vec3(xPos, yPos, zPos));
+		float rColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); 
+		float gColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); 
+		float bColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); 
+		mSceneManager->getLightProperties().lightColors.push_back(glm::vec3(rColor, gColor, bColor));
+	}
+
+	assert(mSceneManager->getLightProperties().lightPositions.size() ==
+		   mSceneManager->getLightProperties().lightColors.size());
+
+	uint32_t windowWidth  = mSceneManager->getProgramProperties().mWindowWidth;
+	uint32_t windowHeight = mSceneManager->getProgramProperties().mWindowHeight;
+
+	std::vector<std::pair<glm::vec3, glm::vec3>> positionsAndColorsLights;
+
+	for (size_t i = 0; i < mSceneManager->getLightProperties().lightPositions.size(); ++i)
+	{
+		auto posLight = &mSceneManager->getLightProperties().lightPositions[i];
+		auto colorLight = &mSceneManager->getLightProperties().lightColors[i];
+
+		std::pair<glm::vec3, glm::vec3> posAndColor = std::make_pair(*posLight, *colorLight);
+
+		positionsAndColorsLights.push_back(posAndColor);
+	}
+
+	mSceneManager->getLightProperties().mDeferredLightSystem.init(windowWidth, windowHeight, positionsAndColorsLights);
+}

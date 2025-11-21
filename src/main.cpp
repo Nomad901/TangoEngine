@@ -18,8 +18,9 @@ int32_t main(int32_t argc, int8_t* argv[])
 	1. collision - done
 	2. geomipMapping - done 
 	3. frustum culling (set locker on the camera) - done
-	4. light
-	5. make the terrain an endless, like optimize this
+	4. light - done
+	5. make the terrain endless, like optimize this
 	6. water 
-	7. repair other terrain generations 
+	7. create text technique which ang99 recommended me 
+	8. repair other terrain generations 
 */

@@ -20,6 +20,8 @@ public:
 	void initSkybox();
 	void initUBO();
 	void initTerrain();
+	void initCharacter();
+	void initDeferredLights();
 
 private:
 	SceneManager* mSceneManager;
