@@ -18,7 +18,7 @@ void Initializer::init(bool pInitAll)
 		(float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
 	// fbo
 	mSceneManager->getProgramProperties().mFBO = std::make_unique<FBO>(mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight,
-																	   glm::vec2(0.0f, 0.0f), glm::vec2(600.0f, 600.0f));
+																	   glm::vec2(0.0f, 0.0f), glm::vec2(600.0f, 600.0f), false);
 	mSceneManager->getProgramProperties().mFBO->setClearColors(glm::vec4(0.1f, 0.1f, 0.1f, 0.1f));
 	
 	// GBuffer
@@ -60,7 +60,7 @@ void Initializer::initAll()
 	uint32_t windowWidth = mSceneManager->getProgramProperties().mWindowWidth;
 	uint32_t windowHeight = mSceneManager->getProgramProperties().mWindowHeight;
 	mSceneManager->getProgramProperties().mWaterFBO = std::make_unique<WaterFBO>(windowWidth, windowHeight,
-																				 glm::vec2(0.0f, 0.0f), glm::vec2(320.0f, 180.0f),
+																				 glm::vec2(0.0f, -100.0f), glm::vec2(820.0f, 480.0f),
 																				 glm::vec2(0.0f, 0.0f), glm::vec2(windowWidth, windowHeight));
 }
 

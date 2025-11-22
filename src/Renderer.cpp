@@ -20,30 +20,21 @@ void Renderer::drawScene()
 {
 	ImGui::EndFrame();
 
-	auto deferredLighting = &mSceneManager->getLightProperties().mDeferredLightSystem;
-	deferredLighting->startGeometryPass();
+	glEnable(GL_CLIP_DISTANCE0);
 
-	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
-
-	deferredLighting->stopGeometryPass();
-
-	auto camera = &mSceneManager->getProgramProperties().mThirdPersonCam;
-	auto projMatrix = &mSceneManager->getModelProperties().mProjMatrix;
-	deferredLighting->startLightPass(*camera, *projMatrix);
-
-	mSceneManager->getProgramProperties().mWaterFBO->bindReflectionFBO();
+	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
 	
 	drawSceneTMP();
 
-	mSceneManager->getProgramProperties().mWaterFBO->unbindCurrentFBO();
+	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().stopAndRender();
+	glViewport(0, 0, 1280, 720);
 
 	drawSceneTMP();
 	mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
 		mSceneManager->getProgramProperties().mThirdPersonCam,
 		mSceneManager->getModelProperties().mProjMatrix);
-	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
 
-	deferredLighting->stopLightPassAndRenderFrame();
+	showFPS();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -130,19 +121,21 @@ void Renderer::setGLproperties()
 
 void Renderer::drawSceneTMP()
 {
+	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
+
 	//
 	// Skybox
 	//
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LEQUAL);
 	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 
 	// 
 	// Light cubes and fps
 	//
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	renderCubeLights();
 
 	Camera& cameraForChar = mSceneManager->getProgramProperties().mThirdPersonCam;
@@ -150,8 +143,6 @@ void Renderer::drawSceneTMP()
 	Timer& time = mSceneManager->getProgramProperties().mTimer;
 	mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->update(cameraForChar, projMat, time);
 	mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->render();
-
-	showFPS();
 }
 
 void Renderer::renderCubeLights()

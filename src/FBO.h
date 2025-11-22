@@ -17,6 +17,7 @@ public:
 	ScreenQuad(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize);
 
 	void init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize);
+	void initWithFlip(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize);
 
 	glm::vec2 getSize() const noexcept;
 	glm::vec2 getPos() const noexcept;
@@ -35,10 +36,12 @@ class FBO
 {
 public:
 	FBO() = default;
-	FBO(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize);
+	FBO(uint32_t pScreenWidth, uint32_t pScreenHeight, 
+		glm::vec2 pPos, glm::vec2 pSize, bool pFlipTexture);
 	~FBO();
 
-	void init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize);
+	void init(uint32_t pScreenWidth, uint32_t pScreenHeight, 
+			  glm::vec2 pPos, glm::vec2 pSize, bool pFlipTexture);
 
 	void destroy();
 

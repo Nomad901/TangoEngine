@@ -1,9 +1,9 @@
 #include "FBO.h"
 
-FBO::FBO(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize)
+FBO::FBO(uint32_t pScreenWidth, uint32_t pScreenHeight, 
+         glm::vec2 pPos, glm::vec2 pSize, bool pFlipTexture)
 {
-    init(pScreenWidth, pScreenHeight, pPos, pSize);
-    initShader();
+    init(pScreenWidth, pScreenHeight, pPos, pSize, pFlipTexture);
 }
 
 FBO::~FBO()
@@ -11,9 +11,15 @@ FBO::~FBO()
     destroy();
 }
 
-void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize)
+void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight, 
+               glm::vec2 pPos, glm::vec2 pSize, bool pFlipTexture)
 {
-    mScreenQuad.init(pScreenWidth, pScreenHeight, pPos, pSize);
+    if(!pFlipTexture)
+        mScreenQuad.init(pScreenWidth, pScreenHeight, pPos, pSize);
+    else 
+        mScreenQuad.initWithFlip(pScreenWidth, pScreenHeight, pPos, pSize);
+
+    initShader();
     mScreenWidth = pScreenWidth;
     mScreenHeight = pScreenHeight;
 
@@ -186,6 +192,46 @@ void ScreenQuad::init(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 p
         ndc.x,             ndc.y,              0.0f, 1.0f,  
         ndc.x + ndcSize.x, ndc.y - ndcSize.y,  1.0f, 0.0f,  
         ndc.x + ndcSize.x, ndc.y,              1.0f, 1.0f   
+    };
+
+    mVAO.bind();
+    mVBO.init(vertices, sizeof(vertices), GL_STATIC_DRAW);
+    mVBOLayout.pushLayout(GL_FLOAT, 2);
+    mVBOLayout.pushLayout(GL_FLOAT, 2);
+    mVAO.addBuffer(mVBO, mVBOLayout);
+}
+
+void ScreenQuad::initWithFlip(uint32_t pScreenWidth, uint32_t pScreenHeight, glm::vec2 pPos, glm::vec2 pSize)
+{
+    mSize = pSize;
+    mPos = pPos;
+
+    if (pPos.x == 0.0f)
+        pPos.x = 0.1f;
+    if (pPos.y == 0.0f)
+        pPos.y = 0.1f;
+    if (pSize.x == 0.0f)
+        pSize.x = 0.1f;
+    if (pSize.y == 0.1f)
+        pSize.y = 0.1f;
+
+    glm::vec2 ndc;
+    ndc.x = (pPos.x / pScreenWidth) * 2.0f - 1.0f;
+    ndc.y = 1.0f - (pPos.y / pScreenHeight) * 2.0f;
+
+    glm::vec2 ndcSize;
+    ndcSize.x = (pSize.x / pScreenWidth) * 2.0f;
+    ndcSize.y = (pSize.y / pScreenHeight) * 2.0f;
+
+    float vertices[] =
+    {
+        ndc.x,             ndc.y,              0.0f, 0.0f,
+        ndc.x,             ndc.y - ndcSize.y,  0.0f, 1.0f,
+        ndc.x + ndcSize.x, ndc.y - ndcSize.y,  1.0f, 1.0f,
+
+        ndc.x,             ndc.y,              0.0f, 0.0f,
+        ndc.x + ndcSize.x, ndc.y - ndcSize.y,  1.0f, 1.0f,
+        ndc.x + ndcSize.x, ndc.y,              1.0f, 0.0f
     };
 
     mVAO.bind();
