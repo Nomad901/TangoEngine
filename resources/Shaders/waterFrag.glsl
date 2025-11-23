@@ -4,6 +4,7 @@ out vec4 fragColor;
 
 in vec4 fragClipSpace;
 in vec2 fragTexCoord;
+in vec3 fragToCameraVector;
 
 uniform sampler2D uReflectionTexture;
 uniform sampler2D uRefractionTexture;
@@ -33,6 +34,10 @@ void main()
 	vec4 reflectionTexture = texture(uReflectionTexture, reflectionTexCoord);
 	vec4 refractionTexture = texture(uRefractionTexture, refractionTexCoord);
 	
-	fragColor = mix(reflectionTexture, refractionTexture, 0.5f);
+	vec3 normalizedCamVec = normalize(fragToCameraVector);
+	float fresnelEffectFactor = dot(normalizedCamVec, vec3(0.0f, 1.0f, 0.0f));
+	//fresnelEffectFactor = pow(fresnelEffectFactor, 10.0f);
+
+	fragColor = mix(reflectionTexture, refractionTexture, fresnelEffectFactor);
 	fragColor = mix(fragColor, vec4(0.0f, 0.3f, 0.5f, 1.0f), 0.2f);
 }

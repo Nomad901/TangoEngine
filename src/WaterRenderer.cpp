@@ -46,6 +46,7 @@ void WaterRenderer::bind(Camera& pCamera, const glm::mat4& pProjMat,
 	mWaterShader.bind();
 	mWaterShader.setMatrixUniform4fv("uProj", pProjMat);
 	mWaterShader.setMatrixUniform4fv("uView", pCamera.getViewMatrix());
+	mWaterShader.setUniform3fv("uCameraPos", pCamera.getPos());
 	mWaterShader.setReflectionTexture("uReflectionTexture", pWaterFBO);
 	mWaterShader.setRefractionTexture("uRefractionTexture", pWaterFBO);
 	mWaterShader.setDuDvMap("uDuDvMap", mDuDvWaterTexture);
