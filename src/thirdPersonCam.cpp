@@ -1,6 +1,6 @@
 #include "thirdPersonCam.h"
 
-void thirdPersonCam::update(const SDL_Event& pEvents, const glm::vec3& pCharacterPos, float& pRotationCharY)
+void thirdPersonCam::update(const SDL_Event& pEvents, const glm::vec3& pCharacterPos)
 {
 	calculateDistance(pEvents);
 	calculateMouseActions(pEvents);

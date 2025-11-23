@@ -9,18 +9,17 @@ FrustumCulling::FrustumCulling(const glm::mat4& pViewProjMat)
 void FrustumCulling::update(const glm::mat4& pViewProjMat)
 {
 	const glm::mat4 viewProjMat = glm::transpose(pViewProjMat);
-
+	 
 	mPlanes[getIndex(PlaneType::LEFT_FACE)].setClipPlaneVec((viewProjMat[3]   + viewProjMat[0]));
 	mPlanes[getIndex(PlaneType::RIGHT_FACE)].setClipPlaneVec((viewProjMat[3]  - viewProjMat[0]));
 	mPlanes[getIndex(PlaneType::BOTTOM_FACE)].setClipPlaneVec((viewProjMat[3] + viewProjMat[1]));
 	mPlanes[getIndex(PlaneType::TOP_FACE)].setClipPlaneVec((viewProjMat[3]    - viewProjMat[1]));
 	mPlanes[getIndex(PlaneType::NEAR_FACE)].setClipPlaneVec((viewProjMat[3]   + viewProjMat[2]));
 	mPlanes[getIndex(PlaneType::FAR_FACE)].setClipPlaneVec((viewProjMat[3]    - viewProjMat[2]));
-
+	 
 	for (auto& i : mPlanes)
 	{
-		float length = glm::length(glm::vec3(i.getClipPlaneVec()));
-		i.setClipPlaneVec((i.getClipPlaneVec() / length));
+		i.setClipPlaneVec(glm::normalize(i.getClipPlaneVec()));
 	}
 }
 

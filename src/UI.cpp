@@ -343,6 +343,28 @@ void UI::manageCharacter(SceneManager& pSceneManager)
 	endFrame();
 }
 
+void UI::manageWater(SceneManager& pSceneManager)
+{
+	setNewWindow("Water", glm::vec2(800.0f, 20.0f), glm::vec2(400.0f, 200.0f));
+
+	beginFrame("Water", pSceneManager);
+
+	setSlidersVec3(pSceneManager.getProgramProperties().mWaterPos,
+		{
+			{"Pos x", std::make_pair(-10000.0f, 10000.0f)},
+			{"Pos y", std::make_pair(-10000.0f, 10000.0f)},
+			{"Pos z", std::make_pair(-10000.0f, 10000.0f)}
+		});
+	setSlidersVec3(pSceneManager.getProgramProperties().mWaterScale,
+		{
+			{"Scale x", std::make_pair(0.0f, 10000.0f)},
+			{"Scale y", std::make_pair(0.0f, 10000.0f)},
+			{"Scale z", std::make_pair(0.0f, 10000.0f)}
+		});
+
+	endFrame();
+}
+
 void UI::manageAll(SceneManager& pSceneManager)
 {
 	manageTerrain(pSceneManager);
@@ -350,4 +372,5 @@ void UI::manageAll(SceneManager& pSceneManager)
 	manageLight(pSceneManager);
 	manageSystem(pSceneManager);
 	manageCharacter(pSceneManager);
+	manageWater(pSceneManager);
 }

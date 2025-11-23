@@ -61,6 +61,7 @@ private:
 	void manageLight(SceneManager& pSceneManager);
 	void manageSystem(SceneManager& pSceneManager);
 	void manageCharacter(SceneManager& pSceneManager);
+	void manageWater(SceneManager& pSceneManager);
 	void manageAll(SceneManager& pSceneManager);
 	// -----------
 

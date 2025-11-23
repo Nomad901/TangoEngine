@@ -1,16 +1,27 @@
 #include "Water.h"
 
-Water::Water(const glm::vec3& pWaterPos)
+Water::Water(const glm::vec3& pWaterPos, const glm::vec3& pTileSize)
 {
-	init(pWaterPos);
+	init(pWaterPos, pTileSize);
 }
 
-void Water::init(const glm::vec3& pWaterPos)
+void Water::init(const glm::vec3& pWaterPos, const glm::vec3& pTileSize)
+{
+	mWaterPos = pWaterPos;
+	mTileSize = pTileSize;
+}
+
+void Water::setWaterPos(const glm::vec3& pWaterPos)
 {
 	mWaterPos = pWaterPos;
 }
 
-uint32_t Water::getTileSize() const noexcept
+void Water::setTileSize(const glm::vec3& pTileSize)
+{
+	mTileSize = pTileSize;
+}
+
+const glm::vec3& Water::getTileSize() const noexcept
 {
 	return mTileSize;
 }

@@ -7,15 +7,18 @@ class Water
 {
 public:
 	Water() = default;
-	Water(const glm::vec3& pWaterPos);
+	Water(const glm::vec3& pWaterPos, const glm::vec3& pTileSize);
 
-	void init(const glm::vec3& pWaterPos);
+	void init(const glm::vec3& pWaterPos, const glm::vec3& pTileSize);
 
-	uint32_t getTileSize() const noexcept;
+	void setWaterPos(const glm::vec3& pWaterPos);
+	void setTileSize(const glm::vec3& pTileSize);
+
+	const glm::vec3& getTileSize() const noexcept;
 	const glm::vec3& getWaterPos() const noexcept;
 	
 private:
-	const uint32_t mTileSize{ 529 };
+	glm::vec3 mTileSize;
 	glm::vec3 mWaterPos;
 };
 

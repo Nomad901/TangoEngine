@@ -8,7 +8,7 @@ class thirdPersonCam : public Camera
 public:
 	thirdPersonCam() = default;
 
-	void update(const SDL_Event& pEvents, const glm::vec3& pCharacterPos, float& pRotationCharY);
+	void update(const SDL_Event& pEvents, const glm::vec3& pCharacterPos);
 	void resetAngleAroundPlayer();
 	void setZoom(float pZoom) override;
 

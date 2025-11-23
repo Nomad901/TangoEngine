@@ -55,7 +55,7 @@ void Initializer::initAll()
 	mSceneManager->getProgramProperties().mWaterRenderer.init(resourcePath + "Shaders/waterVert.glsl", 
 															  resourcePath + "Shaders/waterFrag.glsl",
 															  resourcePath + "wdudv.png");
-	mSceneManager->getProgramProperties().mWaterTiles.push_back(Water(glm::vec3(541.0f, 50.0f, 524.0f))); 
+	mSceneManager->getProgramProperties().mWaterTiles.push_back(Water(glm::vec3(541.0f, 50.0f, 524.0f), glm::vec3(1.0f))); 
 
 
 	uint32_t windowWidth = mSceneManager->getProgramProperties().mWindowWidth;

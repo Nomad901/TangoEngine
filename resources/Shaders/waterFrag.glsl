@@ -20,16 +20,19 @@ void main()
 	vec2 refractionTexCoord = vec2(ndc.x,  ndc.y);
 	
 	vec2 distortion1 = (texture(uDuDvMap, vec2(fragTexCoord.x + uMoveFactor, fragTexCoord.y)).rg * 2.0f - 1.0f) * waveStrength;
+	vec2 distortion2 = (texture(uDuDvMap, vec2(-fragTexCoord.x + uMoveFactor, fragTexCoord.y + uMoveFactor)).rg * 2.0f - 1.0f) * waveStrength;
+	vec2 totalDistortion = distortion1 + distortion2;
 
-	reflectionTexCoord += distortion1;
-	reflectionTexCoord = clamp(reflectionTexCoord, 0.001f, 0.999f);
-
-	refractionTexCoord += distortion1;
-	refractionTexCoord.x = clamp(refractionTexCoord.x,  0.001f, 0.999f);
-	refractionTexCoord.y = clamp(refractionTexCoord.y, -0.999f, -0.001f);
-
+	refractionTexCoord += totalDistortion;
+	refractionTexCoord = clamp(refractionTexCoord, 0.001f, 0.999f);
+	
+	reflectionTexCoord += totalDistortion;
+	reflectionTexCoord.x = clamp(reflectionTexCoord.x,  0.001f, 0.999f);
+	reflectionTexCoord.y = clamp(reflectionTexCoord.y, -0.999f, -0.001f);
+	
 	vec4 reflectionTexture = texture(uReflectionTexture, reflectionTexCoord);
 	vec4 refractionTexture = texture(uRefractionTexture, refractionTexCoord);
 	
 	fragColor = mix(reflectionTexture, refractionTexture, 0.5f);
+	fragColor = mix(fragColor, vec4(0.0f, 0.3f, 0.5f, 1.0f), 0.2f);
 }

@@ -1,13 +1,15 @@
 #pragma once
 #include "SceneManager.h"
 
+class Controler;
+
 class Renderer
 {
 public:
 	Renderer(SceneManager* pSceneManager);
 	
 	void preDrawScene();
-	void drawScene();
+	void drawScene(Controler* pControler);
 	void showFPS();
 
 private:

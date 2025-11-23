@@ -96,6 +96,8 @@ public:
 		WaterRenderer mWaterRenderer;
 		std::unique_ptr<WaterFBO> mWaterFBO;
 		std::vector<Water> mWaterTiles;
+		glm::vec3 mWaterPos{ glm::vec3(1147.0f, 50.0f, 1229.0f) };
+		glm::vec3 mWaterScale{ glm::vec3(1147.0f, 50.0f, 1229.0f) };
 
 		bool mWindowWasChanged{ false };
 

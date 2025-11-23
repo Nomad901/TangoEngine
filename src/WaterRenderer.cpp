@@ -24,11 +24,9 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 	bind(pCamera, pProjMat, pWaterFBO);
 	for (auto& i : pWaterTiles)
 	{
-		glm::vec3 waterPos = i.getWaterPos();
-		mQuadTransform.setLocalPosition(glm::vec3(waterPos.x, waterPos.y, waterPos.z));
+		mQuadTransform.setLocalPosition(i.getWaterPos());
 		mQuadTransform.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-		float tileSize = i.getTileSize();
-		mQuadTransform.setLocalScale(glm::vec3(tileSize, tileSize, tileSize));
+		mQuadTransform.setLocalScale(i.getTileSize());
 
 		mWaterShader.setMatrixUniform4fv("uModel", mQuadTransform.getModelMatrix());
 

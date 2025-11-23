@@ -139,7 +139,7 @@ void Program::preUpdate()
 
 void Program::update()
 {
-	mRenderer.drawScene();
+	mRenderer.drawScene(mControler.get());
 	mControler->getPlayer().renderCharacter(mSceneManager.getProgramProperties().mShaders["mainShader"]);
 
 	mSceneManager.getProgramProperties().mWindowWasChanged = false;

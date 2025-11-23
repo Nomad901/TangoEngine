@@ -1,4 +1,5 @@
 ﻿#include "Renderer.h"
+#include "Controler.h"
 
 Renderer::Renderer(SceneManager* pSceneManager)
 {
@@ -16,9 +17,12 @@ void Renderer::preDrawScene()
 													  mSceneManager->mProgramProperties.mCamera.getViewMatrix());
 }
 
-void Renderer::drawScene()
+void Renderer::drawScene(Controler* pControler)
 {
 	ImGui::EndFrame();
+
+	mSceneManager->getProgramProperties().mWaterTiles[0].setWaterPos(mSceneManager->getProgramProperties().mWaterPos);
+	mSceneManager->getProgramProperties().mWaterTiles[0].setTileSize(mSceneManager->getProgramProperties().mWaterScale);
 
 	glEnable(GL_CLIP_DISTANCE0);
 	
@@ -35,9 +39,11 @@ void Renderer::drawScene()
 	float distance = 2 * (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
 	camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y - distance, camera->getPos().z));
 	camera->setPitch(-camera->getPitch());
+	camera->update(pControler->getEvents(), pControler->getPlayer().getPos());
 	drawSceneTMP();
 	camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y + distance, camera->getPos().z));
 	camera->setPitch(-camera->getPitch());
+	camera->update(pControler->getEvents(), pControler->getPlayer().getPos());
 	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().stop();
 	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
 				     mSceneManager->getProgramProperties().mWindowHeight);
@@ -53,7 +59,7 @@ void Renderer::drawScene()
 																mSceneManager->getProgramProperties().mTimer.getDeltaTime(false));
 
 	showFPS();
-	
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

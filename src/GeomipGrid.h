@@ -47,7 +47,6 @@ private:
 							   int32_t pLodTop, int32_t pLodBottom, int32_t pX, int32_t pZ);
 	int32_t calcNumIndices();
 
-	bool isPatchInsideFrustum_ViewSpace(int32_t pX, int32_t pZ, const glm::mat4& pViewProj);
 	bool isPatchInsideFrustum_WorldSpace(int32_t pX, int32_t pZ, const FrustumCulling& pFrustumCulling);
 	bool isCameraInPatch(const glm::vec3& pCameraPos, int32_t pX, int32_t pZ);
 

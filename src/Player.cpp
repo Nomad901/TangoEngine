@@ -131,7 +131,7 @@ void Player::update(const glm::mat4& pProjMatrix, float pDeltaTime, const std::v
 	}
 	else
 	{
-		mThirdPersonCam.update(mEvents, mPos, mRotationY);
+		mThirdPersonCam.update(mEvents, mPos);
 		viewMatrix = mThirdPersonCam.getViewMatrix();
 	}
 	mPlayerHitbox.initMVP(pProjMatrix, viewMatrix,
