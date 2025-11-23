@@ -23,18 +23,31 @@ void Renderer::drawScene()
 	glEnable(GL_CLIP_DISTANCE0);
 
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
-	
+	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, -1.0f, 0.0f, 50.0f);
 	drawSceneTMP();
+	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().stop();
+	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
+					 mSceneManager->getProgramProperties().mWindowHeight);
 
-	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().stopAndRender();
-	glViewport(0, 0, 1280, 720);
+	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().start();
+	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -50.0f);
+	drawSceneTMP();
+	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().stop();
+	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
+				     mSceneManager->getProgramProperties().mWindowHeight);
 
+	glDisable(GL_CLIP_DISTANCE0);
+	
+	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, 10000.0f);
 	drawSceneTMP();
 	mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
-		mSceneManager->getProgramProperties().mThirdPersonCam,
-		mSceneManager->getModelProperties().mProjMatrix);
+															    mSceneManager->getProgramProperties().mThirdPersonCam,
+															    mSceneManager->getModelProperties().mProjMatrix);
 
 	showFPS();
+	
+	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
+	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().render();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -121,7 +134,9 @@ void Renderer::setGLproperties()
 
 void Renderer::drawSceneTMP()
 {
-	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, mSceneManager->mModelProperties.mProjMatrix);
+	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, 
+													  mSceneManager->mModelProperties.mProjMatrix,
+													  mSceneManager->getModelProperties().mPlaneTerrainHeight);
 
 	//
 	// Skybox

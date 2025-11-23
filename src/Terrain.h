@@ -29,7 +29,7 @@ public:
 	void finalizeTerrain();
 
 	void updateLights(bool pRotateLightAround);
-	void render(Camera* pCamera, const glm::mat4& pProj);
+	void render(Camera* pCamera, const glm::mat4& pProj, const glm::vec4& pPlaneVec4);
 
 	void setHeights(float pHeight0, float pHeight1, float pHeight2, float pHeight3);
 	void setPos(const glm::vec3& pPos);

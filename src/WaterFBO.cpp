@@ -14,7 +14,7 @@ void WaterFBO::init(uint32_t pWindowWidth, uint32_t pWindowHeight,
 				    glm::vec2 pRefractionPos, glm::vec2 pRefractionSize)
 {
 	mReflectionFBO.init(pWindowWidth, pWindowHeight, pReflectionPos, pReflectionSize, true);
-	mRefractionFBO.init(pWindowWidth, pWindowHeight, pRefractionPos, pRefractionSize, false);
+	mRefractionFBO.init(pWindowWidth, pWindowHeight, pRefractionPos, pRefractionSize, true);
 }
 
 void WaterFBO::destroy()

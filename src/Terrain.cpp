@@ -163,7 +163,7 @@ void Terrain::updateLights(bool pRotateLightAround)
 	mSlopeLight.init(mHeightMap, mSlopeLight.getDirectionLight(), mTerrainSize, mSlopeLight.getSoftness());
 }
 
-void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
+void Terrain::render(Camera* pCamera, const glm::mat4& pProj, const glm::vec4& pPlaneVec4)
 {
 	mShader.bind();
 	glm::mat4 model = glm::mat4(1.0f);
@@ -171,6 +171,7 @@ void Terrain::render(Camera* pCamera, const glm::mat4& pProj)
 	mShader.setMatrixUniform4fv("uModel", model);
 	mShader.setMatrixUniform4fv("uView", pCamera->getViewMatrix());
 	mShader.setMatrixUniform4fv("uProj", pProj);
+	mShader.setUniform4fv("uPlane", pPlaneVec4);
 	mTextures[1]->bind(0);
 	mShader.setUniform1i("uColorMap", 0);
 	glm::mat4 vpMat = pProj * pCamera->getViewMatrix();

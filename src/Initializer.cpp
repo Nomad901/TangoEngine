@@ -60,8 +60,8 @@ void Initializer::initAll()
 	uint32_t windowWidth = mSceneManager->getProgramProperties().mWindowWidth;
 	uint32_t windowHeight = mSceneManager->getProgramProperties().mWindowHeight;
 	mSceneManager->getProgramProperties().mWaterFBO = std::make_unique<WaterFBO>(windowWidth, windowHeight,
-																				 glm::vec2(0.0f, -100.0f), glm::vec2(820.0f, 480.0f),
-																				 glm::vec2(0.0f, 0.0f), glm::vec2(windowWidth, windowHeight));
+																				 glm::vec2(800.0f, 100.0f), glm::vec2(420.0f, 280.0f),
+																				 glm::vec2(100.0f, 100.0f), glm::vec2(420.0f, 280.0f));
 }
 
 void Initializer::initShaders()

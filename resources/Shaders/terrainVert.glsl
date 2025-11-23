@@ -13,9 +13,14 @@ uniform mat4 uView;
 uniform mat4 uProj;
 uniform mat4 uModel;
 
+uniform vec4 uPlane; 
+
 void main()
 {
 	vec4 worldPos = uModel * vec4(pos, 1.0f);
+
+	gl_ClipDistance[0] = dot(worldPos, uPlane);
+	
 	TexCoord = posTex;
 	FragPos = worldPos.xyz;
 	Normals = (uModel * vec4(normals, 0.0f)).xyz;
