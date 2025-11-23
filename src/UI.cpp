@@ -32,11 +32,35 @@ void UI::control(SceneManager& pSceneManager)
 	manageAll(pSceneManager);
 }
 
+void UI::beginFrame(std::string_view pName, SceneManager& pSceneManager)
+{
+	ImGui::Begin(std::string(pName).c_str(), &pSceneManager.getProgramProperties().mProgIsRunning, ImGuiFocusedFlags_None);
+}
+
+void UI::endFrame()
+{
+	ImGui::End();
+}
+
 void UI::createWindow(glm::vec2 pPos, glm::vec2 pSize, bool pIsCollapsed)
 {
 	ImGui::SetNextWindowPos({ pPos.x, pPos.y });
 	ImGui::SetNextWindowSize({ pSize.x, pSize.y });
 	ImGui::SetNextWindowCollapsed(pIsCollapsed);
+}
+
+void UI::setNewWindow(std::string_view pWindowName, glm::vec2 pWindowPos, glm::vec2 pWindowSize)
+{
+	if (!mWindows.contains(pWindowName))
+		mWindows.emplace(pWindowName, true);
+
+	if (mWindows[pWindowName])
+	{
+		mWindowPos  = pWindowPos;
+		mWindowSize = pWindowSize;
+		createWindow(mWindowPos, mWindowSize, mWindowIsCollapsed);
+		mWindows[pWindowName] = false;
+	}
 }
 
 void UI::setSpaces(uint32_t pAmountOfSpaces)
@@ -50,6 +74,11 @@ void UI::setSpaces(uint32_t pAmountOfSpaces)
 void UI::setSliderFloat(std::string_view pName, float& pValue, float pMin, float pMax)
 {
 	ImGui::SliderFloat(std::string(pName).c_str(), &pValue, pMin, pMax);
+}
+
+void UI::setSliderInt(std::string_view pName, int32_t& pValue, int32_t pMin, int32_t pMax)
+{
+	ImGui::SliderInt(std::string(pName).c_str(), &pValue, pMin, pMax);
 }
 
 void UI::setSlidersVec2(glm::vec2& pVec2, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam)
@@ -163,14 +192,9 @@ void UI::setColorVec4(std::string_view pName, glm::vec4& pVecColor)
 
 void UI::manageTerrain(SceneManager& pSceneManager)
 {
-	static bool firstTime = true;
-	if (firstTime)
-	{
-		createWindow(mWindowPos, mWindowSize, mWindowIsCollapsed);
-		firstTime = false;
-	}
+	setNewWindow("Control", mWindowPos, mWindowSize);
 
-	ImGui::Begin("Control", &pSceneManager.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
+	beginFrame("Control", pSceneManager);
 
 	// -------- CONTROLING --------
 	ImGui::Checkbox("Wireframe", &pSceneManager.mProgramProperties.mWireFrameMode);
@@ -189,15 +213,15 @@ void UI::manageTerrain(SceneManager& pSceneManager)
 	static float lacunarity = 2.0f;
 	static float persistence = 0.5f;
 
-	ImGui::SliderInt("Octaves", &octaves, 1, 15);
+	setSliderInt("Octaves", octaves, 1, 15);
 
-	ImGui::SliderFloat("Min height", &minHeight, 0.0f, 1000.0f);
-	ImGui::SliderFloat("Max height", &maxHeight, 0.0f, 1000.0f);
+	setSliderFloat("Min height", minHeight, 0.0f, 1000.0f);
+	setSliderFloat("Max height", maxHeight, 0.0f, 1000.0f);
 
-	ImGui::SliderFloat("Amplitude", &amplitude, 0.0f, 100.0f);
-	ImGui::SliderFloat("Frequency", &frequency, 0.001f, 10.0f);
-	ImGui::SliderFloat("Lacunarity", &lacunarity, 0.0f, 10.0f);
-	ImGui::SliderFloat("persistence", &persistence, 0.01, 5.0f);
+	setSliderFloat("Amplitude", amplitude, 0.0f, 100.0f);
+	setSliderFloat("Frequency", frequency, 0.001f, 10.0f);
+	setSliderFloat("Lacunarity", lacunarity, 0.0f, 10.0f);
+	setSliderFloat("persistence", persistence, 0.01, 5.0f);
 
 	if (ImGui::Button("Reset"))
 	{
@@ -223,21 +247,14 @@ void UI::manageTerrain(SceneManager& pSceneManager)
 	}
 	// ----------------------------
 
-	ImGui::End();
+	endFrame();
 }
 
 void UI::manageFonts(SceneManager& pSceneManager)
 {
-	static bool firstTimeSecond = true;
-	if (firstTimeSecond)
-	{
-		mWindowPos = glm::vec2(400.0f, 1.0f);
-		mWindowSize = glm::vec2(400.0f, 200.0f);
-		createWindow(mWindowPos, mWindowSize, mWindowIsCollapsed);
-		firstTimeSecond = false;
-	}
-
-	ImGui::Begin("Font", &pSceneManager.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
+	setNewWindow("Font", glm::vec2(400.0f, 1.0f), glm::vec2(400.0f, 200.0f));
+	
+	beginFrame("Font", pSceneManager);
 
 	// -------- CONTROLING --------
 	static bool showFps = true;
@@ -253,21 +270,14 @@ void UI::manageFonts(SceneManager& pSceneManager)
 	setColorVec3("Color", pSceneManager.getProgramProperties().mColorFont);
 	// ----------------------------
 
-	ImGui::End();
+	endFrame();
 }
 
 void UI::manageLight(SceneManager& pSceneManager)
 {
-	static bool firstTimeLight = true;
-	if (firstTimeLight)
-	{
-		mWindowPos = glm::vec2(800.0f, 1.0f);
-		mWindowSize = glm::vec2(400.0f, 200.0f);
-		createWindow(mWindowPos, mWindowSize, mWindowIsCollapsed);
-		firstTimeLight = false;
-	}
+	setNewWindow("Light", glm::vec2(800.0f, 1.0f), glm::vec2(400.0f, 200.0f));
 
-	ImGui::Begin("Light", &pSceneManager.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
+	beginFrame("Light", pSceneManager);
 
 	// -------- CONTROLING --------
 	//setSlidersVec3(pSceneManager.getLightProperties().mLightDir, { {"Direction", std::make_pair(-500.0f, 500.0f)} });
@@ -287,29 +297,50 @@ void UI::manageLight(SceneManager& pSceneManager)
 
 	// ----------------------------
 
-	ImGui::End();
+	endFrame();
 }
 
 void UI::manageSystem(SceneManager& pSceneManager)
 {
-	static bool firstTimeLight = true;
-	if (firstTimeLight)
-	{
-		mWindowPos = glm::vec2(1.0f, 20.0f);
-		mWindowSize = glm::vec2(300.0f, 200.0f);
-		createWindow(mWindowPos, mWindowSize, mWindowIsCollapsed);
-		firstTimeLight = false;
-	}
+	setNewWindow("System", glm::vec2(1.0f, 20.0f), glm::vec2(400.0f, 200.0f));
 
-	ImGui::Begin("System", &pSceneManager.mProgramProperties.mProgIsRunning, ImGuiFocusedFlags_None);
+	beginFrame("System", pSceneManager);
 
-	ImGui::SliderInt("Current texture", &pSceneManager.mProgramProperties.currentTexture, 0, 4);
+	setSliderInt("Current texture", pSceneManager.mProgramProperties.currentTexture, 0, 4);
 
 	setSpaces(2);
 
-	ImGui::SliderInt("Current number of quad to display", &pSceneManager.mModelProperties.displayedQuad, 0, 2);
+	setSliderInt("Current number of quad to display", pSceneManager.mModelProperties.displayedQuad, 0, 2);
 
-	ImGui::End();
+	endFrame();
+}
+
+void UI::manageCharacter(SceneManager& pSceneManager)
+{
+	setNewWindow("Character", glm::vec2(400.0f, 20.0f), glm::vec2(400.0f, 200.0f));
+
+	beginFrame("Character", pSceneManager);
+	
+	setSlidersVec3(pSceneManager.getModelProperties().mCharPos, 
+		{ 
+			{"Pos x", std::make_pair(-1000.0f, 1000.0f)},
+			{"Pos y", std::make_pair(-1000.0f, 1000.0f)},
+			{"Pos z", std::make_pair(-1000.0f, 1000.0f)}
+		});
+	setSlidersVec3(pSceneManager.getModelProperties().mCharRotation,
+		{
+			{"Rotation x", std::make_pair(-360.0f, 360.0f)},
+			{"Rotation y", std::make_pair(-360.0f, 360.0f)},
+			{"Rotation z", std::make_pair(-360.0f, 360.0f)}
+		});
+	setSlidersVec3(pSceneManager.getModelProperties().mCharScale,
+		{
+			{"Scale x", std::make_pair(-100.0f, 100.0f)},
+			{"Scale y", std::make_pair(-100.0f, 100.0f)},
+			{"Scale z", std::make_pair(-100.0f, 100.0f)}
+		});
+
+	endFrame();
 }
 
 void UI::manageAll(SceneManager& pSceneManager)
@@ -318,4 +349,5 @@ void UI::manageAll(SceneManager& pSceneManager)
 	manageFonts(pSceneManager);
 	manageLight(pSceneManager);
 	manageSystem(pSceneManager);
+	manageCharacter(pSceneManager);
 }

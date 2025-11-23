@@ -348,9 +348,10 @@ int32_t GeomipGrid::calcNumIndices()
 void GeomipGrid::render(Camera* pCamera, const glm::mat4& pViewProj)
 {
 	mLodManager.update(pCamera->getPos());
-	FrustumCulling frustumCulling(pViewProj);
+	FrustumCulling frustumCulling;
+	frustumCulling.update(pViewProj);
 	mVAO.bind();
-
+	
 	float patchSize = static_cast<float>(mPatchSize - 1.0f) * mWorldScale;
 	float halfPatchSize = patchSize / 2.0f;
 	for (uint32_t patchZ = 0; patchZ < mNumPatchesZ; ++patchZ)
@@ -360,7 +361,9 @@ void GeomipGrid::render(Camera* pCamera, const glm::mat4& pViewProj)
 			int32_t z = patchZ * (mPatchSize - 1);
 			int32_t x = patchX * (mPatchSize - 1);
 
-			if (!isPatchInsideFrustum_ViewSpace(x, z, pViewProj))
+			//if (!isPatchInsideFrustum_ViewSpace(x, z, pViewProj))
+			//	continue;
+			if (!isPatchInsideFrustum_WorldSpace(x, z, frustumCulling))
 				continue;
 
 			const LodManager::PatchLod& patchLod = mLodManager.getPatchLod(patchX, patchZ);
@@ -437,27 +440,14 @@ bool GeomipGrid::isPatchInsideFrustum_WorldSpace(int32_t pX, int32_t pZ, const F
 	float minHeight = std::min(h00, std::min(h01, std::min(h10, h11)));
 	float maxHeight = std::max(h00, std::max(h01, std::max(h10, h11)));
 	
-	glm::vec3 p00_min = glm::vec3(static_cast<float>(x0) * mWorldScale, minHeight, static_cast<float>(z0) * mWorldScale);
-	glm::vec3 p01_min = glm::vec3(static_cast<float>(x0) * mWorldScale, minHeight, static_cast<float>(z1) * mWorldScale);
-	glm::vec3 p10_min = glm::vec3(static_cast<float>(x1) * mWorldScale, minHeight, static_cast<float>(z0) * mWorldScale);
-	glm::vec3 p11_min = glm::vec3(static_cast<float>(x1) * mWorldScale, minHeight, static_cast<float>(z1) * mWorldScale);
+	glm::vec3 minBounds = glm::vec3(static_cast<float>(x0) * mWorldScale, 
+									minHeight, 
+									static_cast<float>(z0) * mWorldScale);
+	glm::vec3 maxBounds = glm::vec3(static_cast<float>(x1) * mWorldScale,
+									maxHeight,
+									static_cast<float>(z1) * mWorldScale);
 
-	glm::vec3 p00_max = glm::vec3(static_cast<float>(x0) * mWorldScale, maxHeight, static_cast<float>(z0) * mWorldScale);
-	glm::vec3 p01_max = glm::vec3(static_cast<float>(x0) * mWorldScale, maxHeight, static_cast<float>(z1) * mWorldScale);
-	glm::vec3 p10_max = glm::vec3(static_cast<float>(x1) * mWorldScale, maxHeight, static_cast<float>(z0) * mWorldScale);
-	glm::vec3 p11_max = glm::vec3(static_cast<float>(x1) * mWorldScale, maxHeight, static_cast<float>(z1) * mWorldScale);
-	
-	bool isInside =
-		pFrustumCulling.isPointInsideViewFrustum(p00_min) ||
-		pFrustumCulling.isPointInsideViewFrustum(p01_min) ||
-		pFrustumCulling.isPointInsideViewFrustum(p10_min) ||
-		pFrustumCulling.isPointInsideViewFrustum(p11_min) ||
-		pFrustumCulling.isPointInsideViewFrustum(p00_max) ||
-		pFrustumCulling.isPointInsideViewFrustum(p01_max) ||
-		pFrustumCulling.isPointInsideViewFrustum(p10_max) ||
-		pFrustumCulling.isPointInsideViewFrustum(p11_max);
-
-	return false;
+	return pFrustumCulling.isAABBInsideViewFrustum(minBounds, maxBounds);
 }
 
 bool GeomipGrid::isCameraInPatch(const glm::vec3& pCameraPos, int32_t pX, int32_t pZ)

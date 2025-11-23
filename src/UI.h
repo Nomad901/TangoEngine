@@ -29,10 +29,15 @@ private:
 	// ImGui UI
 	// 
 	// --------
+	void beginFrame(std::string_view pName, SceneManager& pSceneManager);
+	void endFrame();
+
 	void createWindow(glm::vec2 pPos, glm::vec2 pSize, bool pIsCollapsed);
+	void setNewWindow(std::string_view pWindowName, glm::vec2 pWindowPos, glm::vec2 pWindowSize);
 	void setSpaces(uint32_t pAmountOfSpaces);
 
 	void setSliderFloat(std::string_view pName, float& pValue, float pMin, float pMax);
+	void setSliderInt(std::string_view pName, int32_t& pValue, int32_t pMin, int32_t pMax);
 	//
 	// if the unordered map is confusing - 
 	// the map takes std::string_view. This string_view serves as a name for each column in sliderFloat2/3/4("string_view", ...);
@@ -44,7 +49,7 @@ private:
 	void setSlidersVec4(glm::vec4& pVec4, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam);
 
 	void setColorVec3(std::string_view pName, glm::vec3& pVecColor);
-	void setColorVec4(std::string_view pName, glm::vec4& pVecColor);
+	void setColorVec4(std::string_view pName, glm::vec4& pVecColor);	
 	//--------
 
 	//
@@ -55,6 +60,7 @@ private:
 	void manageFonts(SceneManager& pSceneManager);
 	void manageLight(SceneManager& pSceneManager);
 	void manageSystem(SceneManager& pSceneManager);
+	void manageCharacter(SceneManager& pSceneManager);
 	void manageAll(SceneManager& pSceneManager);
 	// -----------
 
@@ -62,4 +68,6 @@ private:
 	glm::vec2 mWindowPos{ 1.0f, 1.0f };
 	glm::vec2 mWindowSize{ 400.0f, 500.0f };
 	bool mWindowIsCollapsed{ true };
+
+	std::unordered_map<std::string_view, bool> mWindows;
 }; 

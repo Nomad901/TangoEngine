@@ -14,12 +14,14 @@ public:
 	Animator() = default;
 	Animator(const std::filesystem::path& pModelPath,
 			 const std::filesystem::path& pVertShaderPath,
-			 const std::filesystem::path& pFragShaderPath);
+			 const std::filesystem::path& pFragShaderPath, 
+			 const Transform& pModelTransform);
 	~Animator() = default;
 
 	void loadModel(const std::filesystem::path& pModelPath,
 				   const std::filesystem::path& pVertShaderPath, 
-				   const std::filesystem::path& pFragShaderPath);
+				   const std::filesystem::path& pFragShaderPath, 
+				   const Transform& pModelTransform);
 
 	void stopAnimation();
 	void continueAnimation();
@@ -31,6 +33,8 @@ public:
 
 	float getTimeOfAnimation() const noexcept;
 	bool animationIsPlaying() const noexcept;
+
+	Transform& getModelTransformation() noexcept;
 
 	void update(Camera& pCamera, const glm::mat4& pProjMatrix, Timer& pTimer);
 	void render();

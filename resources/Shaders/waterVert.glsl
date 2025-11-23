@@ -8,7 +8,7 @@ uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProj;
 
-const float tiling = 6.0f;
+const float tiling = 1.0f;
 
 void main()
 {

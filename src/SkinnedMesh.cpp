@@ -64,6 +64,11 @@ Transform& SkinnedMesh::getTransform() noexcept
 	return mTransform;
 }
 
+void SkinnedMesh::setTransform(Transform& pTransform)
+{
+	mTransform = std::move(pTransform);
+}
+
 PBRMaterial& SkinnedMesh::getMaterial() noexcept
 {
 	for (auto& i : mMaterials)

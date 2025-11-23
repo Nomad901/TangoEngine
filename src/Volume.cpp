@@ -21,12 +21,12 @@ bool SphereVolume::isOnFrustum(FrustumCulling& pFrustumCulling, const glm::mat4&
 
 	SphereVolume globalSphereVolume(globalCenter, mRadius * (maxScale * 0.5f));
 	
-	return (globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::LEFT_FACE))  &&
-			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::RIGHT_FACE)) &&
-			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::NEAR_FACE))  &&
-			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::FAR_FACE))   &&
-			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::TOP_FACE))   &&
-			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::BOTTOM_FACE)));
+	return (globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::LEFT_FACE))  &&
+			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::RIGHT_FACE)) &&
+			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::NEAR_FACE))  &&
+			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::FAR_FACE))   &&
+			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::TOP_FACE))   &&
+			globalSphereVolume.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::BOTTOM_FACE)));
 }
 
 // AABB
@@ -80,10 +80,10 @@ bool AABB::isOnFrustum(FrustumCulling& pFrustumCulling, const glm::mat4& pModelM
 
 	const AABB globalAABB(globalCenter, newLX, newLY, newLZ);
 
-	return globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::RIGHT_FACE))  &&
-		   globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::LEFT_FACE))	 &&
-		   globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::TOP_FACE))	 &&
-		   globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::BOTTOM_FACE)) &&
-		   globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::NEAR_FACE))	 &&
-		   globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(PlaneType::FAR_FACE));
+	return globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::RIGHT_FACE))  &&
+		   globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::LEFT_FACE))	 &&
+		   globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::TOP_FACE))	 &&
+		   globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::BOTTOM_FACE)) &&
+		   globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::NEAR_FACE))	 &&
+		   globalAABB.isOnForwardPlane(pFrustumCulling.getPlane(FrustumCulling::PlaneType::FAR_FACE));
 }

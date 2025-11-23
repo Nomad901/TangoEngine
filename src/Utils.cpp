@@ -83,23 +83,6 @@ bool Utils::isPointInsideFrustum(const glm::vec3& pPointPos, const glm::mat4& pM
 	return isInsideFrustum;
 }
 
-void Utils::calculateClipPlanes(glm::vec4& pLeft, glm::vec4& pRight, glm::vec4& pTop, 
-								glm::vec4& pBottom, glm::vec4& pNear, glm::vec4& pFar,
-						  const glm::mat4& pViewProjMat) const
-{
-	const glm::vec4 row1(pViewProjMat[0]);
-	const glm::vec4 row2(pViewProjMat[1]);
-	const glm::vec4 row3(pViewProjMat[2]);
-	const glm::vec4 row4(pViewProjMat[3]);
-
-	pLeft   = row1 + row4;
-	pRight  = row1 - row4;
-	pBottom = row2 + row4;
-	pTop    = row2 - row4;
-	pNear   = row3 + row4;
-	pFar	= row3 - row4;
-}
-
 float Utils::randomFloatRange(float pStart, float pEnd)
 {
 	if (pStart == pEnd)

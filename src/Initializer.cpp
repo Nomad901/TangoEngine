@@ -226,7 +226,12 @@ void Initializer::initCharacter()
 	std::filesystem::path skinMeshVertPath = resourcePath + "Shaders/skinMeshTestVert.glsl";
 	std::filesystem::path skinMeshFragPath = resourcePath + "Shaders/skinMeshTestFrag.glsl";
 
-	mSceneManager->getModelProperties().mAnimatorManager.pushAnimator("bobAnim", std::make_unique<Animator>(modelPath, skinMeshVertPath, skinMeshFragPath));
+	Transform charTransform;
+	charTransform.setLocalPosition(glm::vec3(10.0f, 50.0f, 10.0f));
+	charTransform.setLocalRotation(glm::vec3(1.0f));
+	charTransform.setLocalScale(glm::vec3(1.0f));
+	mSceneManager->getModelProperties().mAnimatorManager.pushAnimator("bobAnim", std::make_unique<Animator>(modelPath, skinMeshVertPath, 
+																											skinMeshFragPath, charTransform));
 }
 
 void Initializer::initDeferredLights()

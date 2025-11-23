@@ -161,8 +161,15 @@ void Renderer::drawSceneTMP()
 	Camera& cameraForChar = mSceneManager->getProgramProperties().mThirdPersonCam;
 	glm::mat4& projMat = mSceneManager->getModelProperties().mProjMatrix;
 	Timer& time = mSceneManager->getProgramProperties().mTimer;
-	mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->update(cameraForChar, projMat, time);
-	mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim")->render();
+
+	auto bobAnim = mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim");
+	
+	bobAnim->getModelTransformation().setLocalPosition(mSceneManager->getModelProperties().mCharPos);
+	bobAnim->getModelTransformation().setLocalRotation(mSceneManager->getModelProperties().mCharRotation);
+	bobAnim->getModelTransformation().setLocalScale(mSceneManager->getModelProperties().mCharScale);
+
+	bobAnim->update(cameraForChar, projMat, time);
+	bobAnim->render();
 }
 
 void Renderer::renderCubeLights()

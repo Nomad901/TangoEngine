@@ -145,6 +145,9 @@ public:
 
 		int32_t displayedQuad{ 0 };
 
+		glm::vec3 mCharPos{ glm::vec3(114.0f, 65.0f, 409.0f) };
+		glm::vec3 mCharRotation{ glm::vec3(-90.0f, 0.0f, 0.0f) };
+		glm::vec3 mCharScale{ glm::vec3(1.0f, 1.0f, 1.0f) };
 
 		glm::vec4 mPlaneTerrainHeight = glm::vec4(0.0f, -1.0f, 0.0f, 55.0f);
 	};

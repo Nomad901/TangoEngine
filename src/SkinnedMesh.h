@@ -37,6 +37,7 @@ public:
 	uint32_t getNumVertices() const;
 	uint32_t getNumIndices() const;
 	Transform& getTransform() noexcept;
+	void setTransform(Transform& pTransform);
 	PBRMaterial& getMaterial() noexcept;
 	void getBoneTransformations(float pAnimTime, std::vector<glm::mat4>& pTransformations);
 

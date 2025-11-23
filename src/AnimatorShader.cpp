@@ -97,10 +97,6 @@ void AnimatorShader::setShader(Camera& pCamera, const glm::mat4& pProjMatrix,
 void AnimatorShader::setTransformations(Camera& pCamera, const glm::mat4& pProjMatrix,
 										Transform& pTransform)
 {
-	pTransform.setLocalRotation(glm::vec3(-90.0f, 0.0f, 0.0f));
-	pTransform.setLocalPosition(glm::vec3(0.0f, 30.0f, 0.0f));
-	pTransform.setLocalScale(glm::vec3(1.0f, 1.0f, 1.0f));
-
 	glm::mat4 WVP = pTransform.getWVPTransf(pCamera, pProjMatrix);
 	mShader.setMatrixUniform4fv("uMVP", WVP);
 }
