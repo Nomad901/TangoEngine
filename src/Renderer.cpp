@@ -21,34 +21,39 @@ void Renderer::drawScene()
 	ImGui::EndFrame();
 
 	glEnable(GL_CLIP_DISTANCE0);
-
+	
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
 	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, -1.0f, 0.0f, 50.0f);
 	drawSceneTMP();
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().stop();
 	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
 					 mSceneManager->getProgramProperties().mWindowHeight);
-
+	
 	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().start();
 	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -50.0f);
+	auto camera = &mSceneManager->getProgramProperties().mThirdPersonCam;
+	float distance = 2 * (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
+	camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y - distance, camera->getPos().z));
+	camera->setPitch(-camera->getPitch());
 	drawSceneTMP();
+	camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y + distance, camera->getPos().z));
+	camera->setPitch(-camera->getPitch());
 	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().stop();
 	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
 				     mSceneManager->getProgramProperties().mWindowHeight);
-
+	
 	glDisable(GL_CLIP_DISTANCE0);
 	
 	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, 10000.0f);
 	drawSceneTMP();
 	mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
 															    mSceneManager->getProgramProperties().mThirdPersonCam,
-															    mSceneManager->getModelProperties().mProjMatrix);
+															    mSceneManager->getModelProperties().mProjMatrix,
+															   *mSceneManager->getProgramProperties().mWaterFBO.get(),
+																mSceneManager->getProgramProperties().mTimer.getDeltaTime(false));
 
 	showFPS();
 	
-	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
-	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().render();
-
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

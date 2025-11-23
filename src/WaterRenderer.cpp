@@ -1,22 +1,27 @@
 #include "WaterRenderer.h"
 
 WaterRenderer::WaterRenderer(const std::filesystem::path& pVertPath,
-							 const std::filesystem::path& pFragPath)
+							 const std::filesystem::path& pFragPath,
+							 const std::filesystem::path& pDuDvMap)
 {
-	init(pVertPath, pFragPath);
+	init(pVertPath, pFragPath, pDuDvMap);
 }
 
-void WaterRenderer::init(const std::filesystem::path& pVertPath, const std::filesystem::path& pFragPath)
+void WaterRenderer::init(const std::filesystem::path& pVertPath,
+						 const std::filesystem::path& pFragPath, 
+						 const std::filesystem::path& pDuDvMap)
 {
 	mWaterShader.init(pVertPath, pFragPath);
 	setUpQuad();
+	mDuDvWaterTexture.init(pDuDvMap);
+	mDuDvWaterTexture.setTarget(GL_TEXTURE_2D);
 }
 
 void WaterRenderer::render(const std::vector<Water> pWaterTiles, 
-						   Camera& pCamera,
-						   const glm::mat4& pProjMat)
+						   Camera& pCamera, const glm::mat4& pProjMat, 
+						   WaterFBO& pWaterFBO, float pDeltaTime)
 {
-	bind(pCamera, pProjMat);
+	bind(pCamera, pProjMat, pWaterFBO);
 	for (auto& i : pWaterTiles)
 	{
 		glm::vec3 waterPos = i.getWaterPos();
@@ -27,16 +32,25 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 
 		mWaterShader.setMatrixUniform4fv("uModel", mQuadTransform.getModelMatrix());
 
+		mMoveFactor += WAVE_SPEED * pDeltaTime;
+		if (mMoveFactor >= 100.0f)
+			mMoveFactor = 0.0f;
+
+		mWaterShader.setMoveFactor("uMoveFactor", mMoveFactor);
+
 		renderQuad();
 	}
 }
 
-void WaterRenderer::bind(Camera& pCamera,
-						 const glm::mat4& pProjMat)
+void WaterRenderer::bind(Camera& pCamera, const glm::mat4& pProjMat,
+						 WaterFBO& pWaterFBO)
 {
 	mWaterShader.bind();
 	mWaterShader.setMatrixUniform4fv("uProj", pProjMat);
 	mWaterShader.setMatrixUniform4fv("uView", pCamera.getViewMatrix());
+	mWaterShader.setReflectionTexture("uReflectionTexture", pWaterFBO);
+	mWaterShader.setRefractionTexture("uRefractionTexture", pWaterFBO);
+	mWaterShader.setDuDvMap("uDuDvMap", mDuDvWaterTexture);
 }
 
 void WaterRenderer::renderQuad()

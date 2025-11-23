@@ -53,7 +53,8 @@ void Initializer::initAll()
 
 	std::string resourcePath = RESOURCES_PATH;
 	mSceneManager->getProgramProperties().mWaterRenderer.init(resourcePath + "Shaders/waterVert.glsl", 
-															  resourcePath + "Shaders/waterFrag.glsl");
+															  resourcePath + "Shaders/waterFrag.glsl",
+															  resourcePath + "wdudv.png");
 	mSceneManager->getProgramProperties().mWaterTiles.push_back(Water(glm::vec3(541.0f, 50.0f, 524.0f))); 
 
 
@@ -173,7 +174,7 @@ void Initializer::initMousePicker()
 void Initializer::initSkybox()
 {
 	mSceneManager->getProgramProperties().mShaders["skyboxShader"].bind();
-	mSceneManager->getProgramProperties().mSkybox = std::make_unique<Skybox>(Skybox::typeSkybox::SPHERE, Skybox::SkyboxArtType::SPACE, 0);
+	mSceneManager->getProgramProperties().mSkybox = std::make_unique<Skybox>(Skybox::typeSkybox::SPHERE, Skybox::SkyboxArtType::CLOUDS, 0);
 	mSceneManager->getProgramProperties().mShaders["skyboxShader"].setUniform1i("uSkybox", 0);
 }
 

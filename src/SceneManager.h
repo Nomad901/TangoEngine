@@ -40,7 +40,7 @@
 #include "Timer.h"
 #include "AnimatorManager.h"
 #include "DeferredLightSystem.h"
-#include "WaterFBO.h"
+#include "WaterRenderer.h"
 
 class Renderer;
 

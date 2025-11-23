@@ -8,31 +8,38 @@
 #include "Primitive.h"
 #include "Camera.h"
 #include "Transform.h"
+#include "WaterFBO.h"
 
 class WaterRenderer
 {
 public:
 	WaterRenderer() = default;
 	WaterRenderer(const std::filesystem::path& pVertPath, 
-				  const std::filesystem::path& pFragPath);
+				  const std::filesystem::path& pFragPath,
+				  const std::filesystem::path& pDuDvMap);
 	
 	void init(const std::filesystem::path& pVertPath,
-			  const std::filesystem::path& pFragPath);
+			  const std::filesystem::path& pFragPath, 
+			  const std::filesystem::path& pDuDvMap);
 
 	void render(const std::vector<Water> pWaterTiles,
-				Camera& pCamera, const glm::mat4& pProjMat);
+				Camera& pCamera, const glm::mat4& pProjMat, 
+				WaterFBO& pWaterFBO, float pDeltaTime);
 
 private:
-	void bind(Camera& pCamera, const glm::mat4& pProjMat);
+	void bind(Camera& pCamera, const glm::mat4& pProjMat,
+		      WaterFBO& pWaterFBO);
 	void renderQuad();
 
 	void setUpQuad();
 	
 private:
 	uint32_t mVAO{}, mVBO{};
-	
+	const float WAVE_SPEED = 0.03f;
+	float mMoveFactor{};
+
 	Transform mQuadTransform;
 	WaterShader mWaterShader;
 
+	Texture2 mDuDvWaterTexture;
 };
-

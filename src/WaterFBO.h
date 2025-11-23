@@ -1,7 +1,6 @@
 #pragma once
 #include <iostream>
 
-#include "WaterRenderer.h"
 #include "FBO.h"
 
 class WaterFBO
