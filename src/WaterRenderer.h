@@ -16,11 +16,13 @@ public:
 	WaterRenderer() = default;
 	WaterRenderer(const std::filesystem::path& pVertPath, 
 				  const std::filesystem::path& pFragPath,
-				  const std::filesystem::path& pDuDvMap);
+				  const std::filesystem::path& pDuDvMap,
+				  const std::filesystem::path& pNormalMap);
 	
 	void init(const std::filesystem::path& pVertPath,
 			  const std::filesystem::path& pFragPath, 
-			  const std::filesystem::path& pDuDvMap);
+			  const std::filesystem::path& pDuDvMap,
+			  const std::filesystem::path& pNormalMap);
 
 	void render(const std::vector<Water> pWaterTiles,
 				Camera& pCamera, const glm::mat4& pProjMat, 
@@ -42,4 +44,5 @@ private:
 	WaterShader mWaterShader;
 
 	Texture2 mDuDvWaterTexture;
+	Texture2 mNormalMap;
 };

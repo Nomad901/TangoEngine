@@ -54,7 +54,8 @@ void Initializer::initAll()
 	std::string resourcePath = RESOURCES_PATH;
 	mSceneManager->getProgramProperties().mWaterRenderer.init(resourcePath + "Shaders/waterVert.glsl", 
 															  resourcePath + "Shaders/waterFrag.glsl",
-															  resourcePath + "wdudv.png");
+															  resourcePath + "wdudv.png",
+															  resourcePath + "normalMapWater.png");
 	mSceneManager->getProgramProperties().mWaterTiles.push_back(Water(glm::vec3(541.0f, 50.0f, 524.0f), glm::vec3(1.0f))); 
 
 

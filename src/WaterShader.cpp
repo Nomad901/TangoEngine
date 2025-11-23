@@ -29,23 +29,38 @@ void WaterShader::setModelMatrix(std::string_view pUniformName, const glm::mat4&
 
 void WaterShader::setReflectionTexture(std::string_view pUniformName, WaterFBO& pWaterFBO)
 {
-	pWaterFBO.getReflectionTexture().bind(0);
-	Shader::setUniform1i(pUniformName, 0);
+	uint32_t indexOfReflectionTexture = getIndex(indicesOfTextures::REFLECTION_TEXTURE);
+	pWaterFBO.getReflectionTexture().bind(indexOfReflectionTexture);
+	Shader::setUniform1i(pUniformName, indexOfReflectionTexture);
 }
 
 void WaterShader::setRefractionTexture(std::string_view pUniformName, WaterFBO& pWaterFBO)
 {
-	pWaterFBO.getReflectionTexture().bind(1);
-	Shader::setUniform1i(pUniformName, 1);
+	uint32_t indexOfRefractionTexture = getIndex(indicesOfTextures::REFRACTION_TEXTURE);
+	pWaterFBO.getReflectionTexture().bind(indexOfRefractionTexture);
+	Shader::setUniform1i(pUniformName, indexOfRefractionTexture);
 }
 
 void WaterShader::setDuDvMap(std::string_view pUniformName, Texture2& pDuDvMap)
 {
-	pDuDvMap.bind(2);
-	Shader::setUniform1i(pUniformName, 2);
+	uint32_t indexOfDuDvMap = getIndex(indicesOfTextures::DUDV_MAP);
+	pDuDvMap.bind(indexOfDuDvMap);
+	Shader::setUniform1i(pUniformName, indexOfDuDvMap);
+}
+
+void WaterShader::setNormalMap(std::string_view pUniformName, Texture2& pNormalMap)
+{
+	uint32_t indexOfNormalMap = getIndex(indicesOfTextures::NORMAL_MAP);
+	pNormalMap.bind(indexOfNormalMap);
+	Shader::setUniform1i(pUniformName, indexOfNormalMap);
 }
 
 void WaterShader::setMoveFactor(std::string_view pUniformName, float pMoveFactor)
 {
 	Shader::setUniform1f(pUniformName, pMoveFactor);
+}
+
+uint32_t WaterShader::getIndex(indicesOfTextures pIndicesOfTextures)
+{
+	return static_cast<uint32_t>(pIndicesOfTextures);
 }

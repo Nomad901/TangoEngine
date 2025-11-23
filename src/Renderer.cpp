@@ -56,7 +56,7 @@ void Renderer::drawScene(Controler* pControler)
 															    mSceneManager->getProgramProperties().mThirdPersonCam,
 															    mSceneManager->getModelProperties().mProjMatrix,
 															   *mSceneManager->getProgramProperties().mWaterFBO.get(),
-																mSceneManager->getProgramProperties().mTimer.getDeltaTime(false));
+																SDL_GetTicks());
 
 	showFPS();
 

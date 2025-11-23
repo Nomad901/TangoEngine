@@ -2,19 +2,23 @@
 
 WaterRenderer::WaterRenderer(const std::filesystem::path& pVertPath,
 							 const std::filesystem::path& pFragPath,
-							 const std::filesystem::path& pDuDvMap)
+							 const std::filesystem::path& pDuDvMap,
+							 const std::filesystem::path& pNormalMap)
 {
-	init(pVertPath, pFragPath, pDuDvMap);
+	init(pVertPath, pFragPath, pDuDvMap, pNormalMap);
 }
 
 void WaterRenderer::init(const std::filesystem::path& pVertPath,
 						 const std::filesystem::path& pFragPath, 
-						 const std::filesystem::path& pDuDvMap)
+						 const std::filesystem::path& pDuDvMap,
+						 const std::filesystem::path& pNormalMap)
 {
 	mWaterShader.init(pVertPath, pFragPath);
 	setUpQuad();
 	mDuDvWaterTexture.init(pDuDvMap);
 	mDuDvWaterTexture.setTarget(GL_TEXTURE_2D);
+	mNormalMap.init(pNormalMap);
+	mNormalMap.setTarget(GL_TEXTURE_2D);
 }
 
 void WaterRenderer::render(const std::vector<Water> pWaterTiles, 
@@ -31,9 +35,7 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 		mWaterShader.setMatrixUniform4fv("uModel", mQuadTransform.getModelMatrix());
 
 		mMoveFactor += WAVE_SPEED * pDeltaTime;
-		if (mMoveFactor >= 100.0f)
-			mMoveFactor = 0.0f;
-
+		
 		mWaterShader.setMoveFactor("uMoveFactor", mMoveFactor);
 
 		renderQuad();
@@ -50,6 +52,7 @@ void WaterRenderer::bind(Camera& pCamera, const glm::mat4& pProjMat,
 	mWaterShader.setReflectionTexture("uReflectionTexture", pWaterFBO);
 	mWaterShader.setRefractionTexture("uRefractionTexture", pWaterFBO);
 	mWaterShader.setDuDvMap("uDuDvMap", mDuDvWaterTexture);
+	mWaterShader.setNormalMap("uNormalMap", mNormalMap);
 }
 
 void WaterRenderer::renderQuad()
