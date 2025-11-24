@@ -60,6 +60,16 @@ void WaterShader::setMoveFactor(std::string_view pUniformName, float pMoveFactor
 	Shader::setUniform1f(pUniformName, pMoveFactor);
 }
 
+void WaterShader::setLightPos(std::string_view pUniformName, const glm::vec3& pLightPos)
+{
+	Shader::setUniform3fv(pUniformName, pLightPos);
+}
+
+void WaterShader::setLightColor(std::string_view pUniformName, const glm::vec3& pLightColor)
+{
+	Shader::setUniform3fv(pUniformName, pLightColor);
+}
+
 uint32_t WaterShader::getIndex(indicesOfTextures pIndicesOfTextures)
 {
 	return static_cast<uint32_t>(pIndicesOfTextures);

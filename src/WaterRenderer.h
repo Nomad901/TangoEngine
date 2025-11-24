@@ -26,11 +26,12 @@ public:
 
 	void render(const std::vector<Water> pWaterTiles,
 				Camera& pCamera, const glm::mat4& pProjMat, 
-				WaterFBO& pWaterFBO, float pDeltaTime);
+				WaterFBO& pWaterFBO, float pDeltaTime, 
+				DirectionalLight& pDirectionalLight);
 
 private:
 	void bind(Camera& pCamera, const glm::mat4& pProjMat,
-		      WaterFBO& pWaterFBO);
+		      WaterFBO& pWaterFBO, DirectionalLight& pDirectionalLight);
 	void renderQuad();
 
 	void setUpQuad();

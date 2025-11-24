@@ -117,6 +117,8 @@ public:
 		DeferredLightSystem mDeferredLightSystem;
 
 		LightManager mLightManager;
+
+		DirectionalLight mSun;
 	};
 
 	struct modelProperties

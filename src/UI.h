@@ -36,20 +36,20 @@ private:
 	void setNewWindow(std::string_view pWindowName, glm::vec2 pWindowPos, glm::vec2 pWindowSize);
 	void setSpaces(uint32_t pAmountOfSpaces);
 
-	void setSliderFloat(std::string_view pName, float& pValue, float pMin, float pMax);
-	void setSliderInt(std::string_view pName, int32_t& pValue, int32_t pMin, int32_t pMax);
+	bool setSliderFloat(std::string_view pName, float& pValue, float pMin, float pMax);
+	bool setSliderInt(std::string_view pName, int32_t& pValue, int32_t pMin, int32_t pMax);
 	//
 	// if the unordered map is confusing - 
 	// the map takes std::string_view. This string_view serves as a name for each column in sliderFloat2/3/4("string_view", ...);
 	// std::pair<float, float> here, is just min and max value of each column. 
 	// so, basically we just correlate name and min/max values together
 	//
-	void setSlidersVec2(glm::vec2& pVec2, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam);
-	void setSlidersVec3(glm::vec3& pVec3, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam);
-	void setSlidersVec4(glm::vec4& pVec4, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam);
-
-	void setColorVec3(std::string_view pName, glm::vec3& pVecColor);
-	void setColorVec4(std::string_view pName, glm::vec4& pVecColor);	
+	bool setSlidersVec2(glm::vec2& pVec2, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam);
+	bool setSlidersVec3(glm::vec3& pVec3, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam);
+	bool setSlidersVec4(glm::vec4& pVec4, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam);
+	
+	bool setColorVec3(std::string_view pName, glm::vec3& pVecColor);
+	bool setColorVec4(std::string_view pName, glm::vec4& pVecColor);	
 	//--------
 
 	//

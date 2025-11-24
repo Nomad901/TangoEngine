@@ -71,20 +71,24 @@ void UI::setSpaces(uint32_t pAmountOfSpaces)
 	}
 }
 
-void UI::setSliderFloat(std::string_view pName, float& pValue, float pMin, float pMax)
+bool UI::setSliderFloat(std::string_view pName, float& pValue, float pMin, float pMax)
 {
-	ImGui::SliderFloat(std::string(pName).c_str(), &pValue, pMin, pMax);
+	if (ImGui::SliderFloat(std::string(pName).c_str(), &pValue, pMin, pMax))
+		return true;
+	return false;
 }
 
-void UI::setSliderInt(std::string_view pName, int32_t& pValue, int32_t pMin, int32_t pMax)
+bool UI::setSliderInt(std::string_view pName, int32_t& pValue, int32_t pMin, int32_t pMax)
 {
-	ImGui::SliderInt(std::string(pName).c_str(), &pValue, pMin, pMax);
+	if (ImGui::SliderInt(std::string(pName).c_str(), &pValue, pMin, pMax))
+		return true;
+	return false;
 }
 
-void UI::setSlidersVec2(glm::vec2& pVec2, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam)
+bool UI::setSlidersVec2(glm::vec2& pVec2, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam)
 {
 	if (pParam.empty())
-		return;
+		return false;
 
 	if (pParam.size() == 1)
 	{
@@ -94,6 +98,7 @@ void UI::setSlidersVec2(glm::vec2& pVec2, const std::unordered_map<std::string_v
 		{
 			pVec2[0] = vecForSliderFloat2[0];
 			pVec2[1] = vecForSliderFloat2[1];
+			return true;
 		}
 	}
 	else
@@ -104,13 +109,15 @@ void UI::setSlidersVec2(glm::vec2& pVec2, const std::unordered_map<std::string_v
 			ImGui::SliderFloat(std::string(name).c_str(), &pVec2[counter], minMax.first, minMax.second);
 			counter++;
 		}
+		return true;
 	}
+	return false;
 }
 
-void UI::setSlidersVec3(glm::vec3& pVec3, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam)
+bool UI::setSlidersVec3(glm::vec3& pVec3, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam)
 {
 	if (pParam.empty())
-		return;
+		return false;
 
 	if (pParam.size() == 1)
 	{
@@ -121,6 +128,7 @@ void UI::setSlidersVec3(glm::vec3& pVec3, const std::unordered_map<std::string_v
 			pVec3[0] = vecForSliderFloat3[0];
 			pVec3[1] = vecForSliderFloat3[1];
 			pVec3[2] = vecForSliderFloat3[2];
+			return true;
 		}
 	}
 	else
@@ -131,13 +139,15 @@ void UI::setSlidersVec3(glm::vec3& pVec3, const std::unordered_map<std::string_v
 			ImGui::SliderFloat(std::string(name).c_str(), &pVec3[counter], minMax.first, minMax.second);
 			counter++;
 		}
+		return true;
 	}
+	return false;
 }
 
-void UI::setSlidersVec4(glm::vec4& pVec4, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam)
+bool UI::setSlidersVec4(glm::vec4& pVec4, const std::unordered_map<std::string_view, std::pair<float, float>>& pParam)
 {
 	if (pParam.empty())
-		return;
+		return false;
 
 	if (pParam.size() == 1)
 	{
@@ -149,6 +159,7 @@ void UI::setSlidersVec4(glm::vec4& pVec4, const std::unordered_map<std::string_v
 			pVec4[1] = vecForSliderFloat4[1];
 			pVec4[2] = vecForSliderFloat4[2];
 			pVec4[3] = vecForSliderFloat4[3];
+			return true;
 		}
 	}
 	else
@@ -159,10 +170,12 @@ void UI::setSlidersVec4(glm::vec4& pVec4, const std::unordered_map<std::string_v
 			ImGui::SliderFloat(std::string(name).c_str(), &pVec4[counter], minMax.first, minMax.second);
 			counter++;
 		}
+		return true;
 	}
+	return false;
 }
 
-void UI::setColorVec3(std::string_view pName, glm::vec3& pVecColor)
+bool UI::setColorVec3(std::string_view pName, glm::vec3& pVecColor)
 {
 	float colorFont[3] = { pVecColor.x,
 						   pVecColor.y,
@@ -172,10 +185,12 @@ void UI::setColorVec3(std::string_view pName, glm::vec3& pVecColor)
 		pVecColor.x = colorFont[0];
 		pVecColor.y = colorFont[1];
 		pVecColor.z = colorFont[2];
+		return true;
 	}
+	return false;
 }
 
-void UI::setColorVec4(std::string_view pName, glm::vec4& pVecColor)
+bool UI::setColorVec4(std::string_view pName, glm::vec4& pVecColor)
 {
 	float colorFont[4] = { pVecColor.x,
 					       pVecColor.y,
@@ -187,7 +202,9 @@ void UI::setColorVec4(std::string_view pName, glm::vec4& pVecColor)
 		pVecColor.y = colorFont[1];
 		pVecColor.z = colorFont[2];
 		pVecColor.w = colorFont[3];
+		return true;
 	}
+	return false;
 }
 
 void UI::manageTerrain(SceneManager& pSceneManager)
@@ -278,6 +295,21 @@ void UI::manageLight(SceneManager& pSceneManager)
 	setNewWindow("Light", glm::vec2(800.0f, 1.0f), glm::vec2(400.0f, 200.0f));
 
 	beginFrame("Light", pSceneManager);
+
+	static glm::vec3 lightColor = glm::vec3(1.0f);
+	static glm::vec3 lightPos	= glm::vec3(1.0f);
+
+	if (setSlidersVec3(lightPos,
+		{
+			{"Pos x", std::make_pair(-1000.0f, 1000.0f)},
+			{"Pos y", std::make_pair(-1000.0f, 1000.0f)},
+			{"Pos z", std::make_pair(-1000.0f, 1000.0f)}
+		}))
+	{
+		pSceneManager.getLightProperties().mSun.setPosLight(lightPos);
+	}
+	if (setColorVec3("Color Sun", lightColor))
+		pSceneManager.getLightProperties().mSun.setColor(lightColor);
 
 	// -------- CONTROLING --------
 	//setSlidersVec3(pSceneManager.getLightProperties().mLightDir, { {"Direction", std::make_pair(-500.0f, 500.0f)} });

@@ -146,6 +146,8 @@ void Initializer::initModels()
 
 void Initializer::initLights()
 {
+	mSceneManager->getLightProperties().mSun.init(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+
 	// lamps in the museum
 	//mSceneManager->getLightProperties().mLightManager.pushLight("pointLight1", std::make_unique<PointLight>(glm::vec3(12.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));
 	//mSceneManager->getLightProperties().mLightManager.pushLight("pointLight2", std::make_unique<PointLight>(glm::vec3(-109.0f, 91.0f, -302.0f), 0.5f, 0.045f, 0.075f));

@@ -30,6 +30,8 @@ public:
 	void setDuDvMap(std::string_view pUniformName, Texture2& pDuDvMap);
 	void setNormalMap(std::string_view pUniformName, Texture2& pNormalMap);
 	void setMoveFactor(std::string_view pUniformName, float pMoveFactor);
+	void setLightPos(std::string_view pUniformName, const glm::vec3& pLightPos);
+	void setLightColor(std::string_view pUniformName, const glm::vec3& pLightColor);
 
 private:
 	uint32_t getIndex(indicesOfTextures pIndicesOfTextures);
