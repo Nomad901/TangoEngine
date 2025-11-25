@@ -24,9 +24,10 @@ void WaterRenderer::init(const std::filesystem::path& pVertPath,
 void WaterRenderer::render(const std::vector<Water> pWaterTiles, 
 						   Camera& pCamera, const glm::mat4& pProjMat, 
 						   WaterFBO& pWaterFBO, float pDeltaTime, 
-						   DirectionalLight& pDirectionalLight)
+						   DirectionalLight& pDirectionalLight,
+						   float pNearPlane, float pFarPlane)
 {
-	bind(pCamera, pProjMat, pWaterFBO, pDirectionalLight);
+	bind(pCamera, pProjMat, pWaterFBO, pDirectionalLight, pNearPlane, pFarPlane);
 	for (auto& i : pWaterTiles)
 	{
 		mQuadTransform.setLocalPosition(i.getWaterPos());
@@ -46,7 +47,8 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 }
 
 void WaterRenderer::bind(Camera& pCamera, const glm::mat4& pProjMat,
-						 WaterFBO& pWaterFBO, DirectionalLight& pDirectionalLight)
+						 WaterFBO& pWaterFBO, DirectionalLight& pDirectionalLight,
+						 float pNearPlane, float pFarPlane)
 {
 	mWaterShader.bind();
 	mWaterShader.setMatrixUniform4fv("uProj", pProjMat);
@@ -56,8 +58,11 @@ void WaterRenderer::bind(Camera& pCamera, const glm::mat4& pProjMat,
 	mWaterShader.setRefractionTexture("uRefractionTexture", pWaterFBO);
 	mWaterShader.setDuDvMap("uDuDvMap", mDuDvWaterTexture);
 	mWaterShader.setNormalMap("uNormalMap", mNormalMap);
+	mWaterShader.setDepthMap("uDepthMap", pWaterFBO.getRefractionDepthTexture());
 	mWaterShader.setLightColor("uLightColor", pDirectionalLight.getColor());
 	mWaterShader.setLightPos("uLightPos", pDirectionalLight.getPosLight());
+	mWaterShader.setNearPlane("uNearPlane", pNearPlane);
+	mWaterShader.setFarPlane("uFarPlane", pFarPlane);
 }
 
 void WaterRenderer::renderQuad()

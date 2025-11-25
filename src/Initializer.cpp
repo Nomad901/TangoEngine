@@ -15,7 +15,9 @@ void Initializer::init(bool pInitAll)
 	mSceneManager->getProgramProperties().mCamera.setSensivity(0.2f);
 	// projection matrix
 	mSceneManager->getModelProperties().mProjMatrix = glm::perspective(glm::radians(45.0f), (float)mSceneManager->getProgramProperties().mWindowWidth /
-		(float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
+																	  (float)mSceneManager->getProgramProperties().mWindowHeight,
+																	   mSceneManager->getProgramProperties().NEAR_PLANE, 
+																	   mSceneManager->getProgramProperties().FAR_PLANE);
 	// fbo
 	mSceneManager->getProgramProperties().mFBO = std::make_unique<FBO>(mSceneManager->getProgramProperties().mWindowWidth, mSceneManager->getProgramProperties().mWindowHeight,
 																	   glm::vec2(0.0f, 0.0f), glm::vec2(600.0f, 600.0f), false);
@@ -54,8 +56,8 @@ void Initializer::initAll()
 	std::string resourcePath = RESOURCES_PATH;
 	mSceneManager->getProgramProperties().mWaterRenderer.init(resourcePath + "Shaders/waterVert.glsl", 
 															  resourcePath + "Shaders/waterFrag.glsl",
-															  resourcePath + "wdudv.png",
-															  resourcePath + "normalMapWater.png");
+															  resourcePath + "waterDuDv2.png",
+															  resourcePath + "waterNormal2.png");
 	mSceneManager->getProgramProperties().mWaterTiles.push_back(Water(glm::vec3(541.0f, 50.0f, 524.0f), glm::vec3(1.0f))); 
 
 

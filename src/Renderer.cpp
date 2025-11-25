@@ -57,8 +57,10 @@ void Renderer::drawScene(Controler* pControler)
 															    mSceneManager->getModelProperties().mProjMatrix,
 															   *mSceneManager->getProgramProperties().mWaterFBO.get(),
 																SDL_GetTicks(),
-																mSceneManager->getLightProperties().mSun);
-
+																mSceneManager->getLightProperties().mSun,
+																mSceneManager->getProgramProperties().NEAR_PLANE, 
+																mSceneManager->getProgramProperties().FAR_PLANE);
+	
 	showFPS();
 
 	ImGui::Render();

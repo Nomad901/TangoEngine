@@ -55,6 +55,14 @@ void WaterShader::setNormalMap(std::string_view pUniformName, Texture2& pNormalM
 	Shader::setUniform1i(pUniformName, indexOfNormalMap);
 }
 
+void WaterShader::setDepthMap(std::string_view pUniforName, uint32_t pDepthMap)
+{
+	uint32_t indexOfDepthMap = getIndex(indicesOfTextures::DEPTH_MAP);
+	glActiveTexture(GL_TEXTURE0 + indexOfDepthMap);
+	glBindTexture(GL_TEXTURE_2D, pDepthMap);
+	Shader::setUniform1i(pUniforName, indexOfDepthMap);
+}
+
 void WaterShader::setMoveFactor(std::string_view pUniformName, float pMoveFactor)
 {
 	Shader::setUniform1f(pUniformName, pMoveFactor);
@@ -68,6 +76,16 @@ void WaterShader::setLightPos(std::string_view pUniformName, const glm::vec3& pL
 void WaterShader::setLightColor(std::string_view pUniformName, const glm::vec3& pLightColor)
 {
 	Shader::setUniform3fv(pUniformName, pLightColor);
+}
+
+void WaterShader::setNearPlane(std::string_view pUniformName, float pNearPlane)
+{
+	Shader::setUniform1f(pUniformName, pNearPlane);
+}
+
+void WaterShader::setFarPlane(std::string_view pUniformName, float pFarPlane)
+{
+	Shader::setUniform1f(pUniformName, pFarPlane);
 }
 
 uint32_t WaterShader::getIndex(indicesOfTextures pIndicesOfTextures)

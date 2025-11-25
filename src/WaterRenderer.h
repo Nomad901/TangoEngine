@@ -23,15 +23,17 @@ public:
 			  const std::filesystem::path& pFragPath, 
 			  const std::filesystem::path& pDuDvMap,
 			  const std::filesystem::path& pNormalMap);
-
+	
 	void render(const std::vector<Water> pWaterTiles,
 				Camera& pCamera, const glm::mat4& pProjMat, 
 				WaterFBO& pWaterFBO, float pDeltaTime, 
-				DirectionalLight& pDirectionalLight);
+				DirectionalLight& pDirectionalLight,
+				float pNearPlane, float pFarPlane);
 
 private:
 	void bind(Camera& pCamera, const glm::mat4& pProjMat,
-		      WaterFBO& pWaterFBO, DirectionalLight& pDirectionalLight);
+		      WaterFBO& pWaterFBO, DirectionalLight& pDirectionalLight,
+			  float pNearPlane, float pFarPlane);
 	void renderQuad();
 
 	void setUpQuad();

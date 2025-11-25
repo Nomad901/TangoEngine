@@ -12,7 +12,7 @@ uniform mat4 uProj;
 uniform vec3 uCameraPos;
 uniform vec3 uLightPos;
 
-const float tiling = 1.0f;
+const float tiling = 4.0f;
 
 void main()
 {

@@ -11,8 +11,9 @@ public:
 	{
 		REFLECTION_TEXTURE = 0,
 		REFRACTION_TEXTURE = 1,
-		DUDV_MAP = 2,
-		NORMAL_MAP = 3
+		DUDV_MAP		   = 2,
+		NORMAL_MAP		   = 3,
+		DEPTH_MAP		   = 4
 	};
 public:
 	WaterShader() = default;
@@ -29,9 +30,12 @@ public:
 	void setRefractionTexture(std::string_view pUniformName, WaterFBO& pWaterFBO);
 	void setDuDvMap(std::string_view pUniformName, Texture2& pDuDvMap);
 	void setNormalMap(std::string_view pUniformName, Texture2& pNormalMap);
+	void setDepthMap(std::string_view pUniforName, uint32_t pDepthMap);
 	void setMoveFactor(std::string_view pUniformName, float pMoveFactor);
 	void setLightPos(std::string_view pUniformName, const glm::vec3& pLightPos);
 	void setLightColor(std::string_view pUniformName, const glm::vec3& pLightColor);
+	void setNearPlane(std::string_view pUniformName, float pNearPlane);
+	void setFarPlane(std::string_view pUniformName, float pFarPlane);
 
 private:
 	uint32_t getIndex(indicesOfTextures pIndicesOfTextures);

@@ -102,6 +102,9 @@ public:
 		bool mWindowWasChanged{ false };
 
 		int32_t currentTexture{ 0 };
+
+		const float NEAR_PLANE = 0.1f;
+		const float FAR_PLANE  = 2000.0f;
 	};
 
 	struct lightProperties
