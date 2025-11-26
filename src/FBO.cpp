@@ -23,21 +23,9 @@ void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight,
     mScreenWidth = pScreenWidth;
     mScreenHeight = pScreenHeight;
 
-    // frame buffer
-    glGenFramebuffers(1, &mFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
-
-    // color texture
-    mTexture.initEmpty(pSize.x, pSize.y);
-    mTexture.setTarget(GL_TEXTURE_2D);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture.getID(), 0);
-    
-    // depth and stencil
-    glGenRenderbuffers(1, &mDepthBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, mDepthBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, pSize.x, pSize.y);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthBuffer);
+    generateFrameBuffer();
+    generateColorBuffer(pSize);
+    generateDepthBuffer(pSize);
 
     // completeness 
     int32_t status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -54,7 +42,7 @@ void FBO::destroy()
 {
     glDeleteFramebuffers(1, &mFBO);
     mFBO = 0;
-    mDepthBuffer = 0;
+    mDepthTexture.destroyTexture();
     mTexture.destroyTexture();
 }
 
@@ -116,14 +104,14 @@ uint32_t FBO::getFBO() const noexcept
     return mFBO;
 }
 
+Texture2& FBO::getDepthTexture() noexcept
+{
+    return mDepthTexture;
+}
+
 Texture2& FBO::getTexture() noexcept
 {
     return mTexture;
-}
-
-uint32_t FBO::getDepthBuffer() const noexcept
-{
-    return mDepthBuffer;
 }
 
 void FBO::setClearColors(const glm::vec4& pClearColors)
@@ -140,6 +128,27 @@ void FBO::initShader()
 {
     std::string resourcePath = RESOURCES_PATH;
     mShader.init(resourcePath + "Shaders/vertFrameBuffer.glsl", resourcePath + "Shaders/fragFrameBuffer.glsl");
+}
+
+void FBO::generateFrameBuffer()
+{
+    glGenFramebuffers(1, &mFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+}
+
+void FBO::generateColorBuffer(glm::vec2 pSize)
+{
+    mTexture.initEmpty(pSize.x, pSize.y);
+    mTexture.setTarget(GL_TEXTURE_2D);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture.getID(), 0);
+}
+
+void FBO::generateDepthBuffer(glm::vec2 pSize)
+{
+    glGenTextures(GL_TEXTURE_2D, &mDepthTexture.getID());
+    glBindTexture(GL_TEXTURE_2D, mDepthTexture.getID());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, pSize.x, pSize.y, 0,
+                 GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 }
 
 glm::vec2 FBO::getSize() const noexcept

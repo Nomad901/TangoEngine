@@ -55,7 +55,7 @@ public:
 	void clearColor();
 
 	uint32_t getFBO() const noexcept;
-	uint32_t getDepthBuffer() const noexcept;
+	Texture2& getDepthTexture() noexcept;
 	glm::vec2 getSize() const noexcept;
 
 	Texture2& getTexture() noexcept;
@@ -68,9 +68,13 @@ public:
 private: 
 	void initShader();
 
+	void generateFrameBuffer();
+	void generateColorBuffer(glm::vec2 pSize);
+	void generateDepthBuffer(glm::vec2 pSize);
+
 private:
 	uint32_t mFBO{};
-	uint32_t mDepthBuffer{};
+	Texture2 mDepthTexture{};
 	Texture2 mTexture;
 	ScreenQuad mScreenQuad;
 	Shader mShader;
