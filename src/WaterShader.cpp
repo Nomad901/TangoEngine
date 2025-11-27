@@ -37,7 +37,7 @@ void WaterShader::setReflectionTexture(std::string_view pUniformName, WaterFBO& 
 void WaterShader::setRefractionTexture(std::string_view pUniformName, WaterFBO& pWaterFBO)
 {
 	uint32_t indexOfRefractionTexture = getIndex(indicesOfTextures::REFRACTION_TEXTURE);
-	pWaterFBO.getReflectionTexture().bind(indexOfRefractionTexture);
+	pWaterFBO.getRefractionTexture().bind(indexOfRefractionTexture);
 	Shader::setUniform1i(pUniformName, indexOfRefractionTexture);
 }
 

@@ -25,7 +25,7 @@ void Renderer::drawScene(Controler* pControler)
 	mSceneManager->getProgramProperties().mWaterTiles[0].setTileSize(mSceneManager->getProgramProperties().mWaterScale);
 
 	float waterHeight = mSceneManager->getProgramProperties().mWaterTiles[0].getWaterHeight();
-	
+
 	glEnable(GL_CLIP_DISTANCE0);
 	
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
@@ -62,7 +62,9 @@ void Renderer::drawScene(Controler* pControler)
 																mSceneManager->getLightProperties().mSun,
 																mSceneManager->getProgramProperties().NEAR_PLANE, 
 																mSceneManager->getProgramProperties().FAR_PLANE);
-	
+
+	//mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
+	//mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().render();
 	showFPS();
 
 	ImGui::Render();

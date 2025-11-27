@@ -46,7 +46,6 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 
 		renderQuad();
 	}
-	glDisable(GL_BLEND);
 }
 
 void WaterRenderer::bind(Camera& pCamera, const glm::mat4& pProjMat,

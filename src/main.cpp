@@ -24,3 +24,12 @@ int32_t main(int32_t argc, int8_t* argv[])
 	7. create text technique which ang99 recommended me 
 	8. repair other terrain generations 
 */
+
+/*
+	problems with water:
+	1. normalize reflection
+	2. normalize distortion
+	3. normalize move factor
+	4. normalize these weird edges 
+	5. make water texture on the whole quad, not only on a small part
+*/

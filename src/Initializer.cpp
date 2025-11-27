@@ -179,7 +179,7 @@ void Initializer::initMousePicker()
 void Initializer::initSkybox()
 {
 	mSceneManager->getProgramProperties().mShaders["skyboxShader"].bind();
-	mSceneManager->getProgramProperties().mSkybox = std::make_unique<Skybox>(Skybox::typeSkybox::SPHERE, Skybox::SkyboxArtType::CLOUDS, 0);
+	mSceneManager->getProgramProperties().mSkybox = std::make_unique<Skybox>(Skybox::typeSkybox::SPHERE, Skybox::SkyboxArtType::SPACE, 0);
 	mSceneManager->getProgramProperties().mShaders["skyboxShader"].setUniform1i("uSkybox", 0);
 }
 
