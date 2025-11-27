@@ -28,6 +28,8 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 						   float pNearPlane, float pFarPlane)
 {
 	bind(pCamera, pProjMat, pWaterFBO, pDirectionalLight, pNearPlane, pFarPlane);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (auto& i : pWaterTiles)
 	{
 		mQuadTransform.setLocalPosition(i.getWaterPos());
@@ -44,6 +46,7 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 
 		renderQuad();
 	}
+	glDisable(GL_BLEND);
 }
 
 void WaterRenderer::bind(Camera& pCamera, const glm::mat4& pProjMat,
@@ -58,7 +61,7 @@ void WaterRenderer::bind(Camera& pCamera, const glm::mat4& pProjMat,
 	mWaterShader.setRefractionTexture("uRefractionTexture", pWaterFBO);
 	mWaterShader.setDuDvMap("uDuDvMap", mDuDvWaterTexture);
 	mWaterShader.setNormalMap("uNormalMap", mNormalMap);
-	mWaterShader.setDepthMap("uDepthMap", pWaterFBO.getRefractionDepthTexture());
+	mWaterShader.setDepthMap("uDepthMap", pWaterFBO.getReflectionDepthTexture());
 	mWaterShader.setLightColor("uLightColor", pDirectionalLight.getColor());
 	mWaterShader.setLightPos("uLightPos", pDirectionalLight.getPosLight());
 	mWaterShader.setNearPlane("uNearPlane", pNearPlane);

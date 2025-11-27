@@ -24,17 +24,19 @@ void Renderer::drawScene(Controler* pControler)
 	mSceneManager->getProgramProperties().mWaterTiles[0].setWaterPos(mSceneManager->getProgramProperties().mWaterPos);
 	mSceneManager->getProgramProperties().mWaterTiles[0].setTileSize(mSceneManager->getProgramProperties().mWaterScale);
 
+	float waterHeight = mSceneManager->getProgramProperties().mWaterTiles[0].getWaterHeight();
+	
 	glEnable(GL_CLIP_DISTANCE0);
 	
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
-	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, -1.0f, 0.0f, 50.0f);
+	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, -1.0f, 0.0f, waterHeight);
 	drawSceneTMP();
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().stop();
 	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
 					 mSceneManager->getProgramProperties().mWindowHeight);
 	
 	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().start();
-	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -50.0f);
+	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -waterHeight + 1.0f);
 	auto camera = &mSceneManager->getProgramProperties().mThirdPersonCam;
 	float distance = 2 * (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
 	camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y - distance, camera->getPos().z));

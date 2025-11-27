@@ -55,11 +55,10 @@ void WaterShader::setNormalMap(std::string_view pUniformName, Texture2& pNormalM
 	Shader::setUniform1i(pUniformName, indexOfNormalMap);
 }
 
-void WaterShader::setDepthMap(std::string_view pUniforName, uint32_t pDepthMap)
+void WaterShader::setDepthMap(std::string_view pUniforName, Texture2& pDepthMap)
 {
 	uint32_t indexOfDepthMap = getIndex(indicesOfTextures::DEPTH_MAP);
-	glActiveTexture(GL_TEXTURE0 + indexOfDepthMap);
-	glBindTexture(GL_TEXTURE_2D, pDepthMap);
+	pDepthMap.bind(indexOfDepthMap);
 	Shader::setUniform1i(pUniforName, indexOfDepthMap);
 }
 

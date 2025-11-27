@@ -21,6 +21,11 @@ void Water::setTileSize(const glm::vec3& pTileSize)
 	mTileSize = pTileSize;
 }
 
+void Water::setWaterHeight(float pWaterHeight)
+{
+	mWaterPos.y = pWaterHeight;
+}
+
 const glm::vec3& Water::getTileSize() const noexcept
 {
 	return mTileSize;
@@ -29,4 +34,9 @@ const glm::vec3& Water::getTileSize() const noexcept
 const glm::vec3& Water::getWaterPos() const noexcept
 {
 	return mWaterPos;
+}
+
+float Water::getWaterHeight() const noexcept
+{
+	return mWaterPos.y;
 }

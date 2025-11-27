@@ -27,7 +27,6 @@ void FBO::init(uint32_t pScreenWidth, uint32_t pScreenHeight,
     generateColorBuffer(pSize);
     generateDepthBuffer(pSize);
 
-    // completeness 
     int32_t status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -145,10 +144,23 @@ void FBO::generateColorBuffer(glm::vec2 pSize)
 
 void FBO::generateDepthBuffer(glm::vec2 pSize)
 {
-    glGenTextures(GL_TEXTURE_2D, &mDepthTexture.getID());
+    uint32_t textureID;
+    glGenTextures(1, &textureID);
+    mDepthTexture.setID(textureID);
+    mDepthTexture.setTarget(GL_TEXTURE_2D);
+
     glBindTexture(GL_TEXTURE_2D, mDepthTexture.getID());
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, pSize.x, pSize.y, 0,
-                 GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+                 GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, mDepthTexture.getID(), 0);
 }
 
 glm::vec2 FBO::getSize() const noexcept

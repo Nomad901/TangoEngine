@@ -25,8 +25,8 @@ public:
 	FBO& getRefractionFBO();
 	Texture2& getReflectionTexture();
 	Texture2& getRefractionTexture(); 
-	uint32_t getReflectionDepthTexture();
-	uint32_t getRefractionDepthTexture();
+	Texture2& getReflectionDepthTexture();
+	Texture2& getRefractionDepthTexture();
 
 private:
 	FBO mReflectionFBO;

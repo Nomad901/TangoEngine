@@ -13,10 +13,12 @@ public:
 
 	void setWaterPos(const glm::vec3& pWaterPos);
 	void setTileSize(const glm::vec3& pTileSize);
+	void setWaterHeight(float pWaterHeight);
 
 	const glm::vec3& getTileSize() const noexcept;
 	const glm::vec3& getWaterPos() const noexcept;
-	
+	float getWaterHeight() const noexcept;
+
 private:
 	glm::vec3 mTileSize;
 	glm::vec3 mWaterPos;

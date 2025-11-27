@@ -58,12 +58,12 @@ Texture2& WaterFBO::getRefractionTexture()
 	return mRefractionFBO.getTexture();
 }
 
-uint32_t WaterFBO::getReflectionDepthTexture()
+Texture2& WaterFBO::getReflectionDepthTexture()
 {
-	return mReflectionFBO.getDepthBuffer();
+	return mReflectionFBO.getDepthTexture();
 }
 
-uint32_t WaterFBO::getRefractionDepthTexture()
+Texture2& WaterFBO::getRefractionDepthTexture()
 {
-	return mRefractionFBO.getDepthBuffer();
+	return mRefractionFBO.getDepthTexture();
 }
