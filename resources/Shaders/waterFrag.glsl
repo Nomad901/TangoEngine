@@ -37,10 +37,10 @@ void main()
 
 	vec2 distortionTexCoords = texture(uDuDvMap, vec2(fragTexCoord.x + uMoveFactor, fragTexCoord.y)).rg * 0.1f;
 	distortionTexCoords = fragTexCoord + vec2(distortionTexCoords.x, distortionTexCoords.y + uMoveFactor);
-	vec2 totalDistortion = (texture(uDuDvMap, distortionTexCoords).rg * 2.0f - 1.0f) * waveStrength * clamp(waterDepth / 20.0f, 0.0f, 1.0f);
+	//vec2 totalDistortion = (texture(uDuDvMap, distortionTexCoords).rg * 2.0f - 1.0f) * waveStrength * clamp(waterDepth / 20.0f, 0.0f, 1.0f);
 	
-	refractionTexCoord += totalDistortion;
-	reflectionTexCoord += totalDistortion;
+	//refractionTexCoord += totalDistortion;
+	//reflectionTexCoord += totalDistortion;
 	
 	refractionTexCoord = clamp(refractionTexCoord, 0.001f, 0.999f);
 	reflectionTexCoord = clamp(reflectionTexCoord, 0.001f, 0.999f);  

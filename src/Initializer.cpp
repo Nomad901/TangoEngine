@@ -58,7 +58,7 @@ void Initializer::initAll()
 															  resourcePath + "Shaders/waterFrag.glsl",
 															  resourcePath + "waterDuDv2.png",
 															  resourcePath + "waterNormal2.png");
-	mSceneManager->getProgramProperties().mWaterTiles.push_back(Water(glm::vec3(541.0f, 50.0f, 524.0f), glm::vec3(1.0f))); 
+	mSceneManager->getProgramProperties().mWaterTiles.push_back(Water(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(122.0f, 0.0f, 122.0f)));
 
 
 	uint32_t windowWidth = mSceneManager->getProgramProperties().mWindowWidth;
@@ -66,6 +66,9 @@ void Initializer::initAll()
 	mSceneManager->getProgramProperties().mWaterFBO = std::make_unique<WaterFBO>(windowWidth, windowHeight,
 																				 glm::vec2(800.0f, 100.0f), glm::vec2(420.0f, 280.0f),
 																				 glm::vec2(100.0f, 100.0f), glm::vec2(420.0f, 280.0f));
+
+	mSceneManager->getModelProperties().mWaterTerrain = std::make_unique<SkinnedMesh>();
+	mSceneManager->getModelProperties().mWaterTerrain->loadMesh(resourcePath + "Models/waterTerrain.obj");
 }
 
 void Initializer::initShaders()
@@ -131,6 +134,9 @@ void Initializer::initMeshes()
 
 void Initializer::initModels()
 {
+	mSceneManager->getModelProperties().mModelManager.pushModel("WaterTerrain", std::make_unique<Model>(glm::vec3(1.0f, -50.0f, 1.0f),
+																 mSceneManager->getProgramProperties().mResourcePath + "Models/waterTerrain.obj"));
+	
 	// museum
 	//mSceneManager->getModelProperties().mModelManager.pushModel("museum", std::make_unique<Model>(glm::vec3(2.0f),
 	//												  mSceneManager->getProgramProperties().mResourcePath + "Models/museum.obj"));

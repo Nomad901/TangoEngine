@@ -12,7 +12,7 @@ class Model
 {
 public:
 	Model() = default;
-	Model(const glm::vec3& pOriginPoss, std::vector<std::unique_ptr<Mesh>>& pMeshes);
+	Model(const glm::vec3& pOriginPos, std::vector<std::unique_ptr<Mesh>>& pMeshes);
 	Model(const glm::vec3& pOriginPos, const std::filesystem::path& pPath);
 	~Model() = default;
 	

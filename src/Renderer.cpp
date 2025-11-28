@@ -29,13 +29,6 @@ void Renderer::drawScene(Controler* pControler)
 	glEnable(GL_CLIP_DISTANCE0);
 	
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
-	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, -1.0f, 0.0f, waterHeight);
-	drawSceneTMP();
-	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().stop();
-	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
-					 mSceneManager->getProgramProperties().mWindowHeight);
-	
-	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().start();
 	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -waterHeight + 1.0f);
 	auto camera = &mSceneManager->getProgramProperties().mThirdPersonCam;
 	float distance = 2 * (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
@@ -46,6 +39,13 @@ void Renderer::drawScene(Controler* pControler)
 	camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y + distance, camera->getPos().z));
 	camera->setPitch(-camera->getPitch());
 	camera->update(pControler->getEvents(), pControler->getPlayer().getPos());
+	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().stop();
+	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
+					 mSceneManager->getProgramProperties().mWindowHeight);
+	
+	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().start();
+	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, -1.0f, 0.0f, waterHeight);
+	drawSceneTMP();
 	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().stop();
 	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
 				     mSceneManager->getProgramProperties().mWindowHeight);
@@ -63,8 +63,8 @@ void Renderer::drawScene(Controler* pControler)
 																mSceneManager->getProgramProperties().NEAR_PLANE, 
 																mSceneManager->getProgramProperties().FAR_PLANE);
 
-	//mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
-	//mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().render();
+	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
+	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().render();
 	showFPS();
 
 	ImGui::Render();
@@ -152,9 +152,12 @@ void Renderer::setGLproperties()
 
 void Renderer::drawSceneTMP()
 {
+	glCullFace(GL_FRONT);
 	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, 
 													  mSceneManager->mModelProperties.mProjMatrix,
 													  mSceneManager->getModelProperties().mPlaneTerrainHeight);
+	mSceneManager->getModelProperties().mModelManager.getModel("WaterTerrain").render();
+	glCullFace(GL_BACK);
 
 	//
 	// Skybox

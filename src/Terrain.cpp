@@ -167,15 +167,16 @@ void Terrain::render(Camera* pCamera, const glm::mat4& pProj, const glm::vec4& p
 {
 	mShader.bind();
 	glm::mat4 model = glm::mat4(1.0f);
+	mPos.y = -150.0f;
 	model = glm::translate(model, mPos);
 	mShader.setMatrixUniform4fv("uModel", model);
 	mShader.setMatrixUniform4fv("uView", pCamera->getViewMatrix());
 	mShader.setMatrixUniform4fv("uProj", pProj);
 	mShader.setUniform4fv("uPlane", pPlaneVec4);
-	mTextures[1]->bind(0);
+	mTextures[3]->bind(0);
 	mShader.setUniform1i("uColorMap", 0);
-	glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
-	mGeomipGrid.render(pCamera, vpMat);
+	//glm::mat4 vpMat = pProj * pCamera->getViewMatrix();
+	//mGeomipGrid.render(pCamera, vpMat);
 }
 
 float Terrain::getWorldScale() const noexcept

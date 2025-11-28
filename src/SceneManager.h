@@ -96,8 +96,8 @@ public:
 		WaterRenderer mWaterRenderer;
 		std::unique_ptr<WaterFBO> mWaterFBO;
 		std::vector<Water> mWaterTiles;
-		glm::vec3 mWaterPos{ glm::vec3(1147.0f, 50.0f, 1229.0f) };
-		glm::vec3 mWaterScale{ glm::vec3(1147.0f, 50.0f, 1229.0f) };
+		glm::vec3 mWaterPos{ glm::vec3(0.0f, 10.0f, 0.0f) };
+		glm::vec3 mWaterScale{ glm::vec3(122.0f, 0.0f, 122.0f) };
 
 		bool mWindowWasChanged{ false };
 
@@ -147,6 +147,8 @@ public:
 
 		TextureGenerator mTextureGenerator;
 		std::unique_ptr<Texture2> mTexture;
+
+		std::unique_ptr<SkinnedMesh> mWaterTerrain;
 
 		AnimatorManager mAnimatorManager;
 
