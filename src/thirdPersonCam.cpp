@@ -20,6 +20,12 @@ void thirdPersonCam::setZoom(float pZoom)
 	mDistance = pZoom;
 }
 
+void thirdPersonCam::setLimitOfCameraMovement(bool pLimitIsEnabled, float pLimit)
+{
+	mLimitCameraIsEnabled = pLimitIsEnabled;
+	mLimitOfCamera = pLimit;
+}
+
 float thirdPersonCam::getAngleAroundPlayer() const noexcept
 {
 	return mAngleAroundPlayer;
@@ -69,9 +75,11 @@ void thirdPersonCam::calculateCameraPosition(float pVerticalDistance, float pHor
 		glm::vec3 cameraPos;
 	cameraPos.x = pCharacterPos.x - offsetX;
 	cameraPos.y = pCharacterPos.y + pVerticalDistance + 2.0f;
-	//float minHeightAboveCharacter = 1.0f; 
-	//if (cameraPos.y <= pCharacterPos.y + minHeightAboveCharacter)
-	//	cameraPos.y = pCharacterPos.y + minHeightAboveCharacter;
+	if (mLimitCameraIsEnabled)
+	{
+		if (cameraPos.y <= pCharacterPos.y + mLimitOfCamera)
+			cameraPos.y = pCharacterPos.y + mLimitOfCamera;
+	}
 	cameraPos.z = pCharacterPos.z + offsetZ;
 	Camera::setPos(cameraPos);
 

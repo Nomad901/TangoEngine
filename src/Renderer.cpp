@@ -27,11 +27,11 @@ void Renderer::drawScene(Controler* pControler)
 	float waterHeight = mSceneManager->getProgramProperties().mWaterTiles[0].getWaterHeight();
 
 	glEnable(GL_CLIP_DISTANCE0);
-	
+
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
 	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -waterHeight + 1.0f);
 	auto camera = &mSceneManager->getProgramProperties().mThirdPersonCam;
-	float distance = 2 * (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
+	float distance = (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
 	camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y - distance, camera->getPos().z));
 	camera->setPitch(-camera->getPitch());
 	camera->update(pControler->getEvents(), pControler->getPlayer().getPos());
@@ -54,17 +54,20 @@ void Renderer::drawScene(Controler* pControler)
 	
 	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, 10000.0f);
 	drawSceneTMP();
-	mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
-															    mSceneManager->getProgramProperties().mThirdPersonCam,
-															    mSceneManager->getModelProperties().mProjMatrix,
-															   *mSceneManager->getProgramProperties().mWaterFBO.get(),
-																SDL_GetTicks(),
-																mSceneManager->getLightProperties().mSun,
-																mSceneManager->getProgramProperties().NEAR_PLANE, 
-																mSceneManager->getProgramProperties().FAR_PLANE);
-
-	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
-	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().render();
+	if (mSceneManager->getModelProperties().mPlayerPos.y + 10.0f > waterHeight)
+	{
+		mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
+																    mSceneManager->getProgramProperties().mThirdPersonCam,
+																    mSceneManager->getModelProperties().mProjMatrix,
+																   *mSceneManager->getProgramProperties().mWaterFBO.get(),
+																	SDL_GetTicks(),
+																	mSceneManager->getLightProperties().mSun,
+																	mSceneManager->getProgramProperties().NEAR_PLANE, 
+																	mSceneManager->getProgramProperties().FAR_PLANE);
+	}
+	
+	//mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
+	//mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().render();
 	showFPS();
 
 	ImGui::Render();

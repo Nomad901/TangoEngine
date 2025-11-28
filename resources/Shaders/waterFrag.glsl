@@ -64,4 +64,5 @@ void main()
 	fragColor = mix(reflectionTexture, refractionTexture, fresnelEffectFactor);
 	fragColor = mix(fragColor, vec4(0.0f, 0.3f, 0.5f, 1.0f), 0.2f) + vec4(totalLight, 0.0f);
 	fragColor.a = clamp(waterDepth / 5.0f, 0.0f, 1.0f);
+	fragColor = vec4(waterDepth / 50.0f);
 }
