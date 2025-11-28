@@ -20,7 +20,6 @@ void Renderer::preDrawScene()
 void Renderer::drawScene(Controler* pControler)
 {
 	ImGui::EndFrame();
-
 	mSceneManager->getProgramProperties().mWaterTiles[0].setWaterPos(mSceneManager->getProgramProperties().mWaterPos);
 	mSceneManager->getProgramProperties().mWaterTiles[0].setTileSize(mSceneManager->getProgramProperties().mWaterScale);
 
@@ -60,7 +59,6 @@ void Renderer::drawScene(Controler* pControler)
 																    mSceneManager->getProgramProperties().mThirdPersonCam,
 																    mSceneManager->getModelProperties().mProjMatrix,
 																   *mSceneManager->getProgramProperties().mWaterFBO.get(),
-																	SDL_GetTicks(),
 																	mSceneManager->getLightProperties().mSun,
 																	mSceneManager->getProgramProperties().NEAR_PLANE, 
 																	mSceneManager->getProgramProperties().FAR_PLANE);

@@ -18,7 +18,7 @@ uniform float uFarPlane;
 
 uniform float uMoveFactor;
 
-const float waveStrength = 0.2f;
+const float waveStrength = 0.02f;
 const float shineDamper  = 20.0f;
 const float reflection   = 0.6f;
 
@@ -37,10 +37,10 @@ void main()
 
 	vec2 distortionTexCoords = texture(uDuDvMap, vec2(fragTexCoord.x + uMoveFactor, fragTexCoord.y)).rg * 0.1f;
 	distortionTexCoords = fragTexCoord + vec2(distortionTexCoords.x, distortionTexCoords.y + uMoveFactor);
-	//vec2 totalDistortion = (texture(uDuDvMap, distortionTexCoords).rg * 2.0f - 1.0f) * waveStrength * clamp(waterDepth / 20.0f, 0.0f, 1.0f);
+	vec2 totalDistortion = (texture(uDuDvMap, distortionTexCoords).rg * 2.0f - 1.0f) * waveStrength * clamp(waterDepth / 20.0f, 0.0f, 1.0f);
 	
-	//refractionTexCoord += totalDistortion;
-	//reflectionTexCoord += totalDistortion;
+	refractionTexCoord += totalDistortion;
+	reflectionTexCoord += totalDistortion;
 	
 	refractionTexCoord = clamp(refractionTexCoord, 0.001f, 0.999f);
 	reflectionTexCoord = clamp(reflectionTexCoord, 0.001f, 0.999f);  
@@ -50,11 +50,11 @@ void main()
 	
 	vec4 normalMap = texture(uNormalMap, distortionTexCoords);
 	vec3 normal = vec3(normalMap.r * 2.0f - 1.0f, normalMap.b * 3.0f, normalMap.g * 2.0f - 1.0f);
-	//vec3 normal = vec3(normalMap.r * 2.0f - 1.0f, normalMap.g, normalMap.b * 2.0f - 1.0f);
 	normal = normalize(normal);
 
 	vec3 normalizedCamVec = normalize(fragToCameraVector);
 	float fresnelEffectFactor = dot(normalizedCamVec, normal);
+	//fresnelEffectFactor = pow(fresnelEffectFactor, 2.0f);
 	
 	vec3 reflectLight = reflect(normalize(fragFromLightVector), normal);
 	float specular = max(dot(reflectLight, normalizedCamVec), 0.0f);
@@ -64,5 +64,4 @@ void main()
 	fragColor = mix(reflectionTexture, refractionTexture, fresnelEffectFactor);
 	fragColor = mix(fragColor, vec4(0.0f, 0.3f, 0.5f, 1.0f), 0.2f) + vec4(totalLight, 0.0f);
 	fragColor.a = clamp(waterDepth / 5.0f, 0.0f, 1.0f);
-	fragColor = vec4(waterDepth / 50.0f);
 }

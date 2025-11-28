@@ -23,13 +23,18 @@ void WaterRenderer::init(const std::filesystem::path& pVertPath,
 
 void WaterRenderer::render(const std::vector<Water> pWaterTiles, 
 						   Camera& pCamera, const glm::mat4& pProjMat, 
-						   WaterFBO& pWaterFBO, float pDeltaTime, 
-						   DirectionalLight& pDirectionalLight,
+						   WaterFBO& pWaterFBO, DirectionalLight& pDirectionalLight,
 						   float pNearPlane, float pFarPlane)
 {
 	bind(pCamera, pProjMat, pWaterFBO, pDirectionalLight, pNearPlane, pFarPlane);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	mMoveFactor += 0.1f;
+
+	float waterWavesTime = fmod(mMoveFactor * WAVE_SPEED, 1.0f);
+	std::cout << std::format("Move factor: {}\n", waterWavesTime);
+
 	for (auto& i : pWaterTiles)
 	{
 		mQuadTransform.setLocalPosition(i.getWaterPos());
@@ -37,12 +42,8 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 		mQuadTransform.setLocalScale(i.getTileSize());
 
 		mWaterShader.setMatrixUniform4fv("uModel", mQuadTransform.getModelMatrix());
-
-		mMoveFactor += WAVE_SPEED * pDeltaTime * 0.001f;
-		if (mMoveFactor >= 10000.0f)
-			mMoveFactor = 0.0f;
-
-		mWaterShader.setMoveFactor("uMoveFactor", mMoveFactor);
+	
+		mWaterShader.setMoveFactor("uMoveFactor", waterWavesTime);
 
 		renderQuad();
 	}

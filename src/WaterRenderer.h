@@ -26,8 +26,7 @@ public:
 	
 	void render(const std::vector<Water> pWaterTiles,
 				Camera& pCamera, const glm::mat4& pProjMat, 
-				WaterFBO& pWaterFBO, float pDeltaTime, 
-				DirectionalLight& pDirectionalLight,
+				WaterFBO& pWaterFBO, DirectionalLight& pDirectionalLight,
 				float pNearPlane, float pFarPlane);
 
 private:
@@ -40,7 +39,7 @@ private:
 	
 private:
 	uint32_t mVAO{}, mVBO{};
-	const float WAVE_SPEED = 0.03f;
+	const float WAVE_SPEED = 0.003f;
 	float mMoveFactor{};
 
 	Transform mQuadTransform;

@@ -53,6 +53,11 @@ void Initializer::initAll()
 	initCharacter();
 	initDeferredLights();
 
+	// NOCLIP
+	mSceneManager->getProgramProperties().mNoclip = true;
+
+
+
 	std::string resourcePath = RESOURCES_PATH;
 	mSceneManager->getProgramProperties().mWaterRenderer.init(resourcePath + "Shaders/waterVert.glsl", 
 															  resourcePath + "Shaders/waterFrag.glsl",
