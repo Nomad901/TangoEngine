@@ -142,7 +142,6 @@ void Program::update()
 	mRenderer.drawScene(mControler.get());
 	mControler->getPlayer().renderCharacter(mSceneManager.getProgramProperties().mShaders["mainShader"]);
 
-	mSceneManager.getProgramProperties().mWindowWasChanged = false;
 	manageWindowSize();
 }
 

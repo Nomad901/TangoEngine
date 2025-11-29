@@ -4,7 +4,7 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	mPlayer.init(glm::vec3(10.0f, 10.0f, -10.0f), glm::vec3(1.0f, 1.0f, 1.0f), 100.0f, 100.0f, 30.0f, true, 
+	mPlayer.init(glm::vec3(10.0f, 10.0f, -10.0f), glm::vec3(1.0f, 1.0f, 1.0f), 100.0f, 100.0f, 30.0f, false, 
 				 pSceneManager->getProgramProperties().mResourcePath + "Models/player.obj");
 }
 
@@ -29,8 +29,19 @@ void Controler::controlAll(float pDeltaTime)
 			mKeyCodes[mEvent.key.key] = false;
 		
 		// CAMERA MOVING
-		//if (mEvent.type == SDL_EVENT_MOUSE_MOTION && mSceneManager->getProgramProperties().mTakeCursor)
-		//	mPlayer.getThirdPersonCamera().mouseMovement(glm::vec2(mEvent.motion.xrel, mEvent.motion.yrel));
+		if (mEvent.type == SDL_EVENT_MOUSE_MOTION && mSceneManager->getProgramProperties().mTakeCursor)
+			mPlayer.getCamera().mouseMovement(glm::vec2(mEvent.motion.xrel, mEvent.motion.yrel));
+		if (!mPlayer.isInThirdPersonCamera())
+		{
+			if (mEvent.type == SDL_EVENT_MOUSE_WHEEL)
+			{
+				float cameraZoom = mPlayer.getCamera().getZoom();
+				if (mEvent.wheel.y < 0.0f)
+					mPlayer.getCamera().setZoom(cameraZoom + 1.0f);
+				else if (mEvent.wheel.y > 0.0f)
+					mPlayer.getCamera().setZoom(cameraZoom - 1.0f);
+			}
+		}
 
 		// LIGHT BLOCK DISTANCE FROM CAMERA	
 		if (mEvent.type == SDL_EVENT_MOUSE_WHEEL) {
@@ -45,19 +56,21 @@ void Controler::controlAll(float pDeltaTime)
 	{
 		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getThirdPersonCamera().getViewMatrix();
 		mSceneManager->getProgramProperties().mThirdPersonCam = mPlayer.getThirdPersonCamera();
-		mSceneManager->getProgramProperties().mTakeCursor = false;
 		mSceneManager->getModelProperties().mProjMatrix = glm::perspective(glm::radians(mPlayer.getThirdPersonCamera().getZoom()),
 																		  (float)mSceneManager->getProgramProperties().mWindowWidth /
-																		  (float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
+																		  (float)mSceneManager->getProgramProperties().mWindowHeight, 
+																				 mSceneManager->getProgramProperties().NEAR_PLANE, 
+																				 mSceneManager->getProgramProperties().FAR_PLANE);
 	}
 	else
 	{
 		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getCamera().getViewMatrix();
 		mSceneManager->getProgramProperties().mCamera = mPlayer.getCamera();
-		mSceneManager->getProgramProperties().mTakeCursor = true;
 		mSceneManager->getModelProperties().mProjMatrix = glm::perspective(glm::radians(mPlayer.getCamera().getZoom()),
 																		  (float)mSceneManager->getProgramProperties().mWindowWidth /
-																		  (float)mSceneManager->getProgramProperties().mWindowHeight, 0.1f, 2000.0f);
+																		  (float)mSceneManager->getProgramProperties().mWindowHeight,
+																				 mSceneManager->getProgramProperties().NEAR_PLANE,
+																				 mSceneManager->getProgramProperties().FAR_PLANE);
 	}
 	mSceneManager->getModelProperties().mPlayerPos = mPlayer.getPos();
 	mPlayer.turnOnNoclip(mSceneManager->getProgramProperties().mNoclip);

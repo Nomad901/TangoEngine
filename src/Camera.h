@@ -56,7 +56,7 @@ private:
 
 	float mYaw{}, mPitch{};
 	float mSensivity{};
-	float mZoom{};
+	float mZoom{ 45.0f };
 	float mMovementSpeed{};
 
 	glm::vec3 mEye, mDirection, mUpVec;

@@ -26,19 +26,21 @@ void Renderer::drawScene(Controler* pControler)
 	float waterHeight = mSceneManager->getProgramProperties().mWaterTiles[0].getWaterHeight();
 
 	glEnable(GL_CLIP_DISTANCE0);
-
+	
+	//glDisable(GL_CULL_FACE);
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
-	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -waterHeight + 1.0f);
-	auto camera = &mSceneManager->getProgramProperties().mThirdPersonCam;
-	float distance = (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
+	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -waterHeight);
+	auto camera = &mSceneManager->getProgramProperties().mCamera;
+	float distance = 10 * (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
 	camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y - distance, camera->getPos().z));
 	camera->setPitch(-camera->getPitch());
-	camera->update(pControler->getEvents(), pControler->getPlayer().getPos());
+	camera->updateCameraVertex();
 	drawSceneTMP();
 	camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y + distance, camera->getPos().z));
 	camera->setPitch(-camera->getPitch());
-	camera->update(pControler->getEvents(), pControler->getPlayer().getPos());
+	camera->updateCameraVertex();
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().stop();
+	//glEnable(GL_CULL_FACE); 
 	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
 					 mSceneManager->getProgramProperties().mWindowHeight);
 	
@@ -54,7 +56,7 @@ void Renderer::drawScene(Controler* pControler)
 	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, 10000.0f);
 	drawSceneTMP();
 	mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
-																mSceneManager->getProgramProperties().mThirdPersonCam,
+																mSceneManager->getProgramProperties().mCamera,
 																mSceneManager->getModelProperties().mProjMatrix,
 															   *mSceneManager->getProgramProperties().mWaterFBO.get(),
 																mSceneManager->getLightProperties().mSun,
@@ -62,8 +64,7 @@ void Renderer::drawScene(Controler* pControler)
 																mSceneManager->getProgramProperties().FAR_PLANE,
 																mSceneManager->getProgramProperties().mWaterColor);
 
-	//mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
-	//mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().render();
+	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
 	showFPS();
 
 	ImGui::Render();
@@ -152,7 +153,7 @@ void Renderer::setGLproperties()
 void Renderer::drawSceneTMP()
 {
 	glCullFace(GL_FRONT);
-	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mThirdPersonCam, 
+	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mCamera, 
 													  mSceneManager->mModelProperties.mProjMatrix,
 													  mSceneManager->getModelProperties().mPlaneTerrainHeight);
 	mSceneManager->getModelProperties().mModelManager.getModel("WaterTerrain").render();
@@ -173,7 +174,7 @@ void Renderer::drawSceneTMP()
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	renderCubeLights();
 
-	Camera& cameraForChar = mSceneManager->getProgramProperties().mThirdPersonCam;
+	Camera& cameraForChar = mSceneManager->getProgramProperties().mCamera;
 	glm::mat4& projMat = mSceneManager->getModelProperties().mProjMatrix;
 	Timer& time = mSceneManager->getProgramProperties().mTimer;
 
@@ -263,7 +264,7 @@ void Renderer::renderCubeLights()
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, i);
 		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-		MVP = mSceneManager->getModelProperties().mProjMatrix * mSceneManager->getProgramProperties().mThirdPersonCam.getViewMatrix() * model;
+		MVP = mSceneManager->getModelProperties().mProjMatrix * mSceneManager->getProgramProperties().mCamera.getViewMatrix() * model;
 		singleColorShader->setMatrixUniform4fv("uMVP", MVP);
 		singleColorShader->setUniform3fv("uColor", mSceneManager->getLightProperties().lightColors[index]);
 		
