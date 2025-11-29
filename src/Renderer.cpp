@@ -29,9 +29,9 @@ void Renderer::drawScene(Controler* pControler)
 	
 	//glDisable(GL_CULL_FACE);
 	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
-	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -waterHeight);
+	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -waterHeight + 1.0f);
 	auto camera = &mSceneManager->getProgramProperties().mCamera;
-	float distance = 10 * (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
+	float distance = 2 * (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
 	camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y - distance, camera->getPos().z));
 	camera->setPitch(-camera->getPitch());
 	camera->updateCameraVertex();
@@ -64,7 +64,6 @@ void Renderer::drawScene(Controler* pControler)
 																mSceneManager->getProgramProperties().FAR_PLANE,
 																mSceneManager->getProgramProperties().mWaterColor);
 
-	mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
 	showFPS();
 
 	ImGui::Render();
