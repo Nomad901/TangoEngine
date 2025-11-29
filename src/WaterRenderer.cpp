@@ -15,9 +15,9 @@ void WaterRenderer::init(const std::filesystem::path& pVertPath,
 {
 	mWaterShader.init(pVertPath, pFragPath);
 	setUpQuad();
-	mDuDvWaterTexture.init(pDuDvMap);
+	mDuDvWaterTexture.init(pDuDvMap, true);
 	mDuDvWaterTexture.setTarget(GL_TEXTURE_2D);
-	mNormalMap.init(pNormalMap);
+	mNormalMap.init(pNormalMap, true);
 	mNormalMap.setTarget(GL_TEXTURE_2D);
 }
 
@@ -33,7 +33,6 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 	mMoveFactor += 0.1f;
 
 	float waterWavesTime = fmod(mMoveFactor * WAVE_SPEED, 1.0f);
-	std::cout << std::format("Move factor: {}\n", waterWavesTime);
 
 	for (auto& i : pWaterTiles)
 	{

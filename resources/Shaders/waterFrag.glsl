@@ -34,21 +34,19 @@ float getWaterDepth(vec2 pRefractionTexCoord)
 	return waterDepth;
 }
 
-vec2 getTotalDistortion(float pWaterDepth)
-{
-	vec2 distortionTexCoords = texture(uDuDvMap, vec2(fragTexCoord.x + uMoveFactor, fragTexCoord.y)).rg * 0.1f;
-	distortionTexCoords = fragTexCoord + vec2(distortionTexCoords.x, distortionTexCoords.y + uMoveFactor);
-	vec2 totalDistortion = (texture(uDuDvMap, distortionTexCoords).rg * 2.0f - 1.0f) * waveStrength * clamp(pWaterDepth / 20.0f, 0.0f, 1.0f);
-
-	return totalDistortion;
-}
-
 vec2 getDistortionTexCoords()
 {
 	vec2 distortionTexCoords = texture(uDuDvMap, vec2(fragTexCoord.x + uMoveFactor, fragTexCoord.y)).rg * 0.1f;
 	distortionTexCoords = fragTexCoord + vec2(distortionTexCoords.x, distortionTexCoords.y + uMoveFactor);
 
 	return distortionTexCoords;
+}
+
+vec2 getTotalDistortion(float pWaterDepth, vec2 pDistortionTexCoords)
+{
+	vec2 totalDistortion = (texture(uDuDvMap, pDistortionTexCoords).rg * 2.0f - 1.0f) * waveStrength * clamp(pWaterDepth / 20.0f, 0.0f, 1.0f);
+
+	return totalDistortion;
 }
 
 vec3 getNormal(vec2 pDistortionTexCoords)
@@ -90,7 +88,8 @@ void main()
 
 	float waterDepth = getWaterDepth(refractionTexCoord);
 	
-	vec2 totalDistortion = getTotalDistortion(waterDepth);
+	vec2 distortionTexCoords = getDistortionTexCoords();
+	vec2 totalDistortion = getTotalDistortion(waterDepth, distortionTexCoords);
 	refractionTexCoord += totalDistortion;
 	reflectionTexCoord += totalDistortion;
 	refractionTexCoord = clamp(refractionTexCoord, 0.001f, 0.999f);
@@ -99,7 +98,7 @@ void main()
 	vec4 refractionTexture = texture(uRefractionTexture, refractionTexCoord);
 	vec4 reflectionTexture = texture(uReflectionTexture, reflectionTexCoord);
 	
-	vec3 normal = getNormal(getDistortionTexCoords());
+	vec3 normal = getNormal(distortionTexCoords);
 
 	float fresnelEffectFactor = getFresnelEffectFactor(normal, 1.0f);
 
