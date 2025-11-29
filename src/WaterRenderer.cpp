@@ -30,9 +30,10 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	mMoveFactor += 0.1f;
+	mMoveFactor += 0.01f;
 
-	float waterWavesTime = fmod(mMoveFactor * WAVE_SPEED, 1.0f);
+	//float waterWavesTime = fmod(mMoveFactor * WAVE_SPEED, 1.0f);
+	float waterWavesTime = (cos(mMoveFactor) + sin(mMoveFactor * 0.7f)) * 0.25f + 0.5f;
 	std::cout << std::format("Move factor: {}\n", waterWavesTime);
 
 	for (auto& i : pWaterTiles)
