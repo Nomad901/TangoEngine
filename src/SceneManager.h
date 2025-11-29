@@ -96,15 +96,16 @@ public:
 		WaterRenderer mWaterRenderer;
 		std::unique_ptr<WaterFBO> mWaterFBO;
 		std::vector<Water> mWaterTiles;
-		glm::vec3 mWaterPos{ glm::vec3(0.0f, 30.0f, 0.0f) };
+		glm::vec3 mWaterPos{ glm::vec3(0.0f, 10.0f, 0.0f) };
 		glm::vec3 mWaterScale{ glm::vec3(122.0f, 0.0f, 122.0f) };
+		glm::vec4 mWaterColor{ glm::vec4(0.0f, 0.3f, 0.5f, 1.0f) };
 
 		bool mWindowWasChanged{ false };
 
 		int32_t currentTexture{ 0 };
 
 		const float NEAR_PLANE = 0.1f;
-		const float FAR_PLANE  = 2000.0f;
+		const float FAR_PLANE  = 1000.0f;
 	};
 
 	struct lightProperties

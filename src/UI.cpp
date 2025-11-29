@@ -393,6 +393,7 @@ void UI::manageWater(SceneManager& pSceneManager)
 			{"Scale y", std::make_pair(0.0f, 10000.0f)},
 			{"Scale z", std::make_pair(0.0f, 10000.0f)}
 		});
+	setColorVec4("Water color", pSceneManager.getProgramProperties().mWaterColor);
 
 	endFrame();
 }

@@ -15,6 +15,7 @@ uniform sampler2D uDepthMap;
 uniform vec3 uLightColor;
 uniform float uNearPlane;
 uniform float uFarPlane;
+uniform vec4 uWaterColor;
 
 uniform float uMoveFactor;
 
@@ -105,6 +106,6 @@ void main()
 	vec3 light = calculateLight(normal, waterDepth);
 	
 	fragColor = mix(reflectionTexture, refractionTexture, fresnelEffectFactor);
-	fragColor = mix(fragColor, vec4(0.0f, 0.3f, 0.5f, 1.0f), 0.2f) + vec4(light, 0.0f);
+	fragColor = mix(fragColor, uWaterColor, 0.2f) + vec4(light, 0.0f);
 	fragColor.a = clamp(waterDepth / 5.0f, 0.0f, 1.0f);
 }

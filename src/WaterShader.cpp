@@ -87,6 +87,11 @@ void WaterShader::setFarPlane(std::string_view pUniformName, float pFarPlane)
 	Shader::setUniform1f(pUniformName, pFarPlane);
 }
 
+void WaterShader::setWaterColor(std::string_view pUniformName, const glm::vec4& pColor)
+{
+	Shader::setUniform4fv(pUniformName, pColor);
+}
+
 uint32_t WaterShader::getIndex(indicesOfTextures pIndicesOfTextures)
 {
 	return static_cast<uint32_t>(pIndicesOfTextures);

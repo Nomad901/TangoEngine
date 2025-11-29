@@ -12,15 +12,14 @@ uniform mat4 uProj;
 uniform vec3 uCameraPos;
 uniform vec3 uLightPos;
 
-const float tiling = 4.0f;
+const float tiling = 1.0f;
 
 void main()
 {
 	vec4 worldSpace = uModel * vec4(pos.x, 0.0f, pos.y, 1.0f);
 	fragClipSpace = uProj * uView * worldSpace;
 	gl_Position = fragClipSpace;
-	fragTexCoord = vec2(pos.x / 2.0f + 0.5f, pos.y / 2.0f + 0.5f);
-	//fragTexCoord = vec2(pos.x / 2.0f + 0.5f, pos.y / 2.0f + 0.5f) * tiling;
+	fragTexCoord = vec2(pos.x / 2.0f + 0.5f, pos.y / 2.0f + 0.5f) * tiling;
 	fragToCameraVector = uCameraPos - worldSpace.xyz;
 
 	fragFromLightVector = worldSpace.xyz - uLightPos; 

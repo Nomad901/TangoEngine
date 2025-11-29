@@ -28,8 +28,8 @@ int32_t main(int32_t argc, int8_t* argv[])
 /*
 	problems with water:
 	1. normalize reflection
-	2. normalize distortion
-	3. normalize move factor
+	2. normalize distortion - done
+	3. normalize move factor - done
 	4. normalize these weird edges 
 	5. make water texture on the whole quad, not only on a small part
 */

@@ -36,6 +36,7 @@ public:
 	void setLightColor(std::string_view pUniformName, const glm::vec3& pLightColor);
 	void setNearPlane(std::string_view pUniformName, float pNearPlane);
 	void setFarPlane(std::string_view pUniformName, float pFarPlane);
+	void setWaterColor(std::string_view pUniformName, const glm::vec4& pColor);
 
 private:
 	uint32_t getIndex(indicesOfTextures pIndicesOfTextures);

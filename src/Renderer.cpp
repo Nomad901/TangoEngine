@@ -43,7 +43,7 @@ void Renderer::drawScene(Controler* pControler)
 					 mSceneManager->getProgramProperties().mWindowHeight);
 	
 	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().start();
-	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, -1.0f, 0.0f, waterHeight);
+	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, -1.0f, 0.0f, waterHeight + 0.1f);
 	drawSceneTMP();
 	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().stop();
 	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
@@ -53,17 +53,15 @@ void Renderer::drawScene(Controler* pControler)
 	
 	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, 10000.0f);
 	drawSceneTMP();
-	if (mSceneManager->getModelProperties().mPlayerPos.y + 10.0f > waterHeight)
-	{
-		mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
-																    mSceneManager->getProgramProperties().mThirdPersonCam,
-																    mSceneManager->getModelProperties().mProjMatrix,
-																   *mSceneManager->getProgramProperties().mWaterFBO.get(),
-																	mSceneManager->getLightProperties().mSun,
-																	mSceneManager->getProgramProperties().NEAR_PLANE, 
-																	mSceneManager->getProgramProperties().FAR_PLANE);
-	}
-	
+	mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
+																mSceneManager->getProgramProperties().mThirdPersonCam,
+																mSceneManager->getModelProperties().mProjMatrix,
+															   *mSceneManager->getProgramProperties().mWaterFBO.get(),
+																mSceneManager->getLightProperties().mSun,
+																mSceneManager->getProgramProperties().NEAR_PLANE, 
+																mSceneManager->getProgramProperties().FAR_PLANE,
+																mSceneManager->getProgramProperties().mWaterColor);
+
 	//mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().render();
 	//mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().render();
 	showFPS();
