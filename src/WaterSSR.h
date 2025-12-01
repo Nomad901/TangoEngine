@@ -21,5 +21,9 @@ private:
 	float mWaterRoughnessComponent{};
 	uint32_t* mDepthBuffer{ nullptr };
 
-};
+	glm::mat4 mViewMat;
+	glm::mat4 mInvViewMat;
+	glm::mat4 mProjection;
+	glm::mat4 mInvProjection;
 
+};

@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Transform.h"
 #include "WaterFBO.h"
+#include "GBuffer.h"
 
 class WaterRenderer
 {
@@ -26,13 +27,13 @@ public:
 	
 	void render(const std::vector<Water> pWaterTiles,
 				Camera& pCamera, const glm::mat4& pProjMat, 
-				WaterFBO& pWaterFBO, DirectionalLight& pDirectionalLight,
+				GBuffer& pGBuffer, DirectionalLight& pDirectionalLight,
 				float pNearPlane, float pFarPlane,
 				const glm::vec4& pWaterColor);
 
 private:
 	void bind(Camera& pCamera, const glm::mat4& pProjMat,
-		      WaterFBO& pWaterFBO, DirectionalLight& pDirectionalLight,
+			  GBuffer& pGBuffer, DirectionalLight& pDirectionalLight,
 			  float pNearPlane, float pFarPlane,
 			  const glm::vec4& pWaterColor);
 	void renderQuad();

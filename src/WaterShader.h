@@ -30,7 +30,7 @@ public:
 	void setRefractionTexture(std::string_view pUniformName, WaterFBO& pWaterFBO);
 	void setDuDvMap(std::string_view pUniformName, Texture2& pDuDvMap);
 	void setNormalMap(std::string_view pUniformName, Texture2& pNormalMap);
-	void setDepthMap(std::string_view pUniforName, Texture2& pDepthMap);
+	void setDepthMap(std::string_view pUniforName, uint32_t pDepthMap);
 	void setMoveFactor(std::string_view pUniformName, float pMoveFactor);
 	void setLightPos(std::string_view pUniformName, const glm::vec3& pLightPos);
 	void setLightColor(std::string_view pUniformName, const glm::vec3& pLightColor);

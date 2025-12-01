@@ -22,67 +22,15 @@ void Renderer::drawScene(Controler* pControler)
 	ImGui::EndFrame();
 	mSceneManager->getProgramProperties().mWaterTiles[0].setWaterPos(mSceneManager->getProgramProperties().mWaterPos);
 	mSceneManager->getProgramProperties().mWaterTiles[0].setTileSize(mSceneManager->getProgramProperties().mWaterScale);
-
-	float waterHeight = mSceneManager->getProgramProperties().mWaterTiles[0].getWaterHeight();
-
-	glEnable(GL_CLIP_DISTANCE0);
 	
-	if (!mSceneManager->getProgramProperties().mIsIn3rdPersonCamera)
-	{
-		auto camera = &mSceneManager->getProgramProperties().mCamera;
-		mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
-
-		mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -waterHeight + 1.0f);
-		float distance = 2 * (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
-
-		camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y - distance, camera->getPos().z));
-		camera->setPitch(-camera->getPitch());
-		camera->updateCameraVertex();
-		drawSceneTMP();
-		camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y + distance, camera->getPos().z));
-		camera->setPitch(-camera->getPitch());
-		camera->updateCameraVertex();
-		
-		mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().stop();
-	}
-	else
-	{
-		auto camera = &mSceneManager->getProgramProperties().mThirdPersonCam;
-		
-		mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().start();
-		
-		mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, -waterHeight + 1.0f);
-		float distance = 2 * (camera->getPos().y - mSceneManager->getProgramProperties().mWaterTiles[0].getWaterPos().y);
-		
-		camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y - distance, camera->getPos().z));
-		camera->setPitch(-camera->getPitch());
-		camera->update(pControler->getEvents(), pControler->getPlayer().getPos());
-		drawSceneTMP();
-		camera->setPos(glm::vec3(camera->getPos().x, camera->getPos().y + distance, camera->getPos().z));
-		camera->setPitch(-camera->getPitch());
-		camera->update(pControler->getEvents(), pControler->getPlayer().getPos());
-		
-		mSceneManager->getProgramProperties().mWaterFBO->getReflectionFBO().stop();
-	}
-
-	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
-					 mSceneManager->getProgramProperties().mWindowHeight);
-	
-	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().start();
-	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, -1.0f, 0.0f, waterHeight + 0.1f);
+	mSceneManager->getProgramProperties().mGBuffer.bindForWriting();
 	drawSceneTMP();
-	mSceneManager->getProgramProperties().mWaterFBO->getRefractionFBO().stop();
-	glViewport(0, 0, mSceneManager->getProgramProperties().mWindowWidth,
-				     mSceneManager->getProgramProperties().mWindowHeight);
-	
-	glDisable(GL_CLIP_DISTANCE0);
-	
-	mSceneManager->getModelProperties().mPlaneTerrainHeight = glm::vec4(0.0f, 1.0f, 0.0f, 10000.0f);
-	drawSceneTMP();
+	mSceneManager->getProgramProperties().mGBuffer.unbind();
+
 	mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
 																mSceneManager->getProgramProperties().mCamera,
 																mSceneManager->getModelProperties().mProjMatrix,
-															   *mSceneManager->getProgramProperties().mWaterFBO.get(),
+															    mSceneManager->getProgramProperties().mGBuffer,
 																mSceneManager->getLightProperties().mSun,
 																mSceneManager->getProgramProperties().NEAR_PLANE, 
 																mSceneManager->getProgramProperties().FAR_PLANE,
@@ -177,8 +125,7 @@ void Renderer::drawSceneTMP()
 {
 	glCullFace(GL_FRONT);
 	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mCamera,
-													  mSceneManager->mModelProperties.mProjMatrix,
-													  mSceneManager->getModelProperties().mPlaneTerrainHeight);
+													  mSceneManager->mModelProperties.mProjMatrix);
 	mSceneManager->getModelProperties().mModelManager.getModel("WaterTerrain").render();
 	glCullFace(GL_BACK);
 

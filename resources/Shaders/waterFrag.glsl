@@ -7,107 +7,142 @@ in vec2 fragTexCoord;
 in vec3 fragToCameraVector;
 in vec3 fragFromLightVector;
 
-uniform sampler2D uReflectionTexture;
-uniform sampler2D uRefractionTexture;
-uniform sampler2D uDuDvMap;
-uniform sampler2D uNormalMap;
-uniform sampler2D uDepthMap;
-uniform vec3 uLightColor;
-uniform float uNearPlane;
-uniform float uFarPlane;
-uniform vec4 uWaterColor;
-uniform float uWaterRoughness;
-uniform float uWaterMetallic;
+uniform sampler2D uFinalImage;
+uniform sampler2D uPosition;
+uniform sampler2D uNormal;
+uniform sampler2D uExtraComponent;
+uniform sampler2D uColorBuffer;
 
-uniform float uMoveFactor;
+uniform mat4 uInvView;
+uniform mat4 uProjection;
+uniform mat4 uInvProjection;
+uniform mat4 uView;
 
-const float waveStrength = 0.02f;
-const float shineDamper  = 20.0f;
-const float reflection   = 0.6f;
+const float rayStep = 0.1f;
+const float minRayStep = 0.1f;
+const float searchDist = 5.0f;
+const float reflectionSpecularFallofExponent = 3.0f;
+const int maxStep = 30;
+const int numBinarySearchSteps = 5;
 
-float getWaterDepth(vec2 pRefractionTexCoord)
-{
-	float depthTexture = texture(uDepthMap, pRefractionTexCoord).r;
-	float floorDistance = 2.0f * uNearPlane * uFarPlane / (uFarPlane + uNearPlane - (2.0f * depthTexture - 1.0f) * (uFarPlane - uNearPlane));
-	
-	float depthWater = gl_FragCoord.z;
-	float waterDistance = 2.0f * uNearPlane * uFarPlane / (uFarPlane + uNearPlane - (2.0f * depthWater - 1.0f) * (uFarPlane - uNearPlane));
-	float waterDepth = floorDistance - waterDistance;
+const vec3 scale = vec3(0.8f);
+const float k = 19.19f;
 
-	return waterDepth;
-}
-
-vec2 getDistortionTexCoords()
-{
-	vec2 distortionTexCoords = texture(uDuDvMap, vec2(fragTexCoord.x + uMoveFactor, fragTexCoord.y)).rg * 0.1f;
-	distortionTexCoords = fragTexCoord + vec2(distortionTexCoords.x, distortionTexCoords.y + uMoveFactor);
-
-	return distortionTexCoords;
-}
-
-vec2 getTotalDistortion(float pWaterDepth, vec2 pDistortionTexCoords)
-{
-	vec2 totalDistortion = (texture(uDuDvMap, pDistortionTexCoords).rg * 2.0f - 1.0f) * waveStrength * clamp(pWaterDepth / 20.0f, 0.0f, 1.0f);
-
-	return totalDistortion;
-}
-
-vec3 getNormal(vec2 pDistortionTexCoords)
-{
-	vec4 normalMap = texture(uNormalMap, pDistortionTexCoords);
-	vec3 normal = vec3(normalMap.r * 2.0f - 1.0f, normalMap.b * 3.0f, normalMap.g * 2.0f - 1.0f);
-	//vec3 normal = normalize(normalMap.rgb * 2.0f - 1.0f);
-	normal = normalize(normal);
-
-	return normal;
-}
-
-float getFresnelEffectFactor(vec3 pNormal, float pMultiplier)
-{
-	vec3 normalizedCamVec = normalize(fragToCameraVector);
-	float fresnelEffectFactor = dot(normalizedCamVec, pNormal);
-
-	fresnelEffectFactor = pow(fresnelEffectFactor, pMultiplier);
-	
-	return fresnelEffectFactor;
-}
-
-vec3 calculateLight(vec3 pNormal, float pWaterDepth)
-{
-	vec3 reflectLight = reflect(normalize(fragFromLightVector), pNormal);
-	vec3 normalizedCamVec = normalize(fragToCameraVector);
-	float specular = max(dot(reflectLight, normalizedCamVec), 0.0f);
-	specular = pow(specular, shineDamper);
-	vec3 totalLight = uLightColor * specular * reflection * clamp(pWaterDepth / 5.0f, 0.0f, 1.0f);
-	
-	return totalLight;
-}
+vec4 rayCast(in vec3 pDir, inout vec3 pHitCoord, out float pDepth);
+vec3 binarySearch(inout vec3 pDir, inout vec3 pHitCoord, inout float pDepth);
+vec3 fresnelSchlick(in float pCosTheta, in vec3 pF0);
+vec3 hash(vec3 pVector);
 
 void main()
 {
-	vec2 ndc = (fragClipSpace.xy / fragClipSpace.w) / 2.0f + 0.5f;
-	vec2 reflectionTexCoord = vec2(ndc.x, 1.0 - ndc.y);  
-	vec2 refractionTexCoord = vec2(ndc.x, ndc.y);
+	vec2 metallicEmissive = texture(uExtraComponent, fragTexCoord).rg;
+	float metallic = metallicEmissive.x;
 
-	float waterDepth = getWaterDepth(refractionTexCoord);
-	
-	vec2 distortionTexCoords = getDistortionTexCoords();
-	vec2 totalDistortion = getTotalDistortion(waterDepth, distortionTexCoords);
-	refractionTexCoord += totalDistortion;
-	reflectionTexCoord += totalDistortion;
-	refractionTexCoord = clamp(refractionTexCoord, 0.001f, 0.999f);
-	reflectionTexCoord = clamp(reflectionTexCoord, 0.001f, 0.999f);  
-	
-	vec4 refractionTexture = texture(uRefractionTexture, refractionTexCoord);
-	vec4 reflectionTexture = texture(uReflectionTexture, reflectionTexCoord);
-	
-	vec3 normal = getNormal(distortionTexCoords);
+	vec3 viewNormal = vec3(texture(uNormal, fragTexCoord) * uInvView);
+	vec3 viewPos = textureLod(uPosition, fragTexCoord, 2).xyz; // should use third mip map level;
+	vec3 albedo = texture(uFinalImage, fragTexCoord).rgb; // for fresnel;
+	float spec = texture(uColorBuffer, fragTexCoord).w;
 
-	float fresnelEffectFactor = getFresnelEffectFactor(normal, 1.0f);
+	vec3 F0 = vec3(0.03f);
+	F0 = mix(F0, albedo, spec);
 
-	vec3 light = calculateLight(normal, waterDepth);
+	vec3 fresnel = fresnelSchlick(max(dot(normalize(viewNormal), normalize(viewPos)), 0.0f), F0);
+		
+	vec3 reflected = normalize(reflect(normalize(viewPos), normalize(viewNormal)));
+	vec3 hitPos = viewPos;
+	float depth;
+
+	vec3 worldPos = vec3(vec4(viewPos, 1.0f) * uInvView);
+	vec3 jitt = mix(vec3(0.0f), hash(worldPos), spec);
+
+	vec4 coords = rayCast(jitt + reflected * max(minRayStep, -viewPos.z), hitPos, depth);
+
+	// for erasing artficats on the edges of the screen;
+	vec2 dCoords = smoothstep(0.2f, 0.6f, abs(vec2(0.5f) - coords.xy)); 
+	float screenEdgeFactor= clamp(1.0f - (dCoords.x + dCoords.y), 0.0f, 1.0f);
+	float multiplier = pow(metallic, reflectionSpecularFallofExponent) * screenEdgeFactor * (-reflected.z);
 	
-	fragColor = mix(reflectionTexture, refractionTexture, fresnelEffectFactor);
-	fragColor = mix(fragColor, uWaterColor, 0.2f) + vec4(light, 0.0f);
-	fragColor.a = clamp(waterDepth / 5.0f, 0.0f, 1.0f);
+	vec3 SSR = texture(uFinalImage, coords.xy).rgb * clamp(multiplier, 0.0f, 0.9f) * fresnel;
+
+	fragColor = vec4(SSR, 1.0f);
+}
+
+vec4 rayCast(in vec3 pDir, inout vec3 pHitCoord, out float pDepth)
+{
+	pDir *= rayStep;
+
+	float depth = 0.0f;
+	int steps = 0;
+	vec4 projectedCoord = vec4(0.0f);
+
+	for (int i = 0; i < maxStep; ++i)
+	{
+		pHitCoord += pDir;
+
+		projectedCoord = uProjection * vec4(pHitCoord, 1.0f);
+		projectedCoord.xy /= projectedCoord.w;
+		projectedCoord.xy = projectedCoord.xy * 0.5f + 0.5f;
+
+		depth = textureLod(uPosition, projectedCoord.xy, 2).z;
+
+		if (depth > 1000.0f) // maybe an object is in front of screen
+			continue;
+
+		pDepth = (pHitCoord - depth).z;
+
+		if ((pDir.z - pDepth) < 1.2)
+		{
+			if (pDepth <= 0.0f)
+			{
+				vec4 result;
+				vec3 binarySearchResult = binarySearch(pDir, pHitCoord, pDepth);
+				result = vec4(binarySearchResult, 1.0f);
+			}
+			steps++;
+		}
+	}
+
+	return vec4(projectedCoord.xy, depth, 1.0f);
+}
+
+
+vec3 binarySearch(inout vec3 pDir, inout vec3 pHitCoord, inout float pDepth)
+{
+	float depth = 0.0f;
+	vec4 projectedCoord = vec4(0.0f);
+
+	for (int i = 0; i < numBinarySearchSteps; ++i)
+	{
+		projectedCoord = uProjection * vec4(pHitCoord, 1.0f);
+		projectedCoord.xy /= projectedCoord.w;
+		projectedCoord.xy = projectedCoord.xy * 0.5f + 0.5f;
+		
+		depth = textureLod(uPosition, projectedCoord.xy, 2.0f).z;
+
+		pDepth = (pHitCoord - depth).z;
+
+		pDir += 0.5f;
+		if(pDepth > 0.0f)
+			pHitCoord += pDir;
+		else 
+			pHitCoord -= pDir;
+	}
+
+	projectedCoord = uProjection * vec4(pHitCoord, 1.0f);
+	projectedCoord.xy /= projectedCoord.w;
+	projectedCoord.xy = projectedCoord.xy * 0.5f + 0.5f;
+	
+	return vec3(projectedCoord.xy, depth);
+}
+
+vec3 fresnelSchlick(in float pCosTheta, in vec3 pF0)
+{
+	return pF0 + (1.0f - pF0) * pow(1.0f - pCosTheta, 5.0f);
+}
+
+vec3 hash(vec3 pVector)
+{
+	pVector = fract(pVector * scale);
+	pVector += dot(pVector, pVector.xyz + k);
+	return fract((pVector.xxy + pVector.yxx) * pVector.zyx);
 }

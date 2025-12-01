@@ -19,11 +19,8 @@ public:
 	Singleton& operator=(Singleton&&) = delete;
 
 private:
-	static T* mInstance;
+	inline static T* mInstance = nullptr;
 };
-
-template <typename T>
-T* Singleton<T>::mInstance = nullptr;
 
 template<typename T>
 inline void Singleton<T>::init()
