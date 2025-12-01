@@ -4,8 +4,10 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	mPlayer.init(glm::vec3(10.0f, 10.0f, -10.0f), glm::vec3(1.0f, 1.0f, 1.0f), 100.0f, 100.0f, 30.0f, false, 
+	bool isIn3rdPersonCamera = false;
+	mPlayer.init(glm::vec3(10.0f, 10.0f, -10.0f), glm::vec3(1.0f, 1.0f, 1.0f), 100.0f, 100.0f, 30.0f, isIn3rdPersonCamera,
 				 pSceneManager->getProgramProperties().mResourcePath + "Models/player.obj");
+	mSceneManager->getProgramProperties().mIsIn3rdPersonCamera = isIn3rdPersonCamera;
 }
 
 void Controler::controlAll(float pDeltaTime)
@@ -29,10 +31,10 @@ void Controler::controlAll(float pDeltaTime)
 			mKeyCodes[mEvent.key.key] = false;
 		
 		// CAMERA MOVING
-		if (mEvent.type == SDL_EVENT_MOUSE_MOTION && mSceneManager->getProgramProperties().mTakeCursor)
-			mPlayer.getCamera().mouseMovement(glm::vec2(mEvent.motion.xrel, mEvent.motion.yrel));
 		if (!mPlayer.isInThirdPersonCamera())
 		{
+			if (mEvent.type == SDL_EVENT_MOUSE_MOTION && mSceneManager->getProgramProperties().mTakeCursor)
+				mPlayer.getCamera().mouseMovement(glm::vec2(mEvent.motion.xrel, mEvent.motion.yrel));
 			if (mEvent.type == SDL_EVENT_MOUSE_WHEEL)
 			{
 				float cameraZoom = mPlayer.getCamera().getZoom();
@@ -56,6 +58,7 @@ void Controler::controlAll(float pDeltaTime)
 	{
 		mSceneManager->getProgramProperties().mViewMatrix = mPlayer.getThirdPersonCamera().getViewMatrix();
 		mSceneManager->getProgramProperties().mThirdPersonCam = mPlayer.getThirdPersonCamera();
+		mSceneManager->getProgramProperties().mTakeCursor = false;
 		mSceneManager->getModelProperties().mProjMatrix = glm::perspective(glm::radians(mPlayer.getThirdPersonCamera().getZoom()),
 																		  (float)mSceneManager->getProgramProperties().mWindowWidth /
 																		  (float)mSceneManager->getProgramProperties().mWindowHeight, 

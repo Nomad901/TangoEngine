@@ -92,6 +92,16 @@ void WaterShader::setWaterColor(std::string_view pUniformName, const glm::vec4& 
 	Shader::setUniform4fv(pUniformName, pColor);
 }
 
+void WaterShader::setWaterRoughness(std::string_view pUniformName, float pWaterRoughness)
+{
+	Shader::setUniform1f(pUniformName, pWaterRoughness);
+}
+
+void WaterShader::setWaterMetallic(std::string_view pUniformName, float pWaterMetallic)
+{
+	Shader::setUniform1f(pUniformName, pWaterMetallic);
+}
+
 uint32_t WaterShader::getIndex(indicesOfTextures pIndicesOfTextures)
 {
 	return static_cast<uint32_t>(pIndicesOfTextures);

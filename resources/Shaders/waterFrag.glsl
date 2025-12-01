@@ -16,6 +16,8 @@ uniform vec3 uLightColor;
 uniform float uNearPlane;
 uniform float uFarPlane;
 uniform vec4 uWaterColor;
+uniform float uWaterRoughness;
+uniform float uWaterMetallic;
 
 uniform float uMoveFactor;
 

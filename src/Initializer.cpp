@@ -62,7 +62,8 @@ void Initializer::initAll()
 															  resourcePath + "waterDuDv2.png",
 															  resourcePath + "waterNormal2.png");
 	mSceneManager->getProgramProperties().mWaterTiles.push_back(Water(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(122.0f, 0.0f, 122.0f)));
-
+	mSceneManager->getProgramProperties().mWaterTiles[0].setRoughness(0.1f);
+	mSceneManager->getProgramProperties().mWaterTiles[0].setMetallic(0.1f);
 
 	uint32_t windowWidth = mSceneManager->getProgramProperties().mWindowWidth;
 	uint32_t windowHeight = mSceneManager->getProgramProperties().mWindowHeight;
@@ -72,6 +73,11 @@ void Initializer::initAll()
 
 	mSceneManager->getModelProperties().mWaterTerrain = std::make_unique<SkinnedMesh>();
 	mSceneManager->getModelProperties().mWaterTerrain->loadMesh(resourcePath + "Models/waterTerrain.obj");
+
+
+	// water gbuffer;
+	mSceneManager->getProgramProperties().mGBuffer.init(mSceneManager->getProgramProperties().mWindowWidth,
+														mSceneManager->getProgramProperties().mWindowHeight);
 }
 
 void Initializer::initShaders()

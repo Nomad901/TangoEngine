@@ -37,6 +37,8 @@ public:
 	void setNearPlane(std::string_view pUniformName, float pNearPlane);
 	void setFarPlane(std::string_view pUniformName, float pFarPlane);
 	void setWaterColor(std::string_view pUniformName, const glm::vec4& pColor);
+	void setWaterRoughness(std::string_view pUniformName, float pWaterRoughness);
+	void setWaterMetallic(std::string_view pUniformName, float pWaterMetallic);
 
 private:
 	uint32_t getIndex(indicesOfTextures pIndicesOfTextures);

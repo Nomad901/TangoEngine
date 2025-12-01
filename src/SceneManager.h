@@ -60,7 +60,8 @@ public:
 		bool mWhiteScreen{ false };
 		bool mTakeCursor{ true };
 		bool mWireFrameMode{ false };
-		
+		bool mIsIn3rdPersonCamera{ true };
+
 		// for light-block, in order to making block far away and conversely
 		float mRadius{ 5.0f };
 
@@ -106,6 +107,8 @@ public:
 
 		const float NEAR_PLANE = 0.1f;
 		const float FAR_PLANE  = 1000.0f;
+
+		GBuffer mWaterGBuffer;
 	};
 
 	struct lightProperties

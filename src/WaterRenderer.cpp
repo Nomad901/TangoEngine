@@ -34,7 +34,7 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 	mMoveFactor += 0.1f;
 
 	float waterWavesTime = fmod(mMoveFactor * WAVE_SPEED, 1.0f);
-
+	
 	for (auto& i : pWaterTiles)
 	{
 		mQuadTransform.setLocalPosition(i.getWaterPos());
@@ -44,6 +44,8 @@ void WaterRenderer::render(const std::vector<Water> pWaterTiles,
 		mWaterShader.setMatrixUniform4fv("uModel", mQuadTransform.getModelMatrix());
 	
 		mWaterShader.setMoveFactor("uMoveFactor", waterWavesTime);
+		mWaterShader.setWaterRoughness("uWaterRoughness", i.getWaterRoughness());
+		mWaterShader.setWaterMetallic("uWaterMetallic", i.getWaterMetallic());
 
 		renderQuad();
 	}
