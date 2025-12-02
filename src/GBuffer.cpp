@@ -26,13 +26,15 @@ void GBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextures[0], 0);
-	
+	mCounterOfAttachments++;
+
 	// diffuse texture
 	glBindTexture(GL_TEXTURE_2D, mTextures[1]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, pScreenWidth, pScreenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, mTextures[1], 0);
+	mCounterOfAttachments++;
 
 	// normal texture
 	glBindTexture(GL_TEXTURE_2D, mTextures[2]);
@@ -40,11 +42,13 @@ void GBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, mTextures[2], 0);
+	mCounterOfAttachments++;
 
 	// depth buffer
 	glBindTexture(GL_TEXTURE_2D, mDepthBuffer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, pScreenWidth, pScreenHeight, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, mDepthBuffer, 0);
+	mCounterOfAttachments++;
 
 	// final buffer
 	glBindTexture(GL_TEXTURE_2D, mFinalTexture);
@@ -52,11 +56,11 @@ void GBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, mFinalTexture, 0);
-	
-	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (status != GL_FRAMEBUFFER_COMPLETE)
+	mCounterOfAttachments++;
+
+	if (getStatusOfFramebuffer() != GL_FRAMEBUFFER_COMPLETE)
 	{
-		std::cout << std::format("FrameBuffer is not completed, status: {}\n", status);
+		std::cout << std::format("FrameBuffer is not completed, status: {}\n", getStatusOfFramebuffer());
 		return;
 	}
 
@@ -203,6 +207,22 @@ void GBuffer::setReadBuffer(GBUFFER_TEXTURE_TYPE pTextureType)
 void GBuffer::destroy()
 {
 	glDeleteFramebuffers(1, &mGBuffer);
+}
+
+GLenum GBuffer::getStatusOfFramebuffer() const noexcept
+{
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	return status;
+}
+
+void GBuffer::setFreeTextureAttachment(uint32_t pFreeTextureAttachment)
+{
+	mCounterOfAttachments = pFreeTextureAttachment;
+}
+
+uint32_t GBuffer::getFreeTextureAttachment() const noexcept
+{
+	return mCounterOfAttachments;
 }
 
 uint32_t GBuffer::getGBuffer() const noexcept

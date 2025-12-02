@@ -45,6 +45,11 @@ public:
 	void setReadBuffer(GBUFFER_TEXTURE_TYPE pTextureType);
 	void destroy();
 
+	GLenum getStatusOfFramebuffer() const noexcept;
+
+	void setFreeTextureAttachment(uint32_t pFreeTextureAttachment);
+	uint32_t getFreeTextureAttachment() const noexcept; 
+
 	uint32_t getGBuffer() const noexcept;
 	uint32_t getGPosBuffer() const noexcept;
 	uint32_t getGNormalBuffer() const noexcept;
@@ -52,6 +57,7 @@ public:
 	uint32_t getDepthBuffer() const noexcept;
 
 private:
+	uint32_t mCounterOfAttachments{};
 	uint32_t mGBuffer{};
 	uint32_t mDepthBuffer{};
 	uint32_t mFinalTexture{};

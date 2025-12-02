@@ -7,11 +7,11 @@ in vec2 fragTexCoord;
 in vec3 fragToCameraVector;
 in vec3 fragFromLightVector;
 
-uniform sampler2D uFinalImage;
-uniform sampler2D uPosition;
-uniform sampler2D uNormal;
-uniform sampler2D uExtraComponent;
-uniform sampler2D uColorBuffer;
+uniform sampler2D uFinalImage;	   // DIFFUSE_TEXTURE  (GBuffer)
+uniform sampler2D uPosition;	   // POSITION_TEXTURE (GBuffer)
+uniform sampler2D uWaterNormal;	   // NORMAL_TEXTURE   (GBuffer)
+uniform sampler2D uExtraComponent; // EXTRA_COMPONENT_TEXTURE (WaterGBuffer)
+uniform sampler2D uColorBuffer;	   // COLOR_BUFFER_TEXTURE (WaterGBuffer)
 
 uniform mat4 uInvView;
 uniform mat4 uProjection;
@@ -38,7 +38,8 @@ void main()
 	vec2 metallicEmissive = texture(uExtraComponent, fragTexCoord).rg;
 	float metallic = metallicEmissive.x;
 
-	vec3 viewNormal = vec3(texture(uNormal, fragTexCoord) * uInvView);
+	vec3 waterNormal = vec3(texture(uWaterNormal, fragTexCoord).rgb * 2.0f - 1.0f);
+	vec3 viewNormal = normalize((uView * vec4(waterNormal, 0.0f)).xyz);
 	vec3 viewPos = textureLod(uPosition, fragTexCoord, 2).xyz; // should use third mip map level;
 	vec3 albedo = texture(uFinalImage, fragTexCoord).rgb; // for fresnel;
 	float spec = texture(uColorBuffer, fragTexCoord).w;
@@ -117,7 +118,7 @@ vec3 binarySearch(inout vec3 pDir, inout vec3 pHitCoord, inout float pDepth)
 		projectedCoord.xy /= projectedCoord.w;
 		projectedCoord.xy = projectedCoord.xy * 0.5f + 0.5f;
 		
-		depth = textureLod(uPosition, projectedCoord.xy, 2.0f).z;
+		depth = textureLod(uPosition, projectedCoord.xy, 2).z;
 
 		pDepth = (pHitCoord - depth).z;
 

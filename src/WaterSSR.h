@@ -9,21 +9,14 @@ class WaterSSR
 {
 public:
 	WaterSSR() = default;
-	WaterSSR(float pMetallic, float pRoughness, uint32_t& pDepthBuffer);
-	~WaterSSR();
+	WaterSSR(float pMetallic, float pRoughness);
 
-	void init(float pMetallic, float pRoughness, uint32_t& pDepthBuffer);
+	void init(float pMetallic, float pRoughness);
 
-	void update();
+	void update(const glm::mat4& pViewMatrix, const glm::mat4& pProjection);
 
 private:
-	float mWaterMetallicComponent{};
-	float mWaterRoughnessComponent{};
-	uint32_t* mDepthBuffer{ nullptr };
-
-	glm::mat4 mViewMat;
-	glm::mat4 mInvViewMat;
-	glm::mat4 mProjection;
-	glm::mat4 mInvProjection;
+	void bindAll(const glm::mat4& pViewMatrix, const glm::mat4& pInvertexViewMatrix, 
+			     const glm::mat4& pProjection, const glm::mat4& pInvertexProjection);
 
 };

@@ -13,7 +13,8 @@ public:
 public:
 	WaterGBuffer() = default;
 	WaterGBuffer(uint32_t pScreenWidth, uint32_t pScreenHeight);
-	
+	~WaterGBuffer();
+
 	void init(uint32_t pScreenWidth, uint32_t pScreenHeight);
 
 	void bind();
@@ -22,10 +23,10 @@ public:
 	uint32_t getColorBufferTex() const noexcept;
 
 private:
-	uint32_t getIndexTexture(TextureType pTextureType);
+	uint32_t getIndexTexture(TextureType pTextureType) const noexcept;
 
-	uint32_t generateExtraComponent(uint32_t pScreenWidth, uint32_t pScreenHeight);
-	uint32_t generateColorBuffer(uint32_t pScreenWidth, uint32_t pScreenHeight);
+	void generateExtraComponent(uint32_t pScreenWidth, uint32_t pScreenHeight);
+	void generateColorBuffer(uint32_t pScreenWidth, uint32_t pScreenHeight);
 		
 private:
 	std::array<uint32_t, static_cast<uint32_t>(TextureType::NUM_TEXTURES)> mTextures;
