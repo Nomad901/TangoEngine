@@ -18,6 +18,7 @@ public:
 	void init(uint32_t pScreenWidth, uint32_t pScreenHeight);
 
 	void bind();
+	void unbind();
 
 	uint32_t getExtraComponentID() const noexcept;
 	uint32_t getColorBufferTex() const noexcept;

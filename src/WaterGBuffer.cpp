@@ -39,6 +39,11 @@ void WaterGBuffer::bind()
 	}
 }
 
+void WaterGBuffer::unbind()
+{
+	GBuffer::unbind();
+}
+
 uint32_t WaterGBuffer::getExtraComponentID() const noexcept
 {
 	return mTextures[getIndexTexture(TextureType::EXTRA_COMPONENT_TEX)];
@@ -58,8 +63,11 @@ void WaterGBuffer::generateExtraComponent(uint32_t pScreenWidth, uint32_t pScree
 {
 	glBindTexture(GL_TEXTURE_2D, mTextures[getIndexTexture(TextureType::EXTRA_COMPONENT_TEX)]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, pScreenWidth, pScreenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + GBuffer::getFreeTextureAttachment(),
 						   GL_TEXTURE_2D, mTextures[getIndexTexture(TextureType::EXTRA_COMPONENT_TEX)], 0);
 	GBuffer::setFreeTextureAttachment(GBuffer::getFreeTextureAttachment() + 1);
@@ -69,8 +77,11 @@ void WaterGBuffer::generateColorBuffer(uint32_t pScreenWidth, uint32_t pScreenHe
 {
 	glBindTexture(GL_TEXTURE_2D, mTextures[getIndexTexture(TextureType::COLOR_BUFFER_TEX)]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, pScreenWidth, pScreenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + GBuffer::getFreeTextureAttachment(),
 						   GL_TEXTURE_2D, mTextures[getIndexTexture(TextureType::COLOR_BUFFER_TEX)], 0);
 	GBuffer::setFreeTextureAttachment(GBuffer::getFreeTextureAttachment() + 1);
