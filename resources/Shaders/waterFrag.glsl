@@ -2,10 +2,7 @@
 
 out vec4 fragColor;
 
-in vec4 fragClipSpace;
 in vec2 fragTexCoord;
-in vec3 fragToCameraVector;
-in vec3 fragFromLightVector;
 
 in mat4 fragProjection;
 in mat4 fragView;

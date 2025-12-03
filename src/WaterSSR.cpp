@@ -13,6 +13,7 @@ void WaterSSR::init(uint32_t pScreenWidth, uint32_t pScreenHeight,
 {
 	mWaterGBuffer.init(pScreenWidth, pScreenHeight);
 	mWaterShader.init(pVertPath, pFragPath);
+	generateWaterMesh();
 }
 
 void WaterSSR::startFrame()
@@ -40,12 +41,18 @@ void WaterSSR::endFrame()
 void WaterSSR::renderWaterSSR(const std::vector<Water>& pWaterTiles, 
 							  const glm::mat4& pViewMatrix, const glm::mat4& pProjection)
 {
-	mWaterGBuffer.bind(WaterGBuffer::BindingType::USUAL);
 	bindShader(pViewMatrix, pProjection);
+	mWaterGBuffer.bind(WaterGBuffer::BindingType::USUAL);
 
 	for (auto& i : pWaterTiles)
 	{
-			
+		mTransform.setLocalPosition(i.getWaterPos());
+		mTransform.setLocalRotation(glm::vec3(0.0f));
+		mTransform.setLocalScale(i.getTileSize());
+
+		mWaterShader.setMatrixUniform4fv("uModel", mTransform.getModelMatrix());
+
+		renderWaterMesh();
 	}
 }
 
@@ -58,12 +65,41 @@ void WaterSSR::bindShader(const glm::mat4& pViewMatrix, const glm::mat4& pProjec
 
 	mWaterShader.setMatrixUniform4fv("uView", pViewMatrix);
 	mWaterShader.setMatrixUniform4fv("uInvView", inverseView);
-	mWaterShader.setMatrixUniform4fv("uProjection", pProjection);
+	mWaterShader.setMatrixUniform4fv("uProj", pProjection);
 	mWaterShader.setMatrixUniform4fv("uInvProjection", inverseProjection);
 	
-	mWaterShader.setUniform1i("uFinalImage",     mWaterGBuffer.getGDiffuseBuffer());
-	mWaterShader.setUniform1i("uPosition",	     mWaterGBuffer.getGPosBuffer());
-	mWaterShader.setUniform1i("uWaterNormal",    mWaterGBuffer.getGNormalBuffer());
-	mWaterShader.setUniform1i("uExtraComponent", mWaterGBuffer.getExtraComponentBuffer());
-	mWaterShader.setUniform1i("uColorBuffer",	 mWaterGBuffer.getColorBuffer());
+	mWaterShader.setUniform1i("uPosition",	     0);
+	mWaterShader.setUniform1i("uFinalImage",     1);
+	mWaterShader.setUniform1i("uWaterNormal",    2);
+	mWaterShader.setUniform1i("uExtraComponent", 3);
+	mWaterShader.setUniform1i("uColorBuffer",	 4);
+}
+
+void WaterSSR::renderWaterMesh()
+{
+	glBindVertexArray(mVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
+}
+
+void WaterSSR::generateWaterMesh()
+{
+	uint32_t VBO = 0;
+	float quadVertices[] =
+	{
+		-1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f
+	};
+	glGenVertexArrays(1, &mVAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(mVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 }

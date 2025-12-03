@@ -41,6 +41,7 @@
 #include "AnimatorManager.h"
 #include "DeferredLightSystem.h"
 #include "WaterRenderer.h"
+#include "WaterSSR.h"
 
 class Renderer;
 
@@ -109,6 +110,8 @@ public:
 		const float FAR_PLANE  = 1000.0f;
 
 		GBuffer mWaterGBuffer;
+
+		WaterSSR mWaterSSR;
 	};
 
 	struct lightProperties

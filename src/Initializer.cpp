@@ -78,6 +78,12 @@ void Initializer::initAll()
 	// water gbuffer;
 	mSceneManager->getProgramProperties().mGBuffer.init(mSceneManager->getProgramProperties().mWindowWidth,
 														mSceneManager->getProgramProperties().mWindowHeight);
+
+	// SSRwater
+	mSceneManager->getProgramProperties().mWaterSSR.init(mSceneManager->getProgramProperties().mWindowWidth,
+														 mSceneManager->getProgramProperties().mWindowHeight,
+														 resourcePath + "Shaders/waterVert.glsl",
+														 resourcePath + "Shaders/waterFrag.glsl");
 }
 
 void Initializer::initShaders()

@@ -29,7 +29,7 @@ public:
 	void unbindTextures();
 
 	uint32_t getExtraComponentBuffer() const noexcept;
-	uint32_t getColorBufferBuffer() const noexcept;
+	uint32_t getColorBuffer() const noexcept;
 
 private:
 	uint32_t getIndexTexture(TextureType pTextureType) const noexcept;

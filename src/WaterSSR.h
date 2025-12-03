@@ -6,6 +6,7 @@
 #include "WaterShader.h"
 #include "WaterGBuffer.h"
 #include "Water.h"
+#include "Transform.h"
 
 class WaterSSR
 {
@@ -27,9 +28,13 @@ public:
 	
 private:
 	void bindShader(const glm::mat4& pViewMatrix, const glm::mat4& pProjection);
+	void renderWaterMesh();
+	void generateWaterMesh();
 
 private:
+	uint32_t mVAO;
+
 	WaterGBuffer mWaterGBuffer;
 	WaterShader mWaterShader;
-
+	Transform mTransform;
 };
