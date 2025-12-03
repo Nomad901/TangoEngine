@@ -26,10 +26,42 @@ void WaterGBuffer::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 	GBuffer::unbindForWriting();
 }
 
-void WaterGBuffer::bind()
+void WaterGBuffer::bind(BindingType pBindingType)
 {
-	GBuffer::bind();
+	switch (pBindingType)
+	{
+	case WaterGBuffer::BindingType::USUAL:
+		GBuffer::bind();
+		break;
+	case WaterGBuffer::BindingType::READ:
+		GBuffer::bindForReading(false);
+		break;
+	case WaterGBuffer::BindingType::WRITE:
+		GBuffer::bindForWriting();
+		break;
+	default:
+		break;
+	}
+	
+	if (pBindingType != BindingType::WRITE)
+	{
+		uint32_t startTextureUnit = static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_NUM_TEXTURES);
 
+		for (size_t i = 0; i < mTextures.size(); ++i)
+		{
+			glActiveTexture(GL_TEXTURE0 + startTextureUnit + static_cast<uint32_t>(i));
+			glBindTexture(GL_TEXTURE_2D, mTextures[i]);
+		}
+	}
+}
+
+void WaterGBuffer::unbind()
+{
+	GBuffer::unbind();
+}
+
+void WaterGBuffer::bindTextures()
+{
 	uint32_t startTextureUnit = static_cast<uint32_t>(GBUFFER_TEXTURE_TYPE::GBUFFER_NUM_TEXTURES);
 
 	for (size_t i = 0; i < mTextures.size(); ++i)
@@ -39,17 +71,17 @@ void WaterGBuffer::bind()
 	}
 }
 
-void WaterGBuffer::unbind()
+void WaterGBuffer::unbindTextures()
 {
-	GBuffer::unbind();
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-uint32_t WaterGBuffer::getExtraComponentID() const noexcept
+uint32_t WaterGBuffer::getExtraComponentBuffer() const noexcept
 {
 	return mTextures[getIndexTexture(TextureType::EXTRA_COMPONENT_TEX)];
 }
 
-uint32_t WaterGBuffer::getColorBufferTex() const noexcept
+uint32_t WaterGBuffer::getColorBuffer() const noexcept
 {
 	return mTextures[getIndexTexture(TextureType::COLOR_BUFFER_TEX)];
 }

@@ -10,6 +10,12 @@ public:
 		COLOR_BUFFER_TEX = 1,
 		NUM_TEXTURES = 2
 	};
+	enum class BindingType 
+	{
+		USUAL = 0,
+		READ  = 1,
+		WRITE = 2
+	};
 public:
 	WaterGBuffer() = default;
 	WaterGBuffer(uint32_t pScreenWidth, uint32_t pScreenHeight);
@@ -17,11 +23,13 @@ public:
 
 	void init(uint32_t pScreenWidth, uint32_t pScreenHeight);
 
-	void bind();
+	void bind(BindingType pBindingType);
 	void unbind();
+	void bindTextures();
+	void unbindTextures();
 
-	uint32_t getExtraComponentID() const noexcept;
-	uint32_t getColorBufferTex() const noexcept;
+	uint32_t getExtraComponentBuffer() const noexcept;
+	uint32_t getColorBufferBuffer() const noexcept;
 
 private:
 	uint32_t getIndexTexture(TextureType pTextureType) const noexcept;

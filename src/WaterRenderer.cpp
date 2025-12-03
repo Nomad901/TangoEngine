@@ -21,7 +21,7 @@ void WaterRenderer::init(const std::filesystem::path& pVertPath,
 	mNormalMap.setTarget(GL_TEXTURE_2D);
 }
 
-void WaterRenderer::render(const std::vector<Water> pWaterTiles, 
+void WaterRenderer::render(const std::vector<Water>& pWaterTiles, 
 						   Camera& pCamera, const glm::mat4& pProjMat, 
 						   GBuffer& pGBuffer, DirectionalLight& pDirectionalLight,
 						   float pNearPlane, float pFarPlane,

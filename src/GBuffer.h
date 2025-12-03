@@ -34,8 +34,8 @@ public:
 	void bindForLightPass();
 	void bindForFinalPass();
 
-	void bind();
 	void bind(Shader& pShader, const std::vector<std::string_view>& pTextureNames);
+	void bind();
 	void bindForWriting();
 	void bindForReading(bool pWithTextures);
 	void bindForReading(Shader& pShader, const std::vector<std::string_view>& pTextureNames);

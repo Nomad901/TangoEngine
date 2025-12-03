@@ -6,6 +6,9 @@ out vec2 fragTexCoord;
 out vec3 fragToCameraVector;
 out vec3 fragFromLightVector;
 
+out mat4 fragProjection;
+out mat4 fragView;
+
 uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProj;
@@ -23,4 +26,7 @@ void main()
 	fragToCameraVector = uCameraPos - worldSpace.xyz;
 
 	fragFromLightVector = worldSpace.xyz - uLightPos; 
+
+	fragProjection = uProj;
+	fragView =uView;
 }

@@ -5,22 +5,31 @@
 
 #include "WaterShader.h"
 #include "WaterGBuffer.h"
+#include "Water.h"
 
 class WaterSSR
 {
 public:
 	WaterSSR() = default;
-	WaterSSR();
+	WaterSSR(uint32_t pScreenWidth, uint32_t pScreenHeight,
+			 const std::filesystem::path& pVertPath,
+			 const std::filesystem::path& pFragPath);
 
+	void init(uint32_t pScreenWidth, uint32_t pScreenHeight,
+			  const std::filesystem::path& pVertPath,
+			  const std::filesystem::path& pFragPath);
+	
 	void startFrame();
 	void endFrame();
 
-	void update(const glm::mat4& pViewMatrix, const glm::mat4& pProjection);
+	void renderWaterSSR(const std::vector<Water>& pWaterTiles, 
+						const glm::mat4& pViewMatrix, const glm::mat4& pProjection);
+	
+private:
+	void bindShader(const glm::mat4& pViewMatrix, const glm::mat4& pProjection);
 
 private:
-	void bindAll(const glm::mat4& pViewMatrix, const glm::mat4& pInvertexViewMatrix, 
-			     const glm::mat4& pProjection, const glm::mat4& pInvertexProjection);
-private:
 	WaterGBuffer mWaterGBuffer;
+	WaterShader mWaterShader;
 
 };

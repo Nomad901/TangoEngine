@@ -25,7 +25,7 @@ public:
 			  const std::filesystem::path& pDuDvMap,
 			  const std::filesystem::path& pNormalMap);
 	
-	void render(const std::vector<Water> pWaterTiles,
+	void render(const std::vector<Water>& pWaterTiles,
 				Camera& pCamera, const glm::mat4& pProjMat, 
 				GBuffer& pGBuffer, DirectionalLight& pDirectionalLight,
 				float pNearPlane, float pFarPlane,

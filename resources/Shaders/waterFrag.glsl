@@ -7,6 +7,9 @@ in vec2 fragTexCoord;
 in vec3 fragToCameraVector;
 in vec3 fragFromLightVector;
 
+in mat4 fragProjection;
+in mat4 fragView;
+
 uniform sampler2D uFinalImage;	   // DIFFUSE_TEXTURE  (GBuffer)
 uniform sampler2D uPosition;	   // POSITION_TEXTURE (GBuffer)
 uniform sampler2D uWaterNormal;	   // NORMAL_TEXTURE   (GBuffer)
@@ -14,9 +17,7 @@ uniform sampler2D uExtraComponent; // EXTRA_COMPONENT_TEXTURE (WaterGBuffer)
 uniform sampler2D uColorBuffer;	   // COLOR_BUFFER_TEXTURE (WaterGBuffer)
 
 uniform mat4 uInvView;
-uniform mat4 uProjection;
 uniform mat4 uInvProjection;
-uniform mat4 uView;
 
 const float rayStep = 0.1f;
 const float minRayStep = 0.1f;
@@ -39,7 +40,7 @@ void main()
 	float metallic = metallicEmissive.x;
 
 	vec3 waterNormal = vec3(texture(uWaterNormal, fragTexCoord).rgb * 2.0f - 1.0f);
-	vec3 viewNormal = normalize((uView * vec4(waterNormal, 0.0f)).xyz);
+	vec3 viewNormal = normalize((fragView * vec4(waterNormal, 0.0f)).xyz);
 	vec3 viewPos = textureLod(uPosition, fragTexCoord, 2).xyz; // should use third mip map level;
 	vec3 albedo = texture(uFinalImage, fragTexCoord).rgb; // for fresnel;
 	float spec = texture(uColorBuffer, fragTexCoord).w;
@@ -80,7 +81,7 @@ vec4 rayCast(in vec3 pDir, inout vec3 pHitCoord, out float pDepth)
 	{
 		pHitCoord += pDir;
 
-		projectedCoord = uProjection * vec4(pHitCoord, 1.0f);
+		projectedCoord = fragProjection * vec4(pHitCoord, 1.0f);
 		projectedCoord.xy /= projectedCoord.w;
 		projectedCoord.xy = projectedCoord.xy * 0.5f + 0.5f;
 
@@ -114,7 +115,7 @@ vec3 binarySearch(inout vec3 pDir, inout vec3 pHitCoord, inout float pDepth)
 
 	for (int i = 0; i < numBinarySearchSteps; ++i)
 	{
-		projectedCoord = uProjection * vec4(pHitCoord, 1.0f);
+		projectedCoord = fragProjection * vec4(pHitCoord, 1.0f);
 		projectedCoord.xy /= projectedCoord.w;
 		projectedCoord.xy = projectedCoord.xy * 0.5f + 0.5f;
 		
@@ -129,7 +130,7 @@ vec3 binarySearch(inout vec3 pDir, inout vec3 pHitCoord, inout float pDepth)
 			pHitCoord -= pDir;
 	}
 
-	projectedCoord = uProjection * vec4(pHitCoord, 1.0f);
+	projectedCoord = fragProjection * vec4(pHitCoord, 1.0f);
 	projectedCoord.xy /= projectedCoord.w;
 	projectedCoord.xy = projectedCoord.xy * 0.5f + 0.5f;
 	
