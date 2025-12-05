@@ -14,7 +14,6 @@ uniform sampler2D uExtraComponent; // EXTRA_COMPONENT_TEXTURE (WaterGBuffer)
 uniform sampler2D uColorBuffer;	   // COLOR_BUFFER_TEXTURE (WaterGBuffer)
 
 uniform mat4 uInvView;
-uniform mat4 uInvProjection;
 
 const float rayStep = 0.1f;
 const float minRayStep = 0.1f;

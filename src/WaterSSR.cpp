@@ -31,6 +31,10 @@ void WaterSSR::startFrame()
 	glDrawBuffers(attachments.size(), attachments.data());
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	GLenum finalAttachment = GL_COLOR_ATTACHMENT5;
+	glDrawBuffer(finalAttachment);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void WaterSSR::endFrame()
@@ -47,7 +51,7 @@ void WaterSSR::renderWaterSSR(const std::vector<Water>& pWaterTiles,
 	for (auto& i : pWaterTiles)
 	{
 		mTransform.setLocalPosition(i.getWaterPos());
-		mTransform.setLocalRotation(glm::vec3(0.0f));
+		mTransform.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 		mTransform.setLocalScale(i.getTileSize());
 
 		mWaterShader.setMatrixUniform4fv("uModel", mTransform.getModelMatrix());
@@ -59,14 +63,12 @@ void WaterSSR::renderWaterSSR(const std::vector<Water>& pWaterTiles,
 void WaterSSR::bindShader(const glm::mat4& pViewMatrix, const glm::mat4& pProjection)
 {
 	glm::mat4 inverseView = glm::inverse(pViewMatrix);
-	glm::mat4 inverseProjection = glm::inverse(pProjection);
 
 	mWaterShader.bind();
 
 	mWaterShader.setMatrixUniform4fv("uView", pViewMatrix);
 	mWaterShader.setMatrixUniform4fv("uInvView", inverseView);
 	mWaterShader.setMatrixUniform4fv("uProj", pProjection);
-	mWaterShader.setMatrixUniform4fv("uInvProjection", inverseProjection);
 	
 	mWaterShader.setUniform1i("uPosition",	     0);
 	mWaterShader.setUniform1i("uFinalImage",     1);

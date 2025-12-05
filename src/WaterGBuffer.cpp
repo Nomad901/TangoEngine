@@ -76,6 +76,11 @@ void WaterGBuffer::unbindTextures()
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void WaterGBuffer::renderQuadOnScreen()
+{
+
+}
+
 uint32_t WaterGBuffer::getExtraComponentBuffer() const noexcept
 {
 	return mTextures[getIndexTexture(TextureType::EXTRA_COMPONENT_TEX)];

@@ -23,19 +23,14 @@ void Renderer::drawScene(Controler* pControler)
 	mSceneManager->getProgramProperties().mWaterTiles[0].setWaterPos(mSceneManager->getProgramProperties().mWaterPos);
 	mSceneManager->getProgramProperties().mWaterTiles[0].setTileSize(mSceneManager->getProgramProperties().mWaterScale);
 	
-	mSceneManager->getProgramProperties().mGBuffer.bindForWriting();
+	mSceneManager->getProgramProperties().mWaterSSR.startFrame();
 	drawSceneTMP();
-	mSceneManager->getProgramProperties().mGBuffer.unbind();
+	mSceneManager->getProgramProperties().mWaterSSR.endFrame();
+	mSceneManager->getProgramProperties().mWaterSSR.renderWaterSSR(mSceneManager->getProgramProperties().mWaterTiles,
+																   mSceneManager->getProgramProperties().mCamera.getViewMatrix(),
+																   mSceneManager->getModelProperties().mProjMatrix);
 
-	mSceneManager->getProgramProperties().mWaterRenderer.render(mSceneManager->getProgramProperties().mWaterTiles,
-																mSceneManager->getProgramProperties().mCamera,
-																mSceneManager->getModelProperties().mProjMatrix,
-															    mSceneManager->getProgramProperties().mGBuffer,
-																mSceneManager->getLightProperties().mSun,
-																mSceneManager->getProgramProperties().NEAR_PLANE, 
-																mSceneManager->getProgramProperties().FAR_PLANE,
-																mSceneManager->getProgramProperties().mWaterColor);
-
+	
 	showFPS();
 
 	ImGui::Render();
@@ -129,33 +124,33 @@ void Renderer::drawSceneTMP()
 	mSceneManager->getModelProperties().mModelManager.getModel("WaterTerrain").render();
 	glCullFace(GL_BACK);
 
+	////
+	//// Skybox
+	////
+	////glEnable(GL_DEPTH_TEST);
+	////glDepthFunc(GL_LEQUAL);
+	//mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
+	////glDepthFunc(GL_LESS);
 	//
-	// Skybox
+	//// 
+	//// Light cubes and fps
+	////
+	////glEnable(GL_BLEND);
+	////glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//renderCubeLights();
 	//
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LEQUAL);
-	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
-	//glDepthFunc(GL_LESS);
-
-	// 
-	// Light cubes and fps
+	//Camera& cameraForChar = mSceneManager->getProgramProperties().mCamera;
+	//glm::mat4& projMat = mSceneManager->getModelProperties().mProjMatrix;
+	//Timer& time = mSceneManager->getProgramProperties().mTimer;
 	//
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	renderCubeLights();
-
-	Camera& cameraForChar = mSceneManager->getProgramProperties().mCamera;
-	glm::mat4& projMat = mSceneManager->getModelProperties().mProjMatrix;
-	Timer& time = mSceneManager->getProgramProperties().mTimer;
-
-	auto bobAnim = mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim");
-	
-	bobAnim->getModelTransformation().setLocalPosition(mSceneManager->getModelProperties().mCharPos);
-	bobAnim->getModelTransformation().setLocalRotation(mSceneManager->getModelProperties().mCharRotation);
-	bobAnim->getModelTransformation().setLocalScale(mSceneManager->getModelProperties().mCharScale);
-
-	bobAnim->update(cameraForChar, projMat, time);
-	bobAnim->render();
+	//auto bobAnim = mSceneManager->getModelProperties().mAnimatorManager.getAnimator("bobAnim");
+	//
+	//bobAnim->getModelTransformation().setLocalPosition(mSceneManager->getModelProperties().mCharPos);
+	//bobAnim->getModelTransformation().setLocalRotation(mSceneManager->getModelProperties().mCharRotation);
+	//bobAnim->getModelTransformation().setLocalScale(mSceneManager->getModelProperties().mCharScale);
+	//
+	//bobAnim->update(cameraForChar, projMat, time);
+	//bobAnim->render();
 }
 
 void Renderer::renderCubeLights()

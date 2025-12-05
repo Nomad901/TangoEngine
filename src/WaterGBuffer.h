@@ -28,6 +28,8 @@ public:
 	void bindTextures();
 	void unbindTextures();
 
+	void renderQuadOnScreen();
+
 	uint32_t getExtraComponentBuffer() const noexcept;
 	uint32_t getColorBuffer() const noexcept;
 
