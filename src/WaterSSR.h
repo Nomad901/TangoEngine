@@ -24,7 +24,8 @@ public:
 	void endFrame();
 
 	void renderWaterSSR(const std::vector<Water>& pWaterTiles, 
-						const glm::mat4& pViewMatrix, const glm::mat4& pProjection);
+						const glm::mat4& pViewMatrix, const glm::mat4& pProjection,
+					    uint32_t pScreenWidth, uint32_t pScreenHeight);
 	
 private:
 	void bindShader(const glm::mat4& pViewMatrix, const glm::mat4& pProjection);

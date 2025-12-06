@@ -43,11 +43,12 @@ void WaterSSR::endFrame()
 }
 
 void WaterSSR::renderWaterSSR(const std::vector<Water>& pWaterTiles, 
-							  const glm::mat4& pViewMatrix, const glm::mat4& pProjection)
+							  const glm::mat4& pViewMatrix, const glm::mat4& pProjection, 
+							  uint32_t pScreenWidth, uint32_t pScreenHeight)
 {
 	bindShader(pViewMatrix, pProjection);
 	mWaterGBuffer.bind(WaterGBuffer::BindingType::USUAL);
-
+	
 	for (auto& i : pWaterTiles)
 	{
 		mTransform.setLocalPosition(i.getWaterPos());
@@ -58,6 +59,16 @@ void WaterSSR::renderWaterSSR(const std::vector<Water>& pWaterTiles,
 
 		renderWaterMesh();
 	}
+	
+	mWaterGBuffer.unbind();
+	mWaterGBuffer.bind(WaterGBuffer::BindingType::READ);
+	
+	glReadBuffer(GL_COLOR_ATTACHMENT5);
+	glBlitFramebuffer(0, 0, pScreenWidth, pScreenHeight,
+					  0, 0, pScreenWidth, pScreenHeight,
+					  GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+	mWaterGBuffer.unbindForReading();
 }
 
 void WaterSSR::bindShader(const glm::mat4& pViewMatrix, const glm::mat4& pProjection)

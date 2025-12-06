@@ -28,7 +28,9 @@ void Renderer::drawScene(Controler* pControler)
 	mSceneManager->getProgramProperties().mWaterSSR.endFrame();
 	mSceneManager->getProgramProperties().mWaterSSR.renderWaterSSR(mSceneManager->getProgramProperties().mWaterTiles,
 																   mSceneManager->getProgramProperties().mCamera.getViewMatrix(),
-																   mSceneManager->getModelProperties().mProjMatrix);
+																   mSceneManager->getModelProperties().mProjMatrix,
+																   mSceneManager->getProgramProperties().mWindowWidth, 
+																   mSceneManager->getProgramProperties().mWindowHeight);
 
 	
 	showFPS();
