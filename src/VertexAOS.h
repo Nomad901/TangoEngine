@@ -1,10 +1,7 @@
 #pragma once
-#include <iostream>
-#include <format>
+#include "BaseVertex.h"
 
-#include "glm.hpp"
-
-class VertexAOS
+class VertexAOS : public BaseVertex
 {
 public:
 	VertexAOS() = default;
@@ -13,6 +10,13 @@ public:
 
 	void init(const glm::vec3& pPos, const glm::vec3& pNormal,
 			  glm::vec2 pTexCoord, const glm::vec4& pColor);
+
+	// in this class "addVertex" just changes current data of the vertex; 
+	void addVertex(const glm::vec3& pPos, const glm::vec3& pNormal,
+						 glm::vec2 pTexCoords, const glm::vec4& pColor) override;
+
+	size_t getNumberOfVertices() const noexcept override;
+	void clearAllData() override;
 
 	void setPos(const glm::vec3& pPos);
 	void setNormal(const glm::vec3& pNormal);
@@ -29,5 +33,7 @@ private:
 	glm::vec3 mNormal;
 	glm::vec2 mTexCoord;
 	glm::vec4 mColor;
+
+	static inline size_t mNumberOfVertices = 0;
 };
 

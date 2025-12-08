@@ -1,18 +1,42 @@
 #include "VertexAOS.h"
 
 VertexAOS::VertexAOS(const glm::vec3& pPos, const glm::vec3& pNormal,
-	glm::vec2 pTexCoord, const glm::vec4& pColor)
+						   glm::vec2 pTexCoord, const glm::vec4& pColor)
 {
 	init(pPos, pNormal, pTexCoord, pColor);
 }
 
 void VertexAOS::init(const glm::vec3& pPos, const glm::vec3& pNormal,
-	glm::vec2 pTexCoord, const glm::vec4& pColor)
+						   glm::vec2 pTexCoord, const glm::vec4& pColor)
 {
 	mPos = pPos;
 	mNormal = pNormal;
 	mTexCoord = pTexCoord;
 	mColor = pColor;
+
+	mNumberOfVertices++;
+}
+
+void VertexAOS::addVertex(const glm::vec3& pPos, const glm::vec3& pNormal, 
+								glm::vec2 pTexCoords, const glm::vec4& pColor)
+{
+	mPos = pPos;
+	mNormal = pNormal;
+	mTexCoord = pTexCoords;
+	mColor = pColor;
+}
+
+size_t VertexAOS::getNumberOfVertices() const noexcept
+{
+	return mNumberOfVertices;
+}
+
+void VertexAOS::clearAllData()
+{
+	mPos = glm::vec3(0.0f);
+	mNormal = glm::vec3(0.0f);
+	mTexCoord = glm::vec2(0.0f);
+	mColor = glm::vec4(0.0f);
 }
 
 void VertexAOS::setPos(const glm::vec3& pPos)
