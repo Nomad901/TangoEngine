@@ -1,7 +1,10 @@
 #pragma once
+#include <concepts>
+
 #include "Log.h"
 #include "Shader.h"
-#include "Vertex.h"
+#include "VertexAOS.h"
+#include "VertexSOA.h"
 
 // The difference between Mesh.h and BasicMesh.h:
 // If u wanna load a model, you need to use Model class, which 
@@ -11,8 +14,18 @@
 // without calling other classes and also it will load materials. 
 // Basically this is almost like skinnedMesh, but skinnedMesh is focused on bones;
 
+template <typename VertexType>
+concept properVertexType = std::is_same_v<VertexAOS, VertexType> || 
+						   std::is_same_v<VertexSOA, VertexType>;
 
+template <properVertexType VertexType>
 class BasicMesh
 {
+public:
+
+
+private:
+	VertexType mVertex;
+
 };
 
