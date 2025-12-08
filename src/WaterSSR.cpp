@@ -46,8 +46,8 @@ void WaterSSR::renderWaterSSR(const std::vector<Water>& pWaterTiles,
 							  const glm::mat4& pViewMatrix, const glm::mat4& pProjection, 
 							  uint32_t pScreenWidth, uint32_t pScreenHeight)
 {
-	bindShader(pViewMatrix, pProjection);
 	mWaterGBuffer.bind(WaterGBuffer::BindingType::USUAL);
+	bindShader(pViewMatrix, pProjection);
 	
 	for (auto& i : pWaterTiles)
 	{
@@ -62,12 +62,12 @@ void WaterSSR::renderWaterSSR(const std::vector<Water>& pWaterTiles,
 	
 	mWaterGBuffer.unbind();
 	mWaterGBuffer.bind(WaterGBuffer::BindingType::READ);
-	
+
 	glReadBuffer(GL_COLOR_ATTACHMENT5);
 	glBlitFramebuffer(0, 0, pScreenWidth, pScreenHeight,
 					  0, 0, pScreenWidth, pScreenHeight,
 					  GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
+	
 	mWaterGBuffer.unbindForReading();
 }
 

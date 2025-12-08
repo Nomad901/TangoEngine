@@ -34,7 +34,7 @@ void WaterGBuffer::bind(BindingType pBindingType)
 		GBuffer::bind();
 		break;
 	case WaterGBuffer::BindingType::READ:
-		GBuffer::bindForReading(false);
+		GBuffer::bindForReading(true);
 		break;
 	case WaterGBuffer::BindingType::WRITE:
 		GBuffer::bindForWriting();
