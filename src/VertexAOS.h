@@ -12,8 +12,8 @@ public:
 			  glm::vec2 pTexCoord, const glm::vec4& pColor);
 
 	// in this class "addVertex" just changes current data of the vertex; 
-	void addVertex(const glm::vec3& pPos, const glm::vec3& pNormal,
-						 glm::vec2 pTexCoords, const glm::vec4& pColor) override;
+	void addVertex(glm::vec3&& pPos, glm::vec3&& pNormal,
+				   glm::vec2&& pTexCoords, glm::vec4&& pColor) override;
 
 	size_t getNumberOfVertices() const noexcept override;
 	void clearAllData() override;

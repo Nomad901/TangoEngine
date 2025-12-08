@@ -17,13 +17,13 @@ void VertexAOS::init(const glm::vec3& pPos, const glm::vec3& pNormal,
 	mNumberOfVertices++;
 }
 
-void VertexAOS::addVertex(const glm::vec3& pPos, const glm::vec3& pNormal, 
-								glm::vec2 pTexCoords, const glm::vec4& pColor)
+void VertexAOS::addVertex(glm::vec3&& pPos, glm::vec3&& pNormal,
+						  glm::vec2&& pTexCoords, glm::vec4&& pColor)
 {
-	mPos = pPos;
-	mNormal = pNormal;
-	mTexCoord = pTexCoords;
-	mColor = pColor;
+	mPos = std::move(pPos);
+	mNormal = std::move(pNormal);
+	mTexCoord = std::move(pTexCoords);
+	mColor = std::move(pColor);
 }
 
 size_t VertexAOS::getNumberOfVertices() const noexcept

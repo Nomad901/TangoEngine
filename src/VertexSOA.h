@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cassert>
 
 #include "BaseVertex.h"
 
@@ -8,35 +9,36 @@ class VertexSOA : BaseVertex
 public:
 	VertexSOA(uint32_t pCapacity = 100);
 
-	void addVertex(const glm::vec3& pPos, const glm::vec3& pNormal,
-						 glm::vec2 pTexCoords, const glm::vec4& pColor) override;
+	void addVertex(glm::vec3&& pPos, glm::vec3&& pNormal,
+				   glm::vec2&& pTexCoords, glm::vec4&& pColor) override;
 	void getVertex(size_t pIndex, glm::vec3& pPos, glm::vec3& pNormal,
-								  glm::vec2& pTexCoord, glm::vec4& pColor);
-	void updateVertex(size_t pIndex, const glm::vec3& pPos, const glm::vec3& pNormal,
-										   glm::vec2 pTexCoord, const glm::vec4& pColor);
+								  glm::vec2& pTexCoord, glm::vec4& pColor) const;
+	void updateVertex(size_t pIndex, glm::vec3&& pPos, glm::vec3&& pNormal,
+									 glm::vec2&& pTexCoord, glm::vec4&& pColor);
 
-	const std::vector<float> getPositionsX() const noexcept;
-	const std::vector<float> getPositionsY() const noexcept;
-	const std::vector<float> getPositionsZ() const noexcept;
+	const std::vector<float>& getPositionsX() const noexcept;
+	const std::vector<float>& getPositionsY() const noexcept;
+	const std::vector<float>& getPositionsZ() const noexcept;
 	
-	const std::vector<float> getNormalsX() const noexcept;
-	const std::vector<float> getNormalsY() const noexcept;
-	const std::vector<float> getNormalsZ() const noexcept;
+	const std::vector<float>& getNormalsX() const noexcept;
+	const std::vector<float>& getNormalsY() const noexcept;
+	const std::vector<float>& getNormalsZ() const noexcept;
 
-	const std::vector<float> getTexCoordsX() const noexcept;
-	const std::vector<float> getTexCoordsY() const noexcept;
+	const std::vector<float>& getTexCoordsX() const noexcept;
+	const std::vector<float>& getTexCoordsY() const noexcept;
 
-	const std::vector<float> getColorsX() const noexcept;
-	const std::vector<float> getColorsY() const noexcept;
-	const std::vector<float> getColorsZ() const noexcept;
-	const std::vector<float> getColorsW() const noexcept;
+	const std::vector<float>& getColorsX() const noexcept;
+	const std::vector<float>& getColorsY() const noexcept;
+	const std::vector<float>& getColorsZ() const noexcept;
+	const std::vector<float>& getColorsW() const noexcept;
 
 	size_t getNumberOfVertices() const noexcept override;
 	void clearAllData() override;
-	bool isEmpty() const noexcept;
+	void clearExactData(size_t pIndex);
+	bool isEmpty(size_t pIndex) const noexcept;
 
 private:
-	void reserveSpace();
+	void reserveSpace(uint32_t pCapacity);
 
 private:
 	std::vector<float> mPosX;
