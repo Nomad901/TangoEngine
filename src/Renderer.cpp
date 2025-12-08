@@ -20,17 +20,17 @@ void Renderer::preDrawScene()
 void Renderer::drawScene(Controler* pControler)
 {
 	ImGui::EndFrame();
-	mSceneManager->getProgramProperties().mWaterTiles[0].setWaterPos(mSceneManager->getProgramProperties().mWaterPos);
-	mSceneManager->getProgramProperties().mWaterTiles[0].setTileSize(mSceneManager->getProgramProperties().mWaterScale);
-	
-	mSceneManager->getProgramProperties().mWaterSSR.startFrame();
-	drawSceneTMP();
-	mSceneManager->getProgramProperties().mWaterSSR.endFrame();
-	mSceneManager->getProgramProperties().mWaterSSR.renderWaterSSR(mSceneManager->getProgramProperties().mWaterTiles,
-																   mSceneManager->getProgramProperties().mCamera.getViewMatrix(),
-																   mSceneManager->getModelProperties().mProjMatrix,
-																   mSceneManager->getProgramProperties().mWindowWidth, 
-																   mSceneManager->getProgramProperties().mWindowHeight);
+	//mSceneManager->getProgramProperties().mWaterTiles[0].setWaterPos(mSceneManager->getProgramProperties().mWaterPos);
+	//mSceneManager->getProgramProperties().mWaterTiles[0].setTileSize(mSceneManager->getProgramProperties().mWaterScale);
+	//
+	//mSceneManager->getProgramProperties().mWaterSSR.startFrame();
+	//drawSceneTMP();
+	//mSceneManager->getProgramProperties().mWaterSSR.endFrame();
+	//mSceneManager->getProgramProperties().mWaterSSR.renderWaterSSR(mSceneManager->getProgramProperties().mWaterTiles,
+	//															   mSceneManager->getProgramProperties().mCamera.getViewMatrix(),
+	//															   mSceneManager->getModelProperties().mProjMatrix,
+	//															   mSceneManager->getProgramProperties().mWindowWidth, 
+	//															   mSceneManager->getProgramProperties().mWindowHeight);
 
 	
 	showFPS();

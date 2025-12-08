@@ -4,15 +4,15 @@
 
 #include "glm.hpp"
 
-class Vertex
+class VertexAOS
 {
 public:
-	Vertex() = default;
-	Vertex(const glm::vec3& pPos, const glm::vec3& pNormal, 
-				 glm::vec2 pTexCoord, const glm::vec4& pColor);
+	VertexAOS() = default;
+	VertexAOS(const glm::vec3& pPos, const glm::vec3& pNormal,
+			  glm::vec2 pTexCoord, const glm::vec4& pColor);
 
 	void init(const glm::vec3& pPos, const glm::vec3& pNormal,
-					glm::vec2 pTexCoord, const glm::vec4& pColor);
+			  glm::vec2 pTexCoord, const glm::vec4& pColor);
 
 	void setPos(const glm::vec3& pPos);
 	void setNormal(const glm::vec3& pNormal);
