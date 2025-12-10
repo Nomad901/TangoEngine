@@ -14,11 +14,8 @@
 // without calling other classes and also it will load materials. 
 // Basically this is almost like skinnedMesh, but skinnedMesh is focused on bones;
 
-template <typename VertexType>
-concept properVertexType = std::is_same_v<VertexAOS, VertexType> || 
-						   std::is_same_v<VertexSOA, VertexType>;
-
-template <properVertexType VertexType>
+template<typename T>
+requires std::is_base_of_v<BaseVertex, T>
 class BasicMesh
 {
 public:
