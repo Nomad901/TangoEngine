@@ -111,26 +111,6 @@ const std::vector<float>& VertexSOA::getTexCoordsY() const noexcept
 	return mTexCoordY;
 }
 
-const std::vector<float>& VertexSOA::getColorsX() const noexcept
-{
-	return mColorX;
-}
-
-const std::vector<float>& VertexSOA::getColorsY() const noexcept
-{
-	return mColorY;
-}
-
-const std::vector<float>& VertexSOA::getColorsZ() const noexcept
-{
-	return mColorZ;
-}
-
-const std::vector<float>& VertexSOA::getColorsW() const noexcept
-{
-	return mColorW;
-}
-
 size_t VertexSOA::getNumberOfVertices() const noexcept
 {
 	return mNumberOfVertices;
@@ -187,6 +167,16 @@ bool VertexSOA::isEmpty(size_t pIndex) const noexcept
 			mTexCoordX[pIndex] == 0.0f && mTexCoordY[pIndex] == 0.0f &&
 			mColorX[pIndex] == 0.0f && mColorY[pIndex] == 0.0f &&
 			mColorZ[pIndex] == 0.0f && mColorW[pIndex] == 0.0f);
+}
+
+bool VertexSOA::hasColors() const noexcept
+{
+	return !mColorX.empty();
+}
+
+bool VertexSOA::hasTangent() const noexcept
+{
+	return !mTangentX.empty();
 }
 
 void VertexSOA::reserveSpace(uint32_t pCapacity)
