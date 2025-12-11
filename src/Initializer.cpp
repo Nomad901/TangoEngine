@@ -149,7 +149,7 @@ void Initializer::initMeshes()
 {
 	// light block
 	std::weak_ptr<Primitive> lightBlock = mSceneManager->getModelProperties().mPrimitivesManager["lightBlock"];
-	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightBlock", std::make_unique<Mesh>(lightBlock, true));
+	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightBlock", std::make_unique<Mesh>(lightBlock));
 	
 	// light-posts
 	//std::weak_ptr<Primitive> light1 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost1"];
@@ -161,7 +161,7 @@ void Initializer::initMeshes()
 	//std::weak_ptr<Primitive> light4 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost4"];
 	//mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost4", std::make_unique<Mesh>(light4));
 	std::weak_ptr<Primitive> plane = mSceneManager->getModelProperties().mPrimitivesManager["plane"];
-	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("brickWall", std::make_unique<Mesh>(plane));
+	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("brickWall", std::make_unique<Mesh>(plane, true));
 }
 
 void Initializer::initModels()
