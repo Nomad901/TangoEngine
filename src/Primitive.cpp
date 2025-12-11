@@ -5,6 +5,11 @@ void Primitive::setVertexStrg(const std::vector<Vertex>& pVertexStrg)
 	mVertexStrg = pVertexStrg;
 }
 
+void Primitive::setVertexWithTangentStrg(const std::vector<VertexWithTangent>& pVertexWithTangentStrg)
+{
+	mVertexWithTangentStrg = pVertexWithTangentStrg;
+}
+
 void Primitive::setIndexStrg(const std::vector<uint32_t>& pIndexStrg)
 {
 	mIndexStrg = pIndexStrg;
@@ -59,6 +64,11 @@ Texture2& Primitive::getSingleTex() noexcept
 std::vector<Vertex>& Primitive::getVertexStrg() noexcept
 {
 	return mVertexStrg;
+}
+
+std::vector<VertexWithTangent>& Primitive::getVertexWithTangentStrg() noexcept
+{
+	return mVertexWithTangentStrg;
 }
 
 std::vector<uint32_t>& Primitive::getIndexStrg() noexcept
@@ -393,6 +403,8 @@ Quad::Quad(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(6);
+	std::vector<VertexWithTangent> verticesWithTangent;
+	verticesWithTangent.reserve(6);
 	std::vector<uint32_t> indices;
 	indices.reserve(6 * 2);
 	setTexture(pTexture);
@@ -409,19 +421,13 @@ Quad::Quad(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 	}
 	else
 	{
-		Vertex tmpVertex;
-		tmpVertex.initVertexWithTangent(glm::vec3(-0.5f, -0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f),
-			glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		vertices.push_back(tmpVertex);
-		tmpVertex.initVertexWithTangent(glm::vec3(0.5f, -0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f),
-			glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		vertices.push_back(tmpVertex);
-		tmpVertex.initVertexWithTangent(glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f),
-			glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		vertices.push_back(tmpVertex);
-		tmpVertex.initVertexWithTangent(glm::vec3(-0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f),
-			glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		vertices.push_back(tmpVertex);
+		verticesWithTangent =
+		{
+			{glm::vec3(-0.5f, -0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f)},
+			{glm::vec3(0.5f, -0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f)},
+			{glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f)},
+			{glm::vec3(-0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f)}
+		};
 	}
 	indices =
 	{
@@ -430,7 +436,11 @@ Quad::Quad(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 	};
 
 	setTexSlot(pSlot);
-	setVertexStrg(vertices);
+	if (!pWithTangent)
+		setVertexStrg(vertices);
+	else
+		setVertexWithTangentStrg(verticesWithTangent);
+
 	setIndexStrg(indices);
 }
 

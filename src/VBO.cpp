@@ -25,6 +25,15 @@ void VBO::init(const std::vector<Vertex>& pVertices, GLenum pUsage)
 	//glNamedBufferData(GL_ARRAY_BUFFER, pVertices.size() * sizeof(Vertex), pVertices.data(), pUsage);
 }
 
+void VBO::init(const std::vector<VertexWithTangent>& pVertices, GLenum pUsage)
+{
+	glGenBuffers(1, &mRendererID);
+	glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
+	glBufferData(GL_ARRAY_BUFFER, pVertices.size() * sizeof(Vertex), pVertices.data(), pUsage);
+	//glBindBuffer(GL_ARRAY_BUFFER, mRendererID);
+	//glNamedBufferData(GL_ARRAY_BUFFER, pVertices.size() * sizeof(Vertex), pVertices.data(), pUsage);
+}
+
 void VBO::init(const void* pData, GLuint pSize, GLenum pUsage)
 {
 	glGenBuffers(1, &mRendererID);

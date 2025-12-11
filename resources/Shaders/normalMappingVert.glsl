@@ -37,7 +37,7 @@ void main()
 	tangentFragPos  = TBN * fragPos;
 
 	lightPos = uLightPos;
-	viewPos = uViewMat;
+	viewPos = uViewPos;
 
 	gl_Position = uProj * uViewMat * uModel * vec4(pos, 1.0f);
 }

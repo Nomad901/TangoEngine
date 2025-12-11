@@ -17,6 +17,7 @@ public:
 	virtual ~Primitive() = default;
 
 	void setVertexStrg(const std::vector<Vertex>& pVertexStrg);
+	void setVertexWithTangentStrg(const std::vector<VertexWithTangent>& pVertexWithTangentStrg);
 	void setIndexStrg(const std::vector<uint32_t>& pIndexStrg); 
 
 	void setTexture(Texture2& pTexture);
@@ -25,6 +26,7 @@ public:
 	void setTexSlot(uint32_t pSlot);
 
 	std::vector<Vertex>& getVertexStrg() noexcept;
+	std::vector<VertexWithTangent>& getVertexWithTangentStrg() noexcept;
 	std::vector<uint32_t>& getIndexStrg() noexcept;
 	std::pair<uint32_t, uint32_t> getTexSlots() const noexcept;
 	uint32_t getSingleSlot() const noexcept;
@@ -36,6 +38,7 @@ private:
 	Texture2 mTexture;
 	uint32_t mSlot;
 	std::vector<Vertex> mVertexStrg;
+	std::vector<VertexWithTangent> mVertexWithTangentStrg;
 	std::vector<uint32_t> mIndexStrg;
 
 	std::pair<uint32_t, uint32_t> mTexSlots{};

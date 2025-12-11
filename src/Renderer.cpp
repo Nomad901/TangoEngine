@@ -40,10 +40,15 @@ void Renderer::drawScene(Controler* pControler)
 	auto shader = &mSceneManager->getProgramProperties().mShaders.getShader("normalMapping");
 
 	shader->bind();
-	shader->setMatrixUniform4fv("uMVP", transformForQuad.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam,
-																	  mSceneManager->getModelProperties().mProjMatrix));
-	mSceneManager->getModelProperties().mPrimitivesManager.getPrimitive("plane")->getSingleTex().bind();
-	mSceneManager->getModelProperties().mTextureManager.getTexture("")
+	shader->setMatrixUniform4fv("uModel", transformForQuad.getModelMatrix());
+	shader->setMatrixUniform4fv("uViewMat", mSceneManager->getProgramProperties().mThirdPersonCam.getViewMatrix());
+	shader->setMatrixUniform4fv("uProj", mSceneManager->getModelProperties().mProjMatrix);
+
+	shader->setUniform3fv("uLightPos", mSceneManager->getLightProperties().mPosLight);
+	shader->setUniform3fv("uViewPos", mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
+
+	mSceneManager->getModelProperties().mPrimitivesManager.getPrimitive("plane")->getSingleTex().bind(0);
+	mSceneManager->getModelProperties().mTextureManager.getTexture("brickWallNormal").bind(1);
 	shader->setUniform1i("uDiffuseMap", 0);
 	shader->setUniform1i("uNormalMap", 1);
 

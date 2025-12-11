@@ -16,19 +16,7 @@ struct Vertex
 	glm::vec2 mTexCoord;
 	float mLightFactor;
 
-	glm::vec3 mTangent; 
-	glm::vec3 mBitangent;
-
 	void initVertex(const Terrain* pTerrain, int32_t pX, int32_t pZ);
-	void initVertexWithTangent(const glm::vec3& pPos, const glm::vec3& pNormal, glm::vec2 pTexCoord,
-							   const glm::vec3& pTangent, const glm::vec3& pBitangent)
-	{
-		mPos = pPos;
-		mNormals = pNormal;
-		mTexCoord = pTexCoord;
-		mTangent = pTangent;
-		mBitangent = pBitangent;
-	}
 
 	void set(const glm::vec3& pPos, float pPitch, float pHeading)
 	{
@@ -45,6 +33,15 @@ struct Vertex
 	}
 };
 
+struct VertexWithTangent
+{
+	glm::vec3 mPos;
+	glm::vec3 mNormal;
+	glm::vec2 mTexCoord;
+	glm::vec3 mTangent;
+	glm::vec3 mBitangent;
+};
+
 class VBO
 {
 public:
@@ -58,6 +55,7 @@ public:
 	VBO& operator=(VBO&&) = default;
 
 	void init(const std::vector<Vertex>& pVertices, GLenum pUsage);
+	void init(const std::vector<VertexWithTangent>& pVerticesWithTangent, GLenum pUsage);
 	void init(const void* pData, GLuint pSize, GLenum pUsage);
 
 	void destroy();

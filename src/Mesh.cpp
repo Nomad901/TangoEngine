@@ -68,7 +68,7 @@ Mesh::Mesh(const std::weak_ptr<Primitive>& pPrimitive, bool pWithTangent)
 
 			mVAO.generate();
 			mVAO.bind();
-			mVBO.init(mPrimitive->getVertexStrg(), GL_STATIC_DRAW);
+			mVBO.init(mPrimitive->getVertexWithTangentStrg(), GL_STATIC_DRAW);
 			mVBOLayout.pushLayout(GL_FLOAT, 3);
 			mVBOLayout.pushLayout(GL_FLOAT, 3);
 			mVBOLayout.pushLayout(GL_FLOAT, 2);
