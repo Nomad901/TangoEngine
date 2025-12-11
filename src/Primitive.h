@@ -78,6 +78,8 @@ public:
 	Quad(const std::pair<Texture2&, Texture2&>& pTexture,
 	     std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Quad(const glm::vec4& pColor);
+private:
+	const std::vector<VertexWithTangent>& getVerticesWithTangent() noexcept;
 };
 
 class Cube : public Primitive

@@ -35,11 +35,38 @@ struct Vertex
 
 struct VertexWithTangent
 {
-	glm::vec3 mPos;
-	glm::vec3 mNormal;
-	glm::vec2 mTexCoord;
-	glm::vec3 mTangent;
-	glm::vec3 mBitangent;
+	glm::vec3 mPos{ glm::vec3(0.0f) };
+	glm::vec3 mNormal{ glm::vec3(0.0f) };
+	glm::vec2 mTexCoord{ glm::vec2(0.0f) };
+	glm::vec3 mTangent{ glm::vec3(0.0f) };
+	glm::vec3 mBitangent{ glm::vec3(0.0f) };
+
+	static void calculateTangAndBitanForTriangle(VertexWithTangent& pVertexToAssign1,
+												 VertexWithTangent& pVertexToAssign2,
+												 VertexWithTangent& pVertexToAssign3)
+	{
+		glm::vec3 edge1 = pVertexToAssign2.mPos - pVertexToAssign1.mPos;
+		glm::vec3 edge2 = pVertexToAssign3.mPos - pVertexToAssign1.mPos;
+
+		glm::vec2 deltaUV1 = pVertexToAssign2.mTexCoord - pVertexToAssign1.mTexCoord;
+		glm::vec2 deltaUV2 = pVertexToAssign3.mTexCoord - pVertexToAssign1.mTexCoord;
+
+		float determinant = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+		glm::vec3 tangent, bitangent;
+
+		tangent.x = determinant * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = determinant * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = determinant * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+		bitangent.x = determinant * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent.y = determinant * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent.z = determinant * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		
+		pVertexToAssign1.mTangent = tangent; pVertexToAssign1.mBitangent = bitangent;
+		pVertexToAssign2.mTangent = tangent; pVertexToAssign2.mBitangent = bitangent;
+		pVertexToAssign3.mTangent = tangent; pVertexToAssign3.mBitangent = bitangent;
+	}
 };
 
 class VBO
