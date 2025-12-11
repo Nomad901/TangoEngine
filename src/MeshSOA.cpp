@@ -6,11 +6,7 @@ void MeshSOA::loadMesh(const std::filesystem::path& pPath)
 
 void MeshSOA::destroy()
 {
-	mVertexType.clearAllData();
 	mVAO.destroy();
-	mVBO.destroy();
-	mEBO.destroy();
-	mVBOLayout.destroy();
 
 	BasicMesh::mIndices.clear();
 	BasicMesh::mMeshes.clear();
@@ -18,7 +14,7 @@ void MeshSOA::destroy()
 
 uint32_t MeshSOA::getNumberOfVertices() const noexcept
 {
-	return mVertexType.getNumberOfVertices();
+	return mVertexSOA.getNumberOfVertices();
 }
 
 BasicMesh::vertexFormat MeshSOA::getVertexFormat() const noexcept

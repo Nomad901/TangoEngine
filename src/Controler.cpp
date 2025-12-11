@@ -4,7 +4,7 @@
 Controler::Controler(SceneManager* pSceneManager)
 {
 	mSceneManager = pSceneManager;
-	bool isIn3rdPersonCamera = false;
+	bool isIn3rdPersonCamera = true;
 	mPlayer.init(glm::vec3(10.0f, 10.0f, -10.0f), glm::vec3(1.0f, 1.0f, 1.0f), 100.0f, 100.0f, 30.0f, isIn3rdPersonCamera,
 				 pSceneManager->getProgramProperties().mResourcePath + "Models/player.obj");
 	mSceneManager->getProgramProperties().mIsIn3rdPersonCamera = isIn3rdPersonCamera;

@@ -24,7 +24,7 @@ void Renderer::drawScene(Controler* pControler)
 	//mSceneManager->getProgramProperties().mWaterTiles[0].setTileSize(mSceneManager->getProgramProperties().mWaterScale);
 	//
 	//mSceneManager->getProgramProperties().mWaterSSR.startFrame();
-	//drawSceneTMP();
+	drawSceneTMP();
 	//mSceneManager->getProgramProperties().mWaterSSR.endFrame();
 	//mSceneManager->getProgramProperties().mWaterSSR.renderWaterSSR(mSceneManager->getProgramProperties().mWaterTiles,
 	//															   mSceneManager->getProgramProperties().mCamera.getViewMatrix(),
@@ -32,7 +32,23 @@ void Renderer::drawScene(Controler* pControler)
 	//															   mSceneManager->getProgramProperties().mWindowWidth, 
 	//															   mSceneManager->getProgramProperties().mWindowHeight);
 
-	
+	Transform transformForQuad;
+	transformForQuad.setLocalPosition(glm::vec3(1.0f, 1.0f, 1.0f));
+	transformForQuad.setLocalScale(glm::vec3(30.0f, 30.0f, 30.0f));
+	transformForQuad.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+
+	auto shader = &mSceneManager->getProgramProperties().mShaders.getShader("normalMapping");
+
+	shader->bind();
+	shader->setMatrixUniform4fv("uMVP", transformForQuad.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam,
+																	  mSceneManager->getModelProperties().mProjMatrix));
+	mSceneManager->getModelProperties().mPrimitivesManager.getPrimitive("plane")->getSingleTex().bind();
+	shader->setUniform1i("uTexture2D", 0);
+
+	glDisable(GL_CULL_FACE);
+	mSceneManager->getModelProperties().mFactoryMeshes.getMesh("brickWall").draw();
+	glEnable(GL_CULL_FACE);
+
 	showFPS();
 
 	ImGui::Render();
@@ -120,25 +136,25 @@ void Renderer::setGLproperties()
 
 void Renderer::drawSceneTMP()
 {
-	glCullFace(GL_FRONT);
-	mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mCamera,
-													  mSceneManager->mModelProperties.mProjMatrix);
-	mSceneManager->getModelProperties().mModelManager.getModel("WaterTerrain").render();
-	glCullFace(GL_BACK);
+	//glCullFace(GL_FRONT);
+	//mSceneManager->mModelProperties.mTerrain->render(&mSceneManager->getProgramProperties().mCamera,
+	//												  mSceneManager->mModelProperties.mProjMatrix);
+	//mSceneManager->getModelProperties().mModelManager.getModel("WaterTerrain").render();
+	//glCullFace(GL_BACK);
 
-	////
-	//// Skybox
-	////
-	////glEnable(GL_DEPTH_TEST);
-	////glDepthFunc(GL_LEQUAL);
-	//mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
-	////glDepthFunc(GL_LESS);
 	//
-	//// 
-	//// Light cubes and fps
-	////
-	////glEnable(GL_BLEND);
-	////glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Skybox
+	//
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LEQUAL);
+	mSceneManager->mProgramProperties.mSkybox->render(mSceneManager->mProgramProperties.mShaders["skyboxShader"]);
+	//glDepthFunc(GL_LESS);
+	
+	// 
+	// Light cubes and fps
+	//
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//renderCubeLights();
 	//
 	//Camera& cameraForChar = mSceneManager->getProgramProperties().mCamera;
