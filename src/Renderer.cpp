@@ -43,7 +43,9 @@ void Renderer::drawScene(Controler* pControler)
 	shader->setMatrixUniform4fv("uMVP", transformForQuad.getWVPTransf(mSceneManager->getProgramProperties().mThirdPersonCam,
 																	  mSceneManager->getModelProperties().mProjMatrix));
 	mSceneManager->getModelProperties().mPrimitivesManager.getPrimitive("plane")->getSingleTex().bind();
-	shader->setUniform1i("uTexture2D", 0);
+	mSceneManager->getModelProperties().mTextureManager.getTexture("")
+	shader->setUniform1i("uDiffuseMap", 0);
+	shader->setUniform1i("uNormalMap", 1);
 
 	glDisable(GL_CULL_FACE);
 	mSceneManager->getModelProperties().mFactoryMeshes.getMesh("brickWall").draw();

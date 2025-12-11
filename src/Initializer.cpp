@@ -140,8 +140,8 @@ void Initializer::initPrimitives()
 										std::make_unique<Texture2>(mSceneManager->getProgramProperties().mResourcePath + "brickwall_normal.png"));
 	mSceneManager->getModelProperties().mTextureManager.getTexture("brickWallNormal").setTarget(GL_TEXTURE_2D);
 
-	mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("plane", std::make_unique<Quad>(
-										mSceneManager->getModelProperties().mTextureManager.getTexture("brickWall"), 0));
+	mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("plane", 
+										std::make_unique<Quad>(mSceneManager->getModelProperties().mTextureManager.getTexture("brickWall"), 0, true));
 	mSceneManager->getModelProperties().mPrimitivesManager.getPrimitive("plane")->getSingleTex().setTarget(GL_TEXTURE_2D);
 }
 
@@ -149,7 +149,7 @@ void Initializer::initMeshes()
 {
 	// light block
 	std::weak_ptr<Primitive> lightBlock = mSceneManager->getModelProperties().mPrimitivesManager["lightBlock"];
-	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightBlock", std::make_unique<Mesh>(lightBlock));
+	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightBlock", std::make_unique<Mesh>(lightBlock, true));
 	
 	// light-posts
 	//std::weak_ptr<Primitive> light1 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost1"];

@@ -54,9 +54,30 @@ Mesh::Mesh(const std::vector<Vertex>& pVertices)
 	init(pVertices);
 }
 
-Mesh::Mesh(const std::weak_ptr<Primitive>& pPrimitive)
+Mesh::Mesh(const std::weak_ptr<Primitive>& pPrimitive, bool pWithTangent)
 {
-	init(pPrimitive);
+	if (!pWithTangent)
+	{
+		init(pPrimitive);
+	}
+	else
+	{
+		if (std::shared_ptr primitive = pPrimitive.lock())
+		{
+			mPrimitive = primitive;
+
+			mVAO.generate();
+			mVAO.bind();
+			mVBO.init(mPrimitive->getVertexStrg(), GL_STATIC_DRAW);
+			mVBOLayout.pushLayout(GL_FLOAT, 3);
+			mVBOLayout.pushLayout(GL_FLOAT, 3);
+			mVBOLayout.pushLayout(GL_FLOAT, 2);
+			mVBOLayout.pushLayout(GL_FLOAT, 3);
+			mVBOLayout.pushLayout(GL_FLOAT, 3);
+			mVAO.addBuffer(mVBO, mVBOLayout);
+			mEBO.init(mPrimitive->getIndexStrg().data(), mPrimitive->getIndexStrg().size());
+		}
+	}
 }
 
 void Mesh::init(const std::vector<Vertex>& pVertices, const std::vector<uint32_t>& pIndices)

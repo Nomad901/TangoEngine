@@ -389,7 +389,7 @@ Quad::Quad(const std::pair<Texture2&, Texture2&>& pTexture,
 	setIndexStrg(indices);
 }
 
-Quad::Quad(Texture2& pTexture, uint32_t pSlot)
+Quad::Quad(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(6);
@@ -397,13 +397,32 @@ Quad::Quad(Texture2& pTexture, uint32_t pSlot)
 	indices.reserve(6 * 2);
 	setTexture(pTexture);
 
-	vertices =
+	if (!pWithTangent)
 	{
-		{glm::vec3(-0.5f, -0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(0.5f, -0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(0.5f,  0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3(-0.5f,  0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)}
-	};
+		vertices =
+		{
+			{glm::vec3(-0.5f, -0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+			{glm::vec3(0.5f, -0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+			{glm::vec3(0.5f,  0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+			{glm::vec3(-0.5f,  0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)}
+		};
+	}
+	else
+	{
+		Vertex tmpVertex;
+		tmpVertex.initVertexWithTangent(glm::vec3(-0.5f, -0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f),
+			glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		vertices.push_back(tmpVertex);
+		tmpVertex.initVertexWithTangent(glm::vec3(0.5f, -0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f),
+			glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		vertices.push_back(tmpVertex);
+		tmpVertex.initVertexWithTangent(glm::vec3(0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f),
+			glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		vertices.push_back(tmpVertex);
+		tmpVertex.initVertexWithTangent(glm::vec3(-0.5f, 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f),
+			glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		vertices.push_back(tmpVertex);
+	}
 	indices =
 	{
 		0, 1, 2,

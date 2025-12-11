@@ -16,7 +16,19 @@ struct Vertex
 	glm::vec2 mTexCoord;
 	float mLightFactor;
 
+	glm::vec3 mTangent; 
+	glm::vec3 mBitangent;
+
 	void initVertex(const Terrain* pTerrain, int32_t pX, int32_t pZ);
+	void initVertexWithTangent(const glm::vec3& pPos, const glm::vec3& pNormal, glm::vec2 pTexCoord,
+							   const glm::vec3& pTangent, const glm::vec3& pBitangent)
+	{
+		mPos = pPos;
+		mNormals = pNormal;
+		mTexCoord = pTexCoord;
+		mTangent = pTangent;
+		mBitangent = pBitangent;
+	}
 
 	void set(const glm::vec3& pPos, float pPitch, float pHeading)
 	{

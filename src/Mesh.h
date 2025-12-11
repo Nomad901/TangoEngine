@@ -20,7 +20,7 @@ public:
 	Mesh(const std::vector<Vertex>& pVertices,
 		 const std::vector<uint32_t>& pIndices);
 	Mesh(const std::vector<Vertex>& pVertices);
-	Mesh(const std::weak_ptr<Primitive>& pPrimitive);
+	Mesh(const std::weak_ptr<Primitive>& pPrimitive, bool pWithTangent = false);
 	~Mesh() = default;
 	Mesh(const Mesh&) = delete;
 	Mesh& operator=(const Mesh&) = delete;

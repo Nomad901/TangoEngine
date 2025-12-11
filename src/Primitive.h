@@ -71,7 +71,7 @@ class Quad : public Primitive
 public:
 	Quad(const std::pair<Texture2&, Texture2&>& pTexture, 
 		 std::pair<uint32_t, uint32_t> pSlots);
-	Quad(Texture2& pTexture, uint32_t pSlot);
+	Quad(Texture2& pTexture, uint32_t pSlot, bool pWithTangent = false);
 	Quad(const std::pair<Texture2&, Texture2&>& pTexture,
 	     std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Quad(const glm::vec4& pColor);
