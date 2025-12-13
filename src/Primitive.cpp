@@ -61,6 +61,90 @@ Texture2& Primitive::getSingleTex() noexcept
 	return mTexture;
 }
 
+const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangentForQuad() noexcept
+{
+	std::vector<VertexWithTangent> verticesWithTangent;
+	verticesWithTangent.reserve(4);
+
+	VertexWithTangent vertex1, vertex2, vertex3, vertex4;
+	vertex1.mPos = glm::vec3(-0.5f, -0.5f, 1.0f);
+	vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+	vertex1.mTexCoord = glm::vec2(0.0f, 0.0f);
+
+	vertex2.mPos = glm::vec3(0.5f, -0.5f, 1.0f);
+	vertex2.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+	vertex2.mTexCoord = glm::vec2(1.0f, 0.0f);
+
+	vertex3.mPos = glm::vec3(0.5f, 0.5f, 1.0f);
+	vertex3.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+	vertex3.mTexCoord = glm::vec2(1.0f, 1.0f);
+
+	vertex4.mPos = glm::vec3(-0.5f, 0.5f, 1.0f);
+	vertex4.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+	vertex4.mTexCoord = glm::vec2(0.0f, 1.0f);
+
+	glm::vec3 tangent1, tangent2, bitangent1, bitangent2;
+
+	{
+		VertexWithTangent vertex1TMP = vertex1, vertex2TMP = vertex2, vertex3TMP = vertex3;
+		VertexWithTangent::calculateTangAndBitanForTriangle(vertex1TMP, vertex2TMP, vertex3TMP);
+		tangent1 = vertex1TMP.mTangent;
+		bitangent1 = vertex1TMP.mBitangent;
+	}
+
+	{
+		VertexWithTangent vertex2TMP = vertex2, vertex3TMP = vertex3, vertex4TMP = vertex4;
+		VertexWithTangent::calculateTangAndBitanForTriangle(vertex2TMP, vertex3TMP, vertex4TMP);
+		tangent2 = vertex2TMP.mTangent;
+		bitangent2 = vertex2TMP.mBitangent;
+	}
+
+	vertex1.mTangent = tangent1;
+	vertex1.mBitangent = bitangent1;
+	vertex4.mTangent = tangent2;
+	vertex4.mBitangent = bitangent2;
+
+	vertex2.mTangent = glm::normalize(tangent1 + tangent2);
+	vertex2.mBitangent = glm::normalize(bitangent1 + bitangent2);
+
+	vertex3.mTangent = glm::normalize(tangent1 + tangent2);
+	vertex3.mBitangent = glm::normalize(bitangent1 + bitangent2);
+
+	verticesWithTangent.push_back(vertex1);
+	verticesWithTangent.push_back(vertex2);
+	verticesWithTangent.push_back(vertex3);
+	verticesWithTangent.push_back(vertex4);
+
+	return verticesWithTangent;
+}
+
+const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangentForTriangle() noexcept
+{
+	std::vector<VertexWithTangent> verticesWithTangent;
+	verticesWithTangent.reserve(3);
+
+	VertexWithTangent vertex1, vertex2, vertex3;
+	vertex1.mPos = glm::vec3(-0.5f, -0.5f, 0.0f);
+	vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+	vertex1.mTexCoord = glm::vec2(0.0f, 0.0f);
+
+	vertex2.mPos = glm::vec3(0.5f, -0.5f, 0.0f);
+	vertex2.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+	vertex2.mTexCoord = glm::vec2(1.0f, 0.0f);
+
+	vertex3.mPos = glm::vec3(0.5f, 0.5f, 0.0f);
+	vertex3.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+	vertex3.mTexCoord = glm::vec2(1.0f, 1.0f);
+
+	VertexWithTangent::calculateTangAndBitanForTriangle(vertex1, vertex2, vertex3);
+
+	verticesWithTangent.push_back(vertex1);
+	verticesWithTangent.push_back(vertex2);
+	verticesWithTangent.push_back(vertex3);
+
+	return verticesWithTangent;
+}
+
 std::vector<Vertex>& Primitive::getVertexStrg() noexcept
 {
 	return mVertexStrg;
@@ -101,27 +185,39 @@ Triangle::Triangle(const std::pair<Texture2&, Texture2&>& pTexture,
 	setIndexStrg(indices);
 }
 
-Triangle::Triangle(Texture2& pTexture, uint32_t pSlot)
+Triangle::Triangle(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 {
 	std::vector<Vertex> vertices;
-	vertices.reserve(6);
+	vertices.reserve(3);
+	std::vector<VertexWithTangent> verticesWithTangent;
+	verticesWithTangent.reserve(3);
 	std::vector<uint32_t> indices;
 	indices.reserve(6 * 2);
 	setTexture(pTexture);
 
-	vertices =
+	if (!pWithTangent)
 	{
-		{glm::vec3(-0.5f, -0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(0.5f, -0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(0.0f,  0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-	};
+		vertices =
+		{
+			{glm::vec3(-0.5f, -0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+			{glm::vec3(0.5f, -0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+			{glm::vec3(0.0f,  0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+		};
+	}
+	else
+	{
+		verticesWithTangent = getVerticesWithTangentForTriangle();
+	}
 	indices =
 	{
 		0, 1, 2
 	};
 
 	setTexSlot(pSlot);
-	setVertexStrg(vertices);
+	if (!pWithTangent)
+		setVertexStrg(vertices);
+	else
+		setVertexWithTangentStrg(verticesWithTangent);
 	setIndexStrg(indices);
 }
 
@@ -421,7 +517,7 @@ Quad::Quad(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 	}
 	else
 	{
-		verticesWithTangent = getVerticesWithTangent();
+		verticesWithTangent = getVerticesWithTangentForQuad();
 	}
 	indices =
 	{
@@ -487,63 +583,6 @@ Quad::Quad(const glm::vec4& pColor)
 
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
-}
-
-const std::vector<VertexWithTangent>& Quad::getVerticesWithTangent() noexcept
-{
-	std::vector<VertexWithTangent> verticesWithTangent;
-	verticesWithTangent.reserve(4);
-
-	VertexWithTangent vertex1, vertex2, vertex3, vertex4;
-	vertex1.mPos = glm::vec3(-0.5f, -0.5f, 1.0f);
-	vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex1.mTexCoord = glm::vec2(0.0f, 0.0f);
-
-	vertex2.mPos = glm::vec3(0.5f, -0.5f, 1.0f);
-	vertex2.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex2.mTexCoord = glm::vec2(1.0f, 0.0f);
-
-	vertex3.mPos = glm::vec3(0.5f, 0.5f, 1.0f);
-	vertex3.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex3.mTexCoord = glm::vec2(1.0f, 1.0f);
-
-	vertex4.mPos = glm::vec3(-0.5f, 0.5f, 1.0f);
-	vertex4.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex4.mTexCoord = glm::vec2(0.0f, 1.0f);
-
-	glm::vec3 tangent1, tangent2, bitangent1, bitangent2;
-
-	{
-		VertexWithTangent vertex1TMP = vertex1, vertex2TMP = vertex2, vertex3TMP = vertex3;
-		VertexWithTangent::calculateTangAndBitanForTriangle(vertex1TMP, vertex2TMP, vertex3TMP);
-		tangent1 = vertex1TMP.mTangent;
-		bitangent1 = vertex1TMP.mBitangent;
-	}
-
-	{
-		VertexWithTangent vertex2TMP = vertex2, vertex3TMP = vertex3, vertex4TMP = vertex4;
-		VertexWithTangent::calculateTangAndBitanForTriangle(vertex2TMP, vertex3TMP, vertex4TMP);
-		tangent2 = vertex2TMP.mTangent;
-		bitangent2 = vertex2TMP.mBitangent;
-	}
-
-	vertex1.mTangent = tangent1;
-	vertex1.mBitangent = bitangent1;
-	vertex4.mTangent = tangent2;
-	vertex4.mBitangent = bitangent2;
-
-	vertex2.mTangent = glm::normalize(tangent1 + tangent2);
-	vertex2.mBitangent = glm::normalize(bitangent1 + bitangent2);
-
-	vertex3.mTangent = glm::normalize(tangent1 + tangent2);
-	vertex3.mBitangent = glm::normalize(bitangent1 + bitangent2);
-
-	verticesWithTangent.push_back(vertex1);
-	verticesWithTangent.push_back(vertex2);
-	verticesWithTangent.push_back(vertex3);
-	verticesWithTangent.push_back(vertex4);
-
-	return verticesWithTangent;
 }
 
 Cube::Cube(const std::pair<Texture2&, Texture2&>& pTexture,
