@@ -13,6 +13,8 @@
 class Primitive
 {
 public:
+	struct vertexContainerForTangentVertices;
+public:
 	Primitive() = default;
 	virtual ~Primitive() = default;
 
@@ -35,14 +37,22 @@ public:
 	Texture2& getSingleTex() noexcept;
 	
 protected:
-	const std::vector<VertexWithTangent>& getVerticesWithTangentForQuad() noexcept;
-	const std::vector<VertexWithTangent>& getVerticesWithTangentForTriangle() noexcept;
+	const std::vector<VertexWithTangent>& getVerticesWithTangent(const std::vector<vertexContainerForTangentVertices>& pVertices);
+
+private:
+	struct vertexContainerForTangentVertices
+	{
+		glm::vec3 mPos;
+		glm::vec3 mNormal;
+		glm::vec2 mUV;
+	};
 
 private:
 	Texture2 mTexture;
 	uint32_t mSlot;
 	std::vector<Vertex> mVertexStrg;
 	std::vector<VertexWithTangent> mVertexWithTangentStrg;
+	std::vector<VertexWithTangent> mCachedResult;
 	std::vector<uint32_t> mIndexStrg;
 
 	std::pair<uint32_t, uint32_t> mTexSlots{};
@@ -54,7 +64,7 @@ class Triangle : public Primitive
 public:
 	Triangle(const std::pair<Texture2&, Texture2&>& pTexture,
 			 std::pair<uint32_t, uint32_t> pSlots);
-	Triangle(Texture2& pTexture, uint32_t pSlot);
+	Triangle(Texture2& pTexture, uint32_t pSlot, bool pWithTangent = false);
 	Triangle(const std::pair<Texture2&, Texture2&>& pTexture,
 			 std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Triangle(const glm::vec4& pColor);
@@ -66,7 +76,7 @@ class Pyramid : public Primitive
 public:
 	Pyramid(const std::pair<Texture2&, Texture2&>& pTexture,
 			std::pair<uint32_t, uint32_t> pSlots);
-	Pyramid(Texture2& pTexture, uint32_t pSlot);
+	Pyramid(Texture2& pTexture, uint32_t pSlot, bool pWithTangent = false);
 	Pyramid(const std::pair<Texture2&, Texture2&>& pTexture,
 		    std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Pyramid(const glm::vec4& pColor);
@@ -89,7 +99,7 @@ class Cube : public Primitive
 public:
 	Cube(const std::pair<Texture2&, Texture2&>& pTexture,
 		 std::pair<uint32_t, uint32_t> pSlots, bool pForSkybox);
-	Cube(Texture2& pTexture, uint32_t pSlot, bool pForSkybox);
+	Cube(Texture2& pTexture, uint32_t pSlot, bool pForSkybox, bool pWithTangent = false);
 	Cube(const std::pair<Texture2&, Texture2&>& pTexture,
 		 std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Cube(const glm::vec4& pColor);

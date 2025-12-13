@@ -61,88 +61,43 @@ Texture2& Primitive::getSingleTex() noexcept
 	return mTexture;
 }
 
-const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangentForQuad() noexcept
+const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangent(const std::vector<Primitive::vertexContainerForTangentVertices>& pVertices)
 {
-	std::vector<VertexWithTangent> verticesWithTangent;
-	verticesWithTangent.reserve(4);
-
-	VertexWithTangent vertex1, vertex2, vertex3, vertex4;
-	vertex1.mPos = glm::vec3(-0.5f, -0.5f, 1.0f);
-	vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex1.mTexCoord = glm::vec2(0.0f, 0.0f);
-
-	vertex2.mPos = glm::vec3(0.5f, -0.5f, 1.0f);
-	vertex2.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex2.mTexCoord = glm::vec2(1.0f, 0.0f);
-
-	vertex3.mPos = glm::vec3(0.5f, 0.5f, 1.0f);
-	vertex3.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex3.mTexCoord = glm::vec2(1.0f, 1.0f);
-
-	vertex4.mPos = glm::vec3(-0.5f, 0.5f, 1.0f);
-	vertex4.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex4.mTexCoord = glm::vec2(0.0f, 1.0f);
-
-	glm::vec3 tangent1, tangent2, bitangent1, bitangent2;
-
+	std::vector<VertexWithTangent> verticesWithTangent(pVertices.size());
+	for (size_t i = 0; i < pVertices.size(); ++i)
 	{
-		VertexWithTangent vertex1TMP = vertex1, vertex2TMP = vertex2, vertex3TMP = vertex3;
-		VertexWithTangent::calculateTangAndBitanForTriangle(vertex1TMP, vertex2TMP, vertex3TMP);
-		tangent1 = vertex1TMP.mTangent;
-		bitangent1 = vertex1TMP.mBitangent;
+		verticesWithTangent[i].mPos      = pVertices[i].mPos;
+		verticesWithTangent[i].mNormal   = pVertices[i].mNormal;
+		verticesWithTangent[i].mTexCoord = pVertices[i].mUV;
 	}
 
+	if (verticesWithTangent.size() == 3)
 	{
-		VertexWithTangent vertex2TMP = vertex2, vertex3TMP = vertex3, vertex4TMP = vertex4;
-		VertexWithTangent::calculateTangAndBitanForTriangle(vertex2TMP, vertex3TMP, vertex4TMP);
-		tangent2 = vertex2TMP.mTangent;
-		bitangent2 = vertex2TMP.mBitangent;
+		VertexWithTangent::calculateTangAndBitanForTriangle(verticesWithTangent[0],
+															verticesWithTangent[1],
+															verticesWithTangent[2]);
+		mCachedResult = std::move(verticesWithTangent);
+		return mCachedResult;
 	}
 
-	vertex1.mTangent = tangent1;
-	vertex1.mBitangent = bitangent1;
-	vertex4.mTangent = tangent2;
-	vertex4.mBitangent = bitangent2;
+	std::vector<VertexWithTangent> tileOfVertices;
+	tileOfVertices.reserve((pVertices.size() - 2) * 3);
+	
+	for (size_t i = 0; i < verticesWithTangent.size() - 1; ++i)
+	{
+		VertexWithTangent vertex1 = verticesWithTangent[0];
+		VertexWithTangent vertex2 = verticesWithTangent[i];
+		VertexWithTangent vertex3 = verticesWithTangent[i + 1];
 
-	vertex2.mTangent = glm::normalize(tangent1 + tangent2);
-	vertex2.mBitangent = glm::normalize(bitangent1 + bitangent2);
+		VertexWithTangent::calculateTangAndBitanForTriangle(vertex1, vertex2, vertex3);
 
-	vertex3.mTangent = glm::normalize(tangent1 + tangent2);
-	vertex3.mBitangent = glm::normalize(bitangent1 + bitangent2);
+		tileOfVertices.push_back(vertex1);
+		tileOfVertices.push_back(vertex2);
+		tileOfVertices.push_back(vertex3);
+	}
 
-	verticesWithTangent.push_back(vertex1);
-	verticesWithTangent.push_back(vertex2);
-	verticesWithTangent.push_back(vertex3);
-	verticesWithTangent.push_back(vertex4);
-
-	return verticesWithTangent;
-}
-
-const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangentForTriangle() noexcept
-{
-	std::vector<VertexWithTangent> verticesWithTangent;
-	verticesWithTangent.reserve(3);
-
-	VertexWithTangent vertex1, vertex2, vertex3;
-	vertex1.mPos = glm::vec3(-0.5f, -0.5f, 0.0f);
-	vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex1.mTexCoord = glm::vec2(0.0f, 0.0f);
-
-	vertex2.mPos = glm::vec3(0.5f, -0.5f, 0.0f);
-	vertex2.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex2.mTexCoord = glm::vec2(1.0f, 0.0f);
-
-	vertex3.mPos = glm::vec3(0.5f, 0.5f, 0.0f);
-	vertex3.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-	vertex3.mTexCoord = glm::vec2(1.0f, 1.0f);
-
-	VertexWithTangent::calculateTangAndBitanForTriangle(vertex1, vertex2, vertex3);
-
-	verticesWithTangent.push_back(vertex1);
-	verticesWithTangent.push_back(vertex2);
-	verticesWithTangent.push_back(vertex3);
-
-	return verticesWithTangent;
+	mCachedResult = std::move(tileOfVertices);
+	return mCachedResult;
 }
 
 std::vector<Vertex>& Primitive::getVertexStrg() noexcept
@@ -319,7 +274,7 @@ Pyramid::Pyramid(const std::pair<Texture2&, Texture2&>& pTexture,
 	setIndexStrg(indices);
 }
 
-Pyramid::Pyramid(Texture2& pTexture, uint32_t pSlot)
+Pyramid::Pyramid(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(16);
@@ -685,7 +640,7 @@ Cube::Cube(const std::pair<Texture2&, Texture2&>& pTexture,
 	setIndexStrg(indices);
 }
 
-Cube::Cube(Texture2& pTexture, uint32_t pSlot, bool pForSkybox)
+Cube::Cube(Texture2& pTexture, uint32_t pSlot, bool pForSkybox, bool pWithTangent)
 {
 	std::vector<Vertex> vertices;
 	vertices.reserve(24);
