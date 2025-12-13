@@ -40,4 +40,4 @@ void main()
 	viewPos = uViewPos;
 
 	gl_Position = uProj * uViewMat * uModel * vec4(pos, 1.0f);
-}
+}	
