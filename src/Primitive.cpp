@@ -66,23 +66,29 @@ const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangent(const st
 	std::vector<VertexWithTangent> verticesWithTangent(pVertices.size());
 	for (size_t i = 0; i < pVertices.size(); ++i)
 	{
-		verticesWithTangent[i].mPos      = pVertices[i].mPos;
-		verticesWithTangent[i].mNormal   = pVertices[i].mNormal;
+		verticesWithTangent[i].mPos = pVertices[i].mPos;
+		verticesWithTangent[i].mNormal = pVertices[i].mNormal;
 		verticesWithTangent[i].mTexCoord = pVertices[i].mUV;
 	}
 
 	if (verticesWithTangent.size() == 3)
 	{
 		VertexWithTangent::calculateTangAndBitanForTriangle(verticesWithTangent[0],
-															verticesWithTangent[1],
-															verticesWithTangent[2]);
+			verticesWithTangent[1],
+			verticesWithTangent[2]);
 		mCachedResult = std::move(verticesWithTangent);
 		return mCachedResult;
 	}
 
-	std::vector<VertexWithTangent> tileOfVertices;
-	tileOfVertices.reserve((pVertices.size() - 2) * 3);
-	
+	if (verticesWithTangent.size() == 4)
+	{
+		return getVerticesWithTangentForQuad(pVertices);
+	}
+
+	std::vector<glm::vec3> tangentSumStorage(verticesWithTangent.size(), glm::vec3(0.0f));
+	std::vector<glm::vec3> bitangentSumStorage(verticesWithTangent.size(), glm::vec3(0.0f));
+	std::vector<uint32_t> countTangentAndBitangent(verticesWithTangent.size(), 0);
+
 	for (size_t i = 0; i < verticesWithTangent.size() - 1; ++i)
 	{
 		VertexWithTangent vertex1 = verticesWithTangent[0];
@@ -91,13 +97,87 @@ const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangent(const st
 
 		VertexWithTangent::calculateTangAndBitanForTriangle(vertex1, vertex2, vertex3);
 
-		tileOfVertices.push_back(vertex1);
-		tileOfVertices.push_back(vertex2);
-		tileOfVertices.push_back(vertex3);
+		tangentSumStorage[0]   += vertex1.mTangent;
+		bitangentSumStorage[0] += vertex1.mBitangent;
+		countTangentAndBitangent[0]++;
+
+		tangentSumStorage[i] += vertex2.mTangent;
+		bitangentSumStorage[i] += vertex2.mBitangent;
+		countTangentAndBitangent[i]++;
+
+		tangentSumStorage[i + 1] += vertex3.mTangent;
+		bitangentSumStorage[i + 1] += vertex3.mBitangent;
+		countTangentAndBitangent[i + 1]++;
 	}
 
-	mCachedResult = std::move(tileOfVertices);
+	for (size_t i = 0; i < verticesWithTangent.size(); ++i)
+	{
+		if (countTangentAndBitangent[i] > 0)
+		{
+			verticesWithTangent[i].mTangent   = glm::normalize(tangentSumStorage[i] / static_cast<float>(countTangentAndBitangent[i]));
+			verticesWithTangent[i].mBitangent = glm::normalize(bitangentSumStorage[i] / static_cast<float>(countTangentAndBitangent[i]));
+		}
+	}
+
+	mCachedResult = std::move(verticesWithTangent);
 	return mCachedResult;
+}
+
+const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangentForQuad(const std::vector<vertexContainerForTangentVertices>& pVertices) noexcept
+{
+	std::vector<VertexWithTangent> verticesWithTangent;
+	verticesWithTangent.reserve(4);
+
+	VertexWithTangent vertex1, vertex2, vertex3, vertex4;
+	vertex1.mPos      = pVertices[0].mPos;
+	vertex1.mNormal   = pVertices[0].mNormal;
+	vertex1.mTexCoord = pVertices[0].mUV;
+
+	vertex2.mPos	  = pVertices[1].mPos;
+	vertex2.mNormal   = pVertices[1].mNormal;
+	vertex2.mTexCoord = pVertices[1].mUV;
+
+	vertex3.mPos	  = pVertices[2].mPos;
+	vertex3.mNormal	  = pVertices[2].mNormal;
+	vertex3.mTexCoord = pVertices[2].mUV;
+
+	vertex4.mPos	  = pVertices[3].mPos;
+	vertex4.mNormal	  = pVertices[3].mNormal;
+	vertex4.mTexCoord = pVertices[3].mUV;
+	
+	glm::vec3 tangent1, tangent2, bitangent1, bitangent2;
+
+	{
+		VertexWithTangent vertex1TMP = vertex1, vertex2TMP = vertex2, vertex3TMP = vertex3;
+		VertexWithTangent::calculateTangAndBitanForTriangle(vertex1TMP, vertex2TMP, vertex3TMP);
+		tangent1 = vertex1TMP.mTangent;
+		bitangent1 = vertex1TMP.mBitangent;
+	}
+
+	{
+		VertexWithTangent vertex2TMP = vertex2, vertex3TMP = vertex3, vertex4TMP = vertex4;
+		VertexWithTangent::calculateTangAndBitanForTriangle(vertex2TMP, vertex3TMP, vertex4TMP);
+		tangent2 = vertex2TMP.mTangent;
+		bitangent2 = vertex2TMP.mBitangent;
+	}
+
+	vertex1.mTangent = tangent1;
+	vertex1.mBitangent = bitangent1;
+	vertex4.mTangent = tangent2;
+	vertex4.mBitangent = bitangent2;
+
+	vertex2.mTangent = glm::normalize(tangent1 + tangent2);
+	vertex2.mBitangent = glm::normalize(bitangent1 + bitangent2);
+
+	vertex3.mTangent = glm::normalize(tangent1 + tangent2);
+	vertex3.mBitangent = glm::normalize(bitangent1 + bitangent2);
+
+	verticesWithTangent.push_back(vertex1);
+	verticesWithTangent.push_back(vertex2);
+	verticesWithTangent.push_back(vertex3);
+	verticesWithTangent.push_back(vertex4);
+
+	return verticesWithTangent;
 }
 
 std::vector<Vertex>& Primitive::getVertexStrg() noexcept

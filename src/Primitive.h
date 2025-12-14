@@ -37,6 +37,7 @@ public:
 	Texture2& getSingleTex() noexcept;
 	
 protected:
+	const std::vector<VertexWithTangent>& getVerticesWithTangentForQuad(const std::vector<vertexContainerForTangentVertices>& pVertices) noexcept;
 	const std::vector<VertexWithTangent>& getVerticesWithTangent(const std::vector<vertexContainerForTangentVertices>& pVertices);
 
 private:
