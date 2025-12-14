@@ -225,28 +225,46 @@ Triangle::Triangle(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 	std::vector<Vertex> vertices;
 	vertices.reserve(3);
 	std::vector<VertexWithTangent> verticesWithTangent;
-	verticesWithTangent.reserve(3);
-	std::vector<uint32_t> indices;
-	indices.reserve(6 * 2);
+	std::vector<uint32_t> indices = { 0, 1, 2 };
 	setTexture(pTexture);
 
 	if (!pWithTangent)
 	{
 		vertices =
 		{
-			{glm::vec3(-0.5f, -0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-			{glm::vec3(0.5f, -0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-			{glm::vec3(0.0f,  0.5f, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+			{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+			{glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+			{glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), glm::vec2(0.5f, 1.0f)}, 
 		};
 	}
 	else
 	{
-		verticesWithTangent = getVerticesWithTangentForTriangle();
+		std::vector<vertexContainerForTangentVertices> vertexContainer;
+		vertexContainer.reserve(3);
+
+		vertexContainerForTangentVertices vertex1, vertex2, vertex3;
+		vertex1.mPos = glm::vec3(-0.5f, -0.5f, 0.0f);
+		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex1.mUV = glm::vec2(0.0f, 0.0f);
+
+		vertex2.mPos = glm::vec3(0.5f, -0.5f, 0.0f);
+		vertex2.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex2.mUV = glm::vec2(1.0f, 0.0f);
+
+		vertex3.mPos = glm::vec3(0.0f, 0.5f, 0.0f);  
+		vertex3.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex3.mUV = glm::vec2(0.5f, 1.0f);  
+
+		vertexContainer.push_back(vertex1);
+		vertexContainer.push_back(vertex2);
+		vertexContainer.push_back(vertex3);
+
+		verticesWithTangent = getVerticesWithTangent(vertexContainer);
+		// TODO: You're storing result by VALUE, but getVerticesWithTangent returns REFERENCE!
+		// This might cause issues if mCachedResult is modified later
 	}
-	indices =
-	{
-		0, 1, 2
-	};
+
+	indices = { 0, 1, 2 };
 
 	setTexSlot(pSlot);
 	if (!pWithTangent)
@@ -552,7 +570,34 @@ Quad::Quad(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 	}
 	else
 	{
-		verticesWithTangent = getVerticesWithTangentForQuad();
+		std::vector<vertexContainerForTangentVertices> vertexContainer;
+		vertexContainer.reserve(4);
+		vertexContainerForTangentVertices vertex1;
+		vertex1.mPos	= glm::vec3(-0.5f, -0.5f, 1.0f);
+		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex1.mUV		= glm::vec2(0.0f, 0.0f);
+
+		vertexContainerForTangentVertices vertex2;
+		vertex1.mPos	= glm::vec3(0.5f, -0.5f, 1.0f);
+		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex1.mUV		= glm::vec2(1.0f, 0.0f);
+
+		vertexContainerForTangentVertices vertex3;
+		vertex1.mPos	= glm::vec3(0.5f, 0.5f, 1.0f);
+		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex1.mUV		= glm::vec2(1.0f, 1.0f);
+
+		vertexContainerForTangentVertices vertex4;
+		vertex1.mPos	= glm::vec3(-0.5f, 0.5f, 1.0f);
+		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex1.mUV		= glm::vec2(0.0f, 1.0f);
+
+		vertexContainer.push_back(vertex1);
+		vertexContainer.push_back(vertex2);
+		vertexContainer.push_back(vertex3);
+		vertexContainer.push_back(vertex4);
+
+		verticesWithTangent = getVerticesWithTangentForQuad(vertexContainer);
 	}
 	indices =
 	{
