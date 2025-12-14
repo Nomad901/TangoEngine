@@ -89,7 +89,7 @@ const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangent(const st
 	std::vector<glm::vec3> bitangentSumStorage(verticesWithTangent.size(), glm::vec3(0.0f));
 	std::vector<uint32_t> countTangentAndBitangent(verticesWithTangent.size(), 0);
 
-	for (size_t i = 0; i < verticesWithTangent.size() - 1; ++i)
+	for (size_t i = 1; i < verticesWithTangent.size() - 1; ++i)
 	{
 		VertexWithTangent vertex1 = verticesWithTangent[0];
 		VertexWithTangent vertex2 = verticesWithTangent[i];
