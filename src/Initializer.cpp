@@ -86,10 +86,11 @@ void Initializer::initAll()
 														 resourcePath + "Shaders/waterFrag.glsl");
 
 	// normal mapping
-	mSceneManager->getProgramProperties().mNormalMapping.init(resourcePath + "Shaders/normalMappingVert.glsl",
-															  resourcePath + "Shaders/normalMappingFrag.glsl",
-															  resourcePath + "brickwall.png",
-															  resourcePath + "brickwall_normal.png");
+	mSceneManager->getProgramProperties().mNormalMapping = std::make_unique<NormalMapping>(resourcePath + "Shaders/normalMappingVert.glsl",
+																						   resourcePath + "Shaders/normalMappingFrag.glsl",
+																						   resourcePath + "brickwall.png",
+																						   resourcePath + "brickwall_normal.png",
+																						   NormalMapping::TypeOfPrimitive::QUAD);
 }
 
 void Initializer::initShaders()

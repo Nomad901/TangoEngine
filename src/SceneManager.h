@@ -110,7 +110,7 @@ public:
 		const float NEAR_PLANE = 0.1f;
 		const float FAR_PLANE  = 1000.0f;
 
-		NormalMapping<Quad> mNormalMapping;
+		std::unique_ptr<NormalMapping> mNormalMapping;
 
 		GBuffer mWaterGBuffer;
 

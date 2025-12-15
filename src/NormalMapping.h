@@ -7,24 +7,30 @@
 #include "Transform.h"
 #include "Primitive.h"
 
-template<typename T>
-concept primitiveClass = std::is_base_of_v<Primitive, T>;
-
-template<typename T>
-requires primitiveClass<T>
 class NormalMapping
 {
+public:
+	enum class TypeOfPrimitive : uint32_t
+	{
+		QUAD = 0,
+		TRIANGLE = 1,
+		CUBE = 2,
+		PYRAMID = 3
+	};
 public:
 	NormalMapping() = default;
 	NormalMapping(const std::filesystem::path& pVertShader,
 				  const std::filesystem::path& pFragShader,
 			      const std::filesystem::path& pDiffuseTexturePath,
-				  const std::filesystem::path& pNormalTexturePath);
+				  const std::filesystem::path& pNormalTexturePath,
+				  TypeOfPrimitive pTypeOfPrimitive);
+
 
 	void init(const std::filesystem::path& pVertShader,
 			  const std::filesystem::path& pFragShader,
 			  const std::filesystem::path& pDiffuseTexturePath,
-			  const std::filesystem::path& pNormalTexturePath);
+			  const std::filesystem::path& pNormalTexturePath, 
+			  TypeOfPrimitive pTypeOfPrimitive);
 
 	Shader& getShader() noexcept;
 	Mesh& getMesh() noexcept;
@@ -51,4 +57,3 @@ private:
 	Texture2 mDiffuseTexture;
 	Texture2 mNormalTexture;
 };
-

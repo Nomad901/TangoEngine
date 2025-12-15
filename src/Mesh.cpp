@@ -56,28 +56,7 @@ Mesh::Mesh(const std::vector<Vertex>& pVertices)
 
 Mesh::Mesh(const std::weak_ptr<Primitive>& pPrimitive, bool pWithTangent)
 {
-	if (!pWithTangent)
-	{
-		init(pPrimitive);
-	}
-	else
-	{
-		if (std::shared_ptr primitive = pPrimitive.lock())
-		{
-			mPrimitive = primitive;
-
-			mVAO.generate();
-			mVAO.bind();
-			mVBO.init(mPrimitive->getVertexWithTangentStrg(), GL_STATIC_DRAW);
-			mVBOLayout.pushLayout(GL_FLOAT, 3);
-			mVBOLayout.pushLayout(GL_FLOAT, 3);
-			mVBOLayout.pushLayout(GL_FLOAT, 2);
-			mVBOLayout.pushLayout(GL_FLOAT, 3);
-			mVBOLayout.pushLayout(GL_FLOAT, 3);
-			mVAO.addBuffer(mVBO, mVBOLayout);
-			mEBO.init(mPrimitive->getIndexStrg().data(), mPrimitive->getIndexStrg().size());
-		}
-	}
+	init(pPrimitive, pWithTangent);
 }
 
 void Mesh::init(const std::vector<Vertex>& pVertices, const std::vector<uint32_t>& pIndices)
@@ -114,23 +93,44 @@ void Mesh::init(const std::vector<Vertex>& pVertices)
 	mPrimitive->setVertexStrg(pVertices);
 }
 
-void Mesh::init(const std::weak_ptr<Primitive>& pPrimitive)
+void Mesh::init(const std::weak_ptr<Primitive>& pPrimitive, bool pWithTangent)
 {
-	if (std::shared_ptr primitive = pPrimitive.lock())
+	if (!pWithTangent)
 	{
-		mPrimitive = primitive;
+		if (std::shared_ptr primitive = pPrimitive.lock())
+		{
+			mPrimitive = primitive;
 
-		mVAO.generate();
-		mVAO.bind();
-		mVBO.init(mPrimitive->getVertexStrg(), GL_STATIC_DRAW);
-		mVBOLayout.pushLayout(GL_FLOAT, 3);
-		mVBOLayout.pushLayout(GL_FLOAT, 3);
-		mVBOLayout.pushLayout(GL_FLOAT, 4);
-		mVBOLayout.pushLayout(GL_FLOAT, 2);
-		mVBOLayout.pushLayout(GL_FLOAT, 1);
-		mVAO.addBuffer(mVBO, mVBOLayout);
-		mEBO.init(mPrimitive->getIndexStrg().data(), mPrimitive->getIndexStrg().size());
-	} 
+			mVAO.generate();
+			mVAO.bind();
+			mVBO.init(mPrimitive->getVertexStrg(), GL_STATIC_DRAW);
+			mVBOLayout.pushLayout(GL_FLOAT, 3);
+			mVBOLayout.pushLayout(GL_FLOAT, 3);
+			mVBOLayout.pushLayout(GL_FLOAT, 4);
+			mVBOLayout.pushLayout(GL_FLOAT, 2);
+			mVBOLayout.pushLayout(GL_FLOAT, 1);
+			mVAO.addBuffer(mVBO, mVBOLayout);
+			mEBO.init(mPrimitive->getIndexStrg().data(), mPrimitive->getIndexStrg().size());
+		} 
+	}
+	else
+	{
+		if (std::shared_ptr primitive = pPrimitive.lock())
+		{
+			mPrimitive = primitive;
+
+			mVAO.generate();
+			mVAO.bind();
+			mVBO.init(mPrimitive->getVertexWithTangentStrg(), GL_STATIC_DRAW);
+			mVBOLayout.pushLayout(GL_FLOAT, 3);
+			mVBOLayout.pushLayout(GL_FLOAT, 3);
+			mVBOLayout.pushLayout(GL_FLOAT, 2);
+			mVBOLayout.pushLayout(GL_FLOAT, 3);
+			mVBOLayout.pushLayout(GL_FLOAT, 3);
+			mVAO.addBuffer(mVBO, mVBOLayout);
+			mEBO.init(mPrimitive->getIndexStrg().data(), mPrimitive->getIndexStrg().size());
+		}
+	}
 }
 
 void Mesh::initInstancedData(const std::vector<glm::mat4>& pInstancedData, GLenum pUsage)

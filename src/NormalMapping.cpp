@@ -1,72 +1,83 @@
 #include "NormalMapping.h"
 
-template<typename T>
-NormalMapping<T>::NormalMapping(const std::filesystem::path& pVertShader,
-								const std::filesystem::path& pFragShader,
-								const std::filesystem::path& pDiffuseTexturePath, 
-								const std::filesystem::path& pNormalTexturePath)
+NormalMapping::NormalMapping(const std::filesystem::path& pVertShader,
+							 const std::filesystem::path& pFragShader,
+							 const std::filesystem::path& pDiffuseTexturePath, 
+							 const std::filesystem::path& pNormalTexturePath, 
+							 TypeOfPrimitive pTypeOfPrimitive)
 {
-	init(pVertShader, pFragShader, pTypeOfMesh, pDiffuseTexturePath, pNormalTexturePath);
+	init(pVertShader, pFragShader, pDiffuseTexturePath, pNormalTexturePath, pTypeOfPrimitive);
 }
 
-template<typename T>
-void NormalMapping<T>::init(const std::filesystem::path& pVertShader,
+void NormalMapping::init(const std::filesystem::path& pVertShader,
 						 const std::filesystem::path& pFragShader, 
 						 const std::filesystem::path& pDiffuseTexturePath,
-						 const std::filesystem::path& pNormalTexturePath)
+						 const std::filesystem::path& pNormalTexturePath,
+						 TypeOfPrimitive pTypeOfPrimitive)
 {
 	mDiffuseTexture.init(pDiffuseTexturePath);
 	mDiffuseTexture.setTarget(GL_TEXTURE_2D);	
 	mNormalTexture.init(pNormalTexturePath);
 	mNormalTexture.setTarget(GL_TEXTURE_2D);
 
-	std::shared_ptr<Primitive> primitive = std::make_shared<T>(mDiffuseTexture, 0, true);
-	mMesh.init(primitive);
+	std::shared_ptr<Primitive> primitive;
+	switch (pTypeOfPrimitive)
+	{
+	case NormalMapping::TypeOfPrimitive::QUAD:
+		primitive = std::make_shared<Quad>(mDiffuseTexture, 0, true);
+		break;
+	case NormalMapping::TypeOfPrimitive::TRIANGLE:
+		primitive = std::make_shared<Triangle>(mDiffuseTexture, 0, true);
+		break;
+	case NormalMapping::TypeOfPrimitive::CUBE:
+		primitive = std::make_shared<Cube>(mDiffuseTexture, 0, true);
+		break;
+	case NormalMapping::TypeOfPrimitive::PYRAMID:
+		primitive = std::make_shared<Pyramid>(mDiffuseTexture, 0, true);
+		break;
+	}
+	mMesh.init(primitive, true);
 	
 	mNormalMappingShader.init(pVertShader, pFragShader);
 }
 
-template<typename T>
-Shader& NormalMapping<T>::getShader() noexcept
+Shader& NormalMapping::getShader() noexcept
 {
 	return mNormalMappingShader;
 }
 
-template<typename T>
-Mesh& NormalMapping<T>::getMesh() noexcept
+Mesh& NormalMapping::getMesh() noexcept
 {
 	return mMesh;
 }
 
-template<typename T>
-Texture2& NormalMapping<T>::getDiffuseTexture() noexcept
+Texture2& NormalMapping::getDiffuseTexture() noexcept
 {
 	return mDiffuseTexture;
 }
 
-template<typename T>
-Texture2& NormalMapping<T>::getNormalTexture() noexcept
+Texture2& NormalMapping::getNormalTexture() noexcept
 {
 	return mNormalTexture;
 }
 
-template<typename T>
-void NormalMapping<T>::render(Transform& pTransform,
-							  const glm::mat4& pViewMatrix,
-							  const glm::mat4& pProjMatrix,
-							  const glm::vec3& pPosLight,
-							  const glm::vec3& pPosCamera)
+void NormalMapping::render(Transform& pTransform,
+						   const glm::mat4& pViewMatrix,
+						   const glm::mat4& pProjMatrix,
+						   const glm::vec3& pPosLight,
+						   const glm::vec3& pPosCamera)
 {
 	bindAll(pTransform, pViewMatrix, pProjMatrix, pPosLight, pPosCamera);
+	glDisable(GL_CULL_FACE);
 	mMesh.draw();
+	glEnable(GL_CULL_FACE);
 }
 
-template<typename T>
-void NormalMapping<T>::bindAll(Transform& pTransform,
-							   const glm::mat4& pViewMatrix,
-							   const glm::mat4& pProjMatrix,
-							   const glm::vec3& pPosLight,
-							   const glm::vec3& pPosCamera)
+void NormalMapping::bindAll(Transform& pTransform,
+							const glm::mat4& pViewMatrix,
+							const glm::mat4& pProjMatrix,
+							const glm::vec3& pPosLight,
+							const glm::vec3& pPosCamera)
 {
 	mNormalMappingShader.bind();
 

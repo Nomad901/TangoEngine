@@ -30,7 +30,7 @@ public:
 	void init(const std::vector<Vertex>& pVertices,
 			  const std::vector<uint32_t>& pIndices);
 	void init(const std::vector<Vertex>& pVertices);
-	void init(const std::weak_ptr<Primitive>& pPrimitive);
+	void init(const std::weak_ptr<Primitive>& pPrimitive, bool pWithTangent = false);
 	
 	void initInstancedData(const std::vector<glm::mat4>& pInstancedData, GLenum pUsage);
 
