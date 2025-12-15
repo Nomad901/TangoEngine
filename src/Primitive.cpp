@@ -422,8 +422,8 @@ Pyramid::Pyramid(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 		allVertices.reserve((4 * 3) + 4);
 
 		allVertices.insert(allVertices.end(),
-						   baseVertices.begin(),
-						   baseVertices.end());
+						   baseWithTangent.begin(),
+						   baseWithTangent.end());
 
 		glm::vec3 vertex0Pos = mBasePosition[0];
 		glm::vec3 vertex1Pos = mBasePosition[1];
@@ -657,24 +657,24 @@ Quad::Quad(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 	}
 	else
 	{
-		std::vector<vertexContainerForTangentVertices> vertexContainer;
+		std::vector<Primitive::vertexContainerForTangentVertices> vertexContainer;
 		vertexContainer.reserve(4);
-		vertexContainerForTangentVertices vertex1;
+		Primitive::vertexContainerForTangentVertices vertex1;
 		vertex1.mPos	= glm::vec3(-0.5f, -0.5f, 1.0f);
 		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex1.mUV		= glm::vec2(0.0f, 0.0f);
 
-		vertexContainerForTangentVertices vertex2;
+		Primitive::vertexContainerForTangentVertices vertex2;
 		vertex1.mPos	= glm::vec3(0.5f, -0.5f, 1.0f);
 		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex1.mUV		= glm::vec2(1.0f, 0.0f);
 
-		vertexContainerForTangentVertices vertex3;
+		Primitive::vertexContainerForTangentVertices vertex3;
 		vertex1.mPos	= glm::vec3(0.5f, 0.5f, 1.0f);
 		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex1.mUV		= glm::vec2(1.0f, 1.0f);
 
-		vertexContainerForTangentVertices vertex4;
+		Primitive::vertexContainerForTangentVertices vertex4;
 		vertex1.mPos	= glm::vec3(-0.5f, 0.5f, 1.0f);
 		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex1.mUV		= glm::vec2(0.0f, 1.0f);
@@ -862,38 +862,45 @@ Cube::Cube(Texture2& pTexture, uint32_t pSlot, bool pForSkybox, bool pWithTangen
 
 	if (!pForSkybox)
 	{
-		vertices =
+		if (!pWithTangent)
 		{
-			{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-			{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-			{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-			{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+			vertices =
+			{
+				{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+				{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+				{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+				{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
 
-			{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-			{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-			{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-			{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+				{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+				{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+				{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+				{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
 
-			{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-			{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-			{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-			{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+				{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+				{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+				{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+				{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
 
-			{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-			{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-			{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-			{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+				{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+				{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+				{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+				{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
 
-			{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-			{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-			{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-			{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+				{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
+				{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+				{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+				{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
 
-			{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-			{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-			{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-			{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
-		};
+				{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+				{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+				{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+				{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+			};
+		}
+		else
+		{
+
+		}
 	}
 	else
 	{
@@ -1072,6 +1079,86 @@ Cube::Cube(const glm::vec4& pColor)
 
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
+}
+
+void Cube::initBaseParameters()
+{
+	mBasePositions.clear();
+	mBaseUV.clear();
+	mBasePositions.reserve(24);
+	mBaseUV.reserve(24);
+
+	// vertex 1
+	{
+		mBasePositions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 0.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, -0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 0.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, 0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 1.0f));
+		mBasePositions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 1.0f));
+	}
+	// vertex 2
+	{
+		mBasePositions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 0.0f));
+		mBasePositions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 1.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, 0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 1.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, -0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 0.0f));
+	}
+	// vertex 3
+	{
+		mBasePositions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 0.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, 0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 0.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, 0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 1.0f));
+		mBasePositions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 1.0f));
+	}
+	// vertex 4
+	{
+		mBasePositions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 1.0f));
+		mBasePositions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 0.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, -0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 0.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); 
+		mBaseUV.push_back(glm::vec2(1.0f, 1.0f));
+	}
+	// vertex 5
+	{
+		mBasePositions.push_back(glm::vec3(0.5f, -0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 0.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, 0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 1.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, 0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 1.0f));
+		mBasePositions.push_back(glm::vec3(0.5f, -0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 0.0f));
+	}
+	// vertex 6
+	{
+		mBasePositions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 0.0f));  
+		mBasePositions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 0.0f));
+		mBasePositions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f));
+		mBaseUV.push_back(glm::vec2(0.0f, 1.0f));
+		mBasePositions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f));
+		mBaseUV.push_back(glm::vec2(1.0f, 1.0f));
+	}
+}
+
+std::vector<VertexWithTangent> Cube::getTangentCubeVertices()
+{
+	return std::vector<VertexWithTangent>();
 }
 
 Sphere::Sphere(const std::pair<Texture2&, Texture2&>& pTexture, 

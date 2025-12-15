@@ -113,7 +113,13 @@ public:
 	Cube(const std::pair<Texture2&, Texture2&>& pTexture,
 		 std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Cube(const glm::vec4& pColor);
+private:
+	void initBaseParameters();
+	std::vector<VertexWithTangent> getTangentCubeVertices();
 
+private:
+	std::vector<glm::vec3> mBasePositions;
+	std::vector<glm::vec2> mBaseUV;
 };
 
 class Sphere : public Primitive
