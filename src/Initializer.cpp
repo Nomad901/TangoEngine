@@ -84,6 +84,12 @@ void Initializer::initAll()
 														 mSceneManager->getProgramProperties().mWindowHeight,
 														 resourcePath + "Shaders/waterVert.glsl",
 														 resourcePath + "Shaders/waterFrag.glsl");
+
+	// normal mapping
+	mSceneManager->getProgramProperties().mNormalMapping.init(resourcePath + "Shaders/normalMappingVert.glsl",
+															  resourcePath + "Shaders/normalMappingFrag.glsl",
+															  resourcePath + "brickwall.png",
+															  resourcePath + "brickwall_normal.png");
 }
 
 void Initializer::initShaders()
@@ -110,10 +116,6 @@ void Initializer::initShaders()
 	// debug shader
 	mSceneManager->getProgramProperties().mShaders.pushShader("debugShader", resourcePath + "Shaders/debugVert.glsl", 
 																			 resourcePath + "Shaders/debugFrag.glsl");
-
-	// normal map test
-	mSceneManager->getProgramProperties().mShaders.pushShader("normalMapping", resourcePath + "Shaders/normalMappingVert.glsl",
-																			   resourcePath + "Shaders/normalMappingFrag.glsl");
 }
 
 void Initializer::initTextures()
@@ -132,17 +134,6 @@ void Initializer::initPrimitives()
 	//mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost2", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	//mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost3", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	//mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("lightPost4", std::make_shared<Quad>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-
-	mSceneManager->getModelProperties().mTextureManager.pushTexture("brickWall", 
-										std::make_unique<Texture2>(mSceneManager->getProgramProperties().mResourcePath + "brickwall.png"));
-	mSceneManager->getModelProperties().mTextureManager.getTexture("brickWall").setTarget(GL_TEXTURE_2D);
-	mSceneManager->getModelProperties().mTextureManager.pushTexture("brickWallNormal",
-										std::make_unique<Texture2>(mSceneManager->getProgramProperties().mResourcePath + "brickwall_normal.png"));
-	mSceneManager->getModelProperties().mTextureManager.getTexture("brickWallNormal").setTarget(GL_TEXTURE_2D);
-
-	mSceneManager->getModelProperties().mPrimitivesManager.pushPrimitive("plane", 
-										std::make_unique<Quad>(mSceneManager->getModelProperties().mTextureManager.getTexture("brickWall"), 0, true));
-	mSceneManager->getModelProperties().mPrimitivesManager.getPrimitive("plane")->getSingleTex().setTarget(GL_TEXTURE_2D);
 }
 
 void Initializer::initMeshes()
@@ -160,8 +151,6 @@ void Initializer::initMeshes()
 	//mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost3", std::make_unique<Mesh>(light3));
 	//std::weak_ptr<Primitive> light4 = mSceneManager->getModelProperties().mPrimitivesManager["lightPost4"];
 	//mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("lightPost4", std::make_unique<Mesh>(light4));
-	std::weak_ptr<Primitive> plane = mSceneManager->getModelProperties().mPrimitivesManager["plane"];
-	mSceneManager->getModelProperties().mFactoryMeshes.pushMesh("brickWall", std::make_unique<Mesh>(plane, true));
 }
 
 void Initializer::initModels()

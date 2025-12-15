@@ -5,39 +5,46 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Transform.h"
+#include "Primitive.h"
 
+template<typename T>
+concept primitiveClass = std::is_base_of_v<Primitive, T>;
+
+template<typename T>
+requires primitiveClass<T>
 class NormalMapping
 {
-public:
-	enum class typeOfMesh : uint32_t
-	{
-		QUAD = 0,
-		TRIANGLE = 1,
-		CUBE = 2,
-		PYRAMID = 3
-	};
 public:
 	NormalMapping() = default;
 	NormalMapping(const std::filesystem::path& pVertShader,
 				  const std::filesystem::path& pFragShader,
-				  typeOfMesh pTypeOfMesh,
-				  const Transform& pTransform);
+			      const std::filesystem::path& pDiffuseTexturePath,
+				  const std::filesystem::path& pNormalTexturePath);
 
 	void init(const std::filesystem::path& pVertShader,
 			  const std::filesystem::path& pFragShader,
-			  typeOfMesh pTypeOfMesh,
-			  const Transform& pTransform);
+			  const std::filesystem::path& pDiffuseTexturePath,
+			  const std::filesystem::path& pNormalTexturePath);
 
 	Shader& getShader() noexcept;
 	Mesh& getMesh() noexcept;
-
-	void render();
+	Texture2& getDiffuseTexture() noexcept;
+	Texture2& getNormalTexture() noexcept;
+	
+	void render(Transform& pTransform,
+				const glm::mat4& pViewMatrix,
+				const glm::mat4& pProjMatrix,
+				const glm::vec3& pPosLight,
+				const glm::vec3& pPosCamera);
 
 private:
-	void bindAll();
+	void bindAll(Transform& pTransform,
+				 const glm::mat4& pViewMatrix,
+				 const glm::mat4& pProjMatrix,
+				 const glm::vec3& pPosLight,
+				 const glm::vec3& pPosCamera);
 	
 private:
-	Transform mMeshTransform;
 	Shader mNormalMappingShader;
 	Mesh mMesh;
 

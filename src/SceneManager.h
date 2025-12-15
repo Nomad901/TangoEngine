@@ -42,6 +42,7 @@
 #include "DeferredLightSystem.h"
 #include "WaterRenderer.h"
 #include "WaterSSR.h"
+#include "NormalMapping.h"
 
 class Renderer;
 
@@ -108,6 +109,8 @@ public:
 
 		const float NEAR_PLANE = 0.1f;
 		const float FAR_PLANE  = 1000.0f;
+
+		NormalMapping<Quad> mNormalMapping;
 
 		GBuffer mWaterGBuffer;
 
