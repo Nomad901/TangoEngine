@@ -61,7 +61,7 @@ Texture2& Primitive::getSingleTex() noexcept
 	return mTexture;
 }
 
-const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangent(const std::vector<Primitive::vertexContainerForTangentVertices>& pVertices)
+std::vector<VertexWithTangent> Primitive::getVerticesWithTangent(const std::vector<Primitive::vertexContainerForTangentVertices>& pVertices)
 {
 	std::vector<VertexWithTangent> verticesWithTangent(pVertices.size());
 	for (size_t i = 0; i < pVertices.size(); ++i)
@@ -74,21 +74,18 @@ const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangent(const st
 	if (verticesWithTangent.size() == 3)
 	{
 		VertexWithTangent::calculateTangAndBitanForTriangle(verticesWithTangent[0],
-			verticesWithTangent[1],
-			verticesWithTangent[2]);
-		mCachedResult = std::move(verticesWithTangent);
-		return mCachedResult;
+															verticesWithTangent[1],
+															verticesWithTangent[2]);
+		return verticesWithTangent;
 	}
 
 	if (verticesWithTangent.size() == 4)
-	{
 		return getVerticesWithTangentForQuad(pVertices);
-	}
 
 	std::vector<glm::vec3> tangentSumStorage(verticesWithTangent.size(), glm::vec3(0.0f));
 	std::vector<glm::vec3> bitangentSumStorage(verticesWithTangent.size(), glm::vec3(0.0f));
 	std::vector<uint32_t> countTangentAndBitangent(verticesWithTangent.size(), 0);
-
+	
 	for (size_t i = 1; i < verticesWithTangent.size() - 1; ++i)
 	{
 		VertexWithTangent vertex1 = verticesWithTangent[0];
@@ -119,14 +116,15 @@ const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangent(const st
 		}
 	}
 
-	mCachedResult = std::move(verticesWithTangent);
-	return mCachedResult;
+	return verticesWithTangent;
 }
 
-const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangentForQuad(const std::vector<vertexContainerForTangentVertices>& pVertices) noexcept
+std::vector<VertexWithTangent> Primitive::getVerticesWithTangentForQuad(const std::vector<vertexContainerForTangentVertices>& pVertices) noexcept
 {
-	std::vector<VertexWithTangent> verticesWithTangent;
-	verticesWithTangent.reserve(4);
+	assert(pVertices.size() == 4);
+
+	std::vector<VertexWithTangent> storageOfVertices;
+	storageOfVertices.reserve(4);
 
 	VertexWithTangent vertex1, vertex2, vertex3, vertex4;
 	vertex1.mPos      = pVertices[0].mPos;
@@ -150,34 +148,35 @@ const std::vector<VertexWithTangent>& Primitive::getVerticesWithTangentForQuad(c
 	{
 		VertexWithTangent vertex1TMP = vertex1, vertex2TMP = vertex2, vertex3TMP = vertex3;
 		VertexWithTangent::calculateTangAndBitanForTriangle(vertex1TMP, vertex2TMP, vertex3TMP);
-		tangent1 = vertex1TMP.mTangent;
+		tangent1   = vertex1TMP.mTangent;
 		bitangent1 = vertex1TMP.mBitangent;
 	}
 
 	{
-		VertexWithTangent vertex2TMP = vertex2, vertex3TMP = vertex3, vertex4TMP = vertex4;
-		VertexWithTangent::calculateTangAndBitanForTriangle(vertex2TMP, vertex3TMP, vertex4TMP);
-		tangent2 = vertex2TMP.mTangent;
-		bitangent2 = vertex2TMP.mBitangent;
+		VertexWithTangent vertex1TMP = vertex1, vertex3TMP = vertex3, vertex4TMP = vertex4;
+		VertexWithTangent::calculateTangAndBitanForTriangle(vertex1TMP, vertex3TMP, vertex4TMP);
+		tangent2   = vertex1TMP.mTangent;
+		bitangent2 = vertex1TMP.mBitangent;
 	}
 
-	vertex1.mTangent = tangent1;
-	vertex1.mBitangent = bitangent1;
-	vertex4.mTangent = tangent2;
-	vertex4.mBitangent = bitangent2;
+	vertex1.mTangent   = glm::normalize(tangent1 + tangent2);
+	vertex1.mBitangent = glm::normalize(bitangent1 + bitangent2);
 
-	vertex2.mTangent = glm::normalize(tangent1 + tangent2);
-	vertex2.mBitangent = glm::normalize(bitangent1 + bitangent2);
+	vertex2.mTangent   = tangent1;
+	vertex2.mBitangent = bitangent1;
 
-	vertex3.mTangent = glm::normalize(tangent1 + tangent2);
+	vertex3.mTangent   = glm::normalize(tangent1 + tangent2);
 	vertex3.mBitangent = glm::normalize(bitangent1 + bitangent2);
 
-	verticesWithTangent.push_back(vertex1);
-	verticesWithTangent.push_back(vertex2);
-	verticesWithTangent.push_back(vertex3);
-	verticesWithTangent.push_back(vertex4);
+	vertex4.mTangent   = tangent2;
+	vertex4.mBitangent = bitangent2;
 
-	return verticesWithTangent;
+	storageOfVertices.push_back(vertex1);
+	storageOfVertices.push_back(vertex2);
+	storageOfVertices.push_back(vertex3);
+	storageOfVertices.push_back(vertex4);
+
+	return storageOfVertices;
 }
 
 std::vector<Vertex>& Primitive::getVertexStrg() noexcept

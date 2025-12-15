@@ -37,8 +37,8 @@ public:
 	Texture2& getSingleTex() noexcept;
 	
 protected:
-	const std::vector<VertexWithTangent>& getVerticesWithTangentForQuad(const std::vector<vertexContainerForTangentVertices>& pVertices) noexcept;
-	const std::vector<VertexWithTangent>& getVerticesWithTangent(const std::vector<vertexContainerForTangentVertices>& pVertices);
+	std::vector<VertexWithTangent> getVerticesWithTangentForQuad(const std::vector<vertexContainerForTangentVertices>& pVertices) noexcept;
+	std::vector<VertexWithTangent> getVerticesWithTangent(const std::vector<vertexContainerForTangentVertices>& pVertices);
 
 public:
 	struct vertexContainerForTangentVertices
@@ -53,7 +53,6 @@ private:
 	uint32_t mSlot;
 	std::vector<Vertex> mVertexStrg;
 	std::vector<VertexWithTangent> mVertexWithTangentStrg;
-	std::vector<VertexWithTangent> mCachedResult;
 	std::vector<uint32_t> mIndexStrg;
 
 	std::pair<uint32_t, uint32_t> mTexSlots{};
