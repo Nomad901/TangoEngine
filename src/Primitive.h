@@ -80,7 +80,17 @@ public:
 	Pyramid(const std::pair<Texture2&, Texture2&>& pTexture,
 		    std::pair<uint32_t, uint32_t> pSlots, const glm::vec4& pColor);
 	Pyramid(const glm::vec4& pColor);
+private:
+	void initBaseParameters();
+	void createPyramidSideFace(std::vector<VertexWithTangent>& pVertices,
+							   const glm::vec3& pLeftBottomTriangle,
+							   const glm::vec3& pRightBottomTriangle,
+							   const glm::vec3& pApexPos,
+							   const glm::vec3& pNormal);
 
+private:
+	std::vector<glm::vec3> mBasePosition;
+	std::vector<glm::vec2> mBaseUV;
 };
 
 class Quad : public Primitive

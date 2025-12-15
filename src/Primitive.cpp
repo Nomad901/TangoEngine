@@ -224,6 +224,7 @@ Triangle::Triangle(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 	std::vector<Vertex> vertices;
 	vertices.reserve(3);
 	std::vector<VertexWithTangent> verticesWithTangent;
+	verticesWithTangent.reserve(3);
 	std::vector<uint32_t> indices = { 0, 1, 2 };
 	setTexture(pTexture);
 
@@ -259,8 +260,6 @@ Triangle::Triangle(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 		vertexContainer.push_back(vertex3);
 
 		verticesWithTangent = getVerticesWithTangent(vertexContainer);
-		// TODO: You're storing result by VALUE, but getVerticesWithTangent returns REFERENCE!
-		// This might cause issues if mCachedResult is modified later
 	}
 
 	indices = { 0, 1, 2 };
@@ -374,50 +373,88 @@ Pyramid::Pyramid(const std::pair<Texture2&, Texture2&>& pTexture,
 Pyramid::Pyramid(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 {
 	std::vector<Vertex> vertices;
-	vertices.reserve(16);
+	std::vector<VertexWithTangent> verticesWithTangent;
 	std::vector<uint32_t> indices;
-	indices.reserve(18);
 	setTexture(pTexture);
+	initBaseParameters();
 
-	vertices =
+	if (!pWithTangent)
 	{
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3(0.0f,  0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.5f, 1.0f)},
+		vertices.reserve(5);
+		vertices =
+		{
+			{mBasePosition[0], glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[0]},
+			{mBasePosition[1], glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[1]},
+			{mBasePosition[2], glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[2]},
+			{mBasePosition[3], glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[3]},
+			{mBasePosition[4], glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),	mBaseUV[4]}
+		};
 
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3(0.0f,  0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.5f, 1.0f)},
-
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3(0.0f,  0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.5f, 1.0f)},
-
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3(0.0f,  0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.5f, 1.0f)},
-	};
-
-	indices =
+		indices.reserve(18);
+		indices =
+		{
+			0, 1, 2, 
+			2, 3, 0,
+			0, 4, 1,
+			1, 4, 2,
+			2, 4, 3,
+			3, 4, 0
+		};
+	}
+	else
 	{
-		0, 1, 2,
-		2, 3, 0,
-		3, 2, 4,
-		1, 0, 4,
-		0, 3, 4,
-		2, 1, 4
-	};
+		std::vector<Primitive::vertexContainerForTangentVertices> baseVertices;
+		const size_t NUMBER_OF_BASE_VERTICES = 4;
+		baseVertices.reserve(NUMBER_OF_BASE_VERTICES);
+
+		for (size_t i = 0; i < NUMBER_OF_BASE_VERTICES; ++i)
+		{
+			Primitive::vertexContainerForTangentVertices vertex;
+			vertex.mPos = mBasePosition[i];
+			vertex.mNormal = glm::vec3(0.0f, -1.0f, 0.0f);
+			vertex.mUV = mBaseUV[i];
+			baseVertices.push_back(vertex);
+		}
+		
+		auto baseWithTangent = getVerticesWithTangent(baseVertices);
+
+		std::vector<VertexWithTangent> allVertices;
+		allVertices.reserve((4 * 3) + 4);
+
+		allVertices.insert(allVertices.end(),
+						   baseVertices.begin(),
+						   baseVertices.end());
+
+		glm::vec3 vertex0Pos = mBasePosition[0];
+		glm::vec3 vertex1Pos = mBasePosition[1];
+		glm::vec3 vertex2Pos = mBasePosition[2];
+		glm::vec3 vertex3Pos = mBasePosition[3];
+		glm::vec3 apexPos = mBasePosition[4];
+
+		glm::vec3 backNormal  = glm::vec3(0.0f, 0.0f, -1.0f);
+		glm::vec3 frontNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		glm::vec3 rightNormal = glm::vec3(1.0f, 0.0f, 0.0f);
+		glm::vec3 leftNormal  = glm::vec3(-1.0f, 0.0f, 0.0f);
+
+		createPyramidSideFace(allVertices, vertex0Pos, vertex1Pos, apexPos, backNormal);
+		createPyramidSideFace(allVertices, vertex1Pos, vertex2Pos, apexPos, rightNormal);
+		createPyramidSideFace(allVertices, vertex2Pos, vertex3Pos, apexPos, frontNormal);
+		createPyramidSideFace(allVertices, vertex3Pos, vertex0Pos, apexPos, leftNormal);
+
+		verticesWithTangent = std::move(allVertices);
+
+		indices.resize(verticesWithTangent.size());
+		for (size_t i = 0; i < indices.size(); ++i)
+		{
+			indices[i] = static_cast<uint32_t>(i);
+		}
+	}
 
 	setTexSlot(pSlot);
-	setVertexStrg(vertices);
+	if (!pWithTangent)
+		setVertexStrg(vertices);
+	else
+		setVertexWithTangentStrg(verticesWithTangent);
 	setIndexStrg(indices);
 }
 
@@ -518,6 +555,57 @@ Pyramid::Pyramid(const glm::vec4& pColor)
 
 	setVertexStrg(vertices);
 	setIndexStrg(indices);
+}
+
+void Pyramid::initBaseParameters()
+{
+	mBasePosition.reserve(5);
+	mBaseUV.reserve(5);
+
+	mBasePosition.push_back(glm::vec3(-0.5f, -0.5f, -0.5f));
+	mBaseUV.push_back(glm::vec2(0.0f, 0.0f));
+
+	mBasePosition.push_back(glm::vec3(0.5f, -0.5f, -0.5f));
+	mBaseUV.push_back(glm::vec2(1.0f, 0.0f));
+
+	mBasePosition.push_back(glm::vec3(0.5f, -0.5f, 0.5f));
+	mBaseUV.push_back(glm::vec2(1.0f, 1.0f));
+
+	mBasePosition.push_back(glm::vec3(-0.5f, -0.5f, 0.5f));
+	mBaseUV.push_back(glm::vec2(0.0f, 1.0f));
+
+	mBasePosition.push_back(glm::vec3(0.0f, 0.5f, 0.0f));
+	mBaseUV.push_back(glm::vec2(0.5f, 1.0f));
+}
+
+void Pyramid::createPyramidSideFace(std::vector<VertexWithTangent>& pVertices,
+									const glm::vec3& pLeftBottomTriangle, 
+									const glm::vec3& pRightBottomTriangle,
+									const glm::vec3& pApexPos, 
+									const glm::vec3& pNormal)
+{
+	std::vector<Primitive::vertexContainerForTangentVertices> usualVertices(3);
+	size_t index = 0;
+
+	usualVertices[index].mPos = pLeftBottomTriangle;
+	usualVertices[index].mNormal = pNormal;
+	usualVertices[index].mUV = glm::vec2(0.0f, 0.0f);
+	index++;
+
+	usualVertices[index].mPos = pRightBottomTriangle;
+	usualVertices[index].mNormal = pNormal;
+	usualVertices[index].mUV = glm::vec2(1.0f, 0.0f);
+	index++;
+	
+	usualVertices[index].mPos = pApexPos;
+	usualVertices[index].mNormal = pNormal;
+	usualVertices[index].mUV = glm::vec2(0.5f, 1.0f);
+
+	auto usualVerticesWithTangent = getVerticesWithTangent(usualVertices);
+
+	pVertices.insert(pVertices.end(),
+					 usualVerticesWithTangent.begin(),
+					 usualVerticesWithTangent.end());
 }
 
 Quad::Quad(const std::pair<Texture2&, Texture2&>& pTexture,
