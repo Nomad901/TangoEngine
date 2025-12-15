@@ -665,19 +665,19 @@ Quad::Quad(Texture2& pTexture, uint32_t pSlot, bool pWithTangent)
 		vertex1.mUV		= glm::vec2(0.0f, 0.0f);
 
 		Primitive::vertexContainerForTangentVertices vertex2;
-		vertex1.mPos	= glm::vec3(0.5f, -0.5f, 1.0f);
-		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-		vertex1.mUV		= glm::vec2(1.0f, 0.0f);
+		vertex2.mPos	= glm::vec3(0.5f, -0.5f, 1.0f);
+		vertex2.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex2.mUV		= glm::vec2(1.0f, 0.0f);
 
 		Primitive::vertexContainerForTangentVertices vertex3;
-		vertex1.mPos	= glm::vec3(0.5f, 0.5f, 1.0f);
-		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-		vertex1.mUV		= glm::vec2(1.0f, 1.0f);
+		vertex3.mPos	= glm::vec3(0.5f, 0.5f, 1.0f);
+		vertex3.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex3.mUV		= glm::vec2(1.0f, 1.0f);
 
 		Primitive::vertexContainerForTangentVertices vertex4;
-		vertex1.mPos	= glm::vec3(-0.5f, 0.5f, 1.0f);
-		vertex1.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-		vertex1.mUV		= glm::vec2(0.0f, 1.0f);
+		vertex4.mPos	= glm::vec3(-0.5f, 0.5f, 1.0f);
+		vertex4.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex4.mUV		= glm::vec2(0.0f, 1.0f);
 
 		vertexContainer.push_back(vertex1);
 		vertexContainer.push_back(vertex2);

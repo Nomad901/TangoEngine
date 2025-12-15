@@ -16,27 +16,26 @@ void NormalMapping::init(const std::filesystem::path& pVertShader,
 						 TypeOfPrimitive pTypeOfPrimitive)
 {
 	mDiffuseTexture.init(pDiffuseTexturePath);
-	mDiffuseTexture.setTarget(GL_TEXTURE_2D);	
 	mNormalTexture.init(pNormalTexturePath);
 	mNormalTexture.setTarget(GL_TEXTURE_2D);
 
-	std::shared_ptr<Primitive> primitive;
 	switch (pTypeOfPrimitive)
 	{
 	case NormalMapping::TypeOfPrimitive::QUAD:
-		primitive = std::make_shared<Quad>(mDiffuseTexture, 0, true);
+		mPrimitive = std::make_shared<Quad>(mDiffuseTexture, 0, true);
 		break;
 	case NormalMapping::TypeOfPrimitive::TRIANGLE:
-		primitive = std::make_shared<Triangle>(mDiffuseTexture, 0, true);
+		mPrimitive = std::make_shared<Triangle>(mDiffuseTexture, 0, true);
 		break;
 	case NormalMapping::TypeOfPrimitive::CUBE:
-		primitive = std::make_shared<Cube>(mDiffuseTexture, 0, true);
+		mPrimitive = std::make_shared<Cube>(mDiffuseTexture, 0, true);
 		break;
 	case NormalMapping::TypeOfPrimitive::PYRAMID:
-		primitive = std::make_shared<Pyramid>(mDiffuseTexture, 0, true);
+		mPrimitive = std::make_shared<Pyramid>(mDiffuseTexture, 0, true);
 		break;
 	}
-	mMesh.init(primitive, true);
+	mMesh.init(mPrimitive, true);
+	mPrimitive->getSingleTex().setTarget(GL_TEXTURE_2D);
 	
 	mNormalMappingShader.init(pVertShader, pFragShader);
 }
@@ -88,7 +87,7 @@ void NormalMapping::bindAll(Transform& pTransform,
 	mNormalMappingShader.setUniform3fv("uLightPos", pPosLight);
 	mNormalMappingShader.setUniform3fv("uViewPos", pPosCamera);
 
-	mDiffuseTexture.bind(0);
+	mPrimitive->getSingleTex().bind(0);
 	mNormalTexture.bind(1);
 	mNormalMappingShader.setUniform1i("uDiffuseMap", 0);
 	mNormalMappingShader.setUniform1i("uNormalMap", 1);

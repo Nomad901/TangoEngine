@@ -52,6 +52,7 @@ private:
 	
 private:
 	Shader mNormalMappingShader;
+	std::shared_ptr<Primitive> mPrimitive;
 	Mesh mMesh;
 
 	Texture2 mDiffuseTexture;
