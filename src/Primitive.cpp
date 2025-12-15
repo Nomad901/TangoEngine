@@ -855,7 +855,7 @@ Cube::Cube(const std::pair<Texture2&, Texture2&>& pTexture,
 Cube::Cube(Texture2& pTexture, uint32_t pSlot, bool pForSkybox, bool pWithTangent)
 {
 	std::vector<Vertex> vertices;
-	vertices.reserve(24);
+	std::vector<VertexWithTangent> verticesWithTangent;
 	std::vector<uint32_t> indices;
 	indices.reserve(36);
 	setTexture(pTexture);
@@ -864,46 +864,41 @@ Cube::Cube(Texture2& pTexture, uint32_t pSlot, bool pForSkybox, bool pWithTangen
 	{
 		if (!pWithTangent)
 		{
+			vertices.reserve(24);
 			vertices =
 			{
-				{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-				{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-				{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-				{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-
-				{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-				{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-				{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-				{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-
-				{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-				{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-				{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-				{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-
-				{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-				{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-				{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-				{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-
-				{glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)},
-				{glm::vec3(0.5f,  0.5f,  0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-				{glm::vec3(0.5f,  0.5f, -0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-				{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-
-				{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-				{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-				{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-				{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+				{mBasePositions[0], glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[0]},
+				{mBasePositions[1], glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[1]},
+				{mBasePositions[2], glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[2]},
+				{mBasePositions[3], glm::vec3(0.0f,  0.0f,  1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[3]},
+				{mBasePositions[4], glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[4]},
+				{mBasePositions[5], glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[5]},
+				{mBasePositions[6], glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[6]},
+				{mBasePositions[7], glm::vec3(0.0f,  0.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[7]},
+				{mBasePositions[8], glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[8]},
+				{mBasePositions[9], glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[9]},
+				{mBasePositions[10], glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[10]},
+				{mBasePositions[11], glm::vec3(0.0f,  1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[11]},
+				{mBasePositions[12], glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[12]},
+				{mBasePositions[13], glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[13]},
+				{mBasePositions[14], glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[14]},
+				{mBasePositions[15], glm::vec3(0.0f, -1.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[15]},
+				{mBasePositions[16], glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[16]},
+				{mBasePositions[17], glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[17]},
+				{mBasePositions[18], glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[18]},
+				{mBasePositions[19], glm::vec3(1.0f,  0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[19]},
+				{mBasePositions[20], glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[20]},
+				{mBasePositions[21], glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[21]},
+				{mBasePositions[22], glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[22]},
+				{mBasePositions[23], glm::vec3(-1.0f, 0.0f,  0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), mBaseUV[23]}
 			};
 		}
 		else
-		{
-
-		}
+			verticesWithTangent = getTangentCubeVertices();
 	}
 	else
 	{
+		vertices.reserve(24);
 		vertices =
 		{
 			{glm::vec3(-1.0f, -1.0f,  1.0f), glm::vec3(0.0f,  0.0f,  -1.0f), glm::vec4(1.0f), glm::vec2(0.0f, 0.0f)},
@@ -954,7 +949,10 @@ Cube::Cube(Texture2& pTexture, uint32_t pSlot, bool pForSkybox, bool pWithTangen
 	};
 
 	setTexSlot(pSlot);
-	setVertexStrg(vertices);
+	if (!pWithTangent)
+		setVertexStrg(vertices);
+	else
+		setVertexWithTangentStrg(verticesWithTangent);
 	setIndexStrg(indices);
 }
 
@@ -1158,7 +1156,57 @@ void Cube::initBaseParameters()
 
 std::vector<VertexWithTangent> Cube::getTangentCubeVertices()
 {
-	return std::vector<VertexWithTangent>();
+	std::vector<Primitive::vertexContainerForTangentVertices> usualVertices(mBasePositions.size());
+
+	for (size_t i = 0; i < usualVertices.size(); ++i)
+	{
+		Primitive::vertexContainerForTangentVertices vertex;
+		vertex.mPos = mBasePositions[i];
+		vertex.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex.mUV = mBaseUV[i];
+		usualVertices[i] = vertex;
+	}
+
+	auto usualVerticesWithTangent = getVerticesWithTangent(usualVertices);
+
+
+}
+
+void Cube::createCubeFace(std::vector<VertexWithTangent>& pVertexWithTangent, 
+						  const glm::vec3& pVertex1Pos, 
+						  const glm::vec3& pVertex2Pos,
+						  const glm::vec3& pVertex3Pos, 
+						  const glm::vec3& pVertex4Pos, 
+						  const glm::vec3& pNormal)
+{
+	std::vector<Primitive::vertexContainerForTangentVertices> usualVertices(4);
+	size_t index = 0;
+
+	usualVertices[index].mPos = pVertex1Pos;
+	usualVertices[index].mNormal = pNormal;
+	usualVertices[index].mUV = glm::vec2(0.0f, 0.0f);
+	index++;
+
+	usualVertices[index].mPos = pVertex2Pos;
+	usualVertices[index].mNormal = pNormal;
+	usualVertices[index].mUV = glm::vec2(1.0f, 0.0f);
+	index++;
+
+	usualVertices[index].mPos = pVertex1Pos;
+	usualVertices[index].mNormal = pNormal;
+	usualVertices[index].mUV = glm::vec2(1.0f, 1.0f);
+	index++;
+
+	usualVertices[index].mPos = pVertex1Pos;
+	usualVertices[index].mNormal = pNormal;
+	usualVertices[index].mUV = glm::vec2(0.0f, 1.0f);
+	index++;
+
+	auto verticesWithTangent = getVerticesWithTangent(usualVertices);
+
+	pVertexWithTangent.insert(pVertexWithTangent.end(),
+							  verticesWithTangent.begin(),
+							  verticesWithTangent.end());
 }
 
 Sphere::Sphere(const std::pair<Texture2&, Texture2&>& pTexture, 
