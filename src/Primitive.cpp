@@ -1156,57 +1156,47 @@ void Cube::initBaseParameters()
 
 std::vector<VertexWithTangent> Cube::getTangentCubeVertices()
 {
-	std::vector<Primitive::vertexContainerForTangentVertices> usualVertices(mBasePositions.size());
+	std::vector<VertexWithTangent> allVertices;
+	allVertices.reserve(mBasePositions.size());
 
-	for (size_t i = 0; i < usualVertices.size(); ++i)
+	std::array<glm::vec3, 6> normalsCube =
 	{
-		Primitive::vertexContainerForTangentVertices vertex;
-		vertex.mPos = mBasePositions[i];
-		vertex.mNormal = glm::vec3(0.0f, 0.0f, 1.0f);
-		vertex.mUV = mBaseUV[i];
-		usualVertices[i] = vertex;
+		glm::vec3(0.0f,  0.0f, -1.0f),
+		glm::vec3(0.0f,  0.0f,  1.0f),
+		glm::vec3(0.0f,  1.0f,  0.0f),
+		glm::vec3(0.0f, -1.0f,  0.0f),
+		glm::vec3(1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f, 0.0f,  0.0f),
+	};
+	
+	std::vector<Primitive::vertexContainerForTangentVertices> faceVertices;
+
+	const size_t NUMBER_OF_FACES = 6;
+	const size_t NUMBER_OF_VERTICES = 4;
+	for (size_t face = 0; face < NUMBER_OF_FACES; ++face)
+	{
+		size_t baseIndex = face * 4;
+		
+		faceVertices.clear();
+		faceVertices.reserve(NUMBER_OF_VERTICES);
+
+		for (size_t vertex = 0; vertex < NUMBER_OF_VERTICES; ++vertex)
+		{
+			size_t currentIndex = baseIndex + vertex;
+			Primitive::vertexContainerForTangentVertices tangentVertex;
+			tangentVertex.mPos = mBasePositions[currentIndex];
+			tangentVertex.mNormal = normalsCube[face];
+			tangentVertex.mUV = mBaseUV[currentIndex];
+			faceVertices.push_back(tangentVertex);
+		}
+
+		auto faceVerticesWithTangent = getVerticesWithTangent(faceVertices);
+
+		allVertices.insert(allVertices.end(),
+						   faceVerticesWithTangent.begin(),
+						   faceVerticesWithTangent.end());
 	}
-
-	auto usualVerticesWithTangent = getVerticesWithTangent(usualVertices);
-
-
-}
-
-void Cube::createCubeFace(std::vector<VertexWithTangent>& pVertexWithTangent, 
-						  const glm::vec3& pVertex1Pos, 
-						  const glm::vec3& pVertex2Pos,
-						  const glm::vec3& pVertex3Pos, 
-						  const glm::vec3& pVertex4Pos, 
-						  const glm::vec3& pNormal)
-{
-	std::vector<Primitive::vertexContainerForTangentVertices> usualVertices(4);
-	size_t index = 0;
-
-	usualVertices[index].mPos = pVertex1Pos;
-	usualVertices[index].mNormal = pNormal;
-	usualVertices[index].mUV = glm::vec2(0.0f, 0.0f);
-	index++;
-
-	usualVertices[index].mPos = pVertex2Pos;
-	usualVertices[index].mNormal = pNormal;
-	usualVertices[index].mUV = glm::vec2(1.0f, 0.0f);
-	index++;
-
-	usualVertices[index].mPos = pVertex1Pos;
-	usualVertices[index].mNormal = pNormal;
-	usualVertices[index].mUV = glm::vec2(1.0f, 1.0f);
-	index++;
-
-	usualVertices[index].mPos = pVertex1Pos;
-	usualVertices[index].mNormal = pNormal;
-	usualVertices[index].mUV = glm::vec2(0.0f, 1.0f);
-	index++;
-
-	auto verticesWithTangent = getVerticesWithTangent(usualVertices);
-
-	pVertexWithTangent.insert(pVertexWithTangent.end(),
-							  verticesWithTangent.begin(),
-							  verticesWithTangent.end());
+	return allVertices;
 }
 
 Sphere::Sphere(const std::pair<Texture2&, Texture2&>& pTexture, 

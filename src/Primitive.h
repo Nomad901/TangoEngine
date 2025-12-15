@@ -116,12 +116,6 @@ public:
 private:
 	void initBaseParameters();
 	std::vector<VertexWithTangent> getTangentCubeVertices();
-	void createCubeFace(std::vector<VertexWithTangent>& pVertexWithTangent,
-						const glm::vec3& pVertex1Pos,
-						const glm::vec3& pVertex2Pos,
-						const glm::vec3& pVertex3Pos,
-						const glm::vec3& pVertex4Pos, 
-						const glm::vec3& pNormal);
 
 private:
 	std::vector<glm::vec3> mBasePositions;
