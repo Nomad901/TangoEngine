@@ -88,9 +88,11 @@ void Initializer::initAll()
 	// normal mapping
 	mSceneManager->getProgramProperties().mNormalMapping = std::make_unique<NormalMapping>(resourcePath + "Shaders/normalMappingVert.glsl",
 																						   resourcePath + "Shaders/normalMappingFrag.glsl",
-																						   resourcePath + "brickwall.png",
-																						   resourcePath + "brickwall_normal.png",
-																						   NormalMapping::TypeOfPrimitive::QUAD);
+																						   resourcePath + "bricks2.png",
+																						   resourcePath + "bricks2_normal.png",
+																						   resourcePath + "bricks2_disp.png",
+																						   NormalMapping::TypeOfPrimitive::QUAD,
+																						   5.0f);
 }
 
 void Initializer::initShaders()

@@ -24,13 +24,26 @@ public:
 			      const std::filesystem::path& pDiffuseTexturePath,
 				  const std::filesystem::path& pNormalTexturePath,
 				  TypeOfPrimitive pTypeOfPrimitive);
-
+	NormalMapping(const std::filesystem::path& pVertShader,
+				  const std::filesystem::path& pFragShader,
+				  const std::filesystem::path& pDiffuseTexturePath,
+				  const std::filesystem::path& pNormalTexturePath,
+				  const std::filesystem::path& pDepthTexturePath,
+				  TypeOfPrimitive pTypeOfPrimitive,
+				  float pHeightScale);
 
 	void init(const std::filesystem::path& pVertShader,
 			  const std::filesystem::path& pFragShader,
 			  const std::filesystem::path& pDiffuseTexturePath,
 			  const std::filesystem::path& pNormalTexturePath, 
 			  TypeOfPrimitive pTypeOfPrimitive);
+	void initParallaxMapping(const std::filesystem::path& pVertShader,
+							 const std::filesystem::path& pFragShader,
+							 const std::filesystem::path& pDiffuseTexturePath,
+							 const std::filesystem::path& pNormalTexturePath,
+							 const std::filesystem::path& pDepthTexturePath,
+							 TypeOfPrimitive pTypeOfPrimitive,
+							 float pHeightScale);
 
 	Shader& getShader() noexcept;
 	Mesh& getMesh() noexcept;
@@ -42,7 +55,7 @@ public:
 				const glm::mat4& pProjMatrix,
 				const glm::vec3& pPosLight,
 				const glm::vec3& pPosCamera);
-
+	
 private:
 	void bindAll(Transform& pTransform,
 				 const glm::mat4& pViewMatrix,
@@ -51,10 +64,14 @@ private:
 				 const glm::vec3& pPosCamera);
 	
 private:
+	bool mParallaxMapping{ false };
+	float mHeightScale{ 1.0f };
+
 	Shader mNormalMappingShader;
 	std::shared_ptr<Primitive> mPrimitive;
 	Mesh mMesh;
 
 	Texture2 mDiffuseTexture;
 	Texture2 mNormalTexture;
+	Texture2 mDepthTexture;
 };

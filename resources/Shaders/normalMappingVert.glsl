@@ -22,6 +22,7 @@ uniform vec3 uViewPos;
 
 void main() 
 {
+	gl_Position = uProj * uViewMat * uModel * vec4(pos, 1.0f);
 	fragPos = vec3(uModel * vec4(pos, 1.0f));
 	fragTexCoord = texCoord;
 	
@@ -38,6 +39,4 @@ void main()
 
 	lightPos = uLightPos;
 	viewPos = uViewPos;
-
-	gl_Position = uProj * uViewMat * uModel * vec4(pos, 1.0f);
 }	

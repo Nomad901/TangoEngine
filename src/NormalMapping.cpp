@@ -9,12 +9,24 @@ NormalMapping::NormalMapping(const std::filesystem::path& pVertShader,
 	init(pVertShader, pFragShader, pDiffuseTexturePath, pNormalTexturePath, pTypeOfPrimitive);
 }
 
+NormalMapping::NormalMapping(const std::filesystem::path& pVertShader,
+							 const std::filesystem::path& pFragShader, 
+							 const std::filesystem::path& pDiffuseTexturePath, 
+							 const std::filesystem::path& pNormalTexturePath, 
+							 const std::filesystem::path& pDepthTexturePath, 
+							 TypeOfPrimitive pTypeOfPrimitive,
+							 float pHeightScale)
+{
+	initParallaxMapping(pVertShader, pFragShader, pDiffuseTexturePath, pNormalTexturePath, pDepthTexturePath, pTypeOfPrimitive, pHeightScale);
+}
+
 void NormalMapping::init(const std::filesystem::path& pVertShader,
 						 const std::filesystem::path& pFragShader, 
 						 const std::filesystem::path& pDiffuseTexturePath,
 						 const std::filesystem::path& pNormalTexturePath,
 						 TypeOfPrimitive pTypeOfPrimitive)
 {
+	mParallaxMapping = false;
 	mDiffuseTexture.init(pDiffuseTexturePath);
 	mNormalTexture.init(pNormalTexturePath);
 	mNormalTexture.setTarget(GL_TEXTURE_2D);
@@ -37,6 +49,43 @@ void NormalMapping::init(const std::filesystem::path& pVertShader,
 	mMesh.init(mPrimitive, true);
 	mPrimitive->getSingleTex().setTarget(GL_TEXTURE_2D);
 	
+	mNormalMappingShader.init(pVertShader, pFragShader);
+}
+
+void NormalMapping::initParallaxMapping(const std::filesystem::path& pVertShader,
+									    const std::filesystem::path& pFragShader, 
+									    const std::filesystem::path& pDiffuseTexturePath,
+									    const std::filesystem::path& pNormalTexturePath,
+									    const std::filesystem::path& pDepthTexturePath,
+									    TypeOfPrimitive pTypeOfPrimitive,
+										float pHeightScale)
+{
+	mParallaxMapping = true;
+	mHeightScale = pHeightScale;
+	mDiffuseTexture.init(pDiffuseTexturePath);
+	mNormalTexture.init(pNormalTexturePath);
+	mNormalTexture.setTarget(GL_TEXTURE_2D);
+	mDepthTexture.init(pDepthTexturePath);
+	mDepthTexture.setTarget(GL_TEXTURE_2D);
+	
+	switch (pTypeOfPrimitive)
+	{
+	case NormalMapping::TypeOfPrimitive::QUAD:
+		mPrimitive = std::make_shared<Quad>(mDiffuseTexture, 0, true);
+		break;
+	case NormalMapping::TypeOfPrimitive::TRIANGLE:
+		mPrimitive = std::make_shared<Triangle>(mDiffuseTexture, 0, true);
+		break;
+	case NormalMapping::TypeOfPrimitive::CUBE:
+		mPrimitive = std::make_shared<Cube>(mDiffuseTexture, 0, true);
+		break;
+	case NormalMapping::TypeOfPrimitive::PYRAMID:
+		mPrimitive = std::make_shared<Pyramid>(mDiffuseTexture, 0, true);
+		break;
+	}
+	mMesh.init(mPrimitive, true);
+	mPrimitive->getSingleTex().setTarget(GL_TEXTURE_2D);
+
 	mNormalMappingShader.init(pVertShader, pFragShader);
 }
 
@@ -91,4 +140,10 @@ void NormalMapping::bindAll(Transform& pTransform,
 	mNormalTexture.bind(1);
 	mNormalMappingShader.setUniform1i("uDiffuseMap", 0);
 	mNormalMappingShader.setUniform1i("uNormalMap", 1);
+	if (mParallaxMapping)
+	{
+		mDepthTexture.bind(2);
+		mNormalMappingShader.setUniform1i("uDepthMap", 2);
+		mNormalMappingShader.setUniform1f("uHeightScale", 1.0f);
+	}
 }
