@@ -92,7 +92,7 @@ void Initializer::initAll()
 																						   resourcePath + "bricks2_normal.png",
 																						   resourcePath + "bricks2_disp.png",
 																						   NormalMapping::TypeOfPrimitive::QUAD,
-																						   5.0f);
+																						   0.1f);
 }
 
 void Initializer::initShaders()

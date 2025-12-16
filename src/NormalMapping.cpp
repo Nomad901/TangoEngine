@@ -144,6 +144,6 @@ void NormalMapping::bindAll(Transform& pTransform,
 	{
 		mDepthTexture.bind(2);
 		mNormalMappingShader.setUniform1i("uDepthMap", 2);
-		mNormalMappingShader.setUniform1f("uHeightScale", 1.0f);
+		mNormalMappingShader.setUniform1f("uHeightScale", mHeightScale);
 	}
 }

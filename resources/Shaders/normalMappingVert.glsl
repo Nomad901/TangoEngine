@@ -39,4 +39,5 @@ void main()
 
 	lightPos = uLightPos;
 	viewPos = uViewPos;
+
 }	
