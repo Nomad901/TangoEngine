@@ -5,9 +5,9 @@ Texture2::Texture2(const std::filesystem::path& pPath, std::string_view pUniform
 	init(pPath, pUniformName, pRepeatTexture);
 }
 
-Texture2::Texture2(const std::filesystem::path& pPath, bool pRepeatTexture)
+Texture2::Texture2(const std::filesystem::path& pPath, bool pFlipTexture, bool pRepeatTexture)
 {
-	init(pPath, pRepeatTexture);
+	init(pPath, pFlipTexture, pRepeatTexture);
 }
 
 Texture2::Texture2(GLenum pTarget)
@@ -100,10 +100,10 @@ void Texture2::init(const std::filesystem::path& pPath, std::string_view pUnifor
 		stbi_image_free(mLocalBuffer);
 }
 
-void Texture2::init(const std::filesystem::path& pPath, bool pRepeatTexture)
+void Texture2::init(const std::filesystem::path& pPath, bool pFlipTexture, bool pRepeatTexture)
 {
 	mFilePath = pPath;
-	stbi_set_flip_vertically_on_load(1);
+	stbi_set_flip_vertically_on_load(pFlipTexture);
 	mLocalBuffer = stbi_load(pPath.string().c_str(), &mWidth, &mHeight, &mBPP, 4);
 	if (!mLocalBuffer)
 	{

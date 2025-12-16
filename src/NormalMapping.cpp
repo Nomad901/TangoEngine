@@ -27,8 +27,8 @@ void NormalMapping::init(const std::filesystem::path& pVertShader,
 						 TypeOfPrimitive pTypeOfPrimitive)
 {
 	mParallaxMapping = false;
-	mDiffuseTexture.init(pDiffuseTexturePath);
-	mNormalTexture.init(pNormalTexturePath);
+	mDiffuseTexture.init(pDiffuseTexturePath, true);
+	mNormalTexture.init(pNormalTexturePath, true);
 	mNormalTexture.setTarget(GL_TEXTURE_2D);
 
 	switch (pTypeOfPrimitive)
@@ -62,10 +62,10 @@ void NormalMapping::initParallaxMapping(const std::filesystem::path& pVertShader
 {
 	mParallaxMapping = true;
 	mHeightScale = pHeightScale;
-	mDiffuseTexture.init(pDiffuseTexturePath);
-	mNormalTexture.init(pNormalTexturePath);
+	mDiffuseTexture.init(pDiffuseTexturePath, false);
+	mNormalTexture.init(pNormalTexturePath, false);
 	mNormalTexture.setTarget(GL_TEXTURE_2D);
-	mDepthTexture.init(pDepthTexturePath);
+	mDepthTexture.init(pDepthTexturePath, false);
 	mDepthTexture.setTarget(GL_TEXTURE_2D);
 	
 	switch (pTypeOfPrimitive)

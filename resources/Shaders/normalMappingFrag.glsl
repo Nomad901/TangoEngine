@@ -18,15 +18,36 @@ uniform float uHeightScale;
 
 vec2 parallaxMapping(vec2 pTexCoords, vec3 pViewDir)
 {
-	float height = texture(uDepthMap, pTexCoords).r;
-	vec2 parallax = pViewDir.xy / pViewDir.z * (height * uHeightScale);
-	return pTexCoords - parallax;
+	const float NUMBER_OF_LAYERS = 10;
+
+	float layerDepth = 1.0f / NUMBER_OF_LAYERS;
+	float currentLayerDepth = 0.0f;
+
+	vec2 p = pViewDir.xy * uHeightScale;
+	vec2 deltaTexCoords = p / NUMBER_OF_LAYERS;
+	
+	vec2 currentTexCoords = pTexCoords;
+	float currentDepthValue = texture(uDepthMap, currentTexCoords).r;
+
+	while (currentLayerDepth < currentDepthValue)
+	{
+		currentTexCoords -= deltaTexCoords;
+		currentDepthValue = texture(uDepthMap, currentTexCoords).r;
+		currentLayerDepth += layerDepth;
+	}
+
+	return currentTexCoords;
 }
 
 void main() 
 {
 	vec3 viewDir = normalize(fragPos - viewPos);
 	vec2 parallaxTexCoord = parallaxMapping(fragTexCoord, viewDir);
+	if (parallaxTexCoord.x > 1.0f || parallaxTexCoord.y > 1.0f ||
+		parallaxTexCoord.x < 0.0f || parallaxTexCoord.y < 0.0f)
+	{
+		discard;
+	}
 	vec3 normal = texture(uNormalMap, parallaxTexCoord).rgb;
 	normal = normalize(normal * 2.0f - 1.0f);
 	

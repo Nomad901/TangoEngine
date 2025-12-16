@@ -14,7 +14,7 @@ class Texture2
 public:
 	Texture2() = default;
 	Texture2(const std::filesystem::path& pPath, std::string_view pUniformName, bool pRepeatTexture = false);
-	Texture2(const std::filesystem::path& pPath, bool pRepeatTexture = false);
+	Texture2(const std::filesystem::path& pPath, bool pFlipTexture = true, bool pRepeatTexture = false);
 	Texture2(GLenum pTarget);
 	~Texture2();
 	Texture2(const Texture2&) = delete;
@@ -23,7 +23,7 @@ public:
 	Texture2& operator=(Texture2&& pAnotherTexture) noexcept;
 
 	void init(const std::filesystem::path& pPath, std::string_view pUniformName, bool pRepeatTexture = false);
-	void init(const std::filesystem::path& pPath, bool pRepeatTexture = false);
+	void init(const std::filesystem::path& pPath, bool pFlipTexture = true, bool pRepeatTexture = false);
 	void init(GLenum pTarget);
 	void initWithMSAA(const std::filesystem::path& pPath, std::string_view pUniformName, uint32_t pSamples);
 	void initWithMSAA(const std::filesystem::path& pPath, uint32_t pSamples);
