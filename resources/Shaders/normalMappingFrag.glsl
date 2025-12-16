@@ -18,13 +18,14 @@ uniform float uHeightScale;
 
 vec2 parallaxMapping(vec2 pTexCoords, vec3 pViewDir)
 {
-	const float NUMBER_OF_LAYERS = 10;
-
-	float layerDepth = 1.0f / NUMBER_OF_LAYERS;
+	const float MIN_LAYERS = 8.0f;
+	const float MAX_LAYERS = 32.0f;
+	float numLayers = mix(MAX_LAYERS, MIN_LAYERS, abs(dot(vec3(0.0f, 0.0f, 1.0f), pViewDir)));
+	float layerDepth = 1.0f / numLayers;
 	float currentLayerDepth = 0.0f;
 
 	vec2 p = pViewDir.xy * uHeightScale;
-	vec2 deltaTexCoords = p / NUMBER_OF_LAYERS;
+	vec2 deltaTexCoords = p / numLayers;
 	
 	vec2 currentTexCoords = pTexCoords;
 	float currentDepthValue = texture(uDepthMap, currentTexCoords).r;
