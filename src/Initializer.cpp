@@ -93,6 +93,9 @@ void Initializer::initAll()
 																						   resourcePath + "toy_box_disp.png",
 																						   NormalMapping::TypeOfPrimitive::QUAD,
 																						   0.1f);
+	uint32_t winWidth = mSceneManager->getProgramProperties().mWindowWidth;
+	uint32_t winHeight = mSceneManager->getProgramProperties().mWindowHeight;
+	mSceneManager->getProgramProperties().mFBOstrg.push_back(FBO(winWidth, winHeight, glm::vec2(1.0f), glm::vec2(winWidth, winHeight), true));
 }
 
 void Initializer::initShaders()
@@ -125,6 +128,8 @@ void Initializer::initTextures()
 {
 	//mSceneManager->getModelProperties().mTextureManager.pushTexture("error",
 	//		 std::make_unique<Texture2>(mSceneManager->getProgramProperties().mResourcePath + "error.png", "material.textures"));
+	mSceneManager->getModelProperties().mTextureManager.pushTexture("coridorTexture",
+										std::make_unique<Texture2>(mSceneManager->getProgramProperties().mResourcePath + "wood.png"));
 }
 
 void Initializer::initPrimitives()
@@ -174,6 +179,9 @@ void Initializer::initModels()
 																mSceneManager->getProgramProperties().mResourcePath + "Models/sphere.obj"));
 	mSceneManager->getModelProperties().mModelManager.pushModel("quad", std::make_unique<Model>(glm::vec3(1.0f),
 																mSceneManager->getProgramProperties().mResourcePath + "Models/quad.obj"));
+
+	mSceneManager->getModelProperties().mModelManager.pushModel("Coridor", std::make_unique<Model>(glm::vec3(1.0f),
+																mSceneManager->getProgramProperties().mResourcePath + "Models/coridor.obj"));
 }
 
 void Initializer::initLights()

@@ -42,6 +42,8 @@ void Renderer::drawScene(Controler* pControler)
 																				   mSceneManager->getLightProperties().mSun.getPosLight(), 
 																				   mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
 
+
+
 	showFPS();
 
 	ImGui::Render();
