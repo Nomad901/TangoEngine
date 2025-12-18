@@ -91,7 +91,7 @@ public:
 		std::unique_ptr<Crosshair> mCrosshair;
 
 		std::unique_ptr<FBO> mFBO;
-		std::vector<FBO> mFBOstrg;
+		std::vector<std::unique_ptr<FBO>> mFBOstrg;
 		
 		Timer mTimer;
 		FPSRegulator mFPSRegulator;

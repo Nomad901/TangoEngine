@@ -42,7 +42,21 @@ void Renderer::drawScene(Controler* pControler)
 																				   mSceneManager->getLightProperties().mSun.getPosLight(), 
 																				   mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
 
+	Transform transformForHDRModel;
+	transformForHDRModel.setLocalPosition(glm::vec3(1.0f, 1.0f, 1.0f));
+	transformForHDRModel.setLocalScale(glm::vec3(15.0f, 15.0f, 15.0f));
+	transformForHDRModel.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 
+	auto& shader = mSceneManager->getProgramProperties().mShaders.getShader("hdrLightModel");
+	shader.bind();
+	shader.setMatrixUniform4fv("uModel", transformForHDRModel.getModelMatrix());
+	shader.setMatrixUniform4fv("uProj", mSceneManager->getModelProperties().mProjMatrix);
+	shader.setMatrixUniform4fv("uViewMat", mSceneManager->getProgramProperties().mViewMatrix);
+	shader.setUniform1i("uInverseNormals", 0);
+
+	mSceneManager->getModelProperties().mTextureManager.getTexture("coridorTexture").bind(0);
+	shader.setUniform1i("uDiffuseTexture", 0);
+	mSceneManager->getModelProperties().mModelManager.getModel("Coridor").render();
 
 	showFPS();
 

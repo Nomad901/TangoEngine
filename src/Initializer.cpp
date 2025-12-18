@@ -95,7 +95,7 @@ void Initializer::initAll()
 																						   0.1f);
 	uint32_t winWidth = mSceneManager->getProgramProperties().mWindowWidth;
 	uint32_t winHeight = mSceneManager->getProgramProperties().mWindowHeight;
-	mSceneManager->getProgramProperties().mFBOstrg.push_back(FBO(winWidth, winHeight, glm::vec2(1.0f), glm::vec2(winWidth, winHeight), true));
+	mSceneManager->getProgramProperties().mFBOstrg.push_back(std::make_unique<FBO>(winWidth, winHeight, glm::vec2(1.0f), glm::vec2(winWidth, winHeight), true));
 }
 
 void Initializer::initShaders()
@@ -122,6 +122,12 @@ void Initializer::initShaders()
 	// debug shader
 	mSceneManager->getProgramProperties().mShaders.pushShader("debugShader", resourcePath + "Shaders/debugVert.glsl", 
 																			 resourcePath + "Shaders/debugFrag.glsl");
+
+	// hdr shaders
+	mSceneManager->getProgramProperties().mShaders.pushShader("hdrLight", resourcePath + "Shaders/hdrVert.glsl",
+																		  resourcePath + "Shaders/hdrFrag.glsl");
+	mSceneManager->getProgramProperties().mShaders.pushShader("hdrLightModel", resourcePath + "Shaders/hdrVertCoridor.glsl",
+																			   resourcePath + "Shaders/hdrFragCoridor.glsl");
 }
 
 void Initializer::initTextures()
@@ -130,6 +136,7 @@ void Initializer::initTextures()
 	//		 std::make_unique<Texture2>(mSceneManager->getProgramProperties().mResourcePath + "error.png", "material.textures"));
 	mSceneManager->getModelProperties().mTextureManager.pushTexture("coridorTexture",
 										std::make_unique<Texture2>(mSceneManager->getProgramProperties().mResourcePath + "wood.png"));
+	mSceneManager->getModelProperties().mTextureManager.getTexture("coridorTexture").setTarget(GL_TEXTURE_2D);
 }
 
 void Initializer::initPrimitives()
