@@ -132,6 +132,9 @@ public:
 		LightManager mLightManager;
 
 		DirectionalLight mSun;
+
+		float mExposure{ 1.0f };
+		bool mHDR{ true };
 	};
 
 	struct modelProperties

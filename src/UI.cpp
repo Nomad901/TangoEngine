@@ -328,6 +328,8 @@ void UI::manageLight(SceneManager& pSceneManager)
 	//setSlidersVec3(pSceneManager.getLightProperties().lightPositions[3], { { "Position light 4", std::make_pair(0.0f, 200.0f) } });
 
 	// ----------------------------
+	setSliderFloat("Exposure", pSceneManager.getLightProperties().mExposure, -5.0f, 5.0f);
+	ImGui::Checkbox("HDR", &pSceneManager.getLightProperties().mHDR);
 
 	endFrame();
 }

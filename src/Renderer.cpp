@@ -24,13 +24,24 @@ void Renderer::drawScene(Controler* pControler)
 	//mSceneManager->getProgramProperties().mWaterTiles[0].setTileSize(mSceneManager->getProgramProperties().mWaterScale);
 	//
 	//mSceneManager->getProgramProperties().mWaterSSR.startFrame();
-	drawSceneTMP();
+	//drawSceneTMP();
 	//mSceneManager->getProgramProperties().mWaterSSR.endFrame();
 	//mSceneManager->getProgramProperties().mWaterSSR.renderWaterSSR(mSceneManager->getProgramProperties().mWaterTiles,
 	//															   mSceneManager->getProgramProperties().mCamera.getViewMatrix(),
 	//															   mSceneManager->getModelProperties().mProjMatrix,
 	//															   mSceneManager->getProgramProperties().mWindowWidth, 
 	//															   mSceneManager->getProgramProperties().mWindowHeight);
+
+	Transform transformForQuad;
+	transformForQuad.setLocalPosition(glm::vec3(1.0f, 1.0f, 1.0f));
+	transformForQuad.setLocalScale(glm::vec3(30.0f, 30.0f, 30.0f));
+	transformForQuad.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+
+	mSceneManager->getProgramProperties().mNormalMapping->render(transformForQuad, mSceneManager->getProgramProperties().mThirdPersonCam.getViewMatrix(),
+		mSceneManager->getModelProperties().mProjMatrix,
+		mSceneManager->getLightProperties().mSun.getPosLight(),
+		mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
+	drawSceneTMP();
 
 	static uint32_t hdrFBO = 0;
 	static uint32_t colorBuffer = 0;
@@ -91,15 +102,6 @@ void Renderer::drawScene(Controler* pControler)
 		firstTime = false;
 	}
 
-	Transform transformForQuad;
-	transformForQuad.setLocalPosition(glm::vec3(1.0f, 1.0f, 1.0f));
-	transformForQuad.setLocalScale(glm::vec3(30.0f, 30.0f, 30.0f));
-	transformForQuad.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-	
-	mSceneManager->getProgramProperties().mNormalMapping->render(transformForQuad, mSceneManager->getProgramProperties().mThirdPersonCam.getViewMatrix(),
-																				   mSceneManager->getModelProperties().mProjMatrix, 
-																				   mSceneManager->getLightProperties().mSun.getPosLight(), 
-																				   mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -118,18 +120,18 @@ void Renderer::drawScene(Controler* pControler)
 	static std::vector<glm::vec3> lightPositions =
 	{
 		glm::vec3(1.0f, 45.0f, -145.0f),
-		glm::vec3(1.0f, 46.0f, -147.0f),
-		glm::vec3(1.0f, 47.0f, -148.0f),
-		glm::vec3(1.0f, 48.0f, -150.0f),
-		glm::vec3(1.0f, 49.0f, -143.0f),
+		glm::vec3(1.0f, 45.0f, -100.0f),
+		glm::vec3(1.0f, 45.0f, -90.0f),
+		glm::vec3(1.0f, 45.0f, -80.0f),
+		glm::vec3(1.0f, 45.0f, -50.0f),
 	};
 	static std::vector<glm::vec3> lightColors =
 	{
 		glm::vec3(200.0f, 200.0f, 200.0f),
-		glm::vec3(0.1f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 0.2f),
-		glm::vec3(0.0f, 0.1f, 0.0f),
-		glm::vec3(0.2f, 0.0f, 0.0f),
+		glm::vec3(100.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 200.f),
+		glm::vec3(0.0f, 100.0f, 0.0f),
+		glm::vec3(200.0f, 0.0f, 0.0f),
 	};
 
 	for (size_t i = 0; i < lightPositions.size(); ++i)
@@ -151,8 +153,11 @@ void Renderer::drawScene(Controler* pControler)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
 	hdrShader.setUniform1i("uHDRBuffer", 0);
-	hdrShader.setUniform1i("uHDR", 1);
-	hdrShader.setUniform1f("uExposure", 1.0f);
+	if(mSceneManager->getLightProperties().mHDR)
+		hdrShader.setUniform1i("uHDR", 1);
+	else 
+		hdrShader.setUniform1i("uHDR", 0);
+	hdrShader.setUniform1f("uExposure", mSceneManager->getLightProperties().mExposure);
 	glBindVertexArray(quadVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
