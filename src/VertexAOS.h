@@ -28,11 +28,15 @@ public:
 	glm::vec2 getTexCoord() const noexcept;
 	const glm::vec4& getColor() const noexcept;
 
+
+
 private:
 	glm::vec3 mPos;
 	glm::vec3 mNormal;
 	glm::vec2 mTexCoord;
 	glm::vec4 mColor;
+	glm::vec3 mTangent; 
+	glm::vec3 mBitangent;
 
 	static inline size_t mNumberOfVertices = 0;
 };

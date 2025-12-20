@@ -43,67 +43,12 @@ void Renderer::drawScene(Controler* pControler)
 		mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
 	drawSceneTMP();
 
-	static uint32_t hdrFBO = 0;
-	static uint32_t colorBuffer = 0;
-	static uint32_t quadVAO = 0;
-	static bool firstTime = true;
-	if (firstTime)
-	{
-		uint32_t rboDepth = 0;
-		uint32_t quadVBO = 0;
+	HDRManager hdrManager(mSceneManager->getProgramProperties().mWindowWidth,
+						  mSceneManager->getProgramProperties().mWindowHeight);
+	hdrManager.initShaders(mSceneManager->getProgramProperties().mResourcePath + "Shaders/hdrVert.glsl",
+						   mSceneManager->getProgramProperties().mResourcePath + "Shaders/hdrFrag.glsl");
 
-		uint32_t screenWidth  = mSceneManager->getProgramProperties().mWindowWidth;
-		uint32_t screenHeight = mSceneManager->getProgramProperties().mWindowHeight;
-
-		glGenFramebuffers(1, &hdrFBO);
-
-		glGenTextures(1, &colorBuffer);
-		glBindTexture(GL_TEXTURE_2D, colorBuffer);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		glGenRenderbuffers(1, &rboDepth);
-		glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screenWidth, screenHeight);
-		
-		glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
-		
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "Framebuffer isnt completed!\n";
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		if (quadVAO == 0)
-		{
-			float quadVertices[] = {
-				// positions          // texture Coords
-				-1.0f,  1.0f, 0.0f,   0.0f, 1.0f,
-				-1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
-				 1.0f,  1.0f, 0.0f,   1.0f, 1.0f,
-				 1.0f, -1.0f, 0.0f,   1.0f, 0.0f,
-			};
-			glGenVertexArrays(1, &quadVAO);
-			glGenBuffers(1, &quadVBO);
-			glBindVertexArray(quadVAO);
-			glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-		}
-		glBindVertexArray(quadVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
-
-		firstTime = false;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	hdrManager.startHDRPass();
 
 	Transform transformForHDRModel;
 	transformForHDRModel.setLocalPosition(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -145,22 +90,9 @@ void Renderer::drawScene(Controler* pControler)
 	shader.setUniform1i("uDiffuseTexture", 0);
 	mSceneManager->getModelProperties().mModelManager.getModel("Coridor").render();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	auto& hdrShader = mSceneManager->getProgramProperties().mShaders.getShader("hdrLight");
-	hdrShader.bind();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, colorBuffer);
-	hdrShader.setUniform1i("uHDRBuffer", 0);
-	if(mSceneManager->getLightProperties().mHDR)
-		hdrShader.setUniform1i("uHDR", 1);
-	else 
-		hdrShader.setUniform1i("uHDR", 0);
-	hdrShader.setUniform1f("uExposure", mSceneManager->getLightProperties().mExposure);
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
+	hdrManager.stopHDRPass();
+	hdrManager.renderHDR(mSceneManager->getLightProperties().mHDR,
+						 mSceneManager->getLightProperties().mExposure);
 
 	showFPS();
 

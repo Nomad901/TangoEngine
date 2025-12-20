@@ -1,39 +1,55 @@
 #include "HDRManager.h"
 
-HDRManager::HDRManager(uint32_t pScreenWidth, uint32_t pScreenHeight,
-					   const std::vector<glm::vec3>& pLightPos,
-					   const std::vector<glm::vec3>& pLightColors)
+HDRManager::HDRManager(uint32_t pScreenWidth, uint32_t pScreenHeight)
 {
-	init(pScreenWidth, pScreenHeight, pLightPos, pLightColors);
+	init(pScreenWidth, pScreenHeight);
 }
 
-void HDRManager::init(uint32_t pScreenWidth, uint32_t pScreenHeight,
-					  const std::vector<glm::vec3>& pLightPos,
-					  const std::vector<glm::vec3>& pLightColors)
+void HDRManager::init(uint32_t pScreenWidth, uint32_t pScreenHeight)
 {
 	mScreenWidth  = pScreenWidth;
 	mScreenHeight = pScreenHeight;
-	mLightPositions = pLightPos;
-	mLightColors = pLightColors;
-	
+
 	initFBO();
 	createQuad();
 }
 
-void HDRManager::initShaders(const std::filesystem::path& pModelVertPath,
-							 const std::filesystem::path& pModelFragPath,
-							 const std::filesystem::path& pHDRVertPath, 
+void HDRManager::initShaders(const std::filesystem::path& pHDRVertPath, 
 							 const std::filesystem::path& pHDRFragPath)
 {
-	mModelShader.init(pModelVertPath, pModelFragPath);
 	mHDRShader.init(pHDRVertPath, pHDRFragPath);
 
-	mShadersAreInitialized = true;
+	mCurrentState = States::INITIALIZED;
 }
 
-Shader& HDRManager::getModelShader() noexcept
+void HDRManager::startHDRPass()
 {
-	return mModelShader;
+	glBindFramebuffer(GL_FRAMEBUFFER, mFBOid);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	mCurrentState = States::STARTED;
+}
+
+void HDRManager::stopHDRPass()
+{
+	if (mCurrentState == States::STARTED)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		mCurrentState = States::STOPED;
+	}
+}
+
+void HDRManager::renderHDR(bool pTurnOnHDR, float pExposure)
+{
+	if (mCurrentState == States::STOPED)
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		bindAll(pTurnOnHDR, pExposure);
+	
+		renderQuad();
+	}
 }
 
 Shader& HDRManager::getHDRShader() noexcept
@@ -41,9 +57,22 @@ Shader& HDRManager::getHDRShader() noexcept
 	return mHDRShader;
 }
 
-bool HDRManager::shadersAreInitialized() const noexcept
+HDRManager::States HDRManager::getCurrentState() const noexcept
 {
-	return mShadersAreInitialized;
+	return mCurrentState;
+}
+
+void HDRManager::bindAll(bool pTurnOnHDR, float pExposure)
+{
+	mHDRShader.bind();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mColorBuffer);
+	mHDRShader.setUniform1i("uHDRBuffer", 0);
+	if (pTurnOnHDR)
+		mHDRShader.setUniform1i("uHDR", 1);
+	else
+		mHDRShader.setUniform1i("uHDR", 0);
+	mHDRShader.setUniform1f("uExposure", pExposure);
 }
 
 void HDRManager::initFBO()

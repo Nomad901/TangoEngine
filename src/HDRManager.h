@@ -11,35 +11,31 @@
 class HDRManager
 {
 public:
+	enum class States : uint32_t
+	{
+		UNINITIALIZED = 0,
+		INITIALIZED = 1,
+		STARTED = 2,
+		STOPED = 3
+	};
+public:
 	HDRManager() = default;
-	HDRManager(uint32_t pScreenWidth, uint32_t pScreenHeight,
-			   const std::vector<glm::vec3>& pLightPos,
-			   const std::vector<glm::vec3>& pLightColors);
+	HDRManager(uint32_t pScreenWidth, uint32_t pScreenHeight);
 
-	void init(uint32_t pScreenWidth, uint32_t pScreenHeight,
-			  const std::vector<glm::vec3>& pLightPos,
-			  const std::vector<glm::vec3>& pLightColors);
-	void initShaders(const std::filesystem::path& pModelVertPath,
-					 const std::filesystem::path& pModelFragPath,
-					 const std::filesystem::path& pHDRVertPath,
-					 const std::filesystem::path& pHDRFragPath);
+	void init(uint32_t pScreenWidth, uint32_t pScreenHeight);
+	void initShaders(const std::filesystem::path& pHDRVertPath,
+		const std::filesystem::path& pHDRFragPath);
 
 	void startHDRPass();
 	void stopHDRPass();
 	void renderHDR(bool pTurnOnHDR = true, float pExposure = 1.0f);
 
-	void setLightPositions(const std::vector<glm::vec3>& pLightPositions);
-	void setLightColors(const std::vector<glm::vec3>& pLightColors);
-	auto getLightPositions() const noexcept -> const std::vector<glm::vec3>&;
-	auto getLightColors() const noexcept -> const std::vector<glm::vec3>&;
-
-	Shader& getModelShader() noexcept;
 	Shader& getHDRShader() noexcept;
 
-	bool shadersAreInitialized() const noexcept;
+	States getCurrentState() const noexcept;
 
 private:
-	void bindAll();
+	void bindAll(bool pTurnOnHDR, float pExposure);
 
 	void initFBO();
 	void createQuad();
@@ -52,11 +48,8 @@ private:
 
 	uint32_t mScreenWidth{}, mScreenHeight{};
 
-	Shader mModelShader, mHDRShader;
-	
-	std::vector<glm::vec3> mLightPositions;
-	std::vector<glm::vec3> mLightColors;
+	Shader mHDRShader;
 
-	bool mShadersAreInitialized{ false };
+	States mCurrentState{ States::UNINITIALIZED };
 };
 
