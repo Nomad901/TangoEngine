@@ -17,6 +17,20 @@ void VertexAOS::init(const glm::vec3& pPos, const glm::vec3& pNormal,
 	mNumberOfVertices++;
 }
 
+void VertexAOS::init(const glm::vec3& pPos, const glm::vec3& pNormal,
+					 glm::vec2 pTexCoord, const glm::vec3& pTangent, 
+					 const glm::vec3& pBitangent)
+{
+	mPos = pPos;
+	mNormal = pNormal;
+	mTexCoord = pTexCoord;
+	mColor = glm::vec4(0.0f);
+	mTangent = pTangent;
+	mBitangent = pBitangent;
+
+	mNumberOfVertices++;
+}
+
 void VertexAOS::addVertex(glm::vec3&& pPos, glm::vec3&& pNormal,
 						  glm::vec2&& pTexCoords, glm::vec4&& pColor)
 {
@@ -37,6 +51,8 @@ void VertexAOS::clearAllData()
 	mNormal = glm::vec3(0.0f);
 	mTexCoord = glm::vec2(0.0f);
 	mColor = glm::vec4(0.0f);
+	mTangent = glm::vec3(0.0f);
+	mBitangent = glm::vec3(0.0f);
 }
 
 void VertexAOS::setPos(const glm::vec3& pPos)
@@ -59,6 +75,16 @@ void VertexAOS::setColor(const glm::vec4& pColor)
 	mColor = pColor;
 }
 
+void VertexAOS::setTangent(const glm::vec3& pTangent)
+{
+	mTangent = pTangent;
+}
+
+void VertexAOS::setBitangent(const glm::vec3& pBitangent)
+{
+	mBitangent = pBitangent;
+}
+
 const glm::vec3& VertexAOS::getPos() const noexcept
 {
 	return mPos;
@@ -77,4 +103,14 @@ glm::vec2 VertexAOS::getTexCoord() const noexcept
 const glm::vec4& VertexAOS::getColor() const noexcept
 {
 	return mColor;
+}
+
+const glm::vec3& VertexAOS::getTangent() const noexcept
+{
+	return mTangent;
+}
+
+const glm::vec3& VertexAOS::getBitangent() const noexcept
+{
+	return mBitangent;
 }

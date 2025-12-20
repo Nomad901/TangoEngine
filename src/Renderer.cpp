@@ -43,57 +43,6 @@ void Renderer::drawScene(Controler* pControler)
 		mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
 	drawSceneTMP();
 
-	HDRManager hdrManager(mSceneManager->getProgramProperties().mWindowWidth,
-						  mSceneManager->getProgramProperties().mWindowHeight);
-	hdrManager.initShaders(mSceneManager->getProgramProperties().mResourcePath + "Shaders/hdrVert.glsl",
-						   mSceneManager->getProgramProperties().mResourcePath + "Shaders/hdrFrag.glsl");
-
-	hdrManager.startHDRPass();
-
-	Transform transformForHDRModel;
-	transformForHDRModel.setLocalPosition(glm::vec3(1.0f, 1.0f, 1.0f));
-	transformForHDRModel.setLocalScale(glm::vec3(15.0f, 15.0f, 15.0f));
-	transformForHDRModel.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-
-	auto& shader = mSceneManager->getProgramProperties().mShaders.getShader("hdrLightModel");
-	shader.bind();
-	shader.setMatrixUniform4fv("uModel", transformForHDRModel.getModelMatrix());
-	shader.setMatrixUniform4fv("uProj", mSceneManager->getModelProperties().mProjMatrix);
-	shader.setMatrixUniform4fv("uViewMat", mSceneManager->getProgramProperties().mViewMatrix);
-	shader.setUniform1i("uInverseNormals", 0);
-
-	static std::vector<glm::vec3> lightPositions =
-	{
-		glm::vec3(1.0f, 45.0f, -145.0f),
-		glm::vec3(1.0f, 45.0f, -100.0f),
-		glm::vec3(1.0f, 45.0f, -90.0f),
-		glm::vec3(1.0f, 45.0f, -80.0f),
-		glm::vec3(1.0f, 45.0f, -50.0f),
-	};
-	static std::vector<glm::vec3> lightColors =
-	{
-		glm::vec3(200.0f, 200.0f, 200.0f),
-		glm::vec3(100.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 200.f),
-		glm::vec3(0.0f, 100.0f, 0.0f),
-		glm::vec3(200.0f, 0.0f, 0.0f),
-	};
-
-	for (size_t i = 0; i < lightPositions.size(); ++i)
-	{
-		shader.setUniform3fv("lightStructures[" + std::to_string(i) + "].mPos", lightPositions[i]);
-		shader.setUniform3fv("lightStructures[" + std::to_string(i) + "].mColor", lightColors[i]);
-	}
-	shader.setUniform1i("uNumberLightsToProcces", lightPositions.size());
-	
-	mSceneManager->getModelProperties().mTextureManager.getTexture("coridorTexture").bind(0);
-	shader.setUniform1i("uDiffuseTexture", 0);
-	mSceneManager->getModelProperties().mModelManager.getModel("Coridor").render();
-
-	hdrManager.stopHDRPass();
-	hdrManager.renderHDR(mSceneManager->getLightProperties().mHDR,
-						 mSceneManager->getLightProperties().mExposure);
-
 	showFPS();
 
 	ImGui::Render();
