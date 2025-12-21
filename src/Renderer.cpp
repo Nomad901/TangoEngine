@@ -31,8 +31,7 @@ void Renderer::drawScene(Controler* pControler)
 	//															   mSceneManager->getModelProperties().mProjMatrix,
 	//															   mSceneManager->getProgramProperties().mWindowWidth, 
 	//															   mSceneManager->getProgramProperties().mWindowHeight);
-
-	Transform transformForQuad;
+	/*Transform transformForQuad;
 	transformForQuad.setLocalPosition(glm::vec3(1.0f, 1.0f, 1.0f));
 	transformForQuad.setLocalScale(glm::vec3(30.0f, 30.0f, 30.0f));
 	transformForQuad.setLocalRotation(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -41,7 +40,29 @@ void Renderer::drawScene(Controler* pControler)
 		mSceneManager->getModelProperties().mProjMatrix,
 		mSceneManager->getLightProperties().mSun.getPosLight(),
 		mSceneManager->getProgramProperties().mThirdPersonCam.getPos());
-	drawSceneTMP();
+	drawSceneTMP();*/
+
+	static uint32_t gBuffer{}, gPos{}, gNormal{}, gAlbedo{};
+	static uint32_t rboDepth{};
+	static uint32_t ssaoFBO{}, ssaoBlurFBO{};
+
+	static bool firstTime = true;
+	if (firstTime)
+	{
+		uint32_t screenWidth = mSceneManager->getProgramProperties().mWindowWidth;
+		uint32_t screenHeight = mSceneManager->getProgramProperties().mWindowHeight;
+
+		glGenFramebuffers(1, &gBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+
+		glGenTextures(1, &gPos);
+		glBindTexture(GL_TEXTURE_2D, gPos);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
+	}
+
+
+
+	mSceneManager->getModelProperties().mModelManager.getModel("forSSAOModel").render();
 
 	showFPS();
 

@@ -128,6 +128,15 @@ void Initializer::initShaders()
 																		  resourcePath + "Shaders/hdrFrag.glsl");
 	mSceneManager->getProgramProperties().mShaders.pushShader("hdrLightModel", resourcePath + "Shaders/hdrVertCoridor.glsl",
 																			   resourcePath + "Shaders/hdrFragCoridor.glsl");
+
+	mSceneManager->getProgramProperties().mShaders.pushShader("ssaoShader", resourcePath + "Shaders/ssao.glsl",
+																		    resourcePath + "Shaders/ssaoFrag.glsl");
+	mSceneManager->getProgramProperties().mShaders.pushShader("ssaoGeometryPass", resourcePath + "Shaders/ssao_geometryVert.glsl",
+																				  resourcePath + "Shaders/ssao_geometryFrag.glsl");
+	mSceneManager->getProgramProperties().mShaders.pushShader("ssaoLighting", resourcePath + "Shaders/ssao.glsl",
+																			resourcePath + "Shaders/ssao_lighting.glsl");
+	mSceneManager->getProgramProperties().mShaders.pushShader("ssaoBlur", resourcePath + "Shaders/ssao.glsl",
+																		  resourcePath + "Shaders/ssao_blur.glsl");
 }
 
 void Initializer::initTextures()
@@ -189,6 +198,9 @@ void Initializer::initModels()
 
 	mSceneManager->getModelProperties().mModelManager.pushModel("Coridor", std::make_unique<Model>(glm::vec3(1.0f),
 																mSceneManager->getProgramProperties().mResourcePath + "Models/coridor.obj"));
+
+	mSceneManager->getModelProperties().mModelManager.pushModel("forSSAOModel", std::make_unique<Model>(glm::vec3(1.0f),
+																mSceneManager->getProgramProperties().mResourcePath + "Models/forSSAO.obj"));
 }
 
 void Initializer::initLights()
