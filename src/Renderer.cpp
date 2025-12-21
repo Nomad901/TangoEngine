@@ -45,6 +45,7 @@ void Renderer::drawScene(Controler* pControler)
 	static uint32_t gBuffer{}, gPos{}, gNormal{}, gAlbedo{};
 	static uint32_t rboDepth{};
 	static uint32_t ssaoFBO{}, ssaoBlurFBO{};
+	static uint32_t ssaoColorBuffer{}, ssaoColorBufferBlur{};
 
 	static bool firstTime = true;
 	if (firstTime)
@@ -87,6 +88,35 @@ void Renderer::drawScene(Controler* pControler)
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screenWidth, screenHeight);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "Frame buffer is not completed!\n";
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glGenFramebuffers(1, &ssaoFBO);
+		glGenFramebuffers(1, &ssaoBlurFBO);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+		glGenTextures(GL_TEXTURE_2D, &ssaoColorBuffer);
+		glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, screenWidth, screenHeight, 0, GL_RED, GL_FLOAT, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBuffer, 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "Ssao frame buffer is not completed!\n";
+
+		glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+		glGenTextures(GL_TEXTURE_2D, &ssaoColorBufferBlur);
+		glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, screenWidth, screenHeight, 0, GL_RED, GL_FLOAT, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "Ssao frame buffer is not completed!\n";
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 
