@@ -46,6 +46,7 @@ void Renderer::drawScene(Controler* pControler)
 	static uint32_t rboDepth{};
 	static uint32_t ssaoFBO{}, ssaoBlurFBO{};
 	static uint32_t ssaoColorBuffer{}, ssaoColorBufferBlur{};
+	static std::vector<glm::vec3> ssaoKernel;
 
 	static bool firstTime = true;
 	if (firstTime)
@@ -117,6 +118,29 @@ void Renderer::drawScene(Controler* pControler)
 			std::cout << "Ssao frame buffer is not completed!\n";
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		std::uniform_real_distribution<float> randomFloats(0.0f, 1.0f);
+		std::default_random_engine generator;
+		const uint32_t NUMBER_OF_KERNELS = 64;
+		for (uint32_t i = 0; i < NUMBER_OF_KERNELS; ++i)
+		{
+			glm::vec3 sample(randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator));
+			sample = glm::normalize(sample);
+			sample *= randomFloats(generator);
+			float scale = float(i) / float(NUMBER_OF_KERNELS);
+		
+			auto lerp_ = [](float a, float b, float c) -> float
+				{
+					return a + c * (b - a);
+				};
+
+			scale = lerp_(0.1f, 1.0f, scale * scale);
+			sample *= scale;	
+			ssaoKernel.push_back(sample);
+		}
+
+
+		firstTime = false;	
 	}
 
 
