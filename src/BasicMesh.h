@@ -10,6 +10,8 @@
 #include "Transform.h"
 
 #include "assimp/Importer.hpp"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
 
 // The difference between Mesh.h and BasicMesh.h:
 // If u wanna load a model, you need to use Model class, which 

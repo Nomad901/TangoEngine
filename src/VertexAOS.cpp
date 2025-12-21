@@ -38,6 +38,8 @@ void VertexAOS::addVertex(glm::vec3&& pPos, glm::vec3&& pNormal,
 	mNormal = std::move(pNormal);
 	mTexCoord = std::move(pTexCoords);
 	mColor = std::move(pColor);
+	mTangent = glm::vec3(0.0f);
+	mBitangent = glm::vec3(0.0f);
 }
 
 size_t VertexAOS::getNumberOfVertices() const noexcept
