@@ -46,8 +46,11 @@ void Renderer::drawScene(Controler* pControler)
 	static uint32_t rboDepth{};
 	static uint32_t ssaoFBO{}, ssaoBlurFBO{};
 	static uint32_t ssaoColorBuffer{}, ssaoColorBufferBlur{};
-	static std::vector<glm::vec3> ssaoKernel;
+	static uint32_t ssaoNoiseTexture;
 
+	static std::vector<glm::vec3> ssaoKernel;
+	static std::vector<glm::vec3> ssaoNoise;
+	
 	static bool firstTime = true;
 	if (firstTime)
 	{
@@ -115,16 +118,19 @@ void Renderer::drawScene(Controler* pControler)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "Ssao frame buffer is not completed!\n";
+			std::cout << "Ssao blur frame buffer is not completed!\n";
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		std::uniform_real_distribution<float> randomFloats(0.0f, 1.0f);
 		std::default_random_engine generator;
-		const uint32_t NUMBER_OF_KERNELS = 64;
-		for (uint32_t i = 0; i < NUMBER_OF_KERNELS; ++i)
+		const uint16_t NUMBER_OF_KERNELS = 64;
+		ssaoKernel.reserve(NUMBER_OF_KERNELS);
+		for (uint16_t i = 0; i < NUMBER_OF_KERNELS; ++i)
 		{
-			glm::vec3 sample(randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator) * 2.0f - 1.0f, randomFloats(generator));
+			glm::vec3 sample = glm::vec3(randomFloats(generator) * 2.0f - 1.0f, 
+										 randomFloats(generator) * 2.0f - 1.0f,
+										 randomFloats(generator));
 			sample = glm::normalize(sample);
 			sample *= randomFloats(generator);
 			float scale = float(i) / float(NUMBER_OF_KERNELS);
@@ -139,6 +145,37 @@ void Renderer::drawScene(Controler* pControler)
 			ssaoKernel.push_back(sample);
 		}
 
+		const uint16_t NUMBER_OF_SSAO_NOISES = 16;
+		ssaoNoise.reserve(NUMBER_OF_SSAO_NOISES);
+		for (uint16_t i = 0; i < NUMBER_OF_SSAO_NOISES; ++i)
+		{
+			glm::vec3 noise = glm::vec3(randomFloats(generator) * 2.0f - 1.0f,
+										randomFloats(generator) * 2.0f - 1.0f, 
+										0.0f);
+			ssaoNoise.push_back(noise);
+		}
+
+		glGenTextures(1, &ssaoNoiseTexture);
+		glBindTexture(GL_TEXTURE_2D, ssaoNoiseTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, screenWidth, screenHeight, 0, GL_RGBA, GL_FLOAT, ssaoNoise.data());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		
+		auto& shaderSSAOLightingPass = mSceneManager->getProgramProperties().mShaders.getShader("ssaoLighting");
+		shaderSSAOLightingPass.bind();
+		shaderSSAOLightingPass.setUniform1i("uPosition", 0);
+		shaderSSAOLightingPass.setUniform1i("uNormal", 1);
+		shaderSSAOLightingPass.setUniform1i("uAlbedo", 2);
+		shaderSSAOLightingPass.setUniform1i("uSSAO", 3);
+		auto& shaderSSAO = mSceneManager->getProgramProperties().mShaders.getShader("ssaoShader");
+		shaderSSAO.bind();
+		shaderSSAO.setUniform1i("uPosition", 0);
+		shaderSSAO.setUniform1i("uNormal", 1);
+		shaderSSAO.setUniform1i("uTexNoise", 2);
+		auto& shaderSSAOBlur = mSceneManager->getProgramProperties().mShaders.getShader("ssaoBlur");
+		shaderSSAOBlur.setUniform1i("uSSAOInput", 0);
 
 		firstTime = false;	
 	}
